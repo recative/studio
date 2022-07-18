@@ -1,0 +1,382 @@
+{
+  "name": "@recative/studio",
+  "scripts": {
+    "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
+    "build:main": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.config.main.prod.babel.js",
+    "build:renderer": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.config.renderer.prod.babel.js",
+    "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
+    "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
+    "package": "yarn run del-cli src/dist/**/* && yarn build && electron-builder build --publish never",
+    "_postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps",
+    "start": "dotenv -e .env -- cross-env DEBUG=\"studio:*\" node -r @babel/register ./.erb/scripts/CheckPortInUse.js && yarn start:renderer",
+    "start:main": "cross-env NODE_ENV=development DEBUG=\"studio:*\" electron -r ./.erb/scripts/BabelRegister ./src/main.dev.ts",
+    "start:renderer": "cross-env NODE_ENV=development webpack serve --config ./.erb/configs/webpack.config.renderer.dev.babel.js",
+    "test": "jest",
+    "test:type": "tsc --project tsconfig.json",
+    "parse:manifest": "ts-node --project ./tsconfig.scripts.json ./bin/parseManifest.ts"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "cross-env NODE_ENV=development eslint --cache --fix"
+    ],
+    "{*.json,.{babelrc,eslintrc,prettierrc}}": [
+      "prettier --ignore-path .eslintignore --parser json --write"
+    ],
+    "*.{css}": [
+      "prettier --ignore-path .eslintignore --single-quote --write"
+    ],
+    "*.{html,md,yml}": [
+      "prettier --ignore-path .eslintignore --single-quote --write"
+    ]
+  },
+  "build": {
+    "productName": "RecativeStudio",
+    "appId": "recative.studio",
+    "files": [
+      "dist/",
+      "node_modules/",
+      "index.html",
+      "main.prod.js",
+      "main.prod.js.map",
+      "package.json"
+    ],
+    "afterSign": ".erb/scripts/Notarize.js",
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "type": "distribution",
+      "hardenedRuntime": true,
+      "entitlements": "assets/entitlements.mac.plist",
+      "entitlementsInherit": "assets/entitlements.mac.plist",
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Development"
+    },
+    "directories": {
+      "app": "src",
+      "buildResources": "assets",
+      "output": "release"
+    },
+    "extraResources": [
+      "./assets/**"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "electron-react-boilerplate",
+      "repo": "electron-react-boilerplate"
+    }
+  },
+  "license": "GPL-3.0-or-later",
+  "jest": {
+    "testURL": "http://localhost/",
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
+      "\\.(css|less|sass|scss)$": "identity-obj-proxy"
+    },
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "ts",
+      "tsx",
+      "json"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "src/node_modules"
+    ],
+    "setupFiles": [
+      "./.erb/scripts/CheckBuildsExist.js"
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.9",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/plugin-proposal-decorators": "^7.12.1",
+    "@babel/plugin-proposal-do-expressions": "^7.12.1",
+    "@babel/plugin-proposal-export-default-from": "^7.12.1",
+    "@babel/plugin-proposal-export-namespace-from": "^7.12.1",
+    "@babel/plugin-proposal-function-bind": "^7.12.1",
+    "@babel/plugin-proposal-function-sent": "^7.12.1",
+    "@babel/plugin-proposal-json-strings": "^7.12.1",
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.12.1",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.12.1",
+    "@babel/plugin-proposal-optional-chaining": "^7.12.7",
+    "@babel/plugin-proposal-pipeline-operator": "^7.12.1",
+    "@babel/plugin-proposal-throw-expressions": "^7.12.1",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/plugin-syntax-import-meta": "^7.10.4",
+    "@babel/plugin-transform-react-constant-elements": "^7.12.1",
+    "@babel/plugin-transform-react-inline-elements": "^7.12.1",
+    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/preset-env": "^7.12.7",
+    "@babel/preset-react": "^7.12.7",
+    "@babel/preset-typescript": "7.16.7",
+    "@babel/register": "^7.12.1",
+    "@pmmmwh/react-refresh-webpack-plugin": "0.5.6",
+    "@teamsupercell/typings-for-css-modules-loader": "^2.4.0",
+    "@testing-library/jest-dom": "^5.11.6",
+    "@testing-library/react": "^11.2.2",
+    "@types/archiver": "^5.1.1",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/cross-spawn": "^6.0.2",
+    "@types/downloadjs": "^1.4.3",
+    "@types/enzyme": "^3.10.5",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/faker": "^5.5.7",
+    "@types/fluent-ffmpeg": "^2.1.18",
+    "@types/glob": "^7.1.4",
+    "@types/history": "4.7.6",
+    "@types/jest": "^26.0.15",
+    "@types/lodash": "^4.14.172",
+    "@types/mime-types": "^2.1.1",
+    "@types/node": "14.14.10",
+    "@types/node-localstorage": "^1.3.0",
+    "@types/proper-lockfile": "^4.1.2",
+    "@types/react": "^18.0.9",
+    "@types/react-dom": "^18.0.4",
+    "@types/react-helmet": "6.1.5",
+    "@types/react-router": "^5.1.18",
+    "@types/react-router-dom": "5.3.3",
+    "@types/react-table": "^7.7.2",
+    "@types/react-test-renderer": "^16.9.3",
+    "@types/styletron-engine-atomic": "^1.1.1",
+    "@types/styletron-react": "^5.0.3",
+    "@types/styletron-standard": "^2.0.2",
+    "@types/tmp": "^0.2.3",
+    "@types/uuid": "^8.3.1",
+    "@types/webpack-env": "^1.15.2",
+    "@types/xxhashjs": "^0.2.2",
+    "@typescript-eslint/eslint-plugin": "5.23.0",
+    "@typescript-eslint/parser": "5.23.0",
+    "@welldone-software/why-did-you-render": "^6.2.3",
+    "babel-eslint": "^10.1.0",
+    "babel-jest": "^26.1.0",
+    "babel-loader": "^8.2.2",
+    "babel-plugin-dev-expression": "^0.2.2",
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
+    "chalk": "^4.1.0",
+    "concurrently": "^5.3.0",
+    "core-js": "^3.6.5",
+    "cross-env": "^7.0.2",
+    "css-loader": "^5.0.1",
+    "css-minimizer-webpack-plugin": "^1.1.5",
+    "del-cli": "^4.0.1",
+    "detect-port": "^1.3.0",
+    "electron": "18.2.3",
+    "electron-builder": "22.13.1",
+    "electron-devtools-installer": "3.2.0",
+    "electron-notarize": "^1.0.0",
+    "electron-rebuild": "3.2.3",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.3",
+    "enzyme-to-json": "^3.5.0",
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-erb": "^4.0.0-alpha.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-webpack": "^0.13.2",
+    "eslint-plugin-compat": "^4.0.2",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.1.4",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.4.0",
+    "file-loader": "^6.0.0",
+    "husky": "^4.2.5",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^26.1.0",
+    "lint-staged": "^10.2.11",
+    "long": "^5.2.0",
+    "mini-css-extract-plugin": "^1.3.1",
+    "pino-pretty": "^7.5.2",
+    "prettier": "^2.0.5",
+    "react-refresh": "0.13.0",
+    "react-test-renderer": "^17.0.1",
+    "rimraf": "^3.0.0",
+    "sass": "^1.49.9",
+    "sass-loader": "^12.6.0",
+    "style-loader": "^2.0.0",
+    "terser-webpack-plugin": "5.2.4",
+    "ts-node": "^10.4.0",
+    "type-fest": "^2.1.0",
+    "typescript": "4.7.4",
+    "url-loader": "^4.1.0",
+    "webpack": "5.60.0",
+    "webpack-bundle-analyzer": "4.5.0",
+    "webpack-cli": "4.9.1",
+    "webpack-dev-server": "4.3.1",
+    "webpack-merge": "5.8.0",
+    "yarn-deduplicate": "^3.1.0"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "@babel/runtime": "^7.16.3",
+    "@codemirror/highlight": "0.19.8",
+    "@codemirror/lang-json": "0.20.0",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^1.4.0",
+    "@jbcz/openapi-hooks-codegen": "^0.0.40",
+    "@msgpack/msgpack": "^2.7.2",
+    "@paciolan/remote-module-loader": "^3.0.2",
+    "@reach/portal": "^0.16.2",
+    "@react-hookz/web": "^14.2.2",
+    "@recative/act-player": "^0.0.0-dev.155",
+    "@recative/client-sdk": "^0.0.0-dev.118",
+    "@recative/definitions": "^0.0.0-dev.81",
+    "@recative/smart-resource": "^0.0.0-dev.6",
+    "@silvia-odwyer/photon-node": "^0.3.1",
+    "@uiw/react-codemirror": "4.7.0",
+    "archiver": "5.3.1",
+    "async-call-rpc": "^5.1.0",
+    "base64-js": "^1.5.1",
+    "baseui": "^11.0.3",
+    "bcryptjs": "^2.4.3",
+    "boring-avatars": "^1.5.8",
+    "classnames": "^2.3.1",
+    "cross-spawn": "^7.0.3",
+    "dotenv-cli": "^4.1.1",
+    "downloadjs": "^1.4.7",
+    "electron-better-ipc": "^2.0.1",
+    "electron-debug": "3.1.0",
+    "electron-log": "4.2.4",
+    "electron-root-path": "^1.0.16",
+    "electron-updater": "4.3.4",
+    "faker": "^5.5.3",
+    "fastify": "3.22.1",
+    "fastify-cors": "^6.0.2",
+    "fastify-static": "^4.5.0",
+    "file-type": "^16.5.3",
+    "fluent-ffmpeg": "^2.1.2",
+    "glob": "^7.1.7",
+    "history": "5.0.0",
+    "immer": "^9.0.5",
+    "isbinaryfile": "^4.0.8",
+    "isomorphic-git": "^1.9.2",
+    "jotai": "^1.2.2",
+    "jwt-decode": "^3.1.2",
+    "lodash": "^4.17.21",
+    "lodash.pick": "^4.4.0",
+    "match-sorter": "^6.3.0",
+    "mime-types": "^2.1.32",
+    "nanoid": "^3.1.23",
+    "node-fetch": "cjs",
+    "node-json-db": "^1.3.0",
+    "node-localstorage": "^2.2.1",
+    "node-stream-zip": "^1.15.0",
+    "npm-run-all": "^4.1.5",
+    "openapi-typescript-codegen": "^0.12.5",
+    "pretty-bytes": "^5.6.0",
+    "proper-lockfile": "^4.1.2",
+    "protobufjs": "6.11.3",
+    "queue-promise": "^2.2.1",
+    "react": "^18.1.0",
+    "react-click-away-listener": "^2.0.5",
+    "react-contexify": "^5.0.0",
+    "react-desktop": "^0.3.9",
+    "react-dnd": "^14.0.2",
+    "react-dnd-html5-backend": "^14.0.0",
+    "react-dom": "^18.1.0",
+    "react-error-boundary": "^3.1.4",
+    "react-helmet": "^6.1.0",
+    "react-hook-form": "^7.14.2",
+    "react-hot-toast": "^2.1.1",
+    "react-router": "^6.2.1",
+    "react-router-dom": "6.2.1",
+    "react-selecto": "^1.15.1",
+    "react-table": "^7.7.0",
+    "react-use": "^17.2.4",
+    "react-vis-timeline": "^2.0.3",
+    "regenerator-runtime": "^0.13.5",
+    "runtypes": "^6.5.0",
+    "selfsigned": "^1.10.11",
+    "source-map-support": "0.5.19",
+    "styletron-engine-atomic": "^1.4.8",
+    "styletron-engine-monolithic": "^0.0.5",
+    "styletron-react": "^6.0.2",
+    "t": "^0.5.1",
+    "tempfile": "3.0.0",
+    "tinydate": "^1.3.0",
+    "tmp": "^0.2.1",
+    "use-async-effect": "^2.2.3",
+    "use-immer": "^0.6.0",
+    "varname": "^2.0.3",
+    "which": "2.0.2",
+    "xxhashjs": "^0.2.2",
+    "yaml": "^1.10.2"
+  },
+  "devEngines": {
+    "node": ">=10.x",
+    "npm": ">=6.x",
+    "yarn": ">=1.21.3"
+  },
+  "browserslist": [
+    "last 1 Chrome versions"
+  ],
+  "prettier": {
+    "overrides": [
+      {
+        "files": [
+          ".prettierrc",
+          ".babelrc",
+          ".eslintrc"
+        ],
+        "options": {
+          "parser": "json"
+        }
+      }
+    ],
+    "singleQuote": true
+  },
+  "renovate": {
+    "extends": [
+      "bliss"
+    ],
+    "baseBranches": [
+      "next"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "packageManager": "yarn@3.1.1",
+  "workspaces": [
+    "src",
+    "packages/extension-sdk",
+    "packages/extension-ali-oss",
+    "packages/extension-s3-bucket",
+    "packages/extension-polyv-vod",
+    "packages/extension-atlas"
+  ],
+  "resolutions": {
+    "@codemirror/state": "0.20.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@recative/studio-src",
+  "main": "./main.prod.js",
+  "version": "0.0.0-alpha.1",
+  "scripts": {
+    "electron-rebuild": "node -r ../.erb/scripts/BabelRegister.js ../.erb/scripts/ElectronRebuild.js"
+  },
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@recative/extension-ali-oss": "workspace:^",
+    "@recative/extension-polyv-vod": "workspace:^",
+    "@recative/extension-s3-bucket": "workspace:^",
+    "@types/lokijs": "^1.5.6",
+    "lokijs": "^1.5.12",
+    "p-queue": "6.6.2"
+  }
+}

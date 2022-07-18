@@ -1,0 +1,21 @@
+diff --git a/out/util.js b/out/util.js
+index fbcf30f99ef3d879874b730b349c0bf2ec710734..fe9e1828ff583a7d098cbc8e20a565514e9809ab 100644
+--- a/out/util.js
++++ b/out/util.js
+@@ -11,6 +11,7 @@ const debug_1 = require("debug");
+ const js_yaml_1 = require("js-yaml");
+ const path = require("path");
+ const log_1 = require("./log");
++const crossSpawn = require("cross-spawn");
+ const source_map_support_1 = require("source-map-support");
+ if (process.env.JEST_WORKER_ID == null) {
+     source_map_support_1.install();
+@@ -163,7 +164,7 @@ function doSpawn(command, args, options, extraOptions) {
+     }
+     logSpawn(command, args, options);
+     try {
+-        return child_process_1.spawn(command, args, options);
++        return crossSpawn(command, args, options);
+     }
+     catch (e) {
+         throw new Error(`Cannot spawn ${command}: ${e.stack || e}`);

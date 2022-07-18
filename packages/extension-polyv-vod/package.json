@@ -1,0 +1,15 @@
+{
+  "name": "@recative/extension-polyv-vod",
+  "packageManager": "yarn@3.0.0-rc.9",
+  "main": "./manifest.ts",
+  "dependencies": {
+    "@recative/polyv": "^1.2.5",
+    "@types/md5": "^2.3.1",
+    "@types/sha1": "^1.1.3",
+    "md5": "^2.3.0",
+    "node-fetch": "2.6.6",
+    "sha1": "^1.1.1",
+    "ts-node": "^10.4.0",
+    "web-file-polyfill": "^1.0.4"
+  }
+}
