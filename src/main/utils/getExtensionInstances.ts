@@ -5,12 +5,18 @@ import { fileSync } from 'tmp';
 import { ensureDirSync } from 'fs-extra';
 import { readFile, writeFile } from 'fs/promises';
 
-import type { Uploader, ResourceProcessor } from '@recative/definitions';
+import type {
+  Uploader,
+  ResourceProcessor,
+  PostProcessedResourceItemForUpload,
+  PostProcessedResourceItemForImport,
+} from '@recative/extension-sdk';
 
 import { Category } from '@recative/definitions';
 
 import { getDb } from '../rpc/db';
 import { extensions } from '../extensions';
+import { cleanupLoki } from '../rpc/query/utils';
 import { getWorkspace } from '../rpc/workspace';
 import { logToTerminal } from '../rpc/query/terminal';
 
@@ -28,6 +34,32 @@ const resourceProcessorDependencies = {
   writeBufferToTemporaryFile: (buffer: Buffer) => {
     const file = fileSync();
     return writeFile(file.name, buffer);
+  },
+  updateResourceDefinition: async (
+    resource:
+      | PostProcessedResourceItemForUpload
+      | PostProcessedResourceItemForImport
+  ) => {
+    const db = await getDb();
+
+    const resourceId = resource.id;
+
+    const resourceDefinition = db.resource.resources.findOne({
+      id: resourceId,
+    });
+
+    if (!resourceDefinition) {
+      throw new Error(`Resource ${resourceId} not found`);
+    }
+
+    Object.keys(cleanupLoki(resourceDefinition)).forEach((x) => {
+      if (x in resource) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (resourceDefinition as any)[x] = (resource as any)[x];
+      }
+    });
+
+    db.resource.resources.update(resourceDefinition);
   },
   readPathAsBuffer: (path: string) => readFile(path),
   logToTerminal,

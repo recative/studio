@@ -1,0 +1,4 @@
+{
+    "name": "@recative/extension-sdk",
+    "main": "./src/index.ts"
+}

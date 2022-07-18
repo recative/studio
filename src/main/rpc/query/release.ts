@@ -1,6 +1,6 @@
 import spawn from 'cross-spawn';
-import { flatten, uniqBy } from 'lodash';
-import { ensureDir, writeJSON, copy, existsSync } from 'fs-extra';
+import { uniqBy } from 'lodash';
+import { ensureDir, writeJSON } from 'fs-extra';
 
 import type { Collection } from 'lokijs';
 
@@ -205,7 +205,6 @@ export const bundleDb = async (terminalId: string) => {
 let copyResourcesLock = false;
 
 export const copyMedia = async (notes: string, terminalId: string) => {
-  const config = getWorkspace();
   const buildPath = await getBuildPath();
 
   if (copyResourcesLock) throw new TaskLockedError();
@@ -219,6 +218,8 @@ export const copyMedia = async (notes: string, terminalId: string) => {
   if (buildId === -Infinity) {
     buildId = 0;
   }
+
+  logToTerminal(terminalId, `Copying media database`);
 
   const resourceDir = `${buildPath}/resource-${buildId
     .toString()

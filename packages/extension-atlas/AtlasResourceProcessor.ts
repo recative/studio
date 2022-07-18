@@ -1,8 +1,12 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-labels */
 /* eslint-disable no-await-in-loop */
 import { nanoid } from 'nanoid';
 import { Image, createCanvas } from '@napi-rs/canvas';
 
 import {
+  RectWh,
+  RectXywh,
   RectXywhf,
   FinderInput,
   FlippingOption,
@@ -14,11 +18,11 @@ import {
   IResourceItem,
   imageCategoryTag,
   BidirectionalMap,
-  ResourceProcessor,
   getHighestPreloadLevel,
   REDIRECT_URL_EXTENSION_ID,
   TerminalMessageLevel as Level,
 } from '@recative/definitions';
+import { ResourceProcessor } from '@recative/extension-sdk';
 
 import type {
   IBundleGroup,
@@ -81,6 +85,234 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     return !!x || true;
   }
 
+  private calculateImageEnvelope = (
+    resource:
+      | IPostProcessedResourceFileForImport
+      | IPostProcessedResourceFileForUpload,
+    image: Image
+  ) => {
+    const { width, height } = image;
+
+    const x = Number.parseInt(
+      resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ex`],
+      10
+    );
+    const y = Number.parseInt(
+      resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ey`],
+      10
+    );
+    const w = Number.parseInt(
+      resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ew`],
+      10
+    );
+    const h = Number.parseInt(
+      resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~eh`],
+      10
+    );
+
+    if (
+      !Number.isNaN(x) &&
+      !Number.isNaN(y) &&
+      !Number.isNaN(w) &&
+      !Number.isNaN(h)
+    ) {
+      return new RectXywh(x, y, w, h);
+    }
+
+    const imageData = this.getImageData(image);
+    const { data } = imageData;
+    const paddings = { top: 0, left: 0, right: width - 1, bottom: height - 1 };
+
+    leftSide: for (let i = 0; i < width; i += 1) {
+      for (let j = 0; j < height; j += 1) {
+        const alpha = data[(j * width + i) * 4 + 3];
+        if (alpha > 0) {
+          paddings.left = i;
+          break leftSide;
+        }
+      }
+    }
+
+    rightSide: for (let i = width - 1; i >= 0; i -= 1) {
+      for (let j = height - 1; j >= 0; j -= 1) {
+        const alpha = data[(j * width + i) * 4 + 3];
+        if (alpha > 0) {
+          paddings.right = i;
+          break rightSide;
+        }
+      }
+    }
+
+    topSide: for (let j = 0; j < height; j += 1) {
+      for (let i = 0; i < width; i += 1) {
+        const alpha = data[(j * width + i) * 4 + 3];
+        if (alpha > 0) {
+          paddings.top = j;
+          break topSide;
+        }
+      }
+    }
+
+    bottomSide: for (let j = height - 1; j >= 0; j -= 1) {
+      for (let i = width - 1; i >= 0; i -= 1) {
+        const alpha = data[(j * width + i) * 4 + 3];
+        if (alpha > 0) {
+          paddings.bottom = j;
+          break bottomSide;
+        }
+      }
+    }
+
+    const numberArray: Array<number> = [];
+
+    for (let j = paddings.top; j <= paddings.bottom; j += 1) {
+      for (let i = paddings.left; i <= paddings.right; i += 1) {
+        const index = j * width + i;
+        numberArray.push(data[index * 4]);
+        numberArray.push(data[index * 4 + 1]);
+        numberArray.push(data[index * 4 + 2]);
+        numberArray.push(data[index * 4 + 3]);
+      }
+    }
+
+    const result = new RectXywh(
+      paddings.left,
+      paddings.top,
+      paddings.right - paddings.left,
+      paddings.bottom - paddings.top
+    );
+
+    resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ex`] =
+      result.x.toString();
+    resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ey`] =
+      result.y.toString();
+    resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ew`] =
+      result.w.toString();
+    resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~eh`] =
+      result.h.toString();
+
+    this.dependency.updateResourceDefinition(resource);
+
+    return result;
+  };
+
+  private getImageData = (x: Image) => {
+    const canvas = createCanvas(x.width, x.height);
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      throw new Error('Failed to get canvas context');
+    }
+
+    ctx.drawImage(x, 0, 0);
+    return ctx.getImageData(0, 0, x.width, x.height);
+  };
+
+  private generateAtlasImage = async (
+    resourceId: string,
+    spaceRect: RectWh,
+    textureRects: RectXywhf[],
+    resourceToRectMap: BidirectionalMap<
+      IPostProcessedResourceFileForUpload,
+      RectXywhf
+    >,
+    resourceToEnvelopeMap: BidirectionalMap<
+      IPostProcessedResourceFileForUpload,
+      RectXywh
+    >,
+    onPacked: () => void
+  ) => {
+    const canvas = createCanvas(
+      2 ** Math.ceil(Math.log2(spaceRect.w)),
+      2 ** Math.ceil(Math.log2(spaceRect.h))
+    );
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('Canvas context is null!');
+    }
+
+    for (let i = 0; i < textureRects.length; i += 1) {
+      onPacked();
+      const textureRect = textureRects[i];
+      const rectResource = resourceToRectMap.get(textureRect);
+      if (!rectResource) {
+        throw new TypeError(
+          'Resource ID not available in the map, this is a bug!'
+        );
+      }
+
+      const textureEnvelope = resourceToEnvelopeMap.get(rectResource);
+      if (!textureEnvelope) {
+        throw new TypeError(
+          'Envelope not available in the map, this is a bug!'
+        );
+      }
+
+      const subImage = new Image();
+      subImage.src = await this.getResourceBuffer(rectResource);
+
+      if (
+        subImage.width === textureRect.w &&
+        subImage.height === textureRect.h
+      ) {
+        // Draw directly
+        ctx.drawImage(
+          subImage,
+          textureEnvelope.x,
+          textureEnvelope.y,
+          textureEnvelope.w,
+          textureEnvelope.h,
+          textureRect.x,
+          textureRect.y,
+          textureRect.w,
+          textureRect.h
+        );
+      } else if (
+        subImage.width === textureRect.h &&
+        subImage.height === textureRect.w
+      ) {
+        // Draw rotated
+        ctx.save();
+        ctx.translate(textureRect.x, textureRect.y);
+        ctx.rotate((90 * Math.PI) / 180);
+        ctx.drawImage(
+          subImage,
+          textureEnvelope.x,
+          textureEnvelope.y,
+          textureEnvelope.w,
+          textureEnvelope.h,
+          spaceRect.h - textureRect.y - textureRect.w,
+          textureRect.x,
+          textureRect.w,
+          textureRect.h
+        );
+        ctx.restore();
+      } else {
+        throw new TypeError(
+          `Wrong image size: ${textureRect.w} x ${textureRect.h}`
+        );
+      }
+
+      // #region Inject Configuration
+      rectResource.pluginConfigurations[`${AtlasResourceProcessor.id}~~x`] =
+        textureRect.x.toString();
+      rectResource.pluginConfigurations[`${AtlasResourceProcessor.id}~~y`] =
+        textureRect.y.toString();
+      rectResource.pluginConfigurations[`${AtlasResourceProcessor.id}~~w`] =
+        textureRect.w.toString();
+      rectResource.pluginConfigurations[`${AtlasResourceProcessor.id}~~h`] =
+        textureRect.h.toString();
+      rectResource.pluginConfigurations[`${AtlasResourceProcessor.id}~~f`] =
+        textureRect.flipped.toString();
+      rectResource.url[REDIRECT_URL_EXTENSION_ID] = `redirect://${resourceId}`;
+      // #endregion
+    }
+
+    const outputBuffer = await canvas.encode('png');
+
+    return { canvas, outputBuffer };
+  };
+
   async beforePublishMediaBundle(
     resources: IPostProcessedResourceFileForUpload[],
     mediaBuildId: number,
@@ -114,6 +346,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     const resourceToRectMap = new BidirectionalMap<
       IPostProcessedResourceFileForUpload,
       RectXywhf
+    >();
+    const resourceToEnvelopeMap = new BidirectionalMap<
+      IPostProcessedResourceFileForUpload,
+      RectXywh
     >();
 
     // #region Task Summary
@@ -157,10 +393,12 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             const image = new Image();
             image.src = buffer;
 
+            const imageEnvelope = this.calculateImageEnvelope(x, image);
+
             // The image is too large to be packed, will skip.
             if (
-              image.width > ATLAS_MAX_DIMENSION_SIZE ||
-              image.height > ATLAS_MAX_DIMENSION_SIZE
+              imageEnvelope.w > ATLAS_MAX_DIMENSION_SIZE ||
+              imageEnvelope.h > ATLAS_MAX_DIMENSION_SIZE
             ) {
               this.dependency.logToTerminal(
                 `:: :: [Group ${groupIndex}] ${x.label} is too large, will skip`,
@@ -172,8 +410,9 @@ export class AtlasResourceProcessor extends ResourceProcessor<
 
             resourceToRectMap.set(
               x,
-              new RectXywhf(0, 0, image.width, image.height)
+              new RectXywhf(0, 0, imageEnvelope.w, imageEnvelope.h)
             );
+            resourceToEnvelopeMap.set(x, imageEnvelope);
           })
         );
 
@@ -310,10 +549,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
         const nextTaskIteration = async (): Promise<boolean> => {
           if (currentTask.length === 1) {
             skippedFiles += 1;
-            // this.dependency.logToTerminal(
-            //   `:: :: [Group ${groupIndex}] Skipped iteration, ${nextTask.length} remains`,
-            //   Level.Warning
-            // );
           }
 
           // #region Log Image Detail
@@ -483,66 +718,17 @@ export class AtlasResourceProcessor extends ResourceProcessor<
 
           if (!matchedProcessRecord) {
             // If the file is not cached, generate the atlas image
-            const canvas = createCanvas(
-              2 ** Math.ceil(Math.log2(spaceRect.w)),
-              2 ** Math.ceil(Math.log2(spaceRect.h))
+            const { canvas, outputBuffer } = await this.generateAtlasImage(
+              resourceId,
+              spaceRect,
+              currentTask,
+              resourceToRectMap,
+              resourceToEnvelopeMap,
+              () => {
+                packedFiles += 1;
+              }
             );
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-              throw new Error('Canvas context is null!');
-            }
 
-            for (let i = 0; i < currentTask.length; i += 1) {
-              packedFiles += 1;
-              const rect = currentTask[i];
-              const rectResource = resourceToRectMap.get(rect);
-              if (!rectResource) {
-                throw new TypeError(
-                  'Resource ID not available in the map, this is a bug!'
-                );
-              }
-
-              const subImage = new Image();
-              subImage.src = await this.getResourceBuffer(rectResource);
-
-              if (subImage.width === rect.w && subImage.height === rect.h) {
-                // Draw directly
-                ctx.drawImage(subImage, rect.x, rect.y, rect.w, rect.h);
-              } else if (
-                subImage.width === rect.h &&
-                subImage.height === rect.w
-              ) {
-                // Draw rotated
-                ctx.save();
-                ctx.translate(rect.x, rect.y);
-                ctx.rotate((90 * Math.PI) / 180);
-                ctx.drawImage(subImage, rect.x, rect.y);
-                ctx.restore();
-              }
-
-              // #region Inject Configuration
-              rectResource.pluginConfigurations[
-                `${AtlasResourceProcessor.id}~~x`
-              ] = rect.x.toString();
-              rectResource.pluginConfigurations[
-                `${AtlasResourceProcessor.id}~~y`
-              ] = rect.y.toString();
-              rectResource.pluginConfigurations[
-                `${AtlasResourceProcessor.id}~~w`
-              ] = rect.w.toString();
-              rectResource.pluginConfigurations[
-                `${AtlasResourceProcessor.id}~~h`
-              ] = rect.h.toString();
-              rectResource.pluginConfigurations[
-                `${AtlasResourceProcessor.id}~~f`
-              ] = rect.flipped.toString();
-              rectResource.url[
-                REDIRECT_URL_EXTENSION_ID
-              ] = `redirect://${resourceId}`;
-              // #endregion
-            }
-
-            const outputBuffer = await canvas.encode('png');
             // #region Atlas Report
             this.dependency.logToTerminal(
               `:: :: [Group ${groupIndex}] Atlas result:`,
