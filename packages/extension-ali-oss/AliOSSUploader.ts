@@ -3,9 +3,11 @@ import { join, normalize } from 'path';
 
 import OSS, { ClusterClient } from 'ali-oss';
 
-import { Category, Uploader } from '@recative/definitions';
+import { Category } from '@recative/definitions';
+import { Uploader } from '@recative/extension-sdk';
 
-import type { IResourceFile, IRemoteFile } from '@recative/definitions';
+import type { IRemoteFile } from '@recative/extension-sdk';
+import type { IResourceFile } from '@recative/definitions';
 
 export interface AliOSSUploaderPluginConfig {
   region: string;

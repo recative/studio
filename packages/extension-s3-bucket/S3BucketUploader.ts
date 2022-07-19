@@ -12,8 +12,11 @@ import { readFileSync, writeFileSync } from 'fs-extra';
 
 import type { _Object } from '@aws-sdk/client-s3';
 
-import { Category, Uploader } from '@recative/definitions';
-import type { IResourceFile, IRemoteFile } from '@recative/definitions';
+import { Category } from '@recative/definitions';
+import { Uploader } from '@recative/extension-sdk';
+
+import type { IRemoteFile } from '@recative/extension-sdk';
+import type { IResourceFile } from '@recative/definitions';
 
 export interface S3BucketPluginConfig {
   region: string;

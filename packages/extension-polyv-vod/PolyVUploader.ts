@@ -6,8 +6,11 @@ import fetch from 'node-fetch';
 
 import { PlvNodeVideoUpload } from '@recative/polyv';
 
-import { Category, Uploader } from '@recative/definitions';
-import type { IResourceFile, IRemoteFile } from '@recative/definitions';
+import { Category } from '@recative/definitions';
+import { Uploader } from '@recative/extension-sdk';
+
+import type { IRemoteFile } from '@recative/extension-sdk';
+import type { IResourceFile } from '@recative/definitions';
 
 import type { VideoInfo } from './apiResponse';
 
