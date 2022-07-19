@@ -253,8 +253,8 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       subImage.src = await this.getResourceBuffer(rectResource);
 
       if (
-        subImage.width === textureRect.w &&
-        subImage.height === textureRect.h
+        textureEnvelope.w === textureRect.w &&
+        textureEnvelope.h === textureRect.h
       ) {
         // Draw directly
         ctx.drawImage(
@@ -269,8 +269,8 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           textureRect.h
         );
       } else if (
-        subImage.width === textureRect.h &&
-        subImage.height === textureRect.w
+        textureEnvelope.w === textureRect.h &&
+        textureEnvelope.h === textureRect.w
       ) {
         // Draw rotated
         ctx.save();
@@ -290,7 +290,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
         ctx.restore();
       } else {
         throw new TypeError(
-          `Wrong image size: ${textureRect.w} x ${textureRect.h}`
+          `Wrong image size: Atlas (${textureRect.w} x ${textureRect.h}), Envelope (${textureEnvelope.w} x ${textureEnvelope.h})`
         );
       }
 

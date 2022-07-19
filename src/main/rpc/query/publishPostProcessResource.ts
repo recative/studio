@@ -7,11 +7,10 @@ import {
 } from '@recative/definitions';
 import type {
   IBundleGroup,
-  IResourceFile,
-  IResourceItem,
   PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForUpload,
-} from '@recative/definitions';
+} from '@recative/extension-sdk';
+import type { IResourceFile, IResourceItem } from '@recative/definitions';
 
 import { cleanupLoki } from './utils';
 import { logToTerminal } from './terminal';
