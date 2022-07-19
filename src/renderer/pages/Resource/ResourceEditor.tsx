@@ -10,10 +10,10 @@ import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
 import { Block } from 'baseui/block';
-import { Input } from 'baseui/input';
-import { Textarea, SIZE as TEXTAREA_SIZE } from 'baseui/textarea';
-import { LabelLarge, LabelMedium } from 'baseui/typography';
+import { LabelLarge } from 'baseui/typography';
 import { FormControl } from 'baseui/form-control';
+import { SIZE as SELECT_SIZE } from 'baseui/select';
+import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Checkbox, STYLE_TYPE, LABEL_PLACEMENT } from 'baseui/checkbox';
 
 import { Select } from 'components/Select/Select';
@@ -151,6 +151,7 @@ const InternalFormTagItem: React.FC<IFormItemProps> = ({
     <Block>
       <FormControl label={typeNameMap[typeId]}>
         <Select
+          size={SELECT_SIZE.compact}
           creatable={custom}
           disabled={disabled}
           options={options}
@@ -303,9 +304,10 @@ interface IResourceEditorProps {
   onChange?: (file: IEditableResource) => void;
 }
 
-const usePluginSettings = (
+const useExtensionSettings = (
   file: IEditableResource | null,
-  setFile: Updater<IEditableResource | null>
+  onChange?: (x: IEditableResource) => void,
+  setFile?: Updater<IEditableResource | null>
 ) => {
   const getValue = React.useCallback(
     (extensionId: string, fieldId: string) => {
@@ -318,14 +320,16 @@ const usePluginSettings = (
   const setValue = React.useCallback(
     (extensionId: string, key: string, value: string) => {
       const fieldQueryKey = `${extensionId}~~${key}`;
-      setFile((draft) => {
+      setFile?.((draft) => {
         if (draft) {
           draft.pluginConfigurations[fieldQueryKey] = value;
+          draft.dirty = true;
+          onChange?.(current(draft));
         }
         return draft;
       });
     },
-    [setFile]
+    [onChange, setFile]
   );
 
   return [getValue, setValue] as const;
@@ -347,8 +351,9 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
     setFile
   );
   const [episodesMap, episodeOptions] = useEpisodes();
-  const [getPluginSettings, setPluginSettings] = usePluginSettings(
+  const [getExtensionSettings, setExtensionSettings] = useExtensionSettings(
     file,
+    onChange,
     setFile
   );
 
@@ -433,10 +438,10 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
           </Block>
           <LabelLarge className={css(groupLabelStyles)}>Metadata</LabelLarge>
           <FormControl label="ID">
-            <Input disabled value={file?.id} />
+            <Input disabled value={file?.id} size={INPUT_SIZE.compact} />
           </FormControl>
           <FormControl label="MIME Type">
-            <Input disabled value={file?.mimeType} />
+            <Input disabled value={file?.mimeType} size={INPUT_SIZE.compact} />
           </FormControl>
           <FormControl label="Date Imported">
             <Input
@@ -444,6 +449,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
               value={
                 file?.importTime ? new Date(file.importTime).toISOString() : ''
               }
+              size={INPUT_SIZE.compact}
             />
           </FormControl>
           <LabelLarge className={css(groupLabelStyles)}>Tags</LabelLarge>
@@ -486,6 +492,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   checkmarkType={STYLE_TYPE.toggle_round}
                   labelPlacement={LABEL_PLACEMENT.right}
                   onChange={handleCacheToHardDiskChange}
+                  disabled={databaseLocked}
                 >
                   Cache Resource to Hard Disk
                 </Checkbox>
@@ -498,6 +505,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   options={PRELOAD_LEVELS}
                   placeholder="Select Level"
                   onChange={handlePreloadLevelChange}
+                  disabled={databaseLocked}
                 />
               </FormControl>
             </Block>
@@ -509,6 +517,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   placeholder="Episodes"
                   value={episodesSelectValue}
                   onChange={handleEpisodesChange}
+                  disabled={databaseLocked}
                 />
               </FormControl>
             </Block>
@@ -521,6 +530,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   value={preloadTriggersSelectValue}
                   placeholder="Triggers"
                   onChange={handlePreloadTriggersChange}
+                  disabled={databaseLocked}
                 />
               </FormControl>
             </Block>
@@ -529,22 +539,33 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
       )}
       {file.type !== 'group' && (
         <>
-          <ExtensionConfiguration
-            key={file.id}
-            domain="resourceProcessor"
-            type="resource"
-            TitleComponent={LabelLarge}
-            getValue={getPluginSettings}
-            setValue={setPluginSettings}
-          />
-          <LabelLarge className={css(groupLabelStyles)}>
-            Uploaded URL
-          </LabelLarge>
-          <Textarea
-            disabled
-            size={TEXTAREA_SIZE.compact}
-            value={JSON.stringify(file?.url, null, 2) ?? ''}
-          />
+          <Block paddingTop="16px" paddingBottom="16px">
+            <ExtensionConfiguration
+              key={file.id}
+              domain="resourceProcessor"
+              type="resource"
+              TitleComponent={LabelLarge}
+              getValue={getExtensionSettings}
+              setValue={setExtensionSettings}
+              disabled={databaseLocked}
+            />
+          </Block>
+          {file?.url && (
+            <Block>
+              <LabelLarge className={css(groupLabelStyles)}>
+                Uploaded URL
+              </LabelLarge>
+              {Object.keys(file.url).map((key) => (
+                <FormControl key={key} label={key}>
+                  <Input
+                    readOnly
+                    value={file.url[key]}
+                    size={INPUT_SIZE.mini}
+                  />
+                </FormControl>
+              ))}
+            </Block>
+          )}
         </>
       )}
     </Block>
