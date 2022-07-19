@@ -779,7 +779,7 @@ export const importFile = async (
       importTime: Date.now(),
       removed: false,
       removedTime: -1,
-      pluginConfigurations: {},
+      extensionConfigurations: {},
     };
 
     updateOrInsertResources([metadata], replaceFileId);

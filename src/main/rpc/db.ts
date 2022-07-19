@@ -7,7 +7,6 @@ import { ensureDir } from 'fs-extra';
 import type {
   IAsset,
   IEpisode,
-  ISetting,
   IActPoint,
   IDataSlot,
   IResourceItem,
@@ -16,8 +15,12 @@ import type {
   ISimpleRelease,
   IBundleRelease,
   ISeriesMetadata,
-  PostProcessedResourceItemForUpload,
 } from '@recative/definitions';
+
+import type {
+  ISetting,
+  PostProcessedResourceItemForUpload,
+} from '@recative/extension-sdk';
 
 import { LokiWorkspaceLockSafeFsAdapter } from '../utils/LokiWorkspaceLockSafeFsAdapter';
 
@@ -256,9 +259,9 @@ export const getDb = async (
   }
 
   newDb.resource.resources.find({ type: 'file' }).forEach((data) => {
-    if (data.type === 'file' && !data.pluginConfigurations) {
+    if (data.type === 'file' && !data.extensionConfigurations) {
       console.log('migrated', data.id);
-      data.pluginConfigurations = {};
+      data.extensionConfigurations = {};
       newDb.resource.resources.update(data);
     }
   });

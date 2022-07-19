@@ -146,10 +146,10 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
 
     const filePluginConfig: Record<string, string> = {};
 
-    Object.keys(file.pluginConfigurations)
+    Object.keys(file.extensionConfigurations)
       .filter((x) => x.startsWith(pluginKey))
       .forEach((key) => {
-        filePluginConfig[key] = file.pluginConfigurations[key];
+        filePluginConfig[key] = file.extensionConfigurations[key];
       });
 
     const pluginConfigHash = hashObject({

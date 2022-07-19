@@ -312,7 +312,7 @@ const useExtensionSettings = (
   const getValue = React.useCallback(
     (extensionId: string, fieldId: string) => {
       const fieldQueryKey = `${extensionId}~~${fieldId}`;
-      return file?.pluginConfigurations[fieldQueryKey] || '';
+      return file?.extensionConfigurations[fieldQueryKey] || '';
     },
     [file]
   );
@@ -322,7 +322,7 @@ const useExtensionSettings = (
       const fieldQueryKey = `${extensionId}~~${key}`;
       setFile?.((draft) => {
         if (draft) {
-          draft.pluginConfigurations[fieldQueryKey] = value;
+          draft.extensionConfigurations[fieldQueryKey] = value;
           draft.dirty = true;
           onChange?.(current(draft));
         }

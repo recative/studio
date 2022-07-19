@@ -4065,16 +4065,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/act-player@npm:^0.0.0-dev.155":
-  version: 0.0.0-dev.155
-  resolution: "@recative/act-player@npm:0.0.0-dev.155::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-player%2F0.0.0-dev.155%2F75aed6bcffa9be6a08bd8d28c6ea30f179bbfef2ccf29fc999cdd06c7e239ad5"
+"@recative/act-player@npm:^0.0.0-dev.161":
+  version: 0.0.0-dev.161
+  resolution: "@recative/act-player@npm:0.0.0-dev.161::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-player%2F0.0.0-dev.161%2F06796ebd5c6b88236efee292ee1dae963afa6d92973b555b411485d9afd79937"
   dependencies:
     "@nanostores/react": 0.2.0
     "@react-hookz/web": ^12.3.0
     "@recative/act-protocol": ^0.0.0-dev.56
-    "@recative/core-manager": ^0.0.0-dev.151
-    "@recative/definitions": ^0.0.0-dev.56
-    "@recative/smart-resource": ^0.0.0-dev.6
+    "@recative/core-manager": ^0.0.0-dev.156
+    "@recative/definitions": ^0.0.0-dev.81
+    "@recative/smart-resource": ^0.0.0-dev.7
     classnames: ^2.3.1
     debug: ^4.3.4
     lodash: ^4.17.21
@@ -4090,7 +4090,7 @@ __metadata:
     baseui: ^10.6.0
     react: ^17.0.2
     react-dom: ^17.0.2
-  checksum: 73f4476a5666c6f111b979660c733e4ce6471065dc69b227f99e31a68a4efef3ca948da9f50c1189b9a735fefacb2da96e73cd02aa112fcaf18a893d697c49de
+  checksum: e30a6e5cf4b89815286ec1346908e72d2669fe6f06633c6c5f8220415bc9a8a371c277cf77c7aaa8ede5d7fb3ddea6f1901711da4ab0d26d69fed0fd6435b589
   languageName: node
   linkType: hard
 
@@ -4121,9 +4121,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/client-sdk@npm:^0.0.0-dev.118":
-  version: 0.0.0-dev.118
-  resolution: "@recative/client-sdk@npm:0.0.0-dev.118::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fclient-sdk%2F0.0.0-dev.118%2F82327a5dd9fd9c20124ae1ddb4c4fd453caa403c5668a052908979882f8d1f77"
+"@recative/client-sdk@npm:^0.0.0-dev.124":
+  version: 0.0.0-dev.124
+  resolution: "@recative/client-sdk@npm:0.0.0-dev.124::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fclient-sdk%2F0.0.0-dev.124%2Fec4af357e1b93c2dfae0bb92c5373dfaacd9543e360e2f914ad33b4363b05484"
   dependencies:
     "@msgpack/msgpack": ^2.7.2
     "@react-hookz/web": ^13.0.0
@@ -4147,21 +4147,21 @@ __metadata:
     react-slider: "*"
     react-use: "*"
     use-constant: "*"
-  checksum: a21fdc737ea1322fa577145151a8aa8045fbbb6a9d72cb7a779bc1345dc7f8e68d4486ced0b86f4ed86126c50403fae49631760ffb41d52a9554778962f3e628
+  checksum: 5c4d384a76b56f66a27473c724ce135d81dd850031a8ea4f110ff494df747a5b152096725c3631bea04d3626d64470550a9e44b04013cbc88c91f97ead13b33e
   languageName: node
   linkType: hard
 
-"@recative/core-manager@npm:^0.0.0-dev.151":
-  version: 0.0.0-dev.151
-  resolution: "@recative/core-manager@npm:0.0.0-dev.151::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fcore-manager%2F0.0.0-dev.151%2Fbf563dfb961b9e330d2386e6fbc2072e71195f074fc70889845f70840d9f5552"
+"@recative/core-manager@npm:^0.0.0-dev.156":
+  version: 0.0.0-dev.156
+  resolution: "@recative/core-manager@npm:0.0.0-dev.156::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fcore-manager%2F0.0.0-dev.156%2Fe8385c13c5ed801ba19246a829d49cc269f4756de6ea36be8ac47a52db00368b"
   dependencies:
     "@nanostores/persistent": ^0.5.2
     "@recative/act-protocol": ^0.0.0-dev.56
     "@recative/audio-station": ^0.0.0-dev.15
-    "@recative/definitions": ^0.0.0-dev.44
+    "@recative/definitions": ^0.0.0-dev.81
     "@recative/open-promise": ^0.0.0-dev.31
     "@recative/resource-loader": ^0.0.0-dev.12
-    "@recative/smart-resource": ^0.0.0-dev.6
+    "@recative/smart-resource": ^0.0.0-dev.7
     "@recative/time-schedule": ^0.0.0-dev.6
     "@ungap/event-target": ^0.2.3
     debug: ^4.3.3
@@ -4169,7 +4169,7 @@ __metadata:
     nanostores: ^0.5.10
     object.entries: ^1.1.5
     srt-parser-2: ^1.1.7
-  checksum: 11c85b499806f9776e21163364f65b9ee66bdc3a375a2dee9ab759fa32b725fbfc01c76bf0b2fa369518ed7cd14badfa441e43f7393606542455b59c96507a41
+  checksum: 2b2afe07da6b783a83d00c6e83ab079676640f341e8d4e740b954be249ce7077c9614e30925c2bde14b1705b2262cfa53cc1dc7ae6a00b5980e9b4085585c53e
   languageName: node
   linkType: hard
 
@@ -4180,21 +4180,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/definitions@npm:^0.0.0-dev.56":
-  version: 0.0.0-dev.56
-  resolution: "@recative/definitions@npm:0.0.0-dev.56::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.0.0-dev.56%2F1ca26ab59d9b397579fd9895dce87437ff0a2d26fb52ba82c095da4514901d08"
-  dependencies:
-    xxhashjs: ^0.2.2
-  checksum: e29e4b435e89dd82af3fe3ba6dcb5de8a4436b585cfb30c47a7368c3e739613dfe945f796c27aa4b57d87474fde76f10f910e8ad04febe5f392e4791adc15281
-  languageName: node
-  linkType: hard
-
 "@recative/definitions@npm:^0.0.0-dev.81":
   version: 0.0.0-dev.81
   resolution: "@recative/definitions@npm:0.0.0-dev.81::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.0.0-dev.81%2F60a4dc4f42318c2ecae270188159b935b2f25b07bd7152e3a277ad76233e9b69"
   dependencies:
     xxhashjs: ^0.2.2
   checksum: 5f4c4134b02da07638bb49cdc21dec0e3f384fc9422c540e97accee63d334af4248996c03d2ccc0eeee968dce86889e2f62c54dc63a71c28b3d2139414432095
+  languageName: node
+  linkType: hard
+
+"@recative/definitions@npm:^0.0.0-dev.82":
+  version: 0.0.0-dev.82
+  resolution: "@recative/definitions@npm:0.0.0-dev.82::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.0.0-dev.82%2F951179f9065ee413ac360ef4dc2a9d6be9eefc4f71ca1ce6f9afe2954d146fff"
+  dependencies:
+    xxhashjs: ^0.2.2
+  checksum: 8aaa41b29cbe73cbc01fd07f07d6960f11d0f29cc5884f4deeec1f951c2749afb6106f80bb65ddebb00fe4ad8c3640c9ee9c79051bb1fbbfac0d37edf4103172
   languageName: node
   linkType: hard
 
@@ -4285,12 +4285,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/smart-resource@npm:^0.0.0-dev.6":
-  version: 0.0.0-dev.6
-  resolution: "@recative/smart-resource@npm:0.0.0-dev.6::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fsmart-resource%2F0.0.0-dev.6%2Fbee3f5594166e36d900a9b9438d0238ae6f1d34ecb72ba3738a6264f928ea02d"
+"@recative/smart-resource@npm:^0.0.0-dev.7":
+  version: 0.0.0-dev.7
+  resolution: "@recative/smart-resource@npm:0.0.0-dev.7::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fsmart-resource%2F0.0.0-dev.7%2F0ec86eb9db3926a1ead8537dc3927f16c1f36d1082837e05d4a2c691f11acf51"
   dependencies:
     debug: ^4.3.4
-  checksum: 9c5a8cbd808d4dcdebcd62283488d0643d912e9552c72e04bf34580a0bd4c5beb4df5af67418a7bed10f24e266d7551840216062161ca302999368543521ffd7
+  checksum: 10ceb549f45bcb4127377c5c3c6cb651ab1d9f691a5c2473bff0c589bf1608d9a1f927eb1816512678bf93500c8f049571d97f5d2348bc6b2cf9f641751a4a0e
   languageName: node
   linkType: hard
 
@@ -4346,10 +4346,10 @@ __metadata:
     "@pmmmwh/react-refresh-webpack-plugin": 0.5.6
     "@reach/portal": ^0.16.2
     "@react-hookz/web": ^14.2.2
-    "@recative/act-player": ^0.0.0-dev.155
-    "@recative/client-sdk": ^0.0.0-dev.118
-    "@recative/definitions": ^0.0.0-dev.81
-    "@recative/smart-resource": ^0.0.0-dev.6
+    "@recative/act-player": ^0.0.0-dev.161
+    "@recative/client-sdk": ^0.0.0-dev.124
+    "@recative/definitions": ^0.0.0-dev.82
+    "@recative/smart-resource": ^0.0.0-dev.7
     "@silvia-odwyer/photon-node": ^0.3.1
     "@teamsupercell/typings-for-css-modules-loader": ^2.4.0
     "@testing-library/jest-dom": ^5.11.6

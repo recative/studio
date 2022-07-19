@@ -24,14 +24,14 @@ import {
 } from '@recative/definitions';
 import { ResourceProcessor } from '@recative/extension-sdk';
 
+import type { IResourceItemForClient } from '@recative/definitions';
 import type {
   IBundleGroup,
-  IResourceItemForClient,
   PostProcessedResourceItemForImport,
   PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForUpload,
   IPostProcessedResourceFileForImport,
-} from '@recative/definitions';
+} from '@recative/extension-sdk';
 
 export interface AtlasResourceProcessorConfig {
   enable: string;
@@ -95,19 +95,19 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     const { width, height } = image;
 
     const x = Number.parseInt(
-      resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ex`],
+      resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ex`],
       10
     );
     const y = Number.parseInt(
-      resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ey`],
+      resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ey`],
       10
     );
     const w = Number.parseInt(
-      resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ew`],
+      resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ew`],
       10
     );
     const h = Number.parseInt(
-      resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~eh`],
+      resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~eh`],
       10
     );
 
@@ -183,13 +183,13 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       paddings.bottom - paddings.top
     );
 
-    resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ex`] =
+    resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ex`] =
       result.x.toString();
-    resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ey`] =
+    resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ey`] =
       result.y.toString();
-    resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~ew`] =
+    resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ew`] =
       result.w.toString();
-    resource.pluginConfigurations[`${AtlasResourceProcessor.id}~~eh`] =
+    resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~eh`] =
       result.h.toString();
 
     this.dependency.updateResourceDefinition(resource);
@@ -295,15 +295,15 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       }
 
       // #region Inject Configuration
-      rectResource.pluginConfigurations[`${AtlasResourceProcessor.id}~~x`] =
+      rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~x`] =
         textureRect.x.toString();
-      rectResource.pluginConfigurations[`${AtlasResourceProcessor.id}~~y`] =
+      rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~y`] =
         textureRect.y.toString();
-      rectResource.pluginConfigurations[`${AtlasResourceProcessor.id}~~w`] =
+      rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~w`] =
         textureRect.w.toString();
-      rectResource.pluginConfigurations[`${AtlasResourceProcessor.id}~~h`] =
+      rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~h`] =
         textureRect.h.toString();
-      rectResource.pluginConfigurations[`${AtlasResourceProcessor.id}~~f`] =
+      rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~f`] =
         textureRect.flipped.toString();
       rectResource.url[REDIRECT_URL_EXTENSION_ID] = `redirect://${resourceId}`;
       // #endregion
@@ -330,7 +330,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     // Dispatch all texture resources to different groups
     const filteredResources = resources.filter((x) => {
       return (
-        x.pluginConfigurations[`${AtlasResourceProcessor.id}~~enabled`] ===
+        x.extensionConfigurations[`${AtlasResourceProcessor.id}~~enabled`] ===
           'yes' && x.tags.includes(imageCategoryTag.id)
       );
     });
@@ -687,7 +687,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             removedTime: -1,
             resourceGroupId: '',
             tags: groupKey.tagContains ?? [],
-            pluginConfigurations: {
+            extensionConfigurations: {
               [`${AtlasResourceProcessor.id}~~includes`]: currentResources
                 .map((x) => x.id)
                 .join(','),

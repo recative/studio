@@ -5,6 +5,8 @@ import { BaseProvider, createTheme, useStyletron } from 'baseui';
 import { Provider as StyletronProvider } from 'styletron-react';
 import { Routes, Route } from 'react-router-dom';
 
+import type { StandardEngine } from 'styletron-react';
+
 import { Block } from 'baseui/block';
 // @ts-ignore: We just don't have a type definition for this yet
 import { TitleBar } from 'react-desktop/windows';
@@ -36,6 +38,12 @@ import './App.global.css';
 import './resources/fonts/raleway/raleway.css';
 import './resources/fonts/redHatMono/redHatMono.css';
 import './resources/fonts/notoColorEmoji/notoColorEmoji.css';
+
+type FixedStyletronProviderType = React.Provider<StandardEngine> & {
+  children: React.ReactNode;
+};
+
+const FixedStyletronProvider = StyletronProvider as FixedStyletronProviderType;
 
 const engine = new Styletron();
 
@@ -133,7 +141,7 @@ export default function App() {
   useDatabaseLockChecker();
 
   return (
-    <StyletronProvider value={engine}>
+    <FixedStyletronProvider value={engine}>
       <Block width="100vw" height="30px" />
       <Block top="0" left="0" width="100vw" position="fixed">
         <StudioTitleBar />
@@ -172,6 +180,6 @@ export default function App() {
         <InitializeErrorModal />
         <ResourceSearchModal />
       </BaseProvider>
-    </StyletronProvider>
+    </FixedStyletronProvider>
   );
 }
