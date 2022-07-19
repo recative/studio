@@ -12,7 +12,7 @@ import { useStyletron } from 'styletron-react';
 import { Block } from 'baseui/block';
 import { Input } from 'baseui/input';
 import { Textarea, SIZE as TEXTAREA_SIZE } from 'baseui/textarea';
-import { LabelLarge } from 'baseui/typography';
+import { LabelLarge, LabelMedium } from 'baseui/typography';
 import { FormControl } from 'baseui/form-control';
 import { Checkbox, STYLE_TYPE, LABEL_PLACEMENT } from 'baseui/checkbox';
 
@@ -529,10 +529,11 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
       )}
       {file.type !== 'group' && (
         <>
-          <LabelLarge className={css(groupLabelStyles)}>Extensions</LabelLarge>
           <ExtensionConfiguration
+            key={file.id}
             domain="resourceProcessor"
             type="resource"
+            TitleComponent={LabelLarge}
             getValue={getPluginSettings}
             setValue={setPluginSettings}
           />

@@ -75,7 +75,8 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     {
       id: 'enabled',
       type: 'boolean',
-      label: 'Enabled',
+      label: 'Add texture to atlas pack',
+      title: 'Enable',
     },
   ] as const;
 

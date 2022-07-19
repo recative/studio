@@ -4,16 +4,20 @@ import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
 import { Block } from 'baseui/block';
-import { Checkbox } from 'baseui/checkbox';
 import { ButtonGroup } from 'baseui/button-group';
 import { FormControl } from 'baseui/form-control';
 import { ParagraphLarge } from 'baseui/typography';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Button, SIZE as BUTTON_SIZE } from 'baseui/button';
+import {
+  Checkbox,
+  STYLE_TYPE as CHECKBOX_STYLE_TYPE,
+  LABEL_PLACEMENT as CHECKBOX_LABEL_PLACEMENT,
+} from 'baseui/checkbox';
 
-import type { IConfigUiField } from '@recative/definitions';
+import type { IConfigUiField } from '@recative/extension-sdk';
 
-import { PluginIconOutline } from 'components/Icons/PluginIconOutline';
+import { ExtensionIconFilled } from 'components/Icons/ExtensionIconFilled';
 
 import { server } from 'utils/rpc';
 
@@ -21,6 +25,7 @@ export interface IExtensionConfigurationProps {
   domain: 'uploader' | 'resourceProcessor';
   type: 'plugin' | 'resource';
   disabled?: boolean;
+  TitleComponent?: React.FC<{ children: React.ReactNode }>;
   getValue: (extensionId: string, key: string) => string;
   setValue: (
     extensionId: string,
@@ -36,7 +41,12 @@ const pluginTitleContainerStyles = {
 
 const optionsStyle = { textTransform: 'capitalize' } as const;
 
-const iconContainerStyle = { marginRight: '8px' } as const;
+const iconContainerStyle = {
+  height: '1em',
+  marginLeft: '6px',
+  opacity: 0.6,
+  transform: 'translateY(-5%)',
+} as const;
 
 const useExtensionMetadata = (
   domain: IExtensionConfigurationProps['domain'],
@@ -81,6 +91,7 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
   domain,
   type,
   disabled,
+  TitleComponent = ParagraphLarge,
   getValue,
   setValue,
 }) => {
@@ -172,14 +183,14 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
       {extensionMetadata.map((extension) => {
         return (
           <Block key={extension.id}>
-            <ParagraphLarge>
+            <TitleComponent>
               <span className={css(pluginTitleContainerStyles)}>
-                <span className={css(iconContainerStyle)}>
-                  <PluginIconOutline width={16} />
-                </span>
                 <span>{extension.label}</span>
+                <span className={css(iconContainerStyle)}>
+                  <ExtensionIconFilled width="1em" height="1em" />
+                </span>
               </span>
-            </ParagraphLarge>
+            </TitleComponent>
             {extension.fields &&
               extension.fields.map(({ id, ...config }) => {
                 const fieldQueryKey = `${extension.id}~~${id}`;
@@ -223,18 +234,20 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
 
                 if (config.type === 'boolean') {
                   return (
-                    <Block key={id}>
+                    <FormControl key={id} label={config.title}>
                       <Checkbox
                         checked={
                           (overwrittenValue[fieldQueryKey] ??
                             getValue(extension.id, id)) === 'yes'
                         }
+                        labelPlacement={CHECKBOX_LABEL_PLACEMENT.right}
+                        checkmarkType={CHECKBOX_STYLE_TYPE.toggle}
                         onChange={onChangeCallbacks[fieldQueryKey]}
                         disabled={disabled}
                       >
                         {config.label}
                       </Checkbox>
-                    </Block>
+                    </FormControl>
                   );
                 }
 

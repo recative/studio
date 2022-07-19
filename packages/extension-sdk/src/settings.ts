@@ -12,6 +12,7 @@ export interface IConfigUiStringField {
 export interface IConfigUiBooleanField {
   id: string;
   type: 'boolean';
+  title: string;
   label: string;
 }
 

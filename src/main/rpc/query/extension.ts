@@ -1,6 +1,6 @@
 import { pick, cloneDeep } from 'lodash';
 
-import type { IConfigUiField } from '@recative/definitions';
+import type { IConfigUiField } from '@recative/extension-sdk';
 
 import { extensions } from '../../extensions';
 
@@ -41,7 +41,7 @@ extensions.forEach((extension) => {
       return result;
     });
 
-    extensionMetadata.uploader.push(...uploaders);
+    extensionMetadata.uploader.push(...(uploaders as any));
   }
 
   if ('resourceProcessor' in extension && extension.resourceProcessor) {
