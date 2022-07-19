@@ -51,6 +51,7 @@ const CustomizedTheme = createTheme(
       radius300: '0px',
       radius400: '0px',
       radius500: '0px',
+      buttonBorderRadius: '0px',
     },
     typography: {
       DisplayLarge: {

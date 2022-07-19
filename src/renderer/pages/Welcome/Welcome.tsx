@@ -6,7 +6,7 @@ import type { StyleObject } from 'styletron-react';
 import { useAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { useStyletron } from 'styletron-react';
-import { useToggle, useLocalStorage } from 'react-use';
+import { useLocalStorage } from 'react-use';
 
 import { Block } from 'baseui/block';
 import { LabelLarge } from 'baseui/typography';
@@ -105,6 +105,8 @@ const fullWidthStyle: StyleObject = {
 };
 
 const recentProjectStyle: StyleObject = {
+  marginLeft: '-14px',
+
   '@media (max-width: 800px)': {
     overflow: 'hidden',
     maxHeight: 'initial !important',
@@ -149,7 +151,8 @@ const RecentProjectButton: React.VFC<
             textAlign: 'left',
             marginRight: '2px',
             marginBottom: '8px',
-            marginLeft: '-14px',
+            paddingLeft: '12px',
+            paddingRight: '12px',
             justifyContent: 'flex-start',
           }),
         },

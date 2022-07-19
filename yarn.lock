@@ -4396,7 +4396,7 @@ __metadata:
     babel-plugin-dev-expression: ^0.2.2
     babel-plugin-transform-react-remove-prop-types: ^0.4.24
     base64-js: ^1.5.1
-    baseui: ^11.0.3
+    baseui: 11.2.1
     bcryptjs: ^2.4.3
     boring-avatars: ^1.5.8
     chalk: ^4.1.0
@@ -4512,7 +4512,7 @@ __metadata:
     tmp: ^0.2.1
     ts-node: ^10.4.0
     type-fest: ^2.1.0
-    typescript: ^4.7.4
+    typescript: 4.7.4
     url-loader: ^4.1.0
     use-async-effect: ^2.2.3
     use-immer: ^0.6.0
@@ -7214,9 +7214,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"baseui@npm:^11.0.3":
-  version: 11.0.3
-  resolution: "baseui@npm:11.0.3"
+"baseui@npm:11.2.1":
+  version: 11.2.1
+  resolution: "baseui@npm:11.2.1"
   dependencies:
     "@date-io/date-fns": ^2.6.2
     card-validator: ^6.2.0
@@ -7245,7 +7245,7 @@ __metadata:
     react: ">= 16.8.0 < 19"
     react-dom: ">= 16.8.0 < 19"
     styletron-react: ">=5.2.2 < 7"
-  checksum: 3cf79116f66883fedf010019585d217a355e3a442fc2fe9256ede6c5d5c69d4dff05557faffcec4dbcee1d485f22867c2e125c394e3e4773a068bb0f0194bdd8
+  checksum: a63589e0f3a37390dee33c4c3bfef125c65ac4ad1fce821192b70f06840008b5e0ef0692ea84cecc70532c6d8d2cdf1a0150f85b9e2d8bc597a9bc4364ee20e2
   languageName: node
   linkType: hard
 
@@ -21613,7 +21613,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.7.4":
+"typescript@npm:4.7.4":
   version: 4.7.4
   resolution: "typescript@npm:4.7.4"
   bin:
@@ -21623,7 +21623,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.7.4#~builtin<compat/typescript>":
+"typescript@patch:typescript@4.7.4#~builtin<compat/typescript>":
   version: 4.7.4
   resolution: "typescript@patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=493e53"
   bin:
