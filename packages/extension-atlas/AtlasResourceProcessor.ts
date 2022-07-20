@@ -273,16 +273,19 @@ export class AtlasResourceProcessor extends ResourceProcessor<
         textureEnvelope.h === textureRect.w
       ) {
         // Draw rotated
+        this.dependency.logToTerminal(
+          `:: :: Drawing rotated, ${resourceId} (${textureRect.w}x${textureRect.h})`,
+          Level.Error
+        );
         ctx.save();
-        ctx.translate(textureRect.x, textureRect.y);
-        ctx.rotate((90 * Math.PI) / 180);
+        ctx.rotate(Math.PI / 2);
         ctx.drawImage(
           subImage,
           textureEnvelope.x,
           textureEnvelope.y,
           textureEnvelope.w,
           textureEnvelope.h,
-          spaceRect.h - textureRect.y - textureRect.w,
+          0 - textureRect.y - textureRect.w,
           textureRect.x,
           textureRect.w,
           textureRect.h
@@ -741,6 +744,17 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             );
             this.dependency.logToTerminal(
               `:: :: :: Canvas size: ${canvas.width} x ${canvas.height}`,
+              Level.Info
+            );
+            this.dependency.logToTerminal(
+              `:: :: :: Resource Id: ${resourceDescription.id}`,
+              Level.Info
+            );
+            this.dependency.logToTerminal(
+              `:: :: :: File Name: ${this.getOutputFileName(
+                resourceDescription,
+                {}
+              )}`,
               Level.Info
             );
             this.dependency.logToTerminal(
