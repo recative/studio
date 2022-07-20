@@ -12,11 +12,12 @@ import { useStyletron } from 'styletron-react';
 import { Block } from 'baseui/block';
 import { LabelLarge } from 'baseui/typography';
 import { FormControl } from 'baseui/form-control';
+import { LABEL_PLACEMENT } from 'baseui/checkbox';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
-import { Checkbox, STYLE_TYPE, LABEL_PLACEMENT } from 'baseui/checkbox';
 
 import { Select } from 'components/Select/Select';
+import { Toggle } from 'components/Toggle/Toggle';
 import { NotFound } from 'components/Illustrations/NotFound';
 import { ExtensionConfiguration } from 'components/ExtensionConfiguration/ExtensionConfiguration';
 import type { SelectProps } from 'components/Select/Select';
@@ -487,15 +488,14 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
           <Block className={css(preloadFormItemContainerStyles)}>
             <Block>
               <FormControl label="Cache">
-                <Checkbox
+                <Toggle
                   checked={file?.cacheToHardDisk || false}
-                  checkmarkType={STYLE_TYPE.toggle_round}
                   labelPlacement={LABEL_PLACEMENT.right}
                   onChange={handleCacheToHardDiskChange}
                   disabled={databaseLocked}
                 >
                   Cache Resource to Hard Disk
-                </Checkbox>
+                </Toggle>
               </FormControl>
             </Block>
             <Block>

@@ -17,6 +17,7 @@ import {
 
 import type { IConfigUiField } from '@recative/extension-sdk';
 
+import { Toggle } from 'components/Toggle/Toggle';
 import { ExtensionIconFilled } from 'components/Icons/ExtensionIconFilled';
 
 import { server } from 'utils/rpc';
@@ -235,18 +236,17 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
                 if (config.type === 'boolean') {
                   return (
                     <FormControl key={id} label={config.title}>
-                      <Checkbox
+                      <Toggle
                         checked={
                           (overwrittenValue[fieldQueryKey] ??
                             getValue(extension.id, id)) === 'yes'
                         }
                         labelPlacement={CHECKBOX_LABEL_PLACEMENT.right}
-                        checkmarkType={CHECKBOX_STYLE_TYPE.toggle}
                         onChange={onChangeCallbacks[fieldQueryKey]}
                         disabled={disabled}
                       >
                         {config.label}
-                      </Checkbox>
+                      </Toggle>
                     </FormControl>
                   );
                 }
