@@ -58,17 +58,17 @@ export const fastPublish = async (
 
   await wrapTaskFunction(terminalId, 'Creating Media Bundle', async () => {
     if (bundleReleaseId !== null) {
-      return uploadBundle(
-        bundleReleaseId,
-        true,
-        true,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false
-      );
+      return uploadBundle(bundleReleaseId, {
+        mediaBundle: true,
+        codeBundle: true,
+        databaseBundle: false,
+        playerBundle: false,
+        rawBundle: false,
+        androidPackage: false,
+        aabPackage: false,
+        iOSPackage: false,
+        postProcessTest: false,
+      });
     }
 
     throw new Error('Unable to upload an unfinished bundle');

@@ -266,11 +266,6 @@ export const getDb = async (
     }
   });
 
-  newDb.resource.postProcessed.find({}).forEach((data) => {
-    console.log('Removing', data.id);
-    newDb.resource.postProcessed.remove(data);
-  });
-
   return newDb;
 };
 

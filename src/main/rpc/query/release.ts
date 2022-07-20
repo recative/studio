@@ -18,6 +18,7 @@ import {
   newTerminalSession,
 } from './terminal';
 import { getBuildPath } from './setting';
+import { postProcessResource } from './publishPostProcessResource';
 
 import { getDb } from '../db';
 import { getWorkspace } from '../workspace';
@@ -179,32 +180,26 @@ export const bundleBuild = async (notes: string, terminalId: string) => {
   return buildId;
 };
 
-export const bundleDb = async (terminalId: string) => {
+export const bundleDb = async (mediaReleaseId: number, terminalId: string) => {
   const buildPath = await getBuildPath();
   const config = getWorkspace();
-  const db = await getDb();
-  let buildId = (db.release.mediaReleases.max('id') + 1) as number;
-
-  if (buildId === -Infinity) {
-    buildId = 0;
-  }
 
   logToTerminal(terminalId, `Creating database bundle`, Level.Info);
 
   const { promise } = archiverGlob(
-    `${buildPath}/db-${buildId.toString().padStart(4, '0')}.zip`,
+    `${buildPath}/db-${mediaReleaseId.toString().padStart(4, '0')}.zip`,
     '**/*',
     config.dbPath
   );
 
-  logToTerminal(terminalId, `Done!`, Level.Info);
+  logToTerminal(terminalId, `:: Done!`, Level.Info);
 
   await promise;
 };
 
 let copyResourcesLock = false;
 
-export const copyMedia = async (notes: string, terminalId: string) => {
+export const copyMedia = async (mediaReleaseId: number, terminalId: string) => {
   const buildPath = await getBuildPath();
 
   if (copyResourcesLock) throw new TaskLockedError();
@@ -213,17 +208,10 @@ export const copyMedia = async (notes: string, terminalId: string) => {
 
   const db = await getDb();
 
-  let buildId = (db.release.mediaReleases.max('id') + 1) as number;
-
-  if (buildId === -Infinity) {
-    buildId = 0;
-  }
+  const resourceId = mediaReleaseId.toString().padStart(4, '0');
 
   logToTerminal(terminalId, `Copying media database`);
-
-  const resourceDir = `${buildPath}/resource-${buildId
-    .toString()
-    .padStart(4, '0')}`;
+  const resourceDir = `${buildPath}/resource-${resourceId}`;
   const binaryDir = `${resourceDir}/binary`;
   const metadataDir = `${resourceDir}/metadata`;
   const metadataByIdDir = `${metadataDir}/id`;
@@ -235,28 +223,6 @@ export const copyMedia = async (notes: string, terminalId: string) => {
     ensureDir(metadataByLabelDir),
   ]);
 
-  // const resources = db.resource.resources.find({ removed: false });
-
-  // await Promise.all(
-  //   resources.map(async (resource) => {
-  //     await writeJSON(`${metadataByIdDir}/${resource.id}.json`, resource);
-  //     await writeJSON(`${metadataByLabelDir}/${resource.label}.json`, resource);
-
-  //     const from = `${config.mediaPath}/${resource.id}.resource`;
-  //     const to = `${binaryDir}/${resource.id}.resource`;
-  //     if (existsSync(from)) {
-  //       await copy(from, to);
-  //       logToTerminal(terminalId, `File copied: ${from}`, Level.Info);
-  //     } else {
-  //       logToTerminal(
-  //         terminalId,
-  //         `File not exists: ${from} for ${resource.label}(${resource.id})`,
-  //         Level.Warning
-  //       );
-  //     }
-  //   })
-  // );
-
   const resourceList = db.resource.resources.find({
     removed: false,
   });
@@ -266,16 +232,11 @@ export const copyMedia = async (notes: string, terminalId: string) => {
     cleanUpResourceListForClient(resourceList)
   );
 
-  updateOrInsertMediaRelease([
-    {
-      id: buildId,
-      committer: 'Default User',
-      commitTime: Date.now(),
-      notes,
-    },
-  ]);
+  copyResourcesLock = false;
 
-  return buildId;
+  logToTerminal(terminalId, `:: Done!`);
+
+  return mediaReleaseId;
 };
 
 export const createBundleRelease = async (
@@ -339,15 +300,44 @@ export const createMediaRelease = async (
   terminalId = 'createMediaRelease'
 ) => {
   if (terminalId === 'createMediaRelease') {
-    newTerminalSession(terminalId, ['Building Database', 'Copying Media']);
+    newTerminalSession(terminalId, [
+      'Postprocessing Resource',
+      'Building Database',
+      'Copying Media',
+      'Writing Release Record',
+    ]);
   }
 
-  await wrapTaskFunction(terminalId, 'Building Database', async () => {
-    return bundleDb(terminalId);
+  const db = await getDb();
+
+  let mediaReleaseId = (db.release.mediaReleases.max('id') + 1) as number;
+
+  if (mediaReleaseId === -Infinity) {
+    mediaReleaseId = 0;
+  }
+
+  await wrapTaskFunction(terminalId, 'Postprocessing Resource', async () => {
+    logToTerminal(terminalId, `Postprocessing media`);
+    await postProcessResource(mediaReleaseId, terminalId, -1);
   })();
 
   await wrapTaskFunction(terminalId, 'Copying Media', async () => {
-    return copyMedia(notes, terminalId);
+    return copyMedia(mediaReleaseId, terminalId);
+  })();
+
+  await wrapTaskFunction(terminalId, 'Building Database', async () => {
+    return bundleDb(mediaReleaseId, terminalId);
+  })();
+
+  await wrapTaskFunction(terminalId, 'Writing Release Record', async () => {
+    updateOrInsertMediaRelease([
+      {
+        id: mediaReleaseId,
+        committer: 'Default User',
+        commitTime: Date.now(),
+        notes,
+      },
+    ]);
   })();
 };
 

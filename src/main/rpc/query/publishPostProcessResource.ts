@@ -22,14 +22,15 @@ import { getLokiCollectionFromMediaRelease } from '../../utils/getLokiCollection
 
 export const postProcessResource = async (
   mediaReleaseId: number,
-  terminalId: string
+  terminalId: string,
+  mediaDbReleaseId = mediaReleaseId
 ) => {
   const db = await getDb();
 
   logToTerminal(terminalId, `:: Initializing the post process pipeline`);
   const resourceCollection =
     await getLokiCollectionFromMediaRelease<IResourceItem>(
-      mediaReleaseId,
+      mediaDbReleaseId,
       'resource',
       'resources'
     );
