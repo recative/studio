@@ -1,4 +1,4 @@
-import type { ExtensionManifest } from '@recative/definitions';
+import type { ExtensionManifest } from '@recative/extension-sdk';
 
 import aliOssExtension from '@recative/extension-ali-oss';
 import s3BucketExtension from '@recative/extension-s3-bucket';

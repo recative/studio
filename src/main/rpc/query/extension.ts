@@ -1,8 +1,13 @@
+import { join } from 'path';
+import { emptyDir } from 'fs-extra';
 import { pick, cloneDeep } from 'lodash';
 
 import type { IConfigUiField } from '@recative/extension-sdk';
 
 import { extensions } from '../../extensions';
+
+import { getDb } from '../db';
+import { getWorkspace } from '../workspace';
 
 interface IExtensionDescription {
   id: string;
@@ -65,4 +70,14 @@ extensions.forEach((extension) => {
 
 export const getExtensionMetadata = () => {
   return extensionMetadata;
+};
+
+export const purgePostProcessRecords = async () => {
+  const workspace = getWorkspace();
+  const postProcessedPath = join(workspace.mediaPath, 'post-processed');
+  const db = await getDb();
+  console.log(`:: Purging post-processed records from ${postProcessedPath}`);
+  db.resource.postProcessed.removeWhere((x) => !!x);
+  await emptyDir(postProcessedPath);
+  console.log(`:: Done ${postProcessedPath}`);
 };
