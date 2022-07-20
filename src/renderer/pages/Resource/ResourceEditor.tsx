@@ -506,6 +506,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   placeholder="Select Level"
                   onChange={handlePreloadLevelChange}
                   disabled={databaseLocked}
+                  size={SELECT_SIZE.mini}
                 />
               </FormControl>
             </Block>
@@ -518,6 +519,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   value={episodesSelectValue}
                   onChange={handleEpisodesChange}
                   disabled={databaseLocked}
+                  size={SELECT_SIZE.mini}
                 />
               </FormControl>
             </Block>
@@ -531,6 +533,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   placeholder="Triggers"
                   onChange={handlePreloadTriggersChange}
                   disabled={databaseLocked}
+                  size={SELECT_SIZE.mini}
                 />
               </FormControl>
             </Block>

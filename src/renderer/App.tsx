@@ -78,6 +78,20 @@ const CustomizedTheme = createTheme(
   }
 );
 
+const dragAreaStyles = {
+  top: 0,
+  left: 0,
+  width: 'calc(100vw - 240px)',
+  height: '32px',
+  position: 'fixed',
+  WebkitAppRegion: 'drag',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any;
+
+const titleBarStyles = {
+  zIndex: 1,
+};
+
 const ScrollbarStyles: React.FC = () => {
   const [, theme] = useStyletron();
   return (
@@ -107,6 +121,7 @@ const ScrollbarStyles: React.FC = () => {
 };
 
 export const InternalStudioTitleBar = () => {
+  const [css] = useStyletron();
   const [windowIsMaximized, setWindowIsMaximized] = React.useState(false);
 
   const handleMaximizeClick = React.useCallback(() => {
@@ -120,43 +135,40 @@ export const InternalStudioTitleBar = () => {
   }, []);
 
   return (
-    <TitleBar
-      className="app-title-bar"
-      controls
-      title="Resource Manager"
-      isMaximized={windowIsMaximized}
-      onCloseClick={() => server.closeMainWindow()}
-      onMaximizeClick={handleMaximizeClick}
-      onMinimizeClick={() => server.minimizeMainWindow()}
-      onRestoreDownClick={handleUnMaximizeClick}
+    <Block
+      className={css(titleBarStyles)}
+      top="0"
+      left="0"
+      width="100vw"
+      position="fixed"
     >
-      <User />
-    </TitleBar>
+      <TitleBar
+        className="app-title-bar"
+        controls
+        title="Resource Manager"
+        isMaximized={windowIsMaximized}
+        onCloseClick={() => server.closeMainWindow()}
+        onMaximizeClick={handleMaximizeClick}
+        onMinimizeClick={() => server.minimizeMainWindow()}
+        onRestoreDownClick={handleUnMaximizeClick}
+      >
+        <User />
+      </TitleBar>
+    </Block>
   );
 };
 
 export const StudioTitleBar = React.memo(InternalStudioTitleBar);
 
 export default function App() {
+  const [css] = useStyletron();
   useDatabaseLockChecker();
 
   return (
     <FixedStyletronProvider value={engine}>
       <Block width="100vw" height="30px" />
-      <Block top="0" left="0" width="100vw" position="fixed">
-        <StudioTitleBar />
-      </Block>
-      <div
-        style={{
-          top: 0,
-          left: 0,
-          width: 'calc(100vw - 240px)',
-          height: '32px',
-          position: 'fixed',
-          // @ts-ignore: For electron
-          WebkitAppRegion: 'drag',
-        }}
-      />
+      <StudioTitleBar />
+      <div className={css(dragAreaStyles)} />
       <BaseProvider theme={CustomizedTheme}>
         <Routes>
           <Route path="import" element={<ImportResource />} />
