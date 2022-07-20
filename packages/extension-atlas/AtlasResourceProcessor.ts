@@ -37,7 +37,7 @@ export interface AtlasResourceProcessorConfig {
 }
 
 // For compatibility concern, we need to hardcode this value.
-const ATLAS_MAX_DIMENSION_SIZE = 2048;
+const ATLAS_MAX_DIMENSION_SIZE = 1024;
 
 export const PARSE_RESOURCE_FILE_TO_BE_REFACTORED_TO_DEFINITIONS = <
   T extends
@@ -276,10 +276,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       ) {
         // Draw rotated
         ctx.save();
-        this.dependency.logToTerminal(
-          `:: :: Drawing rotated, ${resourceId} ${envelopeRect.w}x${envelopeRect.h} (${envelopeRect.x}, ${envelopeRect.y}), ${ctx.fillStyle}`,
-          Level.Error
-        );
         ctx.translate(currentTask.x + currentTask.w, currentTask.y);
         ctx.rotate(Math.PI / 2);
         ctx.drawImage(
