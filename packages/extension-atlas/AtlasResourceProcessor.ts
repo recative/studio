@@ -6,7 +6,6 @@ import { Image, createCanvas } from '@napi-rs/canvas';
 
 import {
   RectWh,
-  RectXywh,
   RectXywhf,
   FinderInput,
   FlippingOption,
@@ -117,7 +116,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       !Number.isNaN(w) &&
       !Number.isNaN(h)
     ) {
-      return new RectXywh(x, y, w, h);
+      return new RectXywhf(x, y, w, h);
     }
 
     const imageData = this.getImageData(image);
@@ -176,7 +175,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       }
     }
 
-    const result = new RectXywh(
+    const result = new RectXywhf(
       paddings.left,
       paddings.top,
       paddings.right - paddings.left,
@@ -212,14 +211,14 @@ export class AtlasResourceProcessor extends ResourceProcessor<
   private generateAtlasImage = async (
     resourceId: string,
     spaceRect: RectWh,
-    textureRects: RectXywhf[],
-    resourceToRectMap: BidirectionalMap<
+    currentTasks: RectXywhf[],
+    resourceToTaskMap: BidirectionalMap<
       IPostProcessedResourceFileForUpload,
       RectXywhf
     >,
     resourceToEnvelopeMap: BidirectionalMap<
       IPostProcessedResourceFileForUpload,
-      RectXywh
+      RectXywhf
     >,
     onPacked: () => void
   ) => {
@@ -232,18 +231,18 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       throw new Error('Canvas context is null!');
     }
 
-    for (let i = 0; i < textureRects.length; i += 1) {
+    for (let i = 0; i < currentTasks.length; i += 1) {
       onPacked();
-      const textureRect = textureRects[i];
-      const rectResource = resourceToRectMap.get(textureRect);
+      const currentTask = currentTasks[i];
+      const rectResource = resourceToTaskMap.get(currentTask);
       if (!rectResource) {
         throw new TypeError(
           'Resource ID not available in the map, this is a bug!'
         );
       }
 
-      const textureEnvelope = resourceToEnvelopeMap.get(rectResource);
-      if (!textureEnvelope) {
+      const envelopeRect = resourceToEnvelopeMap.get(rectResource);
+      if (!envelopeRect) {
         throw new TypeError(
           'Envelope not available in the map, this is a bug!'
         );
@@ -252,62 +251,66 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       const subImage = new Image();
       subImage.src = await this.getResourceBuffer(rectResource);
 
+      // ctx.fillStyle = getRandomColor();
+      // ctx.fillRect(currentTask.x, currentTask.y, currentTask.w, currentTask.h);
+      // ctx.fillStyle = 'transparent';
       if (
-        textureEnvelope.w === textureRect.w &&
-        textureEnvelope.h === textureRect.h
+        currentTask.w === envelopeRect.w &&
+        currentTask.h === envelopeRect.h
       ) {
         // Draw directly
         ctx.drawImage(
           subImage,
-          textureEnvelope.x,
-          textureEnvelope.y,
-          textureEnvelope.w,
-          textureEnvelope.h,
-          textureRect.x,
-          textureRect.y,
-          textureRect.w,
-          textureRect.h
+          envelopeRect.x,
+          envelopeRect.y,
+          envelopeRect.w,
+          envelopeRect.h,
+          currentTask.x,
+          currentTask.y,
+          currentTask.w,
+          currentTask.h
         );
       } else if (
-        textureEnvelope.w === textureRect.h &&
-        textureEnvelope.h === textureRect.w
+        currentTask.w === envelopeRect.h &&
+        currentTask.h === envelopeRect.w
       ) {
         // Draw rotated
+        ctx.save();
         this.dependency.logToTerminal(
-          `:: :: Drawing rotated, ${resourceId} (${textureRect.w}x${textureRect.h})`,
+          `:: :: Drawing rotated, ${resourceId} ${envelopeRect.w}x${envelopeRect.h} (${envelopeRect.x}, ${envelopeRect.y}), ${ctx.fillStyle}`,
           Level.Error
         );
-        ctx.save();
+        ctx.translate(currentTask.x + currentTask.w, currentTask.y);
         ctx.rotate(Math.PI / 2);
         ctx.drawImage(
           subImage,
-          textureEnvelope.x,
-          textureEnvelope.y,
-          textureEnvelope.w,
-          textureEnvelope.h,
-          0 - textureRect.y - textureRect.w,
-          textureRect.x,
-          textureRect.w,
-          textureRect.h
+          envelopeRect.x,
+          envelopeRect.y,
+          envelopeRect.w,
+          envelopeRect.h,
+          0,
+          0,
+          currentTask.h,
+          currentTask.w
         );
         ctx.restore();
       } else {
         throw new TypeError(
-          `Wrong image size: Atlas (${textureRect.w} x ${textureRect.h}), Envelope (${textureEnvelope.w} x ${textureEnvelope.h})`
+          `Wrong image size: Atlas (${envelopeRect.w} x ${envelopeRect.h}), Envelope (${currentTask.w} x ${currentTask.h})`
         );
       }
 
       // #region Inject Configuration
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~x`] =
-        textureRect.x.toString();
+        envelopeRect.x.toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~y`] =
-        textureRect.y.toString();
+        envelopeRect.y.toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~w`] =
-        textureRect.w.toString();
+        envelopeRect.w.toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~h`] =
-        textureRect.h.toString();
+        envelopeRect.h.toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~f`] =
-        textureRect.flipped.toString();
+        envelopeRect.flipped.toString();
       rectResource.url[REDIRECT_URL_EXTENSION_ID] = `redirect://${resourceId}`;
       // #endregion
     }
@@ -347,13 +350,13 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     );
 
     const groupDefinitions = [...bundleGroupToFileSetMap.keys()];
-    const resourceToRectMap = new BidirectionalMap<
+    const resourceToTaskMap = new BidirectionalMap<
       IPostProcessedResourceFileForUpload,
       RectXywhf
     >();
     const resourceToEnvelopeMap = new BidirectionalMap<
       IPostProcessedResourceFileForUpload,
-      RectXywh
+      RectXywhf
     >();
 
     // #region Task Summary
@@ -412,10 +415,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               return;
             }
 
-            resourceToRectMap.set(
-              x,
-              new RectXywhf(0, 0, imageEnvelope.w, imageEnvelope.h)
-            );
             resourceToEnvelopeMap.set(x, imageEnvelope);
           })
         );
@@ -485,20 +484,28 @@ export class AtlasResourceProcessor extends ResourceProcessor<
          */
         let currentTask = Array.from(
           filesInGroup
-            .map((x) => {
-              const result = resourceToRectMap.get(x);
+            .map((resource) => {
+              const envelope = resourceToEnvelopeMap.get(resource);
 
-              if (!result) {
+              if (!envelope) {
                 throw new TypeError(
-                  `ResourceToRectMap don't have the rect, it is a bug!`
+                  `ResourceToEnvelopeMap don't have the rect, it is a bug!`
                 );
               }
 
-              return result;
+              const task = new RectXywhf(
+                envelope.x,
+                envelope.y,
+                envelope.w,
+                envelope.h
+              );
+              resourceToTaskMap.set(resource, task);
+
+              return task;
             })
             .sort((a, b) => a.area() - b.area())
         );
-        let nextTask = [] as RectXywhf[];
+        let nextTask = [] as typeof currentTask;
         let packedFiles = 0;
         let skippedFiles = 0;
 
@@ -642,7 +649,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
            * reuse the old one is enough.
            */
           const currentResources = currentTask
-            .map((x) => resourceToRectMap.get(x))
+            .map((x) => resourceToTaskMap.get(x))
             .filter(Boolean) as IPostProcessedResourceFileForUpload[];
 
           const preloadTriggers = currentResources.flatMap((x) => {
@@ -650,7 +657,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           });
 
           const resourceIds = currentTask.map(
-            (x) => resourceToRectMap.get(x)?.id
+            (x) => resourceToTaskMap.get(x)?.id
           );
 
           const resourceDescription: IPostProcessedResourceFileForUpload = {
@@ -726,7 +733,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               resourceId,
               spaceRect,
               currentTask,
-              resourceToRectMap,
+              resourceToTaskMap,
               resourceToEnvelopeMap,
               () => {
                 packedFiles += 1;
