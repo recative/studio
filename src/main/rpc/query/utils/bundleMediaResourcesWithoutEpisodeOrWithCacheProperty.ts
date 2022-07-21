@@ -2,9 +2,9 @@ import type { Archiver } from 'archiver';
 
 import { TerminalMessageLevel as Level } from '@recative/definitions';
 
-import { getReleasedDb } from 'utils/getReleasedDb';
 import { logToTerminal } from '../terminal';
 
+import { getReleasedDb } from '../../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../../utils/getResourceFile';
 import { archiverAppendPathList } from '../../../utils/archiver';
 
