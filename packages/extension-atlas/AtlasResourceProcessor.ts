@@ -37,7 +37,9 @@ export interface AtlasResourceProcessorConfig {
 }
 
 // For compatibility concern, we need to hardcode this value.
-const ATLAS_MAX_DIMENSION_SIZE = 1024;
+const ATLAS_MAX_DIMENSION_SIZE = 2048;
+const REQUIRED_VALID_AREA_RATIO = 0.75;
+const IDEAL_VALID_AREA_RATIO = 0.8;
 
 export const PARSE_RESOURCE_FILE_TO_BE_REFACTORED_TO_DEFINITIONS = <
   T extends
@@ -321,6 +323,13 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     mediaBuildId: number,
     bundleGroups: IBundleGroup[]
   ) {
+    let totalInputSize = 0;
+    let packedInputSize = 0;
+    let totalOutputSize = 0;
+    let totalInputCount = 0;
+    let packedInputCount = 0;
+    let totalOutputCount = 0;
+    let totalSkippedCount = 0;
     // Split files into different based on grouping rules, current rule is
     // hard-coded, based on language of the resource, could support more options
     // via plugin configurations.
@@ -346,6 +355,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     );
 
     const groupDefinitions = [...bundleGroupToFileSetMap.keys()];
+    const resourceToRawRectMap = new BidirectionalMap<
+      IPostProcessedResourceFileForUpload,
+      RectXywhf
+    >();
     const resourceToTaskMap = new BidirectionalMap<
       IPostProcessedResourceFileForUpload,
       RectXywhf
@@ -391,12 +404,18 @@ export class AtlasResourceProcessor extends ResourceProcessor<
         // #endregion
 
         const imageSizeQueryResult = await Promise.allSettled(
-          resourceFiles.map(async (x) => {
-            const buffer = await this.getResourceBuffer(x);
+          resourceFiles.map(async (resource) => {
+            const buffer = await this.getResourceBuffer(resource);
             const image = new Image();
             image.src = buffer;
 
-            const imageEnvelope = this.calculateImageEnvelope(x, image);
+            resourceToRawRectMap.set(
+              resource,
+              new RectXywhf(0, 0, image.width, image.height)
+            );
+            totalInputCount += 1;
+            totalInputSize += image.width * image.height;
+            const imageEnvelope = this.calculateImageEnvelope(resource, image);
 
             // The image is too large to be packed, will skip.
             if (
@@ -404,14 +423,14 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               imageEnvelope.h > ATLAS_MAX_DIMENSION_SIZE
             ) {
               this.dependency.logToTerminal(
-                `:: :: [Group ${groupIndex}] ${x.label} is too large, will skip`,
+                `:: :: [Group ${groupIndex}] ${resource.label} is too large, will skip`,
                 Level.Info
               );
 
               return;
             }
 
-            resourceToEnvelopeMap.set(x, imageEnvelope);
+            resourceToEnvelopeMap.set(resource, imageEnvelope);
           })
         );
 
@@ -553,55 +572,80 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           return true;
         };
 
-        const nextTaskIteration = async (): Promise<boolean> => {
-          if (currentTask.length === 1) {
+        const nextTaskIteration = async (
+          reason: string,
+          sizeLimit?: number
+        ): Promise<boolean> => {
+          if (nextTask.length === 1) {
             skippedFiles += 1;
+            totalSkippedCount += 1;
+            return true;
           }
-
-          // #region Log Image Detail
-          // if (currentTask.length >= 1) {
-          //   this.dependency.logToTerminal(
-          //     `:: :: [Group ${groupIndex}] ${currentTask.length} packed, ${nextTask.length} remains, ${skippedFiles} skipped`,
-          //     Level.Info
-          //   );
-          //   // this.dependency.logToTerminal(`:: :: Packed images:`, Level.Info);
-          //   // currentTask.forEach((x) => {
-          //   //   this.dependency.logToTerminal(
-          //   //     `:: :: :: ${x.w} x ${x.h} (${x.x}, ${x.y})`,
-          //   //     Level.Info
-          //   //   );
-          //   // });
-          // }
-          // #endregion
 
           currentTask = nextTask;
           nextTask = [];
 
           // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          return taskIteration();
+          return taskIteration(reason, sizeLimit);
         };
 
-        const taskIteration = async (): Promise<boolean> => {
+        const taskIteration = async (
+          reason: string,
+          sizeLimit = ATLAS_MAX_DIMENSION_SIZE,
+          stopTryingShrinkSpace = false
+        ): Promise<boolean> => {
+          this.dependency.logToTerminal(
+            `:: :: [Group ${groupIndex}] It: ${reason}`,
+            Level.Info
+          );
           if (currentTask.length === 0 && nextTask.length === 0) {
             groupReport();
 
             return true;
           }
 
+          currentTask.forEach((task) => {
+            task.x = 0;
+            task.y = 0;
+          });
+
           const resourceId = nanoid();
           taskSuccess = null;
 
-          const spaceRect = findBestPacking(
-            currentTask,
-            new FinderInput(
-              ATLAS_MAX_DIMENSION_SIZE,
-              -4,
-              reportSuccessful,
-              reportUnsuccessful,
-              // Flipping is enabled by default, this could be a plugin option if
-              // we found any use case, but not for now.
-              FlippingOption.ENABLED
-            )
+          let spaceRect: RectWh;
+          try {
+            spaceRect = findBestPacking(
+              currentTask,
+              new FinderInput(
+                sizeLimit,
+                -4,
+                reportSuccessful,
+                reportUnsuccessful,
+                // Flipping is enabled by default, this could be a plugin option if
+                // we found any use case, but not for now.
+                FlippingOption.ENABLED
+              )
+            );
+          } catch (e) {
+            this.dependency.logToTerminal(
+              `:: :: :: [Group ${groupIndex}] Atlas generation failed`,
+              Level.Error
+            );
+
+            currentTask.forEach((x) => {
+              this.dependency.logToTerminal(
+                `:: :: :: :: (${x.x}, ${x.y}) ${x.w} x ${x.h}`,
+                Level.Error
+              );
+            });
+            throw e;
+          }
+
+          const canvasRect = new RectXywhf(
+            0,
+            0,
+            2 ** Math.ceil(Math.log2(spaceRect.w)),
+            2 ** Math.ceil(Math.log2(spaceRect.h))
           );
 
           if (!taskSuccess) {
@@ -612,13 +656,72 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             }
 
             // Task not success, try to start next iteration.
-            return taskIteration();
+            return taskIteration('AtlasPackReportFailed', sizeLimit);
+          }
+
+          const currentResources = currentTask.map((task) => {
+            const result = resourceToTaskMap.get(task);
+
+            if (!result) {
+              throw new TypeError(
+                `ResourceToTaskMap don't have the task, it is a bug!`
+              );
+            }
+
+            return result;
+          });
+
+          const allDimensions = currentTask.flatMap((x) => [x.w, x.h]);
+          const nextSize = sizeLimit / 2;
+          const spaceUsageRatio = spaceRect.area() / canvasRect.area();
+          const meetIdealCondition = spaceUsageRatio > IDEAL_VALID_AREA_RATIO;
+          const meetRequiredCondition =
+            spaceUsageRatio > REQUIRED_VALID_AREA_RATIO;
+
+          const ΣTextureSize = currentResources
+            .map((resource) => {
+              const texture = resourceToRawRectMap.get(resource);
+
+              if (!texture) {
+                throw new TypeError(
+                  `ResourceToTextureMap don't have the texture, it is a bug!`
+                );
+              }
+
+              return texture.area();
+            })
+            .reduce((a, b) => a + b, 0);
+          const wasteSpace = ΣTextureSize < canvasRect.area();
+
+          const validPack =
+            meetIdealCondition || (meetRequiredCondition && !wasteSpace);
+          if (
+            // We are not wasting spaces.
+            validPack &&
+            // We indeed need to pack textures, since there're more than 1
+            // texture.
+            currentTask.length > 1 &&
+            // If the dimensions of the image is larger than the next size, we
+            // should not continue packing.
+            Math.max(...allDimensions) <= nextSize &&
+            // Atlas packing failed since the space is indeed too small, we
+            // should not try to shrink the image and accept the sad truth.
+            !stopTryingShrinkSpace
+          ) {
+            if (nextSize < 1) {
+              throw new Error(
+                `Can't pack the images, the size limit is too small, it is a bug!`
+              );
+            }
+
+            return taskIteration('PackCouldBeSmaller', nextSize);
           }
 
           /**
            * Step 2: Let's read the atlas result, if there's only one image in
-           * the atlas pack result, it means this file can get any benefit from
-           * data packing, we should skip following resource generation tasks.
+           * the atlas pack result, it means this file can not get any benefit
+           * from data packing, we should try to add it into next iteration, and
+           * repack all textures.
            * If there're no image available for currentTask, it means we should
            * stop packing.
            */
@@ -633,10 +736,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             return false;
           }
 
-          if (currentTask.length === 1) {
-            return nextTaskIteration();
-          }
-
           /**
            * Step 3: The task has finished successfully, we need to generate the
            * resource description and a task hash, this hash is used for compare
@@ -644,10 +743,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
            * same record found, we don't need to generate a new image, just
            * reuse the old one is enough.
            */
-          const currentResources = currentTask
-            .map((x) => resourceToTaskMap.get(x))
-            .filter(Boolean) as IPostProcessedResourceFileForUpload[];
-
           const preloadTriggers = currentResources.flatMap((x) => {
             return x.type !== 'file' ? [] : x.preloadTriggers;
           });
@@ -787,6 +882,11 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               await canvas.encode('png'),
               {}
             );
+
+            packedInputSize += ΣTextureSize;
+            totalOutputSize += canvas.width * canvas.height;
+            totalOutputCount += 1;
+            packedInputCount += currentTask.length;
           } else {
             // the file is already generated, just push the media build id to
             // the post process record.
@@ -796,13 +896,13 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           }
 
           if (nextTask.length > 0) {
-            return nextTaskIteration();
+            return nextTaskIteration('HasUnpackedTasks');
           }
 
           return groupReport();
         };
 
-        await taskIteration();
+        await taskIteration('Initialized');
       })
     );
 
@@ -811,9 +911,62 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       (x) => x.status === 'rejected'
     );
 
+    this.dependency.logToTerminal(`:: :: Final Report`, Level.Info);
+    this.dependency.logToTerminal(`:: :: :: Files:`, Level.Info);
+    this.dependency.logToTerminal(
+      `:: :: :: :: Input: ${totalInputCount}`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(
+      `:: :: :: :: Packed Input: ${packedInputCount}`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(
+      `:: :: :: :: Skipped: ${totalSkippedCount}`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(
+      `:: :: :: :: Packed Output: ${totalOutputCount}`,
+      Level.Info
+    );
+    const reducedFiles =
+      totalInputCount - (totalOutputCount + totalSkippedCount);
+    this.dependency.logToTerminal(
+      `:: :: :: :: Reduced: ${reducedFiles} (${(
+        (reducedFiles / totalInputCount) *
+        100
+      ).toFixed(2)}%)`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(`:: :: :: Areas:`, Level.Info);
+    this.dependency.logToTerminal(
+      `:: :: :: :: Input: ${totalInputSize}`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(
+      `:: :: :: :: Packed Input: ${packedInputSize}`,
+      Level.Info
+    );
+    const skippedSize = totalInputSize - packedInputSize;
+    this.dependency.logToTerminal(
+      `:: :: :: :: Skipped: ${totalInputSize - packedInputSize}`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(
+      `:: :: :: :: Packed Output: ${totalOutputSize}`,
+      Level.Info
+    );
+    const reducedSize = totalInputSize - (totalOutputSize + skippedSize);
+    this.dependency.logToTerminal(
+      `:: :: :: :: Reduced: ${reducedSize} (${(
+        (reducedSize / totalInputSize) *
+        100
+      ).toFixed(2)}%)`,
+      Level.Info
+    );
     if (failedImageGenerationTasks.length) {
       this.dependency.logToTerminal(
-        `:: :: ${failedImageGenerationTasks.length} image query task failed`,
+        `:: :: :: Failed Tasks: ${failedImageGenerationTasks.length}`,
         Level.Error
       );
     }
