@@ -100,11 +100,23 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
   protected configValidator(
     x: Record<string, string>
   ): x is Record<ConfigKey, string> {
-    const uiFields = Reflect.get(this.constructor, 'configUiFields');
+    const uiFields = Reflect.get(
+      this.constructor,
+      'configUiFields'
+    ) as IConfigUiField[];
+    const pluginId = Reflect.get(this.constructor, 'id');
 
     // TODO: Polish this.
-    return Object.keys(uiFields)
-      .map((key) => typeof x[key] === 'string')
+    return uiFields
+      .map((field) => {
+        const valid = typeof x[field.id] === 'string';
+
+        if (!valid) {
+          console.warn(`:: [${pluginId}] ${field.id} is not a string`);
+        }
+
+        return valid;
+      })
       .reduce((a, b) => a && b);
   }
 

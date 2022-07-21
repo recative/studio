@@ -45,14 +45,6 @@ export class PolyVUploader extends Uploader<keyof PolyVUploaderPluginConfig> {
 
   static acceptedFileCategory = [Category.Video, Category.Audio];
 
-  protected configValidator(
-    x: Record<string, string>
-  ): x is Record<keyof PolyVUploaderPluginConfig, string> {
-    return Object.keys(PolyVUploader.configUiFields)
-      .map((key) => typeof x[key] === 'string')
-      .reduce((a, b) => a && b);
-  }
-
   upload = async (buffer: Buffer, config: IResourceFile | string) => {
     if (typeof config === 'string') {
       throw new TypeError('Unable to upload a string');

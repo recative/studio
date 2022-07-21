@@ -27,21 +27,25 @@ export class AliOSSUploader extends Uploader<keyof AliOSSUploaderPluginConfig> {
       id: 'region',
       type: 'string',
       label: 'Region',
+      required: true,
     },
     {
       id: 'accessKeyId',
       type: 'string',
       label: 'Access Key #',
+      required: true,
     },
     {
       id: 'accessKeySecret',
       type: 'string',
       label: 'Access Key Secret',
+      required: true,
     },
     {
       id: 'bucket',
       type: 'string',
       label: 'Bucket',
+      required: true,
     },
     {
       id: 'dirBase',
@@ -65,22 +69,6 @@ export class AliOSSUploader extends Uploader<keyof AliOSSUploaderPluginConfig> {
   constructor(config: Record<string, string>) {
     super(config);
     this.oss = new OSS(this.config) as unknown as ClusterClient;
-  }
-
-  protected configValidator(
-    x: Record<string, string>
-  ): x is Record<keyof AliOSSUploaderPluginConfig, string> {
-    return Object.keys(AliOSSUploader.configUiFields)
-      .map((key) => {
-        if (key === 'dirBase') return true;
-
-        if (typeof x[key] !== 'string') {
-          console.warn(`[Ali OSS Uploader] ${key} is not a string`);
-        }
-
-        return typeof x[key] === 'string';
-      })
-      .reduce((a, b) => a && b);
   }
 
   upload = async (

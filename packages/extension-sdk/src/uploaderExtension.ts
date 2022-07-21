@@ -28,9 +28,29 @@ export abstract class Uploader<ConfigKey extends string> {
     }
   }
 
-  protected abstract configValidator(
+  protected configValidator(
     x: Record<string, string>
-  ): x is Record<ConfigKey, string>;
+  ): x is Record<ConfigKey, string> {
+    const uiFields = Reflect.get(
+      this.constructor,
+      'configUiFields'
+    ) as IConfigUiField[];
+    const pluginId = Reflect.get(this.constructor, 'id');
+
+    return uiFields
+      .map((field) => {
+        const valid =
+          typeof x[field.id] === 'string' ||
+          (!field.required && typeof x[field.id] === 'undefined');
+
+        if (!valid) {
+          console.warn(`:: [${pluginId}] ${field.id} is not a string`);
+        }
+
+        return valid;
+      })
+      .reduce((a, b) => a && b);
+  }
 
   abstract upload: (
     binary: Buffer,

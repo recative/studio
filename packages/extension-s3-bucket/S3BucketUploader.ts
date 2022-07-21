@@ -146,14 +146,6 @@ export class S3Uploader extends Uploader<keyof S3BucketPluginConfig> {
     });
   }
 
-  protected configValidator(
-    x: Record<string, string>
-  ): x is Record<keyof S3BucketPluginConfig, string> {
-    return Object.keys(S3Uploader.configUiFields)
-      .map((key) => typeof x[key] === 'string')
-      .reduce((a, b) => a && b);
-  }
-
   upload = async (
     binary: Blob | Uint8Array | File | Buffer,
     config: IResourceFile | string,

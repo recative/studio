@@ -7,6 +7,7 @@ export interface IConfigUiStringField {
   id: string;
   type: 'string';
   label: string;
+  required?: boolean;
 }
 
 export interface IConfigUiBooleanField {
@@ -14,6 +15,7 @@ export interface IConfigUiBooleanField {
   type: 'boolean';
   title: string;
   label: string;
+  required?: boolean;
 }
 
 export interface IConfigUiGroupedBooleanField {
@@ -22,6 +24,7 @@ export interface IConfigUiGroupedBooleanField {
   label: string;
   ids: string[];
   labels: string[];
+  required?: boolean;
 }
 
 export type IConfigUiField =
