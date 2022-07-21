@@ -2,13 +2,11 @@ import type { Archiver } from 'archiver';
 
 import { TerminalMessageLevel as Level } from '@recative/definitions';
 
+import { getReleasedDb } from 'utils/getReleasedDb';
 import { logToTerminal } from '../terminal';
-
-import { getDb } from '../../db';
 
 import { getResourceFilePath } from '../../../utils/getResourceFile';
 import { archiverAppendPathList } from '../../../utils/archiver';
-import { extractDbBackupToTempPath } from '../../../utils/extractDbBackupToTempPath';
 
 /**
  * Find all not-deleted resource files, which don't have any episode, or
@@ -22,12 +20,11 @@ import { extractDbBackupToTempPath } from '../../../utils/extractDbBackupToTempP
  */
 export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
   archive: Archiver,
-  mediaReleaseId: number,
+  bundleReleaseId: number,
   resourcePath: string,
   terminalId: string
 ) => {
-  const dbPath = await extractDbBackupToTempPath(mediaReleaseId);
-  const db = await getDb(dbPath, true);
+  const db = await getReleasedDb(bundleReleaseId);
 
   // Get all resource that is not removed and have no episode record.
   const resourceList = db.resource.resources.find({

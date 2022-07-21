@@ -7,6 +7,7 @@ import { cleanUpResourceListForClient } from '@recative/definitions';
 import type { IResourceFile } from '@recative/definitions';
 
 import { getDb } from '../../rpc/db';
+import { getDbFromRequest } from '../utils/getDbFromRequest';
 import { getResourceFilePath } from '../../utils/getResourceFile';
 
 const ErrorDbNotReady = {
@@ -28,7 +29,7 @@ export const getResourceListOfSeries = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const db = await getDb();
+  const db = await getDbFromRequest(request);
 
   if (!db) {
     reply.statusCode = 503;
@@ -58,7 +59,7 @@ export const getResourceMetadata = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const db = await getDb();
+  const db = await getDbFromRequest(request);
 
   if (!db) {
     reply.statusCode = 503;

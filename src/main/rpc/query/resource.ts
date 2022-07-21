@@ -31,6 +31,7 @@ import { preprocessVideo } from '../ffmpeg/preprocessVideo';
 import { getDb } from '../db';
 import { getMimeType } from '../../utils/getMimeType';
 import { getWorkspace } from '../workspace';
+import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getThumbnailSrc } from '../../utils/getThumbnailSrc';
 import { getResourceFilePath } from '../../utils/getResourceFile';
 import { getFileHash, getFilePathHash } from '../../utils/getFileHash';
@@ -259,9 +260,10 @@ export const addFileToGroup = async (
 
 export const getResource = async (
   resourceId: string,
-  excludeRemoved = true
+  excludeRemoved = true,
+  bundleReleaseId?: number
 ) => {
-  const db = await getDb();
+  const db = await getReleasedDb(bundleReleaseId);
 
   const resource = db.resource.resources.findOne({
     id: resourceId,

@@ -7,12 +7,11 @@ import {
   TerminalMessageLevel as Level,
 } from '@recative/definitions';
 
-import { getDb } from '../db';
 import { getBuildPath } from './setting';
 import { logToTerminal } from './terminal';
 
+import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../utils/getResourceFile';
-import { extractDbBackupToTempPath } from '../../utils/extractDbBackupToTempPath';
 import { createEmptyZip, archiverAppendPathList } from '../../utils/archiver';
 
 /**
@@ -25,12 +24,10 @@ import { createEmptyZip, archiverAppendPathList } from '../../utils/archiver';
  * @param terminalId Output information to which terminal.
  */
 export const createOfflineResourceBundle = async (
-  mediaReleaseId: number,
   bundleReleaseId: number,
   terminalId: string
 ) => {
-  const dbPath = await extractDbBackupToTempPath(mediaReleaseId);
-  const db = await getDb(dbPath, true);
+  const db = await getReleasedDb(bundleReleaseId);
   const buildPath = await getBuildPath();
 
   const zipPath = join(

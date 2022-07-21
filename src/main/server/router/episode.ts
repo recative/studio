@@ -8,42 +8,61 @@ import {
   getEpisodeDetailList,
   getResourceListOfEpisode,
 } from '../../rpc/query/episode';
+import { getDbFromRequest } from '../utils/getDbFromRequest';
 
 interface AssetListParameters {
   id: string;
 }
 
 export const getAssetList = async (request: FastifyRequest) => {
-  const episodeId = (request.params as AssetListParameters).id;
-  return getEpisodeDetail(episodeId, {
-    type: 'apPackPreview',
-    resourceHostName: request.hostname,
-    apHostName:
-      (request.query as { apHost?: string }).apHost || request.hostname,
-    apProtocol: request.protocol,
-  });
-};
+  const db = getDbFromRequest(request);
 
-export const getResourceList = async (request: FastifyRequest) => {
   const episodeId = (request.params as AssetListParameters).id;
-  return getResourceListOfEpisode(episodeId, {
-    type: 'apPackPreview',
-    resourceHostName: request.hostname,
-    apHostName:
-      (request.query as { apHost?: string }).apHost || request.hostname,
-    apProtocol: request.protocol,
-  });
-};
-
-export const getEpisodeList = async (request: FastifyRequest) => {
-  return (
-    await getEpisodeDetailList(null, {
+  return getEpisodeDetail(
+    episodeId,
+    {
       type: 'apPackPreview',
       resourceHostName: request.hostname,
       apHostName:
         (request.query as { apHost?: string }).apHost || request.hostname,
       apProtocol: request.protocol,
-    })
+    },
+    db
+  );
+};
+
+export const getResourceList = async (request: FastifyRequest) => {
+  const db = getDbFromRequest(request);
+
+  const episodeId = (request.params as AssetListParameters).id;
+  return getResourceListOfEpisode(
+    episodeId,
+    {
+      type: 'apPackPreview',
+      resourceHostName: request.hostname,
+      apHostName:
+        (request.query as { apHost?: string }).apHost || request.hostname,
+      apProtocol: request.protocol,
+    },
+    db
+  );
+};
+
+export const getEpisodeList = async (request: FastifyRequest) => {
+  const db = getDbFromRequest(request);
+
+  return (
+    await getEpisodeDetailList(
+      null,
+      {
+        type: 'apPackPreview',
+        resourceHostName: request.hostname,
+        apHostName:
+          (request.query as { apHost?: string }).apHost || request.hostname,
+        apProtocol: request.protocol,
+      },
+      db
+    )
   ).sort((a, b) => a.episode.order - b.episode.order);
 };
 

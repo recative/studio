@@ -6,7 +6,13 @@ import { ensureDir } from 'fs-extra';
 
 import { getBuildPath } from '../rpc/query/setting';
 
+const cache = new Map<number, string>();
+
 export const extractDbBackupToTempPath = async (mediaReleaseId: number) => {
+  if (cache.has(mediaReleaseId)) {
+    return cache.get(mediaReleaseId);
+  }
+
   const dir = tempfile();
   ensureDir(dir);
 
@@ -21,6 +27,8 @@ export const extractDbBackupToTempPath = async (mediaReleaseId: number) => {
 
   await zip.extract(null, dir);
   await zip.close();
+
+  cache.set(mediaReleaseId, dir);
 
   return dir;
 };

@@ -12,17 +12,14 @@ import { TerminalMessageLevel as Level } from '@recative/definitions';
 import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
 
-import { getDb } from '../db';
-
-import { extractDbBackupToTempPath } from '../../utils/extractDbBackupToTempPath';
 import { getBuildPath } from './setting';
+import { getReleasedDb } from '../../utils/getReleasedDb';
 
 const getBundlerConfigs = async (
-  mediaReleaseId: number,
-  codeReleaseId: number
+  codeReleaseId: number,
+  bundleReleaseId: number
 ) => {
-  const dbPath = await extractDbBackupToTempPath(mediaReleaseId);
-  const db = getDb(dbPath, true);
+  const db = getReleasedDb(bundleReleaseId);
 
   const episodes = cloneDeep(
     await getEpisodeDetailList(
@@ -48,14 +45,13 @@ const getBundlerConfigs = async (
  */
 export const dumpPlayerConfigs = async (
   codeReleaseId: number,
-  mediaReleaseId: number,
   bundleReleaseId: number,
   terminalId: string
 ) => {
   const buildPath = await getBuildPath();
 
   logToTerminal(terminalId, `Extracting bundler configurations`, Level.Info);
-  const episodes = await getBundlerConfigs(mediaReleaseId, codeReleaseId);
+  const episodes = await getBundlerConfigs(codeReleaseId, bundleReleaseId);
   const playerBundlePath = join(
     buildPath,
     `player-${bundleReleaseId.toString().padStart(4, '0')}`
@@ -166,12 +162,7 @@ export const publishPlayerBundle = async (
     await rmdir(playerBundlePath, { recursive: true });
   }
 
-  await dumpPlayerConfigs(
-    codeReleaseId,
-    mediaReleaseId,
-    bundleReleaseId,
-    terminalId
-  );
+  await dumpPlayerConfigs(codeReleaseId, bundleReleaseId, terminalId);
   await dumpActPointArtifacts(codeReleaseId, bundleReleaseId, terminalId);
   await dumpMediaResources(mediaReleaseId, bundleReleaseId, terminalId);
 };

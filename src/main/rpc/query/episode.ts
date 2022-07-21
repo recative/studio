@@ -39,8 +39,8 @@ export const getResourceListOfEpisode = async (
 
   const profile = getProfile(request);
 
-  const resourceFiles = profile.injectResourceUrls(
-    await Promise.all(
+  const resourceFiles = profile.injectResourceUrls([
+    ...(await Promise.all(
       db.resource.resources
         .find({
           $or: [
@@ -66,8 +66,11 @@ export const getResourceListOfEpisode = async (
             url: latestResource.url,
           };
         })
-    )
-  );
+    )),
+    ...db.resource.postProcessed.find({
+      episodeIds: { $contains: episodeId },
+    }),
+  ]);
 
   const resourceGroups = db.resource.resources.find({
     files: { $containsAny: resourceFiles.map((x) => x.id) },

@@ -98,12 +98,7 @@ export const publishApp = async ({
   });
 
   logToTerminal(terminalId, `Preparing for tasks`, Level.Info);
-  await dumpPlayerConfigs(
-    codeReleaseId,
-    mediaReleaseId,
-    bundleReleaseId,
-    terminalId
-  );
+  await dumpPlayerConfigs(codeReleaseId, bundleReleaseId, terminalId);
   if (appTemplateFileName) {
     await duplicateBasePackage(
       archive,
@@ -138,7 +133,7 @@ export const publishApp = async ({
   await bundleAdditionalModules(archive, outputPublicPath, terminalId);
   await bundleMediaResourcesWithoutEpisodeOrWithCacheProperty(
     archive,
-    mediaReleaseId,
+    bundleReleaseId,
     `${outputPublicPath}/bundle/resource`,
     terminalId
   );
