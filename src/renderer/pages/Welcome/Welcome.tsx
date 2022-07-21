@@ -289,7 +289,7 @@ export const Welcome: React.FC = () => {
     >
       <Block width="80vw" maxWidth="800px">
         <Block marginBottom="24px">
-          <TitleGroup title="Resource Manager" />
+          <TitleGroup title="Recative Studio" />
         </Block>
         <Block className={css(contentContainerStyle)} display="flex">
           <Block className={css(fullWidthStyle)} width="40%">

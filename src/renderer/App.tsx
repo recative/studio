@@ -145,7 +145,7 @@ export const InternalStudioTitleBar = () => {
       <TitleBar
         className="app-title-bar"
         controls
-        title="Resource Manager"
+        title="Recative Studio"
         isMaximized={windowIsMaximized}
         onCloseClick={() => server.closeMainWindow()}
         onMaximizeClick={handleMaximizeClick}

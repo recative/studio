@@ -53,7 +53,7 @@ const createWindow = async () => {
     show: false,
     width: 1024,
     height: 728,
-    title: 'Resource Manager',
+    title: 'Recative Studio',
     icon: getAssetPath('icon.png'),
     frame: false,
     webPreferences: {
