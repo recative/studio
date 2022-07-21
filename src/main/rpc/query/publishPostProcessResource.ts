@@ -66,6 +66,7 @@ export const postProcessResource = async (
   const episodeIdCombinations = new Set<string>();
 
   resourceToBePostProcessed.forEach((resource) => {
+    if (!resource.episodeIds.length) return;
     episodeIdCombinations.add(resource.episodeIds.join(','));
   });
 
@@ -75,14 +76,26 @@ export const postProcessResource = async (
     languageResourceTags.forEach((languageTag) => {
       resourceBundleGroups.push({
         tagContains: [languageTag.id],
-        episodeContains: splitedEpisodes,
+        episodeIs: splitedEpisodes,
       });
     });
 
     resourceBundleGroups.push({
       tagNotContains: languageResourceTags.map((x) => x.id),
-      episodeContains: splitedEpisodes,
+      episodeIs: splitedEpisodes,
     });
+  });
+
+  languageResourceTags.forEach((languageTag) => {
+    resourceBundleGroups.push({
+      tagContains: [languageTag.id],
+      episodeIsEmpty: true,
+    });
+  });
+
+  resourceBundleGroups.push({
+    tagNotContains: languageResourceTags.map((x) => x.id),
+    episodeIsEmpty: true,
   });
 
   logToTerminal(

@@ -63,7 +63,10 @@ export interface InitializeDependency {
 
 export interface IBundleGroup {
   episodeContains?: string[];
+  episodeIsEmpty?: boolean;
+  episodeIs?: string[];
   tagContains?: string[];
+  tagIsEmpty?: boolean;
   tagNotContains?: string[];
 }
 
@@ -222,52 +225,60 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
   >(
     resources: T[],
     bundleGroups: IBundleGroup[],
-    iterator: (resource: T[], group: IBundleGroup) => P
+    iterator: (resource: T[], group: IBundleGroup) => P,
+    deduplicate = false
   ) {
-    return bundleGroups.map((group) => {
-      const episodeMap = group.episodeContains
-        ? new Set(group.episodeContains)
-        : null;
-      const tagMap = group.tagContains ? new Set(group.tagContains) : null;
-      const tagNotMap = group.tagNotContains
-        ? new Set(group.tagNotContains)
-        : null;
+    const resourceSet = new Set<T>();
 
+    return bundleGroups.map((group) => {
       const filteredResources = resources.filter((resource) => {
         if (resource.type !== 'file') {
           return false;
         }
 
-        // If episode map or tag map is null, it means we this condition could be ignored.
-        // If episode map exists but is empty, it means we want it MUST be empty.
-        const allResourceEpisodeIdsInEpisodeMap =
-          !episodeMap ||
-          [...episodeMap].every((x) => resource.episodeIds.includes(x));
-        const resourceEpisodeIdsIsEmpty =
-          episodeMap?.size === 0 && resource.episodeIds.length === 0;
-        const resourceEpisodeIdCondition =
-          allResourceEpisodeIdsInEpisodeMap || resourceEpisodeIdsIsEmpty;
+        if (resourceSet.has(resource)) {
+          return false;
+        }
 
-        const allResourceTagIdsInTagMap =
-          !tagMap || [...tagMap].every((x) => resource.tags.includes(x));
-        const resourceTagIdsIsEmpty =
-          tagMap?.size === 0 && resource.tags.length === 0;
-        const resourceTagIdCondition =
-          allResourceTagIdsInTagMap || resourceTagIdsIsEmpty;
+        const allResourceEpisodeIdsInQuery =
+          !group.episodeContains ||
+          group.episodeContains.every((x) => resource.episodeIds.includes(x));
 
-        const allResourceTagNotIdsNotInTagMap =
-          !tagNotMap || [...tagNotMap].every((x) => !resource.tags.includes(x));
-        const resourceTagNotIdsIsEmpty =
-          tagNotMap?.size === 0 && resource.tags.length === 0;
-        const resourceTagNotIdCondition =
-          allResourceTagNotIdsNotInTagMap || resourceTagNotIdsIsEmpty;
+        const allResourceEpisodeEqQuery =
+          !group.episodeIs ||
+          group.episodeIs.sort().join() === resource.episodeIds.sort().join();
+
+        const allResourceTagIdsInQuery =
+          !group.tagContains ||
+          group.tagContains.every((x) => resource.tags.includes(x));
+
+        const allResourceTagNotIdsNotInQuery =
+          !group.tagNotContains ||
+          group.tagNotContains.every((x) => !resource.tags.includes(x));
+
+        const tagIsEmpty =
+          group.tagIsEmpty === undefined ||
+          (group.tagIsEmpty && resource.tags.length === 0);
+
+        const episodeIsEmpty =
+          group.episodeIsEmpty === undefined ||
+          (group.episodeIsEmpty && resource.episodeIds.length === 0);
 
         return (
-          resourceTagNotIdCondition &&
-          resourceEpisodeIdCondition &&
-          resourceTagIdCondition
+          allResourceTagNotIdsNotInQuery &&
+          allResourceEpisodeIdsInQuery &&
+          allResourceTagIdsInQuery &&
+          allResourceEpisodeEqQuery &&
+          tagIsEmpty &&
+          episodeIsEmpty
         );
       });
+
+      if (deduplicate) {
+        filteredResources.forEach((resource) => {
+          resourceSet.add(resource);
+        });
+      }
 
       return iterator(filteredResources, group);
     });
