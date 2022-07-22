@@ -441,9 +441,20 @@ export class AtlasResourceProcessor extends ResourceProcessor<
 
         if (failedMediaQueryTask.length) {
           this.dependency.logToTerminal(
-            `:: :: [Group ${groupIndex}] ${failedMediaQueryTask} image size query task failed`,
+            `:: :: [Group ${groupIndex}] ${failedMediaQueryTask.length} image size query tasks failed.`,
             Level.Error
           );
+
+          failedMediaQueryTask.forEach((task) => {
+            if (task.status === 'rejected') {
+              this.dependency.logToTerminal(
+                `:: :: :: ${task.reason}`,
+                Level.Error
+              );
+            }
+          });
+
+          throw new Error(`Image size query task failed.`);
         }
         // #endregion
       })
@@ -456,12 +467,14 @@ export class AtlasResourceProcessor extends ResourceProcessor<
 
     if (failedAtlasBoundingTasks.length) {
       this.dependency.logToTerminal(
-        `:: :: ${failedAtlasBoundingTasks.length} atlas tasks failed`,
+        `:: :: ${failedAtlasBoundingTasks.length} bounding tasks failed`,
         Level.Error
       );
+
+      this.reportFailedTaskToConsole(failedAtlasBoundingTasks);
+      throw new Error('Atlas task failed while calculating bounding box');
     }
 
-    this.reportFailedTaskToConsole(failedAtlasBoundingTasks);
     // #endregion
 
     // Calculating pack for each group of file now.
@@ -504,7 +517,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
 
               if (!envelope) {
                 throw new TypeError(
-                  `ResourceToEnvelopeMap don't have the rect, it is a bug!`
+                  `ResourceToEnvelopeMap don't have the envelope (id: ${resource.id}, label: ${resource.label}), it is a bug!`
                 );
               }
 
@@ -638,6 +651,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
                 Level.Error
               );
             });
+
             throw e;
           }
 
@@ -754,6 +768,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           const resourceDescription: IPostProcessedResourceFileForUpload = {
             type: 'file',
             id: resourceId,
+            fileName: '',
             label: `Recative Atlas Post Processed ${resourceId}`,
             postProcessRecord: {
               mediaBundleId: [mediaBuildId],
@@ -910,6 +925,16 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     const failedImageGenerationTasks = imageGenerationTasks.filter(
       (x) => x.status === 'rejected'
     );
+
+    if (failedImageGenerationTasks.length) {
+      this.dependency.logToTerminal(
+        `:: :: ${imageGenerationTasks.length} image generation tasks failed`,
+        Level.Error
+      );
+
+      this.reportFailedTaskToConsole(imageGenerationTasks);
+      throw new Error('Atlas task failed while generating the image');
+    }
 
     this.dependency.logToTerminal(`:: :: Final Report`, Level.Info);
     this.dependency.logToTerminal(`:: :: :: Files:`, Level.Info);

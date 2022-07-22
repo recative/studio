@@ -297,7 +297,8 @@ export const searchRelease = async (query: string, type: 'media' | 'code') => {
  */
 export const createMediaRelease = async (
   notes: string,
-  terminalId = 'createMediaRelease'
+  terminalId = 'createMediaRelease',
+  abortController = new AbortController()
 ) => {
   if (terminalId === 'createMediaRelease') {
     newTerminalSession(terminalId, [
@@ -316,29 +317,49 @@ export const createMediaRelease = async (
     mediaReleaseId = 0;
   }
 
-  await wrapTaskFunction(terminalId, 'Postprocessing Resource', async () => {
-    logToTerminal(terminalId, `Postprocessing media`);
-    await postProcessResource(mediaReleaseId, terminalId, -1);
-  })();
+  await wrapTaskFunction(
+    terminalId,
+    'Postprocessing Resource',
+    async () => {
+      logToTerminal(terminalId, `Postprocessing media`);
+      await postProcessResource(mediaReleaseId, terminalId, -1);
+    },
+    abortController
+  )();
 
-  await wrapTaskFunction(terminalId, 'Copying Media', async () => {
-    return copyMedia(mediaReleaseId, terminalId);
-  })();
+  await wrapTaskFunction(
+    terminalId,
+    'Copying Media',
+    async () => {
+      return copyMedia(mediaReleaseId, terminalId);
+    },
+    abortController
+  )();
 
-  await wrapTaskFunction(terminalId, 'Building Database', async () => {
-    return bundleDb(mediaReleaseId, terminalId);
-  })();
+  await wrapTaskFunction(
+    terminalId,
+    'Building Database',
+    async () => {
+      return bundleDb(mediaReleaseId, terminalId);
+    },
+    abortController
+  )();
 
-  await wrapTaskFunction(terminalId, 'Writing Release Record', async () => {
-    updateOrInsertMediaRelease([
-      {
-        id: mediaReleaseId,
-        committer: 'Default User',
-        commitTime: Date.now(),
-        notes,
-      },
-    ]);
-  })();
+  await wrapTaskFunction(
+    terminalId,
+    'Writing Release Record',
+    async () => {
+      updateOrInsertMediaRelease([
+        {
+          id: mediaReleaseId,
+          committer: 'Default User',
+          commitTime: Date.now(),
+          notes,
+        },
+      ]);
+    },
+    abortController
+  )();
 };
 
 /**

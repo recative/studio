@@ -4,6 +4,14 @@ import {
 } from '@recative/definitions';
 import type { ITerminal } from '@recative/definitions';
 
+export class AbortedError extends Error {
+  code = 'Aborted';
+
+  constructor() {
+    super(`Previous task was aborted`);
+  }
+}
+
 const sessions: Record<string, ITerminal> = {};
 
 export const newTerminalSession = (id: string, steps: string[]) => {
@@ -55,7 +63,8 @@ export const wrapTaskFunction = <
 >(
   id: string,
   step: string,
-  fn: T
+  fn: T,
+  abortController?: AbortController
 ) => {
   const handleError = (error: unknown) => {
     updateTerminalStepStatus(id, step, TerminalStepStatus.Failed);
@@ -72,12 +81,18 @@ export const wrapTaskFunction = <
   const returnedResult: (...args: P) => Promise<ReturnType<T> | null> = async (
     ...args
   ) => {
+    if (abortController && abortController.signal.aborted) {
+      handleError(new AbortedError());
+      return null;
+    }
+
     try {
       updateTerminalStepStatus(id, step, TerminalStepStatus.Working);
       const result = await fn(...args);
       updateTerminalStepStatus(id, step, TerminalStepStatus.Success);
       return result as ReturnType<T>;
     } catch (error) {
+      abortController?.abort(error);
       handleError(error);
       return null;
     }

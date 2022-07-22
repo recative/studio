@@ -6,7 +6,7 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 import { cleanUpResourceListForClient } from '@recative/definitions';
 import type { IResourceFile } from '@recative/definitions';
 
-import { getDb } from '../../rpc/db';
+import { cleanupLoki } from '../../rpc/query';
 import { getDbFromRequest } from '../utils/getDbFromRequest';
 import { getResourceFilePath } from '../../utils/getResourceFile';
 
@@ -73,14 +73,16 @@ export const getResourceMetadata = async (
     removed: false,
   };
 
-  const resource = db.resource.resources.findOne(dbQuery);
+  const resource =
+    db.resource.resources.findOne(dbQuery) ??
+    db.resource.postProcessed.findOne(dbQuery);
 
   if (!resource) {
     reply.statusCode = 404;
     return ErrorResourceNotFound;
   }
 
-  reply.header('Metadata', JSON.stringify(resource));
+  reply.header('Metadata', JSON.stringify(cleanupLoki(resource)));
 
   return cleanUpResourceListForClient([resource], false)[0];
 };

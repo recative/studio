@@ -260,7 +260,7 @@ export const getDb = async (
 
   newDb.resource.resources.find({ type: 'file' }).forEach((data) => {
     if (data.type === 'file' && !data.extensionConfigurations) {
-      console.log('migrated', data.id);
+      console.log('migrated', data.id, data.extensionConfigurations);
       data.extensionConfigurations = {};
       newDb.resource.resources.update(data);
     }

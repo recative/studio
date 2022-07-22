@@ -23,9 +23,14 @@ export interface IPostProcessRelatedData {
   postProcessRecord: IPostProcessRecord;
 }
 
+export interface IPostProcessedResourceFileRelatedData {
+  fileName: string;
+}
+
 export interface IPostProcessedResourceFileForUpload
   extends IPostProcessRelatedData,
-    IResourceFile {}
+    IResourceFile,
+    IPostProcessedResourceFileRelatedData {}
 
 export interface IPostProcessedResourceGroupForUpload
   extends IPostProcessRelatedData,
@@ -179,7 +184,7 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
       return `${file.id}$${postProcessHash}$${pluginConfigHash}$${fileConfigHash}.resource`;
     }
 
-    return `${file.id}$${pluginConfigHash}$${fileConfigHash}.resource`;
+    return `${file.id}.resource`;
   }
 
   protected writeOutputFile(
@@ -187,6 +192,12 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
     buffer: Buffer,
     additionalData: Record<string, number | string | boolean>
   ): Promise<string> {
+    const fileName = this.getOutputFileName(resource, additionalData);
+
+    if ('postProcessRecord' in resource) {
+      resource.fileName = fileName;
+    }
+
     return this.dependency.writeBufferToPostprocessCache(
       buffer,
       this.getOutputFileName(resource, additionalData)
