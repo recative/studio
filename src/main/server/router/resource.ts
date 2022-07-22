@@ -3,6 +3,7 @@ import { createReadStream, statSync } from 'fs';
 import { existsSync } from 'fs-extra';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 
+import { cleanUpResourceListForClient } from '@recative/definitions';
 import type { IResourceFile } from '@recative/definitions';
 
 import { cleanupLoki } from '../../rpc/query';
@@ -83,7 +84,7 @@ export const getResourceMetadata = async (
 
   reply.header('Metadata', JSON.stringify(cleanupLoki(resource)));
 
-  return cleanupLoki(resource);
+  return cleanUpResourceListForClient([resource], false)[0];
 };
 
 const parseRangeHeader = (range: string, size: number) => {
