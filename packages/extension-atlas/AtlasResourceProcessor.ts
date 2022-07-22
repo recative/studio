@@ -765,6 +765,11 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             (x) => resourceToTaskMap.get(x)?.id
           );
 
+          const episodeIds = [
+            ...(groupKey.episodeContains || []),
+            ...(groupKey.episodeIs || []),
+          ];
+
           const resourceDescription: IPostProcessedResourceFileForUpload = {
             type: 'file',
             id: resourceId,
@@ -795,7 +800,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               currentResources.map((x) => x.preloadLevel)
             ),
             preloadTriggers,
-            episodeIds: groupKey.episodeContains ?? [],
+            episodeIds,
             thumbnailSrc: null,
             duration: null,
             importTime: Date.now(),
