@@ -95,12 +95,12 @@ export class AtlasResourceProcessor extends ResourceProcessor<
   ) => {
     const { width, height } = image;
 
-    const tx = Number.parseInt(
-      resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ex`],
+    const tw = Number.parseInt(
+      resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~tw`],
       10
     );
-    const ty = Number.parseInt(
-      resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ey`],
+    const th = Number.parseInt(
+      resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~th`],
       10
     );
     const x = Number.parseInt(
@@ -121,8 +121,8 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     );
 
     if (
-      !Number.isNaN(tx) &&
-      !Number.isNaN(ty) &&
+      !Number.isNaN(tw) &&
+      !Number.isNaN(th) &&
       !Number.isNaN(x) &&
       !Number.isNaN(y) &&
       !Number.isNaN(w) &&
@@ -194,9 +194,9 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       paddings.bottom - paddings.top
     );
 
-    resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~tx`] =
+    resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~tw`] =
       width.toString();
-    resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ty`] =
+    resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~th`] =
       height.toString();
     resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ex`] =
       result.x.toString();
@@ -267,13 +267,12 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       const subImage = new Image();
       subImage.src = await this.getResourceBuffer(rectResource);
 
-      // ctx.fillStyle = getRandomColor();
-      // ctx.fillRect(currentTask.x, currentTask.y, currentTask.w, currentTask.h);
-      // ctx.fillStyle = 'transparent';
-      if (
-        currentTask.w === envelopeRect.w &&
-        currentTask.h === envelopeRect.h
-      ) {
+      const notFlipped =
+        currentTask.w === envelopeRect.w && currentTask.h === envelopeRect.h;
+      const flipped =
+        currentTask.w === envelopeRect.h && currentTask.h === envelopeRect.w;
+
+      if (notFlipped) {
         // Draw directly
         ctx.drawImage(
           subImage,
@@ -286,10 +285,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           currentTask.w,
           currentTask.h
         );
-      } else if (
-        currentTask.w === envelopeRect.h &&
-        currentTask.h === envelopeRect.w
-      ) {
+      } else if (flipped) {
         // Draw rotated
         ctx.save();
         ctx.translate(currentTask.x + currentTask.w, currentTask.y);
@@ -314,15 +310,15 @@ export class AtlasResourceProcessor extends ResourceProcessor<
 
       // #region Inject Configuration
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~x`] =
-        envelopeRect.x.toString();
+        currentTask.x.toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~y`] =
-        envelopeRect.y.toString();
+        currentTask.y.toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~w`] =
-        envelopeRect.w.toString();
+        currentTask.w.toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~h`] =
-        envelopeRect.h.toString();
+        currentTask.h.toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~f`] =
-        envelopeRect.flipped.toString();
+        flipped.toString();
       rectResource.url[REDIRECT_URL_EXTENSION_ID] = `redirect://${resourceId}`;
       // #endregion
     }
