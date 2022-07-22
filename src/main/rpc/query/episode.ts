@@ -1,6 +1,4 @@
 import { groupBy } from 'lodash';
-
-import { cleanUpResourceListForClient } from '@recative/definitions';
 import type {
   IEpisode,
   IResourceItem,
@@ -14,6 +12,7 @@ import { getDb } from '../db';
 
 import { getProfile } from '../../dataGenerationProfiles';
 import type { ProfileConfig } from '../../dataGenerationProfiles';
+import { cleanupLoki } from './utils';
 import { getResource } from './resource';
 
 export const getResourceAndActPoints = async (itemIds: string[]) => {
@@ -79,10 +78,7 @@ export const getResourceListOfEpisode = async (
     files: { $containsAny: resourceFiles.map((x) => x.id) },
   });
 
-  return cleanUpResourceListForClient(
-    [...resourceGroups, ...resourceFiles],
-    true
-  );
+  return cleanupLoki([...resourceGroups, ...resourceFiles], true);
 };
 
 export const listEpisodes = async (
