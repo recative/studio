@@ -78,7 +78,7 @@ export const getResourceListOfEpisode = async (
     files: { $containsAny: resourceFiles.map((x) => x.id) },
   });
 
-  return cleanupLoki([...resourceGroups, ...resourceFiles], true);
+  return [...resourceGroups, ...resourceFiles].map(cleanupLoki);
 };
 
 export const listEpisodes = async (
