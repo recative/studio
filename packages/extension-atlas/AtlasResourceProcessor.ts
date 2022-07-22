@@ -851,9 +851,43 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               }
             );
 
+            // #region Hash Result
+            const xxHash = await this.dependency.xxHash(outputBuffer);
+            const md5 = await this.dependency.md5Hash(outputBuffer);
+            // @ts-ignore: We need to force write this.
+            resourceDescription.originalHash = xxHash;
+            // @ts-ignore: Ditto.
+            resourceDescription.convertedHash.xxHash = xxHash;
+            // @ts-ignore: Ditto.
+            resourceDescription.convertedHash.md5 = md5;
+            // #endregion
+
+            resources.push(resourceDescription);
+            await this.writeOutputFile(
+              resourceDescription,
+              await canvas.encode('png'),
+              {}
+            );
+
+            currentTask.forEach((taskRect) => {
+              const resource = resourceToTaskMap.get(taskRect);
+
+              if (!resource) {
+                throw new TypeError(
+                  `ResourceToTaskMap don't have the task, it is a bug!`
+                );
+              }
+
+              this.dependency.updateResourceDefinition(resource);
+            });
+
             // #region Atlas Report
             this.dependency.logToTerminal(
               `:: :: [Group ${groupIndex}] Atlas result:`,
+              Level.Info
+            );
+            this.dependency.logToTerminal(
+              `:: :: :: Resource id: ${resourceId}`,
               Level.Info
             );
             this.dependency.logToTerminal(
@@ -884,24 +918,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               Level.Info
             );
             // #endregion
-
-            // #region Hash Result
-            const xxHash = await this.dependency.xxHash(outputBuffer);
-            const md5 = await this.dependency.md5Hash(outputBuffer);
-            // @ts-ignore: We need to force write this.
-            resourceDescription.originalHash = xxHash;
-            // @ts-ignore: Ditto.
-            resourceDescription.convertedHash.xxHash = xxHash;
-            // @ts-ignore: Ditto.
-            resourceDescription.convertedHash.md5 = md5;
-            // #endregion
-
-            resources.push(resourceDescription);
-            await this.writeOutputFile(
-              resourceDescription,
-              await canvas.encode('png'),
-              {}
-            );
 
             packedInputSize += ΣTextureSize;
             totalOutputSize += canvas.width * canvas.height;

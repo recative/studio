@@ -53,6 +53,9 @@ const resourceProcessorDependencies = {
     }
 
     Object.keys(cleanupLoki(resourceDefinition)).forEach((x) => {
+      if (x === 'fileName') return;
+      if (x === 'postProcessRecord') return;
+
       if (x in resource) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (resourceDefinition as any)[x] = (resource as any)[x];

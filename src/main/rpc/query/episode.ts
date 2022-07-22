@@ -68,7 +68,10 @@ export const getResourceListOfEpisode = async (
         })
     )),
     ...db.resource.postProcessed.find({
-      episodeIds: { $contains: episodeId },
+      $or: [
+        { episodeIds: { $contains: episodeId }, removed: false },
+        { episodeIds: { $size: 0 }, removed: false },
+      ],
     }),
   ]);
 
