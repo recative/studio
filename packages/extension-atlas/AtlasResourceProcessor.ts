@@ -95,6 +95,14 @@ export class AtlasResourceProcessor extends ResourceProcessor<
   ) => {
     const { width, height } = image;
 
+    const tx = Number.parseInt(
+      resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ex`],
+      10
+    );
+    const ty = Number.parseInt(
+      resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ey`],
+      10
+    );
     const x = Number.parseInt(
       resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ex`],
       10
@@ -113,6 +121,8 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     );
 
     if (
+      !Number.isNaN(tx) &&
+      !Number.isNaN(ty) &&
       !Number.isNaN(x) &&
       !Number.isNaN(y) &&
       !Number.isNaN(w) &&
@@ -184,6 +194,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       paddings.bottom - paddings.top
     );
 
+    resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~tx`] =
+      width.toString();
+    resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ty`] =
+      height.toString();
     resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ex`] =
       result.x.toString();
     resource.extensionConfigurations[`${AtlasResourceProcessor.id}~~ey`] =
