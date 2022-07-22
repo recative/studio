@@ -16,7 +16,7 @@ export const getResourceFileName = (
       >
 ) =>
   'fileName' in resource && 'postProcessRecord' in resource
-    ? `${resource.fileName}.resource`
+    ? resource.fileName
     : `${resource.id}.resource`;
 
 export const getResourceFilePath = (
