@@ -8,75 +8,49 @@ import {
   getEpisodeDetailList,
   getResourceListOfEpisode,
 } from '../../rpc/query/episode';
+import { getSettings } from '../../rpc/query/setting';
 import { getDbFromRequest } from '../utils/getDbFromRequest';
 
 interface AssetListParameters {
   id: string;
   profileId?: string;
+  apHost?: string;
 }
+const getProfile = async (request: FastifyRequest) => {
+  const { profileId: profile, apHost } = request.params as AssetListParameters;
+  const settings = await getSettings();
+
+  return {
+    type:
+      profile === 'apPackDistPreview'
+        ? 'apPackDistPreview'
+        : 'apPackLivePreview',
+    resourceHostName: settings.resourceHost ?? request.hostname,
+    apHostName: apHost ?? settings.apHost ?? request.hostname,
+    apProtocol: settings.contentProtocol ?? request.protocol,
+  } as const;
+};
 
 export const getAssetList = async (request: FastifyRequest) => {
   const db = getDbFromRequest(request);
 
-  const { id: episodeId, profileId: profile } =
-    request.params as AssetListParameters;
-  return getEpisodeDetail(
-    episodeId,
-    {
-      type:
-        profile === 'apPackDistPreview'
-          ? 'apPackDistPreview'
-          : 'apPackLivePreview',
-      resourceHostName: request.hostname,
-      apHostName:
-        (request.query as { apHost?: string }).apHost || request.hostname,
-      apProtocol: request.protocol,
-    },
-    db
-  );
+  const { id: episodeId } = request.params as AssetListParameters;
+  return getEpisodeDetail(episodeId, await getProfile(request), db);
 };
 
 export const getResourceList = async (request: FastifyRequest) => {
   const db = getDbFromRequest(request);
 
-  const { id: episodeId, profileId: profile } =
-    request.params as AssetListParameters;
-  return getResourceListOfEpisode(
-    episodeId,
-    {
-      type:
-        profile === 'apPackDistPreview'
-          ? 'apPackDistPreview'
-          : 'apPackLivePreview',
-      resourceHostName: request.hostname,
-      apHostName:
-        (request.query as { apHost?: string }).apHost || request.hostname,
-      apProtocol: request.protocol,
-    },
-    db
-  );
+  const { id: episodeId } = request.params as AssetListParameters;
+  return getResourceListOfEpisode(episodeId, await getProfile(request), db);
 };
 
 export const getEpisodeList = async (request: FastifyRequest) => {
   const db = getDbFromRequest(request);
 
-  const { profileId: profile } = request.params as AssetListParameters;
-  return (
-    await getEpisodeDetailList(
-      null,
-      {
-        type:
-          profile === 'apPackDistPreview'
-            ? 'apPackDistPreview'
-            : 'apPackLivePreview',
-        resourceHostName: request.hostname,
-        apHostName:
-          (request.query as { apHost?: string }).apHost || request.hostname,
-        apProtocol: request.protocol,
-      },
-      db
-    )
-  ).sort((a, b) => a.episode.order - b.episode.order);
+  return (await getEpisodeDetailList(null, await getProfile(request), db)).sort(
+    (a, b) => a.episode.order - b.episode.order
+  );
 };
 
 // ${episodeId}.bson

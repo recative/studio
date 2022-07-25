@@ -38,7 +38,7 @@ export const getProfile = ({ type, ...config }: ProfileConfig) => {
   if (type === 'apPackDistPreview') {
     const thisConfig = config as IApPackDistPreviewProfileConfig;
     return new ApPackDistPreviewProfile(
-      thisConfig.apHostName,
+      thisConfig.resourceHostName,
       thisConfig.apProtocol
     );
   }
