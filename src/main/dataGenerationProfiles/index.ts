@@ -1,19 +1,19 @@
 import { PlayerShellProfile } from './playerShellProfile';
-import { ApPackPreviewProfile } from './apPackPreviewProfile';
-import { StudioPreviewProfile } from './studioPreviewProfile';
+import { ApPackLivePreviewProfile } from './apPackLivePreviewProfile';
+import { ApPackDistPreviewProfile } from './apPackDistPreviewProfile';
 
 import type { IPlayerShellProfileConfig } from './playerShellProfile';
-import type { IApPackPreviewProfileConfig } from './apPackPreviewProfile';
-import type { IStudioPreviewProfileConfig } from './studioPreviewProfile';
+import type { IApPackLivePreviewProfileConfig } from './apPackLivePreviewProfile';
+import type { IApPackDistPreviewProfileConfig } from './apPackDistPreviewProfile';
 
 export type PlayerShellProfileConfig = IPlayerShellProfileConfig & {
   type: 'playerShell';
 };
-export type ApPackPreviewProfileConfig = IApPackPreviewProfileConfig & {
-  type: 'apPackPreview';
+export type ApPackPreviewProfileConfig = IApPackLivePreviewProfileConfig & {
+  type: 'apPackLivePreview';
 };
-export type StudioPreviewProfileConfig = IStudioPreviewProfileConfig & {
-  type: 'studioPreview';
+export type StudioPreviewProfileConfig = IApPackDistPreviewProfileConfig & {
+  type: 'apPackDistPreview';
 };
 
 export type ProfileConfig =
@@ -27,19 +27,18 @@ export const getProfile = ({ type, ...config }: ProfileConfig) => {
       (config as IPlayerShellProfileConfig).codeReleaseId
     );
   }
-  if (type === 'apPackPreview') {
-    const thisConfig = config as IApPackPreviewProfileConfig;
-    return new ApPackPreviewProfile(
+  if (type === 'apPackLivePreview') {
+    const thisConfig = config as IApPackLivePreviewProfileConfig;
+    return new ApPackLivePreviewProfile(
       thisConfig.resourceHostName,
       thisConfig.apHostName,
       thisConfig.apProtocol
     );
   }
-  if (type === 'studioPreview') {
-    const thisConfig = config as IStudioPreviewProfileConfig;
-    return new StudioPreviewProfile(
+  if (type === 'apPackDistPreview') {
+    const thisConfig = config as IApPackDistPreviewProfileConfig;
+    return new ApPackDistPreviewProfile(
       thisConfig.resourceHostName,
-      thisConfig.apHostName,
       thisConfig.apProtocol
     );
   }

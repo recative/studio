@@ -64,9 +64,12 @@ export const uploadMediaBundle = async (
     start: false,
   });
 
+  let skippedFiles = 0;
+  let finishedFiles = 0;
   // Upload files
   uploaderInstances.forEach(
     ([serviceProviderLabel, { uploader, fileCategory }]) => {
+      logToTerminal(`:: Initializing ${serviceProviderLabel}`, Level.Info);
       // Upload resource file
       resourceToBeUploaded.forEach((resourceFile) => {
         const resourceRecord = db.resource.resources.findOne({
@@ -76,21 +79,19 @@ export const uploadMediaBundle = async (
         if (!resourceRecord) {
           logToTerminal(
             terminalId,
-            `[!!] Resource ${resourceFile.label} (${resourceFile.id}) not found!`,
+            `:: :: [${resourceFile.id.substring(0, 5)}] ${
+              resourceFile.label
+            } not found!`,
             Level.Error
           );
           return;
         }
 
         // If the file is already available on the CDN, skip uploading.
-        // if (resourceRecord.url[serviceProviderLabel]) {
-        //   logToTerminal(
-        //     terminalId,
-        //     `${resourceFile.label} is already available on CDN, with url: ${resourceRecord.url[serviceProviderLabel]}`,
-        //     Level.Info
-        //   );
-        //   return;
-        // }
+        if (resourceRecord.url[serviceProviderLabel]) {
+          skippedFiles += 1;
+          return;
+        }
 
         // We're checking if the file should be uploaded to the CDN based on the
         // category tag.
@@ -122,7 +123,9 @@ export const uploadMediaBundle = async (
           try {
             logToTerminal(
               terminalId,
-              `[!!] Uploading ${resourceFile.label} (${resourceFile.id})`,
+              `:: :: [${resourceFile.id.substring(0, 5)}] ${
+                resourceFile.label
+              } is being uploaded`,
               Level.Info
             );
 
@@ -136,17 +139,20 @@ export const uploadMediaBundle = async (
               [serviceProviderLabel]: url,
             };
 
-            logToTerminal(
-              terminalId,
-              `Uploaded ${resourceFile.label}, url: ${url}`,
-              Level.Info
-            );
+            // logToTerminal(
+            //   terminalId,
+            //   `Uploaded ${resourceFile.label}, url: ${url}`,
+            //   Level.Info
+            // );
+            finishedFiles += 1;
             db.resource.resources.update(resourceRecord);
           } catch (error) {
             console.error(error);
             logToTerminal(
               terminalId,
-              `Upload Failed ${resourceFile.label}(${resourceFile.id}), ${
+              `:: [${resourceFile.id.substring(0, 5)}] ${
+                resourceFile.label
+              } failed, ${
                 error instanceof Error ? error.message : 'unknown error'
               }`,
               Level.Error
@@ -158,6 +164,12 @@ export const uploadMediaBundle = async (
       });
     }
   );
+
+  taskQueue.on('end', () => {
+    logToTerminal(`:: Upload Task Summary`, Level.Info);
+    logToTerminal(`:: :: Finished: ${finishedFiles}`, Level.Info);
+    logToTerminal(`:: :: Skipped: ${skippedFiles}`, Level.Warning);
+  });
 
   return taskQueue;
 };

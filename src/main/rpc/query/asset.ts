@@ -141,7 +141,7 @@ export const getAssetDescription = async (assetId: string) => {
 export const getClientSideAssetList = async (
   episodeId: string,
   request: ProfileConfig = {
-    type: 'studioPreview',
+    type: 'apPackDistPreview',
     resourceHostName: 'localhost:9999',
     apHostName: 'localhost:9999',
     apProtocol: 'http',

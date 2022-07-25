@@ -86,7 +86,7 @@ export const useAssets = (settings: typeof INITIAL_PREVIEW_CONFIG) => {
         if (!selectedItemId) return;
 
         const requestConfig = {
-          type: 'studioPreview' as const,
+          type: 'apPackDistPreview' as const,
           resourceHostName: settings.resourceHost,
           apHostName: settings.apHost,
           apProtocol: settings.protocol,

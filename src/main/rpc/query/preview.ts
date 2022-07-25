@@ -14,7 +14,7 @@ export const getEnvVariable = async (
 ): Promise<Record<string, unknown>> => {
   const assets = episodeId
     ? await getClientSideAssetList(episodeId, {
-        type: 'studioPreview',
+        type: 'apPackDistPreview',
         resourceHostName: apHostName,
         apHostName,
         apProtocol,

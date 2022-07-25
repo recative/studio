@@ -86,14 +86,14 @@ export const startResourceServer = async () => {
   fastify.get('/episode', getEpisodeList);
   fastify.get('/episode/:id/asset', getAssetList);
   fastify.get('/episode/:id/resource', getResourceList);
+  fastify.get('/envVariable', getEnvVariableHandler);
   fastify.get('/containerComponents', getContainerComponents);
   fastify.get('/containerComponents.js', getContainerComponents);
-  fastify.get('/bson/containerComponents.js', getContainerComponents);
   fastify.get('/containerComponents.js.map', getContainerComponents);
+  fastify.get('/bson/containerComponents.js', getContainerComponents);
   fastify.get('/bson/containerComponents.js.map', getContainerComponents);
-  fastify.get('/envVariable', getEnvVariableHandler);
-  fastify.get('/bson/episodes', getEpisodeListForSdk);
   fastify.get('/bson/:id', getAssetListForSdk);
+  fastify.get('/bson/episodes', getEpisodeListForSdk);
   fastify.get('/bson/resources', getResourceListForSdk);
   fastify.get('*', getResourceFile);
   fastify.head('*', getResourceFile);

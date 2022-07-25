@@ -12,16 +12,20 @@ import { getDbFromRequest } from '../utils/getDbFromRequest';
 
 interface AssetListParameters {
   id: string;
+  profile?: string;
 }
 
 export const getAssetList = async (request: FastifyRequest) => {
   const db = getDbFromRequest(request);
 
-  const episodeId = (request.params as AssetListParameters).id;
+  const { id: episodeId, profile } = request.params as AssetListParameters;
   return getEpisodeDetail(
     episodeId,
     {
-      type: 'apPackPreview',
+      type:
+        profile === 'apPackDistPreview'
+          ? 'apPackDistPreview'
+          : 'apPackLivePreview',
       resourceHostName: request.hostname,
       apHostName:
         (request.query as { apHost?: string }).apHost || request.hostname,
@@ -34,11 +38,14 @@ export const getAssetList = async (request: FastifyRequest) => {
 export const getResourceList = async (request: FastifyRequest) => {
   const db = getDbFromRequest(request);
 
-  const episodeId = (request.params as AssetListParameters).id;
+  const { id: episodeId, profile } = request.params as AssetListParameters;
   return getResourceListOfEpisode(
     episodeId,
     {
-      type: 'apPackPreview',
+      type:
+        profile === 'apPackDistPreview'
+          ? 'apPackDistPreview'
+          : 'apPackLivePreview',
       resourceHostName: request.hostname,
       apHostName:
         (request.query as { apHost?: string }).apHost || request.hostname,
@@ -51,11 +58,15 @@ export const getResourceList = async (request: FastifyRequest) => {
 export const getEpisodeList = async (request: FastifyRequest) => {
   const db = getDbFromRequest(request);
 
+  const { profile } = request.params as AssetListParameters;
   return (
     await getEpisodeDetailList(
       null,
       {
-        type: 'apPackPreview',
+        type:
+          profile === 'apPackDistPreview'
+            ? 'apPackDistPreview'
+            : 'apPackLivePreview',
         resourceHostName: request.hostname,
         apHostName:
           (request.query as { apHost?: string }).apHost || request.hostname,

@@ -58,7 +58,7 @@ export const injectActPointEntryPointsUrl = (
   }) as IActPoint[];
 };
 
-export const injectEntryPointUrlForApPackPreview = async (
+export const injectEntryPointUrlForApPackLivePreview = async (
   actPoints: IActPoint[],
   apHost: string,
   apProtocol: string

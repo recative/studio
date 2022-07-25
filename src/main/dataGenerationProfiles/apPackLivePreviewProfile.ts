@@ -5,19 +5,15 @@ import type {
 } from './types';
 
 import { injectResourceUrlForResourceManager } from '../utils/injectResourceUrl';
-import { injectEntryPointUrlForApPackPreview } from '../utils/injectActPointUrl';
+import { injectEntryPointUrlForApPackLivePreview } from '../utils/injectActPointUrl';
 
-export interface IStudioPreviewProfileConfig {
+export interface IApPackLivePreviewProfileConfig {
   resourceHostName: string;
   apHostName: string;
   apProtocol: string;
 }
 
-/**
- * This file is copy & pasted from `apPackPreview` but it will change later,
- * which will support preview code bundle.
- */
-export class StudioPreviewProfile implements ClientProfile {
+export class ApPackLivePreviewProfile implements ClientProfile {
   constructor(
     private resourceHostName: string,
     private apHostName: string,
@@ -25,12 +21,11 @@ export class StudioPreviewProfile implements ClientProfile {
   ) {}
 
   injectApEntryPoints: InjectApEntryPointsFunction = (x) => {
-    const result = injectEntryPointUrlForApPackPreview(
+    return injectEntryPointUrlForApPackLivePreview(
       x,
       this.apHostName,
       this.apProtocol
     );
-    return result;
   };
 
   injectResourceUrls: InjectResourceUrlsFunction = (x) => {

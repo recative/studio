@@ -5,27 +5,28 @@ import type {
 } from './types';
 
 import { injectResourceUrlForResourceManager } from '../utils/injectResourceUrl';
-import { injectEntryPointUrlForApPackPreview } from '../utils/injectActPointUrl';
+import { injectEntryPointUrlForApPackLivePreview } from '../utils/injectActPointUrl';
 
-export interface IApPackPreviewProfileConfig {
+export interface IApPackDistPreviewProfileConfig {
   resourceHostName: string;
   apHostName: string;
   apProtocol: string;
 }
 
-export class ApPackPreviewProfile implements ClientProfile {
-  constructor(
-    private resourceHostName: string,
-    private apHostName: string,
-    private apProtocol: string
-  ) {}
+/**
+ * This file is copy & pasted from `apPackPreview` but it will change later,
+ * which will support preview code bundle.
+ */
+export class ApPackDistPreviewProfile implements ClientProfile {
+  constructor(private resourceHostName: string, private apProtocol: string) {}
 
   injectApEntryPoints: InjectApEntryPointsFunction = (x) => {
-    return injectEntryPointUrlForApPackPreview(
+    const result = injectEntryPointUrlForApPackLivePreview(
       x,
-      this.apHostName,
+      this.resourceHostName,
       this.apProtocol
     );
+    return result;
   };
 
   injectResourceUrls: InjectResourceUrlsFunction = (x) => {
