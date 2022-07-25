@@ -108,9 +108,10 @@ const recentProjectStyle: StyleObject = {
   marginLeft: '-14px',
 
   '@media (max-width: 800px)': {
-    overflow: 'hidden',
     maxHeight: 'initial !important',
+    marginLeft: '0',
     marginRight: '0',
+    overflow: 'hidden',
   },
 };
 
