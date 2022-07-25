@@ -13,11 +13,15 @@ import { getDbFromRequest } from '../utils/getDbFromRequest';
 
 interface AssetListParameters {
   id: string;
+}
+
+interface AssetListQuery {
   profileId?: string;
   apHost?: string;
 }
+
 const getProfile = async (request: FastifyRequest) => {
-  const { profileId: profile, apHost } = request.params as AssetListParameters;
+  const { profileId: profile, apHost } = request.query as AssetListQuery;
   const settings = await getSettings();
 
   return {
