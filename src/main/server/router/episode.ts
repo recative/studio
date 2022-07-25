@@ -12,13 +12,14 @@ import { getDbFromRequest } from '../utils/getDbFromRequest';
 
 interface AssetListParameters {
   id: string;
-  profile?: string;
+  profileId?: string;
 }
 
 export const getAssetList = async (request: FastifyRequest) => {
   const db = getDbFromRequest(request);
 
-  const { id: episodeId, profile } = request.params as AssetListParameters;
+  const { id: episodeId, profileId: profile } =
+    request.params as AssetListParameters;
   return getEpisodeDetail(
     episodeId,
     {
@@ -38,7 +39,8 @@ export const getAssetList = async (request: FastifyRequest) => {
 export const getResourceList = async (request: FastifyRequest) => {
   const db = getDbFromRequest(request);
 
-  const { id: episodeId, profile } = request.params as AssetListParameters;
+  const { id: episodeId, profileId: profile } =
+    request.params as AssetListParameters;
   return getResourceListOfEpisode(
     episodeId,
     {
@@ -58,7 +60,7 @@ export const getResourceList = async (request: FastifyRequest) => {
 export const getEpisodeList = async (request: FastifyRequest) => {
   const db = getDbFromRequest(request);
 
-  const { profile } = request.params as AssetListParameters;
+  const { profileId: profile } = request.params as AssetListParameters;
   return (
     await getEpisodeDetailList(
       null,
