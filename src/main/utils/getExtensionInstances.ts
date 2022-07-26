@@ -12,6 +12,7 @@ import type {
   PostProcessedResourceItemForImport,
 } from '@recative/extension-sdk';
 
+import { Zip } from '@recative/extension-sdk/src/zip';
 import { Category } from '@recative/definitions';
 
 import { getDb } from '../rpc/db';
@@ -64,8 +65,35 @@ const resourceProcessorDependencies = {
 
     db.resource.resources.update(resourceDefinition);
   },
+  updatePostProcessedFileDefinition: async (
+    resource:
+      | PostProcessedResourceItemForUpload
+      | PostProcessedResourceItemForImport
+  ) => {
+    const db = await getDb();
+
+    const resourceId = resource.id;
+
+    const resourceDefinition = db.resource.postProcessed.findOne({
+      id: resourceId,
+    });
+
+    if (!resourceDefinition) {
+      throw new Error(`Resource ${resourceId} not found`);
+    }
+
+    Object.keys(cleanupLoki(resourceDefinition)).forEach((x) => {
+      if (x in resource) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (resourceDefinition as any)[x] = (resource as any)[x];
+      }
+    });
+
+    db.resource.postProcessed.update(resourceDefinition);
+  },
   readPathAsBuffer: (path: string) => readFile(path),
   logToTerminal,
+  createTemporaryZip: () => new Zip(fileSync().name),
   md5Hash: (x: Buffer) => md5(x),
   xxHash: (x: Buffer) => h32(x, 0x1bf52).toString(16),
 };
@@ -94,7 +122,6 @@ const getExtensionConfig = async () => {
  * @returns A map of uploader instances.
  */
 export const getResourceProcessorInstances = async () => {
-  // const extensionConfig = await getExtensionConfig();
   const projectResourceProcessor: Record<
     string,
     ResourceProcessor<string>

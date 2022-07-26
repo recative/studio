@@ -1,13 +1,15 @@
-import { hashObject } from '@recative/definitions';
+import { hashObject, TerminalMessageLevel } from '@recative/definitions';
 
 import type {
   IResourceItem,
   IResourceFile,
   IResourceGroup,
-  TerminalMessageLevel,
+  IResourceItemForClient,
+  IDetailedResourceItemForClient,
 } from '@recative/definitions';
 
 import type { IConfigUiField } from './settings';
+import { Zip } from './zip';
 
 export interface IPostProcessOperation {
   extensionId: string;
@@ -55,7 +57,13 @@ export interface InitializeDependency {
     fileName: string
   ) => Promise<string>;
   writeBufferToTemporaryFile: (buffer: Buffer) => Promise<string>;
+  createTemporaryZip: () => Zip;
   updateResourceDefinition: (
+    resource:
+      | PostProcessedResourceItemForUpload
+      | PostProcessedResourceItemForImport
+  ) => Promise<void>;
+  updatePostProcessedFileDefinition: (
     resource:
       | PostProcessedResourceItemForUpload
       | PostProcessedResourceItemForImport
@@ -107,7 +115,7 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
   ): x is Record<ConfigKey, string> {
     const uiFields = Reflect.get(
       this.constructor,
-      'configUiFields'
+      'resourceConfigUiFields'
     ) as IConfigUiField[];
     const pluginId = Reflect.get(this.constructor, 'id');
 
@@ -117,12 +125,15 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
         const valid = typeof x[field.id] === 'string';
 
         if (!valid) {
-          console.warn(`:: [${pluginId}] ${field.id} is not a string`);
+          this.dependency.logToTerminal(
+            `:: [${pluginId}] ${field.id} is not a string`,
+            TerminalMessageLevel.Warning
+          );
         }
 
         return valid;
       })
-      .reduce((a, b) => a && b);
+      .reduce((a, b) => a && b, true);
   }
 
   protected async getResourceFilePath(
@@ -365,9 +376,16 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
   abstract beforeFileImported(
     resources: PostProcessedResourceItemForImport[]
   ): Promise<IResourceItem[]> | IResourceItem[];
-  abstract beforePreviewAssetDelivered(
-    resource: IPostProcessedResourceFileForUpload
-  ):
-    | Promise<PostProcessedResourceItemForUpload>
-    | PostProcessedResourceItemForUpload;
+  abstract beforePreviewResourceMetadataDelivered<
+    T extends
+      | IResourceItemForClient
+      | IDetailedResourceItemForClient
+      | IPostProcessedResourceFileForUpload
+  >(resource: T[]): Promise<T[] | null> | T[] | null;
+  abstract beforePreviewResourceBinaryDelivered<
+    T extends
+      | IResourceItemForClient
+      | IDetailedResourceItemForClient
+      | IPostProcessedResourceFileForUpload
+  >(resource: T, resources: T[]): Promise<Buffer | null> | Buffer | null;
 }

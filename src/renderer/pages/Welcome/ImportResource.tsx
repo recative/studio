@@ -41,9 +41,10 @@ export const ImportResource: React.FC = () => {
       codeRepositoryPath?.[0]
     );
 
+    await server.setupDb(result.dbPath);
+
     addRecentProject(mediaWorkspacePath[0], codeRepositoryPath?.[0]);
 
-    await server.setupDb(result.dbPath);
     if (!(await server.ifDbLocked())) {
       await server.lockDb();
     }

@@ -39,7 +39,7 @@ export const getResourceListOfEpisode = async (
 
   const profile = getProfile(request);
 
-  const resourceFiles = profile.injectResourceUrls([
+  const resourceFiles = await profile.injectResourceUrls([
     ...(await Promise.all(
       db.resource.resources
         .find({

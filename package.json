@@ -374,7 +374,8 @@
     "packages/extension-ali-oss",
     "packages/extension-s3-bucket",
     "packages/extension-polyv-vod",
-    "packages/extension-atlas"
+    "packages/extension-atlas",
+    "packages/extension-offline-bundle"
   ],
   "resolutions": {
     "@codemirror/state": "0.20.0"

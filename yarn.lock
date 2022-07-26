@@ -4210,6 +4210,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@recative/extension-offline-bundle@workspace:packages/extension-offline-bundle":
+  version: 0.0.0-use.local
+  resolution: "@recative/extension-offline-bundle@workspace:packages/extension-offline-bundle"
+  languageName: unknown
+  linkType: soft
+
 "@recative/extension-polyv-vod@workspace:^, @recative/extension-polyv-vod@workspace:packages/extension-polyv-vod":
   version: 0.0.0-use.local
   resolution: "@recative/extension-polyv-vod@workspace:packages/extension-polyv-vod"

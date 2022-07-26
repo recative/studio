@@ -128,6 +128,9 @@ export const postProcessResource = async (
 
   // Filter out all resource that post processed for this build, add it to the
   // post processed cache table, for clients to read.
+  let updatedRecords = 0;
+  let insertedRecord = 0;
+
   const postProcessedFiles = resourceToBePostProcessed.filter((resource) => {
     const postProcessed = !!resource.postProcessRecord.mediaBundleId.find(
       (x) => x === mediaReleaseId
@@ -135,11 +138,6 @@ export const postProcessResource = async (
 
     return postProcessed;
   });
-
-  logToTerminal(
-    terminalId,
-    `:: ${postProcessedFiles.length} post processed file generated`
-  );
 
   postProcessedFiles.forEach((resource) => {
     const cleanResource = cleanupLoki(resource);
@@ -153,10 +151,19 @@ export const postProcessResource = async (
         ...queriedResource,
         ...cleanResource,
       });
+
+      updatedRecords += 1;
     } else {
       db.resource.postProcessed.insert(cleanResource);
+      insertedRecord += 1;
     }
   });
+
+  logToTerminal(terminalId, `:: Final Report`);
+  logToTerminal(terminalId, `:: :: Post processed:`);
+  logToTerminal(terminalId, `:: :: :: Files: ${postProcessedFiles.length}`);
+  logToTerminal(terminalId, `:: :: :: Updated: ${updatedRecords}`);
+  logToTerminal(terminalId, `:: :: :: Inserted: ${insertedRecord}`);
 
   return resourceToBePostProcessed;
 };

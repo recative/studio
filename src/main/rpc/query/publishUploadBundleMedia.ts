@@ -5,6 +5,7 @@ import { readFile } from 'fs/promises';
 
 import { Category, TerminalMessageLevel as Level } from '@recative/definitions';
 import type { IResourceFile, IResourceItem } from '@recative/definitions';
+import type { IPostProcessedResourceFileForUpload } from '@recative/extension-sdk';
 
 import { getSeriesId } from './series';
 import { logToTerminal } from './terminal';
@@ -35,15 +36,34 @@ export const uploadMediaBundle = async (
       'resources'
     );
 
+  const postProcessedCollection =
+    await getLokiCollectionFromMediaRelease<IPostProcessedResourceFileForUpload>(
+      mediaReleaseId,
+      'resource',
+      'postProcessedResources'
+    );
+
   const resourceToBeUploaded = resourceCollection.data.filter(
     (x) => x.type === 'file' && !x.removed
   ) as IResourceFile[];
+
+  const postProcessedResourceToBeUploaded = postProcessedCollection.data.filter(
+    (x) =>
+      x.type === 'file' &&
+      !x.removed &&
+      x.postProcessRecord.mediaBundleId.includes(mediaReleaseId)
+  );
+
+  const allResources = [
+    ...resourceToBeUploaded,
+    ...postProcessedResourceToBeUploaded,
+  ];
 
   // Count categories count and decide initialize which uploader.
   // The key is category name, value is the count of the category.
   const taskCountByCategory: Record<string, number> = {};
 
-  resourceToBeUploaded.forEach((resource) => {
+  allResources.forEach((resource) => {
     resource.tags.forEach((tag) => {
       if (!tag.startsWith('category')) return;
       if (!taskCountByCategory[tag]) taskCountByCategory[tag] = 0;
@@ -71,10 +91,16 @@ export const uploadMediaBundle = async (
     ([serviceProviderLabel, { uploader, fileCategory }]) => {
       logToTerminal(`:: Initializing ${serviceProviderLabel}`, Level.Info);
       // Upload resource file
-      resourceToBeUploaded.forEach((resourceFile) => {
-        const resourceRecord = db.resource.resources.findOne({
-          id: resourceFile.id,
-        }) as unknown as IResourceFile;
+      allResources.forEach((resourceFile) => {
+        const resourceRecord:
+          | IResourceFile
+          | IPostProcessedResourceFileForUpload =
+          (db.resource.resources.findOne({
+            id: resourceFile.id,
+          }) as IResourceFile) ??
+          (db.resource.postProcessed.findOne({
+            id: resourceFile.id,
+          }) as IPostProcessedResourceFileForUpload);
 
         if (!resourceRecord) {
           logToTerminal(
@@ -145,7 +171,12 @@ export const uploadMediaBundle = async (
             //   Level.Info
             // );
             finishedFiles += 1;
-            db.resource.resources.update(resourceRecord);
+
+            if ('fileName' in resourceRecord) {
+              db.resource.postProcessed.update(resourceRecord);
+            } else {
+              db.resource.resources.update(resourceRecord);
+            }
           } catch (error) {
             console.error(error);
             logToTerminal(

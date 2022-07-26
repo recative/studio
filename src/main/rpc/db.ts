@@ -270,5 +270,6 @@ export const getDb = async (
 };
 
 export const setupDb = async (yamlPath: string) => {
+  console.log(`:: Setting up db: ${yamlPath}`);
   await getDb(yamlPath);
 };
