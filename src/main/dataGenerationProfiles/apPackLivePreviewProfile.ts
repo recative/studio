@@ -4,6 +4,7 @@ import type {
   InjectResourceUrlsFunction,
 } from './types';
 
+import { injectByResourceProcessor } from './utils/postProcessPreviewResource';
 import { injectResourceUrlForResourceManager } from '../utils/injectResourceUrl';
 import { injectEntryPointUrlForApPackLivePreview } from '../utils/injectActPointUrl';
 
@@ -29,10 +30,12 @@ export class ApPackLivePreviewProfile implements ClientProfile {
   };
 
   injectResourceUrls: InjectResourceUrlsFunction = (x) => {
-    return injectResourceUrlForResourceManager(
-      x,
-      this.resourceHostName,
-      this.apProtocol
+    return injectByResourceProcessor(
+      injectResourceUrlForResourceManager(
+        x,
+        this.resourceHostName,
+        this.apProtocol
+      )
     );
   };
 }

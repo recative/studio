@@ -20,6 +20,7 @@ import {
   getHighestPreloadLevel,
   REDIRECT_URL_EXTENSION_ID,
   TerminalMessageLevel as Level,
+  IDetailedResourceItemForClient,
 } from '@recative/definitions';
 import { ResourceProcessor } from '@recative/extension-sdk';
 
@@ -817,7 +818,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             removed: false,
             removedTime: -1,
             resourceGroupId: '',
-            tags: groupKey.tagContains ?? [],
+            tags: [...(groupKey.tagContains ?? []), imageCategoryTag.id],
             extensionConfigurations: {
               [`${AtlasResourceProcessor.id}~~includes`]: currentResources
                 .map((x) => x.id)
@@ -1059,7 +1060,32 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     return resources;
   }
 
-  beforePreviewAssetDelivered(resource: IPostProcessedResourceFileForUpload) {
-    return resource;
+  beforePreviewResourceMetadataDelivered<
+    T extends
+      | IResourceItemForClient
+      | IDetailedResourceItemForClient
+      | IPostProcessedResourceFileForUpload
+  >(resources: T[]) {
+    resources.forEach((resource) => {
+      if (
+        resource.type === 'file' &&
+        REDIRECT_URL_EXTENSION_ID in resource.url &&
+        `${AtlasResourceProcessor.id}~~tw` in resource.extensionConfigurations
+      ) {
+        const redirectTo = resource.extensionConfigurations[
+          REDIRECT_URL_EXTENSION_ID
+        ].replace('redirect://', '');
+
+        if (!resources.find((x) => x.id === redirectTo && x.type === 'file')) {
+          delete resource.url[REDIRECT_URL_EXTENSION_ID];
+        }
+      }
+    });
+
+    return null;
+  }
+
+  beforePreviewResourceBinaryDelivered() {
+    return null;
   }
 }

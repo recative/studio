@@ -11,7 +11,7 @@ export type InjectResourceUrlsFunction = <
   T extends IDetailedResourceItemForClient | IResourceItemForClient
 >(
   x: T[]
-) => T[];
+) => Promise<T[]> | T[];
 
 export declare abstract class ClientProfile {
   injectApEntryPoints: InjectApEntryPointsFunction;
