@@ -65,9 +65,11 @@ export const getGroupType = (
 
   if (isVideoGroup && isTextureGroup) {
     error = 'There is a conflict in the resource type of the selected file.';
-  } else if (!isVideoGroup && !isTextureGroup) {
-    error = 'There are no resources that can be grouped.';
-  } else if (invalidCount) {
+  }
+  // else if (!isVideoGroup && !isTextureGroup) {
+  //  error = 'There are no resources that can be grouped.';
+  // }
+  else if (invalidCount) {
     error = 'The resource group contains file types that are not supported.';
   }
 
@@ -85,7 +87,8 @@ export const getGroupType = (
   } else if (isTextureGroup) {
     types = [textureGroupResourceTag, frameSequenceGroupResourceTag];
   } else {
-    throw new Error('Unprocessed edge condition.');
+    types = [];
+    // throw new Error('Unprocessed edge condition.');
   }
 
   return {
