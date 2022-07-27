@@ -1,15 +1,11 @@
 import * as React from 'react';
 
-import { Client as Styletron } from 'styletron-engine-monolithic';
-import { BaseProvider, createTheme, useStyletron } from 'baseui';
-import { Provider as StyletronProvider } from 'styletron-react';
-import { Routes, Route } from 'react-router-dom';
-
-import type { StandardEngine } from 'styletron-react';
+import { useStyletron } from 'baseui';
 
 import { Block } from 'baseui/block';
 // @ts-ignore: We just don't have a type definition for this yet
 import { TitleBar } from 'react-desktop/windows';
+import { Routes, Route } from 'react-router-dom';
 
 import { server } from 'utils/rpc';
 import { useDatabaseLockChecker } from 'utils/hooks/useDatabaseLockChecker';
@@ -38,45 +34,6 @@ import './App.global.css';
 import './resources/fonts/raleway/raleway.css';
 import './resources/fonts/redHatMono/redHatMono.css';
 import './resources/fonts/notoColorEmoji/notoColorEmoji.css';
-
-type FixedStyletronProviderType = React.Provider<StandardEngine> & {
-  children: React.ReactNode;
-};
-
-const FixedStyletronProvider = StyletronProvider as FixedStyletronProviderType;
-
-const engine = new Styletron();
-
-const CustomizedTheme = createTheme(
-  {
-    primaryFontFamily: 'Raleway, Noto Color Emoji',
-  },
-  {
-    borders: {
-      useRoundedCorners: false,
-      radius100: '0px',
-      radius200: '0px',
-      radius300: '0px',
-      radius400: '0px',
-      radius500: '0px',
-      buttonBorderRadius: '0px',
-    },
-    typography: {
-      DisplayLarge: {
-        fontFamily: 'Raleway',
-      },
-      DisplayMedium: {
-        fontFamily: 'Raleway',
-      },
-      DisplaySmall: {
-        fontFamily: 'Raleway',
-      },
-      DisplayXSmall: {
-        fontFamily: 'Raleway',
-      },
-    },
-  }
-);
 
 const dragAreaStyles = {
   top: 0,
@@ -160,38 +117,36 @@ export const InternalStudioTitleBar = () => {
 
 export const StudioTitleBar = React.memo(InternalStudioTitleBar);
 
-export default function App() {
+export const App = () => {
   const [css] = useStyletron();
   useDatabaseLockChecker();
 
   return (
-    <FixedStyletronProvider value={engine}>
+    <Block>
       <Block width="100vw" height="30px" />
       <StudioTitleBar />
       <div className={css(dragAreaStyles)} />
-      <BaseProvider theme={CustomizedTheme}>
-        <Routes>
-          <Route path="import" element={<ImportResource />} />
-          <Route path="new" element={<NewResource />} />
-          <Route path="welcome" element={<Welcome />} />
-          <Route path="publish" element={<Publish />} />
-          <Route path="setting" element={<Setting />} />
-          <Route path="resource" element={<Resource />} />
-          <Route path="episode" element={<Episode />} />
-          <Route path="cloud" element={<Cloud />} />
-          <Route path="series" element={<Series />} />
-          <Route path="act-point" element={<ActPoint />} />
-          <Route path="release" element={<Release />} />
-          <Route path="preview" element={<Preview />} />
-          <Route path="merge-resource-db" element={<MergeResourceDatabase />} />
-          <Route path="/" element={<Welcome />} />
-        </Routes>
-        <ScrollbarStyles />
-        <Login />
-        <UserInfo />
-        <InitializeErrorModal />
-        <ResourceSearchModal />
-      </BaseProvider>
-    </FixedStyletronProvider>
+      <Routes>
+        <Route path="import" element={<ImportResource />} />
+        <Route path="new" element={<NewResource />} />
+        <Route path="welcome" element={<Welcome />} />
+        <Route path="publish" element={<Publish />} />
+        <Route path="setting" element={<Setting />} />
+        <Route path="resource" element={<Resource />} />
+        <Route path="episode" element={<Episode />} />
+        <Route path="cloud" element={<Cloud />} />
+        <Route path="series" element={<Series />} />
+        <Route path="act-point" element={<ActPoint />} />
+        <Route path="release" element={<Release />} />
+        <Route path="preview" element={<Preview />} />
+        <Route path="merge-resource-db" element={<MergeResourceDatabase />} />
+        <Route path="/" element={<Welcome />} />
+      </Routes>
+      <ScrollbarStyles />
+      <Login />
+      <UserInfo />
+      <InitializeErrorModal />
+      <ResourceSearchModal />
+    </Block>
   );
-}
+};
