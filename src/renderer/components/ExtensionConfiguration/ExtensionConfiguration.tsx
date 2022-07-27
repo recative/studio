@@ -146,7 +146,9 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
               getOverwrittenValue()[internalFieldQueryKey] ??
               getValue(extension.id, configKey);
 
-            syncValue(extension.id, configKey, value === 'yes' ? 'no' : 'yes');
+            const nextValue = value === 'yes' ? 'no' : 'yes';
+
+            syncValue(extension.id, configKey, nextValue);
           };
         } else {
           throw new TypeError(
@@ -182,7 +184,7 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
                 overwrittenValue[internalFieldQueryKey] ??
                 getValue(extension.id, fieldId);
 
-              return internalValue === 'yes' ? -1 : index;
+              return internalValue === 'yes' ? index : -1;
             })
             .filter((x) => x !== -1);
         }
