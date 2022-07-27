@@ -89,7 +89,11 @@ export const uploadMediaBundle = async (
   // Upload files
   uploaderInstances.forEach(
     ([serviceProviderLabel, { uploader, fileCategory }]) => {
-      logToTerminal(`:: Initializing ${serviceProviderLabel}`, Level.Info);
+      logToTerminal(
+        terminalId,
+        `:: Initializing ${serviceProviderLabel}`,
+        Level.Info
+      );
       // Upload resource file
       allResources.forEach((resourceFile) => {
         const resourceRecord:
@@ -181,13 +185,16 @@ export const uploadMediaBundle = async (
             console.error(error);
             logToTerminal(
               terminalId,
-              `:: [${resourceFile.id.substring(0, 5)}] ${
+              `:: :: [${resourceFile.id.substring(0, 5)}] ${
                 resourceFile.label
               } failed, ${
                 error instanceof Error ? error.message : 'unknown error'
               }`,
               Level.Error
             );
+
+            taskQueue.stop();
+            taskQueue.clear();
 
             throw error;
           }
