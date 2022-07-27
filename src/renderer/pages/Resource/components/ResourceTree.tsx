@@ -23,11 +23,24 @@ interface IFilterLabels {
   episodeIds: string[] | null;
 }
 
-const TREE_LABEL_CONTENT_CONTAINER_STYLE: StyleObject = {
+const treeLabelContentCOntainerStyle: StyleObject = {
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 };
+
+const simpleButtonLabelOverride: ButtonOverrides = {
+  BaseButton: {
+    style: ({ $theme }) => ({
+      width: '-webkit-fill-available',
+      paddingTop: '4px',
+      paddingBottom: '4px',
+      justifyContent: 'flex-start',
+      fontSize: $theme.typography.LabelSmall,
+      ':hover': { background: 'transparent' },
+    }),
+  },
+} as const;
 
 export const SELECTED_TAGS = atom<IFilterLabels[] | null>(null);
 
@@ -37,19 +50,11 @@ const getSimpleButtonLabel = (label: string) =>
 
     return (
       <TreeLabelInteractable>
-        <Block className={css(TREE_LABEL_CONTENT_CONTAINER_STYLE)}>
+        <Block className={css(treeLabelContentCOntainerStyle)}>
           <Button
             size={BUTTON_SIZE.compact}
             kind={BUTTON_KIND.tertiary}
-            overrides={{
-              BaseButton: {
-                style: () => ({
-                  width: '-webkit-fill-available',
-                  justifyContent: 'flex-start',
-                  ':hover': { background: 'transparent' },
-                }),
-              },
-            }}
+            overrides={simpleButtonLabelOverride}
           >
             {label}
           </Button>
@@ -70,11 +75,14 @@ const getLabelButton = (condition: IFilterLabels) =>
     const buttonOverride: ButtonOverrides = React.useMemo(
       () => ({
         BaseButton: {
-          style: () => ({
+          style: ({ $theme }) => ({
             width: '-webkit-fill-available',
+            paddingTop: '4px',
+            paddingBottom: '4px',
+            fontWeight: condition === selectedLabel?.[0] ? `bold` : `normal`,
+            fontSize: $theme.typography.LabelSmall,
             justifyContent: 'flex-start',
             ':hover': { background: 'transparent' },
-            fontWeight: condition === selectedLabel?.[0] ? `bold` : `normal`,
           }),
         },
       }),
@@ -83,7 +91,7 @@ const getLabelButton = (condition: IFilterLabels) =>
 
     return (
       <TreeLabelInteractable>
-        <Block className={css(TREE_LABEL_CONTENT_CONTAINER_STYLE)}>
+        <Block className={css(treeLabelContentCOntainerStyle)}>
           <Button
             size={BUTTON_SIZE.compact}
             kind={BUTTON_KIND.tertiary}
