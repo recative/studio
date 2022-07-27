@@ -41,6 +41,12 @@ export const EDITABLE_FIELDS = [
     type: 'string',
     label: 'MIME Type',
   },
+  {
+    id: 'extensionConfigurations',
+    field: 'extensionConfigurations',
+    type: 'object',
+    label: 'Extension Configurations',
+  },
 ] as const;
 
 // 'eq' | 'contains' | 'startsWith' | 'endWith'
