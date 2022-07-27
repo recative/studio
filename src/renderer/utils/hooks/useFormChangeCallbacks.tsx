@@ -53,12 +53,12 @@ export const useFormChangeCallbacks = <
 };
 
 export const useOnChangeEventWrapperForStringType = <
-  T extends HTMLInputElement
+  T extends HTMLInputElement | HTMLTextAreaElement
 >(
   callback: ((x: string) => void) | undefined
-): React.FormEventHandler<T> => {
+) => {
   return React.useCallback(
-    (event: React.FormEvent<T>) => {
+    (event: React.ChangeEvent<T>) => {
       callback?.(event.currentTarget.value);
     },
     [callback]

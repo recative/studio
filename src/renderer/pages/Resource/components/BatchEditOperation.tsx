@@ -83,7 +83,7 @@ export const BatchEditOperation: React.FC<IBatchEditOperationProps> = ({
   );
 
   const handleWhereChange = React.useCallback(
-    (params: React.FormEvent<HTMLInputElement>) => {
+    (params: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       onChange(value.operationId, (prev) => ({
         ...prev,
         where: params.currentTarget.value,
@@ -93,7 +93,7 @@ export const BatchEditOperation: React.FC<IBatchEditOperationProps> = ({
   );
 
   const handleValueChange = React.useCallback(
-    (event: React.FormEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const stringValue = event.currentTarget.value;
 
       let finalValue: unknown = stringValue;
@@ -123,7 +123,7 @@ export const BatchEditOperation: React.FC<IBatchEditOperationProps> = ({
   );
 
   const handleKeyChange = React.useCallback(
-    (event: React.FormEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const stringValue = event.currentTarget.value;
 
       onChange(

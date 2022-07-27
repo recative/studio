@@ -129,7 +129,6 @@ const InternalSetting: React.FC = () => {
           >
             <Input
               size={INPUT_SIZE.mini}
-              disabled={databaseLocked}
               value={configValue?.resourceHost || ''}
               onChange={onResourceHostChange}
             />
@@ -140,7 +139,6 @@ const InternalSetting: React.FC = () => {
           >
             <Input
               size={INPUT_SIZE.mini}
-              disabled={databaseLocked}
               value={configValue?.apHost || ''}
               onChange={onApHostChange}
             />
@@ -151,7 +149,6 @@ const InternalSetting: React.FC = () => {
           >
             <Input
               size={INPUT_SIZE.mini}
-              disabled={databaseLocked}
               value={configValue?.contentProtocol || ''}
               onChange={onServiceProtocolChange}
             />
@@ -162,7 +159,6 @@ const InternalSetting: React.FC = () => {
           >
             <Input
               size={INPUT_SIZE.mini}
-              disabled={databaseLocked}
               value={configValue?.contentProtocol || ''}
               onChange={onServiceProtocolChange}
             />
