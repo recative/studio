@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { useAsync } from '@react-hookz/web';
+import { useGetSet } from 'react-use';
 import { useStyletron } from 'styletron-react';
 
 import { Block } from 'baseui/block';
@@ -9,11 +10,7 @@ import { FormControl } from 'baseui/form-control';
 import { ParagraphLarge } from 'baseui/typography';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Button, SIZE as BUTTON_SIZE } from 'baseui/button';
-import {
-  Checkbox,
-  STYLE_TYPE as CHECKBOX_STYLE_TYPE,
-  LABEL_PLACEMENT as CHECKBOX_LABEL_PLACEMENT,
-} from 'baseui/checkbox';
+import { LABEL_PLACEMENT as CHECKBOX_LABEL_PLACEMENT } from 'baseui/checkbox';
 
 import type { IConfigUiField } from '@recative/extension-sdk';
 
@@ -100,7 +97,7 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
 
   const extensionMetadata = useExtensionMetadata(domain, type);
 
-  const [overwrittenValue, setOverwrittenValue] = React.useState<
+  const [getOverwrittenValue, setOverwrittenValue] = useGetSet<
     Record<string, string>
   >({});
 
@@ -143,7 +140,12 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
             index: number
           ) => {
             const configKey = field.ids[index];
-            const value = getValue(extension.id, configKey);
+            const internalFieldQueryKey = `${extension.id}~~${configKey}`;
+
+            const value =
+              getOverwrittenValue()[internalFieldQueryKey] ??
+              getValue(extension.id, configKey);
+
             syncValue(extension.id, configKey, value === 'yes' ? 'no' : 'yes');
           };
         } else {
@@ -155,7 +157,15 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
     });
 
     return result;
-  }, [extensionMetadata, getValue, setValue]);
+  }, [
+    extensionMetadata,
+    setValue,
+    setOverwrittenValue,
+    getOverwrittenValue,
+    getValue,
+  ]);
+
+  const overwrittenValue = getOverwrittenValue();
 
   const groupedBooleanSelectedValues = React.useMemo(() => {
     const result: Record<string, number[]> = {};
@@ -163,14 +173,17 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
     extensionMetadata.forEach((extension) => {
       extension.fields?.forEach((field) => {
         const fieldQueryKey = `${extension.id}~~${field.id}`;
+
         if (field.type === 'groupedBoolean') {
           result[fieldQueryKey] = field.ids
-            .map((id, index) =>
-              (overwrittenValue[fieldQueryKey] ??
-                getValue(extension.id, id)) === 'yes'
-                ? -1
-                : index
-            )
+            .map((fieldId, index) => {
+              const internalFieldQueryKey = `${extension.id}~~${fieldId}`;
+              const internalValue =
+                overwrittenValue[internalFieldQueryKey] ??
+                getValue(extension.id, fieldId);
+
+              return internalValue === 'yes' ? -1 : index;
+            })
             .filter((x) => x !== -1);
         }
       });
@@ -202,7 +215,7 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
                         size={INPUT_SIZE.mini}
                         disabled={disabled}
                         value={
-                          overwrittenValue[fieldQueryKey] ??
+                          getOverwrittenValue()[fieldQueryKey] ??
                           getValue(extension.id, id)
                         }
                         onChange={onChangeCallbacks[fieldQueryKey]}
@@ -238,7 +251,7 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
                     <FormControl key={id} label={config.title}>
                       <Toggle
                         checked={
-                          (overwrittenValue[fieldQueryKey] ??
+                          (getOverwrittenValue()[fieldQueryKey] ??
                             getValue(extension.id, id)) === 'yes'
                         }
                         labelPlacement={CHECKBOX_LABEL_PLACEMENT.right}
