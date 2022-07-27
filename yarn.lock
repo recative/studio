@@ -4393,7 +4393,7 @@ __metadata:
     babel-plugin-dev-expression: ^0.2.2
     babel-plugin-transform-react-remove-prop-types: ^0.4.24
     base64-js: ^1.5.1
-    baseui: 11.2.1
+    baseui: 12.0.0
     bcryptjs: ^2.4.3
     boring-avatars: ^1.5.8
     chalk: ^4.1.0
@@ -5328,6 +5328,24 @@ __metadata:
   dependencies:
     "@types/react": ^16
   checksum: 5ba383f05342c9bdd3bdd431591586b76d01d673f7446bf0a035f990cdb8a84c8944994089bf179855b39324f516ed1461e23c7f27e2522210a7acaba60a5172
+  languageName: node
+  linkType: hard
+
+"@types/react-virtualized-auto-sizer@npm:^1.0.0":
+  version: 1.0.1
+  resolution: "@types/react-virtualized-auto-sizer@npm:1.0.1"
+  dependencies:
+    "@types/react": "*"
+  checksum: 67eff0670a1991c2b16992274ada5f0b3f9d5c2d6209ef38e8f8ae2c0218211a3292882f5b7dd6f09519000dc20847629f049c9acc267e000626b7141e5927a6
+  languageName: node
+  linkType: hard
+
+"@types/react-window@npm:^1.8.1":
+  version: 1.8.5
+  resolution: "@types/react-window@npm:1.8.5"
+  dependencies:
+    "@types/react": "*"
+  checksum: 5f519e1402300d11b6e6595223feb6499f3227e38da166cbc565773cd7f71862abcf855b7835d391b5119fcfacdfba79d73a965b45f60a293fc1ff25986319ed
   languageName: node
   linkType: hard
 
@@ -6952,12 +6970,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"attr-accept@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "attr-accept@npm:1.1.3"
-  dependencies:
-    core-js: ^2.5.0
-  checksum: 836c0e863719c0355e8ad4214e4c81f24dd9e724233153200189732da691f73e6f13316b8ac456d75749a89780f0da67e44387e46dfc3fd9a517a84a0e45acbc
+"attr-accept@npm:^2.0.0":
+  version: 2.2.2
+  resolution: "attr-accept@npm:2.2.2"
+  checksum: 496f7249354ab53e522510c1dc8f67a1887382187adde4dc205507d2f014836a247073b05e9d9ea51e2e9c7f71b0d2aa21730af80efa9af2d68303e5f0565c4d
   languageName: node
   linkType: hard
 
@@ -7211,11 +7227,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"baseui@npm:11.2.1":
-  version: 11.2.1
-  resolution: "baseui@npm:11.2.1"
+"baseui@npm:12.0.0":
+  version: 12.0.0
+  resolution: "baseui@npm:12.0.0"
   dependencies:
     "@date-io/date-fns": ^2.6.2
+    "@types/react-virtualized-auto-sizer": ^1.0.0
+    "@types/react-window": ^1.8.1
     card-validator: ^6.2.0
     d3: ^6.7.0
     date-fns: ^2.6.0
@@ -7226,7 +7244,7 @@ __metadata:
     mockdate: ^3.0.5
     polished: ^3.2.0
     popper.js: ^1.16.0
-    react-dropzone: ^9.0.0
+    react-dropzone: ^10.1.18
     react-focus-lock: ^2.7.1
     react-input-mask: ^2.0.4
     react-is: ^16.8.6
@@ -7241,8 +7259,8 @@ __metadata:
   peerDependencies:
     react: ">= 16.8.0 < 19"
     react-dom: ">= 16.8.0 < 19"
-    styletron-react: ">=5.2.2 < 7"
-  checksum: a63589e0f3a37390dee33c4c3bfef125c65ac4ad1fce821192b70f06840008b5e0ef0692ea84cecc70532c6d8d2cdf1a0150f85b9e2d8bc597a9bc4364ee20e2
+    styletron-react: ">=6.1.0 < 7"
+  checksum: a5c38c5e89f853379a10081ea0f7c95c157b2013e74b90872c25e4e76913f457eac364be126cd34ead3108d3c7420063a8a8c5818c1b10167c2eef9acb0e87ca
   languageName: node
   linkType: hard
 
@@ -8567,7 +8585,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^2.5.0, core-js@npm:^2.6.5":
+"core-js@npm:^2.6.5":
   version: 2.6.12
   resolution: "core-js@npm:2.6.12"
   checksum: 44fa9934a85f8c78d61e0c8b7b22436330471ffe59ec5076fe7f324d6e8cf7f824b14b1c81ca73608b13bdb0fef035bd820989bf059767ad6fa13123bb8bd016
@@ -11837,7 +11855,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"file-selector@npm:^0.1.8":
+"file-selector@npm:^0.1.12":
   version: 0.1.19
   resolution: "file-selector@npm:0.1.19"
   dependencies:
@@ -17979,18 +17997,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types-extra@npm:^1.1.0":
-  version: 1.1.1
-  resolution: "prop-types-extra@npm:1.1.1"
-  dependencies:
-    react-is: ^16.3.2
-    warning: ^4.0.0
-  peerDependencies:
-    react: ">=0.14.0"
-  checksum: ebf1c048687bb538457f91a3610abb36ca0f50587a6afae80443a9e65b9db96882d18c3511175a8967fad4ca5dcd804913bbc241d7b5160c74cf69aacdd054f0
-  languageName: node
-  linkType: hard
-
 "prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2":
   version: 15.7.2
   resolution: "prop-types@npm:15.7.2"
@@ -18381,17 +18387,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dropzone@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "react-dropzone@npm:9.0.0"
+"react-dropzone@npm:^10.1.18":
+  version: 10.2.2
+  resolution: "react-dropzone@npm:10.2.2"
   dependencies:
-    attr-accept: ^1.1.3
-    file-selector: ^0.1.8
-    prop-types: ^15.6.2
-    prop-types-extra: ^1.1.0
+    attr-accept: ^2.0.0
+    file-selector: ^0.1.12
+    prop-types: ^15.7.2
   peerDependencies:
-    react: ">=0.14.0"
-  checksum: 03fd7fb78b49045c2c30d3841fbab30ba8513e03c69103527c9c1895c4298ca1ad76a6f9ba82acd5f505d9b713c4a0b2dedf248d891c9da639aa18004c35fee2
+    react: ">= 16.8"
+  checksum: af08b78db753dd9c277c64364c153d6cb6d563df3cc4db1731458edcc203cfa41ed3d032c5249822e5eb4d2534232e514d663a025962d08f0e6ea65550411116
   languageName: node
   linkType: hard
 
@@ -18488,7 +18493,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.12.0, react-is@npm:^16.13.1, react-is@npm:^16.3.2, react-is@npm:^16.7.0, react-is@npm:^16.8.1, react-is@npm:^16.8.6":
+"react-is@npm:^16.12.0, react-is@npm:^16.13.1, react-is@npm:^16.7.0, react-is@npm:^16.8.1, react-is@npm:^16.8.6":
   version: 16.13.1
   resolution: "react-is@npm:16.13.1"
   checksum: f7a19ac3496de32ca9ae12aa030f00f14a3d45374f1ceca0af707c831b2a6098ef0d6bdae51bd437b0a306d7f01d4677fcc8de7c0d331eb47ad0f46130e53c5f
@@ -22176,7 +22181,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"warning@npm:^4.0.0, warning@npm:^4.0.2":
+"warning@npm:^4.0.2":
   version: 4.0.3
   resolution: "warning@npm:4.0.3"
   dependencies:
