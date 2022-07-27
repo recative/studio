@@ -4,9 +4,6 @@ import { ResourceProcessor } from '@recative/extension-sdk';
 
 import {
   hashObject,
-  IDetailedResourceGroupForClient,
-  IResourceFileForClient,
-  IResourceGroupForClient,
   PreloadLevel,
   TerminalMessageLevel as Level,
 } from '@recative/definitions';
@@ -161,6 +158,27 @@ export class OfflineBundleProcessor extends ResourceProcessor<
       const { files, resourceDescription, group } = task;
 
       try {
+        this.dependency.logToTerminal(
+          `:: :: [Group ${i}] Group summary:`,
+          Level.Info
+        );
+        this.dependency.logToTerminal(`:: :: :: Selectors:`, Level.Info);
+        Object.entries(group).forEach(([key, value]) => {
+          this.dependency.logToTerminal(
+            `:: :: :: :: ${key}: ${value}`,
+            Level.Info
+          );
+        });
+        this.dependency.logToTerminal(`:: :: :: File:`, Level.Info);
+        this.dependency.logToTerminal(
+          `:: :: :: :: ID: ${resourceDescription.id}`,
+          Level.Info
+        );
+        this.dependency.logToTerminal(
+          `:: :: :: :: Included: ${files.length} files`,
+          Level.Info
+        );
+
         const zip = this.dependency.createTemporaryZip();
 
         const fileList = files.map((x) => ({
@@ -189,27 +207,10 @@ export class OfflineBundleProcessor extends ResourceProcessor<
         successfulTasks += 1;
 
         this.dependency.logToTerminal(
-          `:: :: [Group ${i}] Group summary:`,
-          Level.Info
-        );
-        this.dependency.logToTerminal(`:: :: :: Selectors:`, Level.Info);
-        Object.entries(group).forEach(([key, value]) => {
-          this.dependency.logToTerminal(
-            `:: :: :: :: ${key}: ${value}`,
-            Level.Info
-          );
-        });
-        this.dependency.logToTerminal(`:: :: :: File:`, Level.Info);
-        this.dependency.logToTerminal(
-          `:: :: :: :: ID: ${resourceDescription.id}`,
-          Level.Info
-        );
-        this.dependency.logToTerminal(
-          `:: :: :: :: File Name: ${resourceDescription.fileName}`,
-          Level.Info
-        );
-        this.dependency.logToTerminal(
-          `:: :: :: :: Included: ${files.length} files`,
+          `:: :: :: :: File Name: ${this.getOutputFileName(
+            resourceDescription,
+            {}
+          )}`,
           Level.Info
         );
         this.dependency.logToTerminal(
