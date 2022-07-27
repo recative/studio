@@ -3,7 +3,7 @@
   "packageManager": "yarn@3.0.0-rc.9",
   "main": "./manifest.ts",
   "dependencies": {
-    "@aws-sdk/client-s3": "3.39.0",
+    "@aws-sdk/client-s3": "3.137.0",
     "@types/md5": "^2.3.1",
     "ini": "^2.0.0",
     "md5": "^2.3.0"

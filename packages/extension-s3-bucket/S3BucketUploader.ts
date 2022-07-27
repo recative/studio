@@ -8,7 +8,12 @@ import {
   PutObjectCommand,
   ListObjectsCommand,
 } from '@aws-sdk/client-s3';
-import { readFileSync, writeFileSync } from 'fs-extra';
+import {
+  existsSync,
+  ensureFileSync,
+  readFileSync,
+  writeFileSync,
+} from 'fs-extra';
 
 import type { _Object } from '@aws-sdk/client-s3';
 
@@ -51,7 +56,7 @@ export class S3Uploader extends Uploader<keyof S3BucketPluginConfig> {
       label: 'Access Key #',
     },
     {
-      id: 'accessKeySecret',
+      id: 'secretAccessKey',
       type: 'string',
       label: 'Secret Access Key',
     },
@@ -84,6 +89,10 @@ export class S3Uploader extends Uploader<keyof S3BucketPluginConfig> {
   private configFilePath = join(homedir(), '.aws', 'credentials');
 
   private get awsConfigSet() {
+    if (!existsSync(this.configFilePath)) {
+      return {};
+    }
+
     return ini.parse(
       readFileSync(this.configFilePath, { encoding: 'utf8' })
     ) as AwsConfigSet;
@@ -109,8 +118,8 @@ export class S3Uploader extends Uploader<keyof S3BucketPluginConfig> {
     if (!x) throw new SyntaxError('Unable to set config as null');
 
     awsConfig['resource-manager'] = {
-      aws_access_key_id: x.accessKeyId,
-      aws_secret_access_key: x.secretAccessKey,
+      aws_access_key_id: x.accessKeyId.trim(),
+      aws_secret_access_key: x.secretAccessKey.trim(),
     };
 
     this.awsConfigSet = awsConfig;
@@ -121,16 +130,18 @@ export class S3Uploader extends Uploader<keyof S3BucketPluginConfig> {
   constructor(config: Record<string, string>) {
     super(config);
 
+    ensureFileSync(this.configFilePath);
+
     if (!this.configValidator(config)) throw new Error('?');
 
     const { awsConfig } = this;
     let needUpdateConfigFile = false;
 
     if (awsConfig) {
-      if (awsConfig.accessKeyId !== config.accessKeyId) {
+      if (awsConfig.accessKeyId !== config.accessKeyId.trim()) {
         needUpdateConfigFile = true;
       }
-      if (awsConfig.secretAccessKey !== config.secretAccessKey) {
+      if (awsConfig.secretAccessKey !== config.secretAccessKey.trim()) {
         needUpdateConfigFile = true;
       }
     } else {
@@ -143,6 +154,10 @@ export class S3Uploader extends Uploader<keyof S3BucketPluginConfig> {
 
     this.s3 = new S3Client({
       region: config.region,
+      credentials: {
+        accessKeyId: config.accessKeyId.trim(),
+        secretAccessKey: config.secretAccessKey.trim(),
+      },
     });
   }
 
@@ -160,10 +175,9 @@ export class S3Uploader extends Uploader<keyof S3BucketPluginConfig> {
       ...([
         this.config.dirBase || undefined,
         pathPrefix || undefined,
-        'resources',
-        typeof config === 'string' ? config : config.id,
+        typeof config === 'string' ? config : `${config.id}.resource`,
       ].filter((x) => !!x) as string[])
-    );
+    ).replaceAll('\\', '/');
 
     const uploadParams = {
       Bucket: this.config.bucket,
