@@ -69,9 +69,9 @@ export const getGroupType = (
   // else if (!isVideoGroup && !isTextureGroup) {
   //  error = 'There are no resources that can be grouped.';
   // }
-  else if (invalidCount) {
-    error = 'The resource group contains file types that are not supported.';
-  }
+  // else if (invalidCount) {
+  //   error = 'The resource group contains file types that are not supported.';
+  // }
 
   if (error) {
     return {
