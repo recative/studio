@@ -63,6 +63,12 @@ export interface InitializeDependency {
       | PostProcessedResourceItemForUpload
       | PostProcessedResourceItemForImport
   ) => Promise<void>;
+  insertPostProcessedFileDefinition: (
+    resource:
+      | PostProcessedResourceItemForUpload
+      | PostProcessedResourceItemForImport,
+    eraseMediaBuildId?: number | null
+  ) => Promise<void>;
   updatePostProcessedFileDefinition: (
     resource:
       | PostProcessedResourceItemForUpload
@@ -198,15 +204,20 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
     return `${file.id}.resource`;
   }
 
-  protected writeOutputFile(
+  protected async writeOutputFile(
     resource: IResourceFile | IPostProcessedResourceFileForUpload,
     buffer: Buffer,
-    additionalData: Record<string, number | string | boolean>
+    additionalData: Record<string, number | string | boolean>,
+    mediaBuildId: number | null = null
   ): Promise<string> {
     const fileName = this.getOutputFileName(resource, additionalData);
 
     if ('postProcessRecord' in resource) {
       resource.fileName = fileName;
+      await this.dependency.insertPostProcessedFileDefinition(
+        resource,
+        mediaBuildId
+      );
     }
 
     return this.dependency.writeBufferToPostprocessCache(
@@ -259,11 +270,12 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
   >(
     resources: T[],
     bundleGroups: IBundleGroup[],
-    iterator: (resource: T[], group: IBundleGroup) => P,
+    iterator: (resource: T[], group: IBundleGroup, groupId: number) => P,
     deduplicate = false
   ) {
     const resourceSet = new Set<T>();
 
+    let groupId = -1;
     return bundleGroups.map((group) => {
       const filteredResources = resources.filter((resource) => {
         if (resource.type !== 'file') {
@@ -314,7 +326,8 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
         });
       }
 
-      return iterator(filteredResources, group);
+      groupId += 1;
+      return iterator(filteredResources, group, groupId);
     });
   }
 
