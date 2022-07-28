@@ -49,6 +49,7 @@
     "EDBNOTREADY",
     "EMISMATCHRESOURCETYPE",
     "endregion",
+    "ERESOURCEFILENOTEXIST",
     "ERESOURCENOTFOUND",
     "eslintignore",
     "EWORKSPACENOTREADY",
