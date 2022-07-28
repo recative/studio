@@ -20,8 +20,6 @@ import { newTerminalSession, wrapTaskFunction } from './terminal';
  *    - `Creating Android APK`
  *       - `Copying application template`
  *       - `Transferring Act Point Artifacts`
- *       - `Bundling Media Resources Without a Episode`
- *       - `Creating Resource Zip for Each Episode`
  * - `Uploading To Remote Server`
  *    - `Environment Checkup`
  *    - `Uploading Media Files`
