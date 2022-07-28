@@ -1,6 +1,9 @@
 import type { Archiver } from 'archiver';
 
-import { TerminalMessageLevel as Level } from '@recative/definitions';
+import {
+  IResourceFile,
+  TerminalMessageLevel as Level,
+} from '@recative/definitions';
 
 import { logToTerminal } from '../terminal';
 
@@ -27,18 +30,30 @@ export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
   const db = await getReleasedDb(bundleReleaseId);
 
   // Get all resource that is not removed and have no episode record.
-  const resourceList = db.resource.resources.find({
-    type: 'file',
-    removed: false,
-    $or: [
-      {
-        episodeIds: { $size: 0 },
+  const resourceList = db.resource.resources
+    .chain()
+    .find({
+      type: 'file',
+      removed: false,
+      $or: [
+        {
+          episodeIds: { $size: 0 },
+        },
+        {
+          cacheToHardDisk: true,
+        },
+      ],
+      redirectTo: {
+        $or: [{ $exists: false }, { $eq: false }],
       },
-      {
-        cacheToHardDisk: true,
-      },
-    ],
-  });
+    })
+    .where(
+      (x) =>
+        !!Object.values((x as IResourceFile).url).find((i) =>
+          i.startsWith('redirect://')
+        )
+    )
+    .data();
 
   logToTerminal(
     terminalId,
