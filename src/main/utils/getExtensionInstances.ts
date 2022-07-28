@@ -1,6 +1,7 @@
 import { h32 } from 'xxhashjs';
 import { join } from 'path';
 import { fileSync } from 'tmp';
+import { cloneDeep } from 'lodash';
 import { createHash } from 'crypto';
 import { ensureDirSync } from 'fs-extra';
 import { readFile, writeFile } from 'fs/promises';
@@ -64,6 +65,35 @@ const resourceProcessorDependencies = {
     });
 
     db.resource.resources.update(resourceDefinition);
+  },
+  insertPostProcessedFileDefinition: async (
+    resource:
+      | PostProcessedResourceItemForUpload
+      | PostProcessedResourceItemForImport,
+    eraseMediaBuildId: number | null = null
+  ) => {
+    const db = await getDb();
+
+    const resourceId = resource.id;
+
+    const resourceDefinition = db.resource.resources.findOne({
+      id: resourceId,
+    });
+
+    if (resourceDefinition) {
+      throw new Error(`Resource ${resourceId} already existed`);
+    }
+
+    const clonedResource = cloneDeep(resource);
+    if ('postProcessRecord' in clonedResource) {
+      clonedResource.postProcessRecord.mediaBundleId =
+        clonedResource.postProcessRecord.mediaBundleId.filter(
+          (x) => x !== eraseMediaBuildId
+        );
+      db.resource.postProcessed.insert(clonedResource);
+    } else {
+      db.resource.resources.insert(clonedResource);
+    }
   },
   updatePostProcessedFileDefinition: async (
     resource:
