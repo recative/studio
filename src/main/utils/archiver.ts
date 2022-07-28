@@ -92,6 +92,10 @@ export const archiverGlob = (output: string, globStr: string, cwd?: string) => {
       reject(err);
     });
 
+    outputStream.on('end', () => {
+      resolve(true);
+    });
+
     archive.glob(globStr, { cwd });
 
     archive.pipe(outputStream);
