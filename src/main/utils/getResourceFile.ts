@@ -14,10 +14,7 @@ export const getResourceFileName = (
         IPostProcessedResourceFileForUpload,
         'id' | 'fileName' | 'postProcessRecord'
       >
-) =>
-  'fileName' in resource && 'postProcessRecord' in resource
-    ? resource.fileName
-    : `${resource.id}.resource`;
+) => ('fileName' in resource ? resource.fileName : `${resource.id}.resource`);
 
 export const getResourceFilePath = (
   resource:
@@ -31,7 +28,7 @@ export const getResourceFilePath = (
 
   if (!config) throw new WorkspaceNotReadyError();
 
-  if ('fileName' in resource && 'postProcessRecord' in resource) {
+  if ('fileName' in resource) {
     return join(
       config.mediaPath,
       'post-processed',
