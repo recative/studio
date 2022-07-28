@@ -1,7 +1,7 @@
-import md5 from 'md5';
 import { h32 } from 'xxhashjs';
 import { join } from 'path';
 import { fileSync } from 'tmp';
+import { createHash } from 'crypto';
 import { ensureDirSync } from 'fs-extra';
 import { readFile, writeFile } from 'fs/promises';
 
@@ -94,7 +94,9 @@ const resourceProcessorDependencies = {
   readPathAsBuffer: (path: string) => readFile(path),
   logToTerminal,
   createTemporaryZip: () => new Zip(fileSync().name),
-  md5Hash: (x: Buffer) => md5(x),
+  md5Hash: (x: Buffer) => {
+    return createHash('md5').update(x).digest('hex');
+  },
   xxHash: (x: Buffer) => h32(x, 0x1bf52).toString(16),
 };
 
