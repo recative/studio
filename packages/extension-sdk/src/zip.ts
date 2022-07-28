@@ -43,13 +43,30 @@ export class Zip {
 
   appendFileList = (pathListItem: IPathListItem[]) => {
     const promise = new Promise<void>((resolve, reject) => {
-      this.archive.once('error', (err) => {
-        reject(err);
+      const allTasks: Record<string, boolean> = {};
+
+      pathListItem.forEach((item) => {
+        allTasks[item.to] = false;
       });
 
-      this.outputStream.once('drain', () => {
-        resolve();
-      });
+      const handleError = (err: Error) => {
+        reject(err);
+      };
+
+      const handleEntry = (entry: originalArchiver.EntryData) => {
+        if (entry.name in allTasks) {
+          allTasks[entry.name] = true;
+        }
+
+        if (Object.values(allTasks).every((x) => x)) {
+          this.archive.off('error', handleError);
+          this.archive.off('entry', handleEntry);
+          resolve();
+        }
+      };
+
+      this.archive.once('error', handleError);
+      this.archive.on('entry', handleEntry);
 
       pathListItem.map(async ({ from, to }) => {
         const resolvedFrom = await from;
@@ -72,7 +89,7 @@ export class Zip {
         reject(err);
       });
 
-      this.outputStream.once('drain', () => {
+      this.outputStream.once('end', () => {
         resolve();
       });
 
@@ -88,7 +105,7 @@ export class Zip {
         reject(err);
       });
 
-      this.outputStream.once('drain', () => {
+      this.outputStream.once('end', () => {
         resolve(files);
       });
       this.archive.glob(globStr, { cwd });
@@ -96,6 +113,7 @@ export class Zip {
   };
 
   done = async () => {
+    this.archive.append('yay', { name: '.recative' });
     this.archive.finalize();
 
     await this.finished;
