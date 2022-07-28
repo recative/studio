@@ -25,10 +25,12 @@ export const injectResourceUrl = <
 >(
   resources: T[],
   pattern = constructResourceManagerUrlPattern('localhost:9999', 'http'),
-  key = RESOURCE_MANAGER_KEY
+  key = RESOURCE_MANAGER_KEY,
+  filter: (x: T) => boolean = () => true
 ): T[] => {
   return resources.map((resource) => {
-    if (resource.type === 'file') {
+    const filterResult = filter(resource);
+    if (resource.type === 'file' && filterResult) {
       const url = pattern.replaceAll('$resourceId', resource.id);
 
       return {
@@ -46,6 +48,13 @@ export const injectResourceUrl = <
           if (typeof file === 'string') {
             return file;
           }
+
+          const internalFilterResult = filter(resource);
+
+          if (!internalFilterResult) {
+            return file;
+          }
+
           const url = pattern.replaceAll('$resourceId', file.id);
           return {
             ...file,
@@ -86,16 +95,18 @@ export const injectResourceUrlForPlayerShells = <
 >(
   resources: T[]
 ): T[] => {
-  const step0 = injectResourceUrl(
+  let result = resources;
+  result = injectResourceUrl(
     resources,
     DESKTOP_SHELL_URL_PATTERN,
     DESKTOP_SHELL_KEY
   );
-  const step1 = injectResourceUrl(
-    step0,
+  result = injectResourceUrl(
+    result,
     MOBILE_SHELL_BUILD_IN_URL_PATTERN,
-    MOBILE_SHELL_BUILD_IN_KEY
+    MOBILE_SHELL_BUILD_IN_KEY,
+    (x) => x.type !== 'file' || x.cacheToHardDisk
   );
 
-  return step1;
+  return result;
 };
