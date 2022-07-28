@@ -3,9 +3,13 @@ import { createReadStream, statSync } from 'fs';
 import { existsSync } from 'fs-extra';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 
-import { cleanUpResourceListForClient } from '@recative/definitions';
+import {
+  cleanUpResourceListForClient,
+  IResourceGroup,
+} from '@recative/definitions';
 import type { IResourceFile } from '@recative/definitions';
 
+import { IPostProcessedResourceFileForUpload } from '@recative/extension-sdk';
 import { cleanupLoki } from '../../rpc/query';
 import { getDbFromRequest } from '../utils/getDbFromRequest';
 import { getResourceFilePath } from '../../utils/getResourceFile';
@@ -18,6 +22,11 @@ const ErrorDbNotReady = {
 const ErrorResourceNotFound = {
   code: 'ERESOURCENOTFOUND',
   message: 'Resource not found.',
+};
+
+const ErrorResourceFileNotExists = {
+  code: 'ERESOURCEFILENOTEXIST',
+  message: 'Resource file not exist.',
 };
 
 const ErrorMismatchResourceType = {
@@ -132,6 +141,11 @@ export const getResourceBinary = async (
   const { mimeType } = resource as IResourceFile;
 
   const filePath = getResourceFilePath(resource);
+
+  if (!existsSync(filePath)) {
+    reply.statusCode = 404;
+    return ErrorResourceFileNotExists;
+  }
 
   const { range } = request.headers;
   if (!range) {
