@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import { ResourceProcessor } from '@recative/extension-sdk';
 
 import {
+  Category,
   hashObject,
   PreloadLevel,
   TerminalMessageLevel as Level,
@@ -12,6 +13,7 @@ import type {
   IPostProcessedResourceFileForUpload,
   IPostProcessedResourceFileForImport,
 } from '@recative/extension-sdk';
+import { existsSync } from 'fs';
 
 export interface OfflineBundleConfig {
   enable: string;
@@ -44,7 +46,7 @@ export class OfflineBundleProcessor extends ResourceProcessor<
         bundleGroups,
         async (resource, group) => {
           totalTasks += 1;
-          const files = resource.filter(
+          const files: IPostProcessedResourceFileForUpload[] = resource.filter(
             (x) =>
               x.type === 'file' &&
               !(
@@ -101,7 +103,7 @@ export class OfflineBundleProcessor extends ResourceProcessor<
             removed: false,
             removedTime: -1,
             resourceGroupId: '',
-            tags: [...(group.tagContains ?? [])],
+            tags: [...(group.tagContains ?? []), Category.Others],
             extensionConfigurations: {
               [`${OfflineBundleProcessor.id}~~includes`]: entryIds.join(','),
             },
@@ -122,6 +124,11 @@ export class OfflineBundleProcessor extends ResourceProcessor<
             cachedTasks += 1;
             matchedProcessRecord.postProcessRecord.mediaBundleId.push(
               mediaBuildId
+            );
+
+            this.dependency.logToTerminal(
+              `:: :: ${resourceId} is already cached`,
+              Level.Info
             );
 
             return null;
@@ -181,14 +188,31 @@ export class OfflineBundleProcessor extends ResourceProcessor<
 
         const zip = this.dependency.createTemporaryZip();
 
-        const fileList = files.map((x) => ({
-          from: this.dependency.getResourceFilePath(x),
-          to: `${x.id}.resource`,
-        }));
+        const fileList = files.map((x) => {
+          const from = this.dependency.getResourceFilePath(x);
+
+          if (!existsSync(from)) {
+            this.dependency.logToTerminal(
+              `:: :: :: :: Error: File not found: ${x.label} (${x.id})`,
+              Level.Error
+            );
+            throw new Error(`File not found: ${from}`);
+          }
+
+          return {
+            from,
+            to: `${x.id}.resource`,
+          };
+        });
 
         await zip.appendFileList(fileList);
 
         const buffer = await zip.done();
+
+        this.dependency.logToTerminal(
+          `:: :: :: :: File Size: ${buffer.byteLength} bytes`,
+          Level.Info
+        );
 
         // #region Hash Result
         const xxHash = await this.dependency.xxHash(buffer);
@@ -219,20 +243,21 @@ export class OfflineBundleProcessor extends ResourceProcessor<
             .join(' -> ')}`,
           Level.Info
         );
-        this.dependency.logToTerminal(
-          `:: :: :: :: File Size: ${buffer.byteLength} bytes`,
-          Level.Info
-        );
       } catch (e) {
         failedTasks += 1;
 
         if (e instanceof Error) {
           failRecords[resourceDescription.id] = e;
         }
+
+        throw e;
       }
     }
 
-    this.dependency.logToTerminal(':: :: Task Summary:', Level.Info);
+    this.dependency.logToTerminal(
+      ':: :: Offline Task Final Summary:',
+      Level.Info
+    );
     const errors = Object.entries(failRecords);
     if (errors.length) {
       this.dependency.logToTerminal(
@@ -240,14 +265,19 @@ export class OfflineBundleProcessor extends ResourceProcessor<
         Level.Error
       );
 
-      errors.forEach(([id, reason]) => {
-        if ('reason' in reason) {
+      errors.forEach(([id, error]) => {
+        if ('message' in error) {
           this.dependency.logToTerminal(
-            `:: :: :: :: [${id}] ${reason.message}`,
+            `:: :: :: :: [${id}] ${error.message}`,
             Level.Error
           );
 
-          console.error(reason);
+          console.error(error);
+        } else {
+          this.dependency.logToTerminal(
+            `:: :: :: :: [${id}] ${JSON.stringify(error)}`,
+            Level.Error
+          );
         }
       });
     } else {

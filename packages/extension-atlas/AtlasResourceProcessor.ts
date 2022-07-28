@@ -384,7 +384,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       return !bundleGroupToFileSetMap.get(groupKey)?.length;
     }).length;
 
-    this.dependency.logToTerminal(':: :: Task Summary:', Level.Info);
+    this.dependency.logToTerminal(':: :: Atlas Task Summary:', Level.Info);
     this.dependency.logToTerminal(
       `:: :: :: Files: ${filteredResources.length} marked / ${resources.length} in total`,
       Level.Info
@@ -610,18 +610,33 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           nextTask = [];
 
           // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          return taskIteration(reason, sizeLimit);
+          return wrappedTaskIteration(reason, sizeLimit);
+        };
+
+        const wrappedTaskIteration = (
+          _reason: string,
+          sizeLimit = ATLAS_MAX_DIMENSION_SIZE,
+          stopTryingShrinkSpace = false
+        ) => {
+          return new Promise<boolean>((resolve, reject) => {
+            globalThis.setTimeout(() => {
+              // eslint-disable-next-line @typescript-eslint/no-use-before-define
+              taskIteration(_reason, sizeLimit, stopTryingShrinkSpace)
+                .then(resolve)
+                .catch(reject);
+            }, 0);
+          });
         };
 
         const taskIteration = async (
-          reason: string,
+          _reason: string,
           sizeLimit = ATLAS_MAX_DIMENSION_SIZE,
           stopTryingShrinkSpace = false
         ): Promise<boolean> => {
-          this.dependency.logToTerminal(
-            `:: :: [Group ${groupIndex}] It: ${reason}`,
-            Level.Info
-          );
+          // this.dependency.logToTerminal(
+          //   `:: :: [Group ${groupIndex}] It: ${reason}`,
+          //   Level.Info
+          // );
           if (currentTask.length === 0 && nextTask.length === 0) {
             groupReport();
 
@@ -655,13 +670,19 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               `:: :: :: [Group ${groupIndex}] Atlas generation failed`,
               Level.Error
             );
-
-            currentTask.forEach((x) => {
+            if (e instanceof Error) {
               this.dependency.logToTerminal(
-                `:: :: :: :: (${x.x}, ${x.y}) ${x.w} x ${x.h}`,
+                `:: :: :: [Group ${groupIndex}] ${e.stack}`,
                 Level.Error
               );
-            });
+            }
+
+            // currentTask.forEach((x) => {
+            //   this.dependency.logToTerminal(
+            //     `:: :: :: :: (${x.x}, ${x.y}) ${x.w} x ${x.h}`,
+            //     Level.Error
+            //   );
+            // });
 
             throw e;
           }
@@ -681,7 +702,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             }
 
             // Task not success, try to start next iteration.
-            return taskIteration('AtlasPackReportFailed', sizeLimit);
+            return wrappedTaskIteration('AtlasPackReportFailed', sizeLimit);
           }
 
           const currentResources = currentTask.map((task) => {
@@ -739,7 +760,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               );
             }
 
-            return taskIteration('PackCouldBeSmaller', nextSize);
+            return wrappedTaskIteration('PackCouldBeSmaller', nextSize);
           }
 
           /**
@@ -791,12 +812,9 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               operations: [
                 {
                   extensionId: AtlasResourceProcessor.id,
-                  // The hash of the atlas task is based on the bounding box of
-                  // all atlas images, and the resource id of images to be
-                  // packed.
-                  // We hope this value is stable enough.
+                  // The hash of the atlas task is based on  the resource id of
+                  // images to be packed. We hope this value is stable enough.
                   postProcessHash: hashObject({
-                    rects: currentTask,
                     ids: resourceIds,
                   }),
                 },
@@ -949,7 +967,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           return groupReport();
         };
 
-        await taskIteration('Initialized');
+        await wrappedTaskIteration('Initialized');
       })
     );
 
@@ -968,7 +986,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       throw new Error('Atlas task failed while generating the image');
     }
 
-    this.dependency.logToTerminal(`:: :: Final Report`, Level.Info);
+    this.dependency.logToTerminal(`:: :: Atlas Task Final Report:`, Level.Info);
     this.dependency.logToTerminal(`:: :: :: Files:`, Level.Info);
     this.dependency.logToTerminal(
       `:: :: :: :: Input: ${totalInputCount}`,
