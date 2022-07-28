@@ -94,6 +94,8 @@ export const uploadMediaBundle = async (
         `:: Initializing ${serviceProviderLabel}`,
         Level.Info
       );
+      const labelSegments = serviceProviderLabel.split('/');
+      const shortServiceLabel = labelSegments[labelSegments.length - 1];
       // Upload resource file
       allResources.forEach((resourceFile) => {
         const resourceRecord:
@@ -153,9 +155,10 @@ export const uploadMediaBundle = async (
           try {
             logToTerminal(
               terminalId,
-              `:: :: [${resourceFile.id.substring(0, 5)}] ${
-                resourceFile.label
-              } is being uploaded`,
+              `:: :: [${resourceFile.id.substring(
+                0,
+                5
+              )}] [${shortServiceLabel}] Uploading ${resourceFile.label}`,
               Level.Info
             );
 
