@@ -16,6 +16,7 @@ import type { ButtonOverrides } from 'baseui/button';
 
 import { TextureIconOutline } from 'components/Icons/TextureIconOutline';
 import { AnimationIconOutline } from 'components/Icons/AnimationIconOutline';
+import { GeneralResourceGroupIconOutline } from 'components/Icons/GeneralResourceGroupIconOutline';
 
 import { GroupType } from '@recative/definitions';
 import type { IGroupTypeResourceTag } from '@recative/definitions';
@@ -45,6 +46,11 @@ const GROUP_TYPE_DESCRIPTION: Record<GroupType, IGroupTypeDescription> = {
     title: 'Frame Sequence',
     subtitle:
       'A series of static images are played continuously to form a animated image.',
+  },
+  [GroupType.General]: {
+    icon: <GeneralResourceGroupIconOutline width={40} style={iconStyle} />,
+    title: 'General Group',
+    subtitle: 'A general purpose group without any special features.',
   },
 };
 

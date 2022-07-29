@@ -4,6 +4,7 @@ import {
   subtitleCategoryTag,
   imageCategoryTag,
   videoGroupResourceTag,
+  generalGroupResourceTag,
   textureGroupResourceTag,
   frameSequenceGroupResourceTag,
 } from '@recative/definitions';
@@ -83,11 +84,15 @@ export const getGroupType = (
   let types: IGroupTypeResourceTag[];
 
   if (isVideoGroup) {
-    types = [videoGroupResourceTag];
+    types = [videoGroupResourceTag, generalGroupResourceTag];
   } else if (isTextureGroup) {
-    types = [textureGroupResourceTag, frameSequenceGroupResourceTag];
+    types = [
+      textureGroupResourceTag,
+      frameSequenceGroupResourceTag,
+      generalGroupResourceTag,
+    ];
   } else {
-    types = [];
+    types = [generalGroupResourceTag];
     // throw new Error('Unprocessed edge condition.');
   }
 

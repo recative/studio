@@ -31,7 +31,6 @@ import { MetadataIconOutline } from 'components/Icons/MetadataIconOutline';
 
 import type {
   IEditableResourceFile,
-  IGroupTypeResourceTag,
   IResourceItem,
   IResourceGroup,
 } from '@recative/definitions';
@@ -54,10 +53,11 @@ import { EditResourceFileModal } from './components/EditResourceFileModal';
 import { EditResourceGroupModal } from './components/EditResourceGroupModal';
 import { GroupTypeSelectionModal } from './components/GroupTypeSelectionModal';
 import { ResourceTree, SELECTED_TAGS } from './components/ResourceTree';
-import { getGroupType } from './utils/getGroupType';
+
+import { getSelectedId } from './utils/getSelectedId';
+import { useMergeResourcesCallback } from './hooks/useMergeResourceCallback';
 
 import { IEditOperation } from '../../../utils/BatchEditTypes';
-import { replaceThumbnail } from './utils/replaceThumbnail';
 
 const TAB_COLORS = [{ key: 'resource', color: '#01579B' }];
 
@@ -91,16 +91,6 @@ const TREE_CONTAINER_STYLES: StyleObject = {
 };
 
 const SELECTABLE_TARGETS = ['.explorer-item'];
-
-const getSelectedId = () => {
-  const selectedResources = document.querySelectorAll(
-    '.explorer-item.selected'
-  );
-
-  return Array.from(selectedResources)
-    .map((selectedItem) => (selectedItem as HTMLDivElement)?.dataset.resourceId)
-    .filter((x) => !!x) as string[];
-};
 
 const useEditModalCallback = (handleOpenBatchEditModal: () => void) => {
   const [filesInGroup, setFilesInGroup] = React.useState<
@@ -225,68 +215,6 @@ const useSplitModalCallback = () => {
     handleOpenSplitModal,
     handleCloseSplitModal,
     handleSplitGroups,
-  };
-};
-
-const useMergeResourcesCallback = () => {
-  const [openPromptGroupTypeModal, setOpenGroupTypeModal] =
-    React.useState(false);
-  const [parsingGroupTypeFailed, setParsingGroupTypeFailed] =
-    React.useState(false);
-  const [candidateGroupTypes, setCandidateGroupTypes] = React.useState<
-    IGroupTypeResourceTag[]
-  >([]);
-  const [parsingGroupTypeError, setParsingGroupTypeError] = React.useState('');
-  const [itemsInGroup, setItemsInGroup] = React.useState<string[]>([]);
-
-  const promptGroupType = React.useCallback(
-    async (itemIds = getSelectedId(), promptIfFailed = true) => {
-      const { flatten } = await server.listFlattenResource(itemIds);
-
-      const groupTypeParsingResult = getGroupType(flatten);
-
-      if (groupTypeParsingResult.error) {
-        setParsingGroupTypeFailed(true);
-        setItemsInGroup([]);
-        if (promptIfFailed) {
-          setOpenGroupTypeModal(true);
-          setParsingGroupTypeError(groupTypeParsingResult.error);
-        }
-      } else {
-        setItemsInGroup(itemIds);
-        setParsingGroupTypeFailed(false);
-        setOpenGroupTypeModal(true);
-        setParsingGroupTypeError('');
-        setCandidateGroupTypes(
-          groupTypeParsingResult.types as IGroupTypeResourceTag[]
-        );
-      }
-    },
-    []
-  );
-
-  const groupFiles = async (x: IGroupTypeResourceTag) => {
-    if (x) {
-      server.mergeResources(itemsInGroup, x);
-      setOpenGroupTypeModal(false);
-    }
-  };
-
-  const closePromptGroupTypeModal = React.useCallback(() => {
-    setOpenGroupTypeModal(false);
-    setCandidateGroupTypes([]);
-    setParsingGroupTypeError('');
-    setParsingGroupTypeFailed(false);
-  }, []);
-
-  return {
-    openPromptGroupTypeModal,
-    closePromptGroupTypeModal,
-    parsingGroupTypeError,
-    parsingGroupTypeFailed,
-    candidateGroupTypes,
-    promptGroupType,
-    groupFiles,
   };
 };
 
@@ -477,7 +405,7 @@ const useSearchCallback = () => {
   const [searchTerm, setSearchTerm] = React.useState('');
 
   const handleSearchInputChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setSearchTerm(event.target.value);
     },
     []
