@@ -55,6 +55,7 @@ const splitChannel = async (
     episodeIds: [],
     mimeType: videoMime,
     url: {},
+    managedBy: null,
     originalHash,
     convertedHash: await getFileHash({ id: channelId }),
     cacheToHardDisk: false,
@@ -67,6 +68,7 @@ const splitChannel = async (
     tags,
     thumbnailSrc: getThumbnailSrc(thumbnailFileName),
     importTime: Date.now(),
+    extensionConfigurations: {},
   };
 
   return fileDescription;

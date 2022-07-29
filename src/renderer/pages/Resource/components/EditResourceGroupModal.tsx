@@ -314,7 +314,7 @@ export const useLabelUpdateCallback = (
   }, [group]);
 
   const handleGroupLabelUpdate = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setGroupName(event.currentTarget.value);
     },
     [setGroupName]
