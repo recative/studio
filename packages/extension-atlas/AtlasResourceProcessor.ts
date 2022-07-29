@@ -823,6 +823,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             mimeType: 'image/png',
             originalHash: 'unknown',
             convertedHash: { xxHash: 'unknown', md5: 'unknown' },
+            managedBy: null,
             url: {},
             cacheToHardDisk: !!currentResources.find((x) => x.cacheToHardDisk),
             preloadLevel: getHighestPreloadLevel(

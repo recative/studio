@@ -1,9 +1,9 @@
 import { basename, join as joinPath, parse as parsePath } from 'path';
 
+import PQueue from 'p-queue';
 import { nanoid } from 'nanoid';
 import { uniqBy, cloneDeep } from 'lodash';
 import { copy, removeSync, existsSync } from 'fs-extra';
-import PQueue from 'p-queue';
 
 import {
   Category,
@@ -12,6 +12,7 @@ import {
   categoryTags,
   imageCategoryTag,
   textureGroupResourceTag,
+  MANAGED_RESOURCE_FILE_KEYS,
   cleanUpResourceListForClient,
 } from '@recative/definitions';
 
@@ -279,6 +280,34 @@ type Mutable<Type> = {
   -readonly [Key in keyof Type]: Type[Key];
 };
 
+const updateManagedResources = async (item: IResourceItem) => {
+  if (item.type !== 'file') {
+    return;
+  }
+
+  const db = await getDb();
+
+  db.resource.resources.find({ managedBy: item.id }).forEach((managedItem) => {
+    MANAGED_RESOURCE_FILE_KEYS.forEach((key) => {
+      if (managedItem.type !== 'file') return;
+
+      if (managedItem[key] === item.id) {
+        (managedItem as any)[key] = item.id;
+      }
+    });
+
+    db.resource.resources.update(managedItem);
+  });
+};
+
+/**
+ * Update or replace a resource item, this method will check if the file is
+ * already available not by checking the id of it, if existed, an update will be
+ * executed.
+ * @param items The items to be updated or inserted.
+ * @param replaceFileId If you want to replace a file instead of insert or
+ *                      update it, you can specify the file id here.
+ */
 export const updateOrInsertResources = async (
   items: IResourceItem[],
   replaceFileId?: string
@@ -339,6 +368,7 @@ export const updateOrInsertResources = async (
       // Update
       Object.assign(itemInDb, item);
       db.resource.resources.update(itemInDb);
+      updateManagedResources(item);
     } else {
       // Insert
       db.resource.resources.insert(item);
@@ -769,6 +799,7 @@ export const importFile = async (
       originalHash: hash,
       convertedHash: await getFileHash({ id }),
       url: {},
+      managedBy: null,
       cacheToHardDisk: false,
       preloadLevel: PreloadLevel.None,
       preloadTriggers: [],

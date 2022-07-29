@@ -89,6 +89,7 @@ export class OfflineBundleProcessor extends ResourceProcessor<
             mimeType: 'application/zip',
             originalHash: 'unknown',
             convertedHash: { xxHash: 'unknown', md5: 'unknown' },
+            managedBy: null,
             url: {},
             cacheToHardDisk: false,
             preloadLevel: PreloadLevel.None,
