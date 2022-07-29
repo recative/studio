@@ -186,6 +186,12 @@ export const removeResource = async (itemId: string, hard: boolean) => {
     item.removedTime = Date.now();
     db.resource.resources.update(item);
   }
+
+  await Promise.all(
+    db.resource.resources
+      .find({ managedBy: item.id })
+      .map((x) => removeResource(x.id, hard))
+  );
 };
 
 export const removeFileFromGroup = async (resource: IResourceFile) => {
