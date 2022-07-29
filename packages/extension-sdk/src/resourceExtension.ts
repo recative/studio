@@ -89,6 +89,11 @@ export interface IBundleGroup {
   tagNotContains?: string[];
 }
 
+interface IGroupCreateResult {
+  group: IResourceGroup;
+  files: IResourceFile[];
+}
+
 export abstract class ResourceProcessor<ConfigKey extends string> {
   static id: string;
 
@@ -389,6 +394,10 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
   abstract beforeFileImported(
     resources: PostProcessedResourceItemForImport[]
   ): Promise<IResourceItem[]> | IResourceItem[];
+  abstract afterGroupCreated(
+    files: IResourceFile[],
+    newGroup: IResourceGroup
+  ): Promise<IGroupCreateResult | null> | IGroupCreateResult | null;
   abstract beforePreviewResourceMetadataDelivered<
     T extends
       | IResourceItemForClient

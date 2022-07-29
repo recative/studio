@@ -307,6 +307,10 @@ export class OfflineBundleProcessor extends ResourceProcessor<
     return resources;
   }
 
+  afterGroupCreated() {
+    return null;
+  }
+
   beforeFileImported(resources: IPostProcessedResourceFileForImport[]) {
     return resources;
   }

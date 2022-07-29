@@ -1079,6 +1079,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     return resources;
   }
 
+  afterGroupCreated() {
+    return null;
+  }
+
   beforePreviewResourceMetadataDelivered<
     T extends
       | IResourceItemForClient
