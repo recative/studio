@@ -10,6 +10,7 @@ import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
 import { Block } from 'baseui/block';
+import { Banner } from 'baseui/banner';
 import { LabelLarge } from 'baseui/typography';
 import { FormControl } from 'baseui/form-control';
 import { LABEL_PLACEMENT } from 'baseui/checkbox';
@@ -19,6 +20,7 @@ import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Select } from 'components/Select/Select';
 import { Toggle } from 'components/Toggle/Toggle';
 import { NotFound } from 'components/Illustrations/NotFound';
+import { LockIconOutline } from 'components/Icons/LockIconOutline';
 import { ExtensionConfiguration } from 'components/ExtensionConfiguration/ExtensionConfiguration';
 import type { SelectProps } from 'components/Select/Select';
 
@@ -152,7 +154,7 @@ const InternalFormTagItem: React.FC<IFormItemProps> = ({
     <Block>
       <FormControl label={typeNameMap[typeId]}>
         <Select
-          size={SELECT_SIZE.compact}
+          size={SELECT_SIZE.mini}
           creatable={custom}
           disabled={disabled}
           options={options}
@@ -336,6 +338,19 @@ const useExtensionSettings = (
   return [getValue, setValue] as const;
 };
 
+const LockBannerArtWork = {
+  icon: () => <LockIconOutline width={28} />,
+} as const;
+
+const LockBannerOverride = {
+  Root: {
+    style: {
+      marginLeft: 0,
+      marginRight: 0,
+    },
+  },
+} as const;
+
 const InternalResourceEditor: React.ForwardRefRenderFunction<
   IResourceEditorRef,
   IResourceEditorProps
@@ -437,12 +452,21 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
               alt={file?.label}
             />
           </Block>
+          {!!file.managedBy && (
+            <Banner
+              title="File Locked"
+              artwork={LockBannerArtWork}
+              overrides={LockBannerOverride}
+            >
+              This is a managed file, you can not update it manually.
+            </Banner>
+          )}
           <LabelLarge className={css(groupLabelStyles)}>Metadata</LabelLarge>
           <FormControl label="ID">
-            <Input disabled value={file?.id} size={INPUT_SIZE.compact} />
+            <Input disabled value={file?.id} size={INPUT_SIZE.mini} />
           </FormControl>
           <FormControl label="MIME Type">
-            <Input disabled value={file?.mimeType} size={INPUT_SIZE.compact} />
+            <Input disabled value={file?.mimeType} size={INPUT_SIZE.mini} />
           </FormControl>
           <FormControl label="Date Imported">
             <Input
@@ -450,7 +474,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
               value={
                 file?.importTime ? new Date(file.importTime).toISOString() : ''
               }
-              size={INPUT_SIZE.compact}
+              size={INPUT_SIZE.mini}
             />
           </FormControl>
           <LabelLarge className={css(groupLabelStyles)}>Tags</LabelLarge>
@@ -472,7 +496,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
           <Block>
             <FormTagItem
               custom
-              disabled={databaseLocked}
+              disabled={databaseLocked || !!file.managedBy}
               typeId={LabelType.Custom}
               onTagChange={handleResourceTagChange}
               tagReference={tagTypeToReferenceMap[LabelType.Custom]}
@@ -492,7 +516,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   checked={file?.cacheToHardDisk || false}
                   labelPlacement={LABEL_PLACEMENT.right}
                   onChange={handleCacheToHardDiskChange}
-                  disabled={databaseLocked}
+                  disabled={databaseLocked || !!file.managedBy}
                 >
                   Cache Resource to Hard Disk
                 </Toggle>
@@ -505,7 +529,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   options={PRELOAD_LEVELS}
                   placeholder="Select Level"
                   onChange={handlePreloadLevelChange}
-                  disabled={databaseLocked}
+                  disabled={databaseLocked || !!file.managedBy}
                   size={SELECT_SIZE.mini}
                 />
               </FormControl>
@@ -518,7 +542,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   placeholder="Episodes"
                   value={episodesSelectValue}
                   onChange={handleEpisodesChange}
-                  disabled={databaseLocked}
+                  disabled={databaseLocked || !!file.managedBy}
                   size={SELECT_SIZE.mini}
                 />
               </FormControl>
@@ -532,7 +556,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   value={preloadTriggersSelectValue}
                   placeholder="Triggers"
                   onChange={handlePreloadTriggersChange}
-                  disabled={databaseLocked}
+                  disabled={databaseLocked || !!file.managedBy}
                   size={SELECT_SIZE.mini}
                 />
               </FormControl>
@@ -550,7 +574,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
               TitleComponent={LabelLarge}
               getValue={getExtensionSettings}
               setValue={setExtensionSettings}
-              disabled={databaseLocked}
+              disabled={databaseLocked || !!file.managedBy}
             />
           </Block>
           {file?.url && (
