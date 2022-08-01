@@ -61,7 +61,13 @@ export interface IEditableResourceGroup
 export type IEditableResource = IEditableResourceFile | IEditableResourceGroup;
 
 export const editableResourceGroupProps: (keyof Partial<IEditableResourceFile>)[] =
-  ['cacheToHardDisk', 'preloadLevel', 'preloadTriggers', 'episodeIds'];
+  [
+    'cacheToHardDisk',
+    'preloadLevel',
+    'preloadTriggers',
+    'episodeIds',
+    'extensionConfigurations',
+  ];
 
 interface IFormItemProps {
   typeId: LabelType;
@@ -566,10 +572,6 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
               </FormControl>
             </Block>
           </Block>
-        </>
-      )}
-      {file.type !== 'group' && (
-        <>
           <Block paddingTop="16px" paddingBottom="16px">
             <ExtensionConfiguration
               key={file.id}
@@ -581,6 +583,10 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
               disabled={databaseLocked || !!file.managedBy}
             />
           </Block>
+        </>
+      )}
+      {file.type !== 'group' && (
+        <>
           {file?.url && (
             <Block>
               <LabelLarge className={css(groupLabelStyles)}>

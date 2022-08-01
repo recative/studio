@@ -88,6 +88,9 @@ export interface IEditResourceGroupModalProps {
   onSubmit: (files: IResourceFile[], groupLabel: string) => void;
 }
 
+// Actually this value is only for prevent rendering bug, the true value is
+// decided by `editableResourceGroupProps`, maybe we have to union the logic
+// but not now, since is 00:30 now and I'm still working. FXXX my boss.
 const nonBatchUpdateFieldsForGroups = ['id', 'label', 'managedBy'] as const;
 
 const modalBodyStyles: StyleObject = {
@@ -554,6 +557,12 @@ const useEditableResourceGroup = (
 
   React.useLayoutEffect(() => {
     if (files && groupId) {
+      // We want to build such a feature, some fields are treated as group-level,
+      // this is possible to make a fake group level resource file, and treated
+      // as a group, while this file is updated, all files will be updated at
+      // once, very tricky but works :D
+      // The batch update is handled by `handleUpdateFile`, you can find it in
+      // this file.
       const file = cloneDeep(files[0]) as unknown as IEditableResourceGroup;
 
       nonBatchUpdateFieldsForGroups.forEach((x) => {
