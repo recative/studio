@@ -26,6 +26,11 @@ import { getResourceFilePath } from './getResourceFile';
 
 const resourceProcessorDependencies = {
   getResourceFilePath,
+  writeBufferToResource: (buffer: Buffer, fileName: string) => {
+    const workspace = getWorkspace();
+    const filePath = join(workspace.mediaPath, fileName);
+    return writeFile(filePath, buffer);
+  },
   writeBufferToPostprocessCache: (buffer: Buffer, fileName: string) => {
     const workspace = getWorkspace();
     const postProcessedPath = join(workspace.mediaPath, 'post-processed');
