@@ -488,7 +488,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
               .map((_typeId) => (
                 <FormTagItem
                   key={_typeId}
-                  disabled={databaseLocked}
+                  disabled={databaseLocked || !!file.managedBy}
                   typeId={_typeId as unknown as LabelType}
                   onTagChange={handleResourceTagChange}
                   tagReference={
