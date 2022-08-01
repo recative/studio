@@ -56,10 +56,12 @@ export interface InitializeDependency {
     buffer: Buffer,
     fileName: string
   ) => Promise<string>;
+  writeBufferToResource: (buffer: Buffer, fileName: string) => Promise<string>;
   writeBufferToTemporaryFile: (buffer: Buffer) => Promise<string>;
   createTemporaryZip: () => Zip;
   updateResourceDefinition: (
     resource:
+      | IResourceFile
       | PostProcessedResourceItemForUpload
       | PostProcessedResourceItemForImport
   ) => Promise<void>;
@@ -91,7 +93,7 @@ export interface IBundleGroup {
 
 interface IGroupCreateResult {
   group: IResourceGroup;
-  files: IResourceFile[];
+  files: (IResourceFile | IPostProcessedResourceFileForUpload)[];
 }
 
 export abstract class ResourceProcessor<ConfigKey extends string> {
@@ -210,7 +212,9 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
   }
 
   protected async writeOutputFile(
-    resource: IResourceFile | IPostProcessedResourceFileForUpload,
+    resource:
+      | IPostProcessedResourceFileForImport
+      | IPostProcessedResourceFileForUpload,
     buffer: Buffer,
     additionalData: Record<string, number | string | boolean>,
     mediaBuildId: number | null = null
@@ -223,11 +227,15 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
         resource,
         mediaBuildId
       );
+      return this.dependency.writeBufferToPostprocessCache(
+        buffer,
+        this.getOutputFileName(resource, additionalData)
+      );
     }
 
-    return this.dependency.writeBufferToPostprocessCache(
+    return this.dependency.writeBufferToResource(
       buffer,
-      this.getOutputFileName(resource, additionalData)
+      `${resource.id}.resource`
     );
   }
 

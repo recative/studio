@@ -1089,26 +1089,34 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       return null;
     }
 
+    const pointerFileId = nanoid();
+
     const parseResult = files.map((x) => {
-      const regex = /\d*\D*(\d+)/;
+      const regex = /.*?(\d+).*/;
+      const extractedNumber = regex.exec(x.label)?.[1];
+
       return {
-        id: Number.parseInt(regex.exec(x.label)?.[1] ?? '', 10),
+        id: Number.parseInt(extractedNumber ?? '', 10),
         file: x,
       };
     });
 
+    console.log({ parseResult });
+
     const sortedFiles = parseResult.some((x) => Number.isNaN(x.id))
       ? files.sort((x, y) => x.label.localeCompare(y.label))
-      : parseResult.sort((x) => x.id).map((x) => x.file);
+      : parseResult.sort((x, y) => x.id - y.id).map((x) => x.file);
 
     sortedFiles.forEach((x, id) => {
       x.extensionConfigurations[`${AtlasResourceProcessor.id}~~frame`] =
         id.toString();
+      x.extensionConfigurations[`${AtlasResourceProcessor.id}~~enabled`] =
+        'yes';
+      x.managedBy = pointerFileId;
       this.dependency.updateResourceDefinition(x);
     });
 
     const emptyFile = createCanvas(1, 1);
-    const pointerFileId = nanoid();
     const context = emptyFile.getContext('2d');
     context.fillRect(0, 0, 1, 1);
     const fileBuffer = emptyFile.encodeSync('png');
