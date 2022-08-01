@@ -88,6 +88,8 @@ export interface IEditResourceGroupModalProps {
   onSubmit: (files: IResourceFile[], groupLabel: string) => void;
 }
 
+const nonBatchUpdateFieldsForGroups = ['id', 'label', 'managedBy'] as const;
+
 const modalBodyStyles: StyleObject = {
   maxHeight: 'calc(100% - 210px)',
   boxSizing: 'border-box',
@@ -553,6 +555,11 @@ const useEditableResourceGroup = (
   React.useLayoutEffect(() => {
     if (files && groupId) {
       const file = cloneDeep(files[0]) as unknown as IEditableResourceGroup;
+
+      nonBatchUpdateFieldsForGroups.forEach((x) => {
+        delete file[x];
+      });
+
       file.type = 'group';
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (file as any).id = groupId;
