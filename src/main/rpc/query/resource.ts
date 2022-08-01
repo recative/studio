@@ -1,7 +1,9 @@
+/* eslint-disable no-await-in-loop */
 import { basename, join as joinPath, parse as parsePath } from 'path';
 
 import PQueue from 'p-queue';
 import { nanoid } from 'nanoid';
+import { copyFile, writeFile } from 'fs/promises';
 import { uniqBy, cloneDeep } from 'lodash';
 import { copy, removeSync, existsSync } from 'fs-extra';
 
@@ -22,6 +24,7 @@ import type {
   IResourceItem,
 } from '@recative/definitions';
 
+import { IPostProcessedResourceFileForImport } from '@recative/extension-sdk';
 import {
   generateImageThumbnail,
   generateAudioThumbnail,
@@ -36,6 +39,7 @@ import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getThumbnailSrc } from '../../utils/getThumbnailSrc';
 import { getResourceFilePath } from '../../utils/getResourceFile';
 import { getFileHash, getFilePathHash } from '../../utils/getFileHash';
+import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
 import { injectResourceUrlForResourceManager } from '../../utils/injectResourceUrl';
 
 import { cleanupLoki } from './utils';
@@ -661,6 +665,57 @@ export const mergeResources = async (itemIds: string[], tag: GroupTag) => {
     file.resourceGroupId = newGroup.id;
     db.resource.resources.update(file);
   });
+
+  const resourceProcessorInstances = Object.entries(
+    await getResourceProcessorInstances()
+  );
+
+  // Preprocessing the resources
+  let postProcessedGroup = newGroup;
+  let postProcessedFiles: (
+    | IPostProcessedResourceFileForImport
+    | IResourceFile
+  )[] = flattenResources;
+  for (let i = 0; i < resourceProcessorInstances.length; i += 1) {
+    const [, processor] = resourceProcessorInstances[i];
+
+    const processedFiles = await processor.afterGroupCreated(
+      postProcessedFiles,
+      postProcessedGroup
+    );
+
+    if (processedFiles) {
+      postProcessedGroup = processedFiles.group;
+      postProcessedFiles = processedFiles.files;
+    }
+  }
+
+  const allItems: IResourceItem[] = [postProcessedGroup];
+  await Promise.all(
+    postProcessedFiles.map(async (file) => {
+      let item: IResourceFile;
+
+      if ('postProcessedFile' in file) {
+        const { postProcessedFile, ...resourceDefinition } = file;
+
+        if (typeof postProcessedFile === 'string') {
+          await copyFile(postProcessedFile, getResourceFilePath(file));
+        } else {
+          await writeFile(getResourceFilePath(file), postProcessedFile);
+        }
+
+        item = resourceDefinition;
+      } else {
+        item = file;
+      }
+
+      if (!allItems.find((x) => x.id === item.id)) {
+        allItems.push(item);
+      }
+    })
+  );
+
+  await updateOrInsertResources(allItems);
 };
 
 export const updateResourceLabel = async (itemId: string, label: string) => {
