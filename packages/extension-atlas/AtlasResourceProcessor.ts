@@ -14,17 +14,23 @@ import {
 } from '@recative/atlas';
 import {
   hashObject,
+  PreloadLevel,
   IResourceItem,
   imageCategoryTag,
   BidirectionalMap,
   getHighestPreloadLevel,
   REDIRECT_URL_EXTENSION_ID,
   TerminalMessageLevel as Level,
+  frameSequenceGroupResourceTag,
   IDetailedResourceItemForClient,
 } from '@recative/definitions';
 import { ResourceProcessor } from '@recative/extension-sdk';
 
-import type { IResourceItemForClient } from '@recative/definitions';
+import type {
+  IResourceFile,
+  IResourceGroup,
+  IResourceItemForClient,
+} from '@recative/definitions';
 import type {
   IBundleGroup,
   PostProcessedResourceItemForImport,
@@ -272,7 +278,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
         currentTask.w === envelopeRect.w && currentTask.h === envelopeRect.h;
       const flipped =
         currentTask.w === envelopeRect.h && currentTask.h === envelopeRect.w;
-
       if (notFlipped) {
         // Draw directly
         ctx.drawImage(
@@ -319,7 +324,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~h`] =
         currentTask.h.toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~f`] =
-        flipped.toString();
+        (flipped && !notFlipped).toString();
       rectResource.url[REDIRECT_URL_EXTENSION_ID] = `redirect://${resourceId}`;
       // #endregion
     }
@@ -1079,8 +1084,76 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     return resources;
   }
 
-  afterGroupCreated() {
-    return null;
+  async afterGroupCreated(files: IResourceFile[], newGroup: IResourceGroup) {
+    if (!newGroup.tags.includes(frameSequenceGroupResourceTag.id)) {
+      return null;
+    }
+
+    const parseResult = files.map((x) => {
+      const regex = /\d*\D*(\d+)/;
+      return {
+        id: Number.parseInt(regex.exec(x.label)?.[1] ?? '', 10),
+        file: x,
+      };
+    });
+
+    const sortedFiles = parseResult.some((x) => Number.isNaN(x.id))
+      ? files.sort((x, y) => x.label.localeCompare(y.label))
+      : parseResult.sort((x) => x.id).map((x) => x.file);
+
+    sortedFiles.forEach((x, id) => {
+      x.extensionConfigurations[`${AtlasResourceProcessor.id}~~frame`] =
+        id.toString();
+      this.dependency.updateResourceDefinition(x);
+    });
+
+    const emptyFile = createCanvas(1, 1);
+    const pointerFileId = nanoid();
+    const context = emptyFile.getContext('2d');
+    context.fillRect(0, 0, 1, 1);
+    const fileBuffer = emptyFile.encodeSync('png');
+    const md5 = await this.dependency.md5Hash(fileBuffer);
+    const xxHash = await this.dependency.xxHash(fileBuffer);
+
+    const pointerFile: IPostProcessedResourceFileForImport = {
+      type: 'file',
+      id: pointerFileId,
+      label: `Recative Frame Sequence Pointer ${pointerFileId}`,
+      episodeIds: [],
+      mimeType: 'image/png',
+      url: {},
+      managedBy: null,
+      originalHash: xxHash,
+      convertedHash: {
+        md5,
+        xxHash,
+      },
+      cacheToHardDisk: false,
+      preloadLevel: PreloadLevel.None,
+      preloadTriggers: [],
+      duration: null,
+      removed: false,
+      removedTime: -1,
+      resourceGroupId: newGroup.id,
+      tags: ['custom:frame-sequence-pointer'],
+      thumbnailSrc: '',
+      importTime: Date.now(),
+      extensionConfigurations: {
+        [`${AtlasResourceProcessor.id}~~frames`]: sortedFiles
+          .map((x) => x.id)
+          .join(','),
+      },
+      postProcessedFile: fileBuffer,
+    };
+
+    newGroup.files.push(pointerFile.id);
+
+    files.push(pointerFile);
+
+    return {
+      files,
+      group: newGroup,
+    };
   }
 
   beforePreviewResourceMetadataDelivered<
