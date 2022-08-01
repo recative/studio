@@ -300,18 +300,22 @@ const updateManagedResources = async (item: IResourceItem) => {
 
   const db = await getDb();
 
-  db.resource.resources.find({ managedBy: item.id }).forEach((managedItem) => {
-    MANAGED_RESOURCE_FILE_KEYS.forEach((key) => {
-      if (managedItem.type !== 'file') return;
-      if (key === 'tags') {
-        managedItem[key] = item[key].filter((x) => !x.endsWith('!'));
-      } else {
-        (managedItem as any)[key] = item[key];
-      }
-    });
+  db.resource.resources
+    .find({
+      type: 'file',
+      managedBy: item.id,
+    })
+    .forEach((managedItem) => {
+      MANAGED_RESOURCE_FILE_KEYS.forEach((key) => {
+        if (key === 'tags') {
+          managedItem[key] = item[key].filter((x) => !x.endsWith('!'));
+        } else {
+          (managedItem as any)[key] = item[key];
+        }
+      });
 
-    db.resource.resources.update(managedItem);
-  });
+      db.resource.resources.update(managedItem);
+    });
 };
 
 /**
@@ -726,6 +730,7 @@ export const updateResourceLabel = async (itemId: string, label: string) => {
   const db = await getDb();
 
   const group = db.resource.resources.findOne({ id: itemId });
+
   if (group) {
     group.label = label;
     db.resource.resources.update(group);
