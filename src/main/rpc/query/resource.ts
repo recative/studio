@@ -276,10 +276,13 @@ export const getResource = async (
 ) => {
   const db = await getReleasedDb(bundleReleaseId);
 
-  const resource = db.resource.resources.findOne({
+  const resource = (db.resource.resources.findOne({
     id: resourceId,
     removed: excludeRemoved ? false : undefined,
-  }) as IResourceItem;
+  }) ??
+    db.resource.postProcessed.findOne({
+      id: resourceId,
+    })) as IResourceItem;
 
   if (!resource) return null;
 

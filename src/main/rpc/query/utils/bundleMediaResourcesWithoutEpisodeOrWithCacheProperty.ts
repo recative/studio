@@ -1,7 +1,7 @@
 import type { Archiver } from 'archiver';
 
 import {
-  IResourceFile,
+  REDIRECT_URL_EXTENSION_ID,
   TerminalMessageLevel as Level,
 } from '@recative/definitions';
 
@@ -10,6 +10,8 @@ import { logToTerminal } from '../terminal';
 import { getReleasedDb } from '../../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../../utils/getResourceFile';
 import { archiverAppendPathList } from '../../../utils/archiver';
+
+import { MOBILE_SHELL_BUILD_IN_KEY } from '../../../utils/buildInResourceUploaderKeys';
 
 /**
  * Find all not-deleted resource files, which don't have any episode, or
@@ -30,30 +32,79 @@ export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
   const db = await getReleasedDb(bundleReleaseId);
 
   // Get all resource that is not removed and have no episode record.
-  const resourceList = db.resource.resources
-    .chain()
-    .find({
-      type: 'file',
-      removed: false,
-      $or: [
-        {
-          episodeIds: { $size: 0 },
-        },
-        {
-          cacheToHardDisk: true,
-        },
-      ],
-      redirectTo: {
-        $or: [{ $exists: false }, { $eq: false }],
+  const resourceImported = db.resource.resources.find({
+    type: 'file',
+    removed: false,
+    $or: [
+      {
+        episodeIds: { $size: 0 },
       },
-    })
-    .where(
-      (x) =>
-        !!Object.values((x as IResourceFile).url).find((i) =>
-          i.startsWith('redirect://')
-        )
-    )
-    .data();
+      {
+        cacheToHardDisk: true,
+      },
+    ],
+    redirectTo: {
+      $or: [{ $exists: false }, { $eq: false }],
+    },
+    url: {
+      $nkeyin: [REDIRECT_URL_EXTENSION_ID],
+    },
+  });
+  const resourceProcessed = db.resource.postProcessed.find({
+    type: 'file',
+    $or: [
+      {
+        episodeIds: { $size: 0 },
+      },
+      {
+        cacheToHardDisk: true,
+      },
+    ],
+    mimeType: {
+      $ne: 'application/zip',
+    },
+  });
+
+  logToTerminal(terminalId, `:: Build in media bundler:`);
+  logToTerminal(terminalId, `:: :: Imported: ${resourceImported.length}`);
+  logToTerminal(terminalId, `:: :: Processed: ${resourceProcessed.length}`);
+  logToTerminal(
+    terminalId,
+    `:: :: Total: ${resourceImported.length + resourceProcessed.length}`
+  );
+
+  const withBuildInResourceImported = resourceImported.filter((resource) => {
+    return (
+      resource.type === 'file' && MOBILE_SHELL_BUILD_IN_KEY in resource.url
+    );
+  });
+
+  const withBuildInResourcePostProcessed = resourceImported.filter(
+    (resource) => {
+      return (
+        resource.type === 'file' && MOBILE_SHELL_BUILD_IN_KEY in resource.url
+      );
+    }
+  );
+
+  logToTerminal(terminalId, `:: With build-in url:`);
+  logToTerminal(
+    terminalId,
+    `:: :: Imported: ${withBuildInResourceImported.length}`
+  );
+  logToTerminal(
+    terminalId,
+    `:: :: Processed: ${withBuildInResourcePostProcessed.length}`
+  );
+  logToTerminal(
+    terminalId,
+    `:: :: Total: ${
+      withBuildInResourceImported.length +
+      withBuildInResourcePostProcessed.length
+    }`
+  );
+
+  const resourceList = [...resourceImported, ...resourceProcessed];
 
   logToTerminal(
     terminalId,
@@ -64,7 +115,7 @@ export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
   // Get file path of all resource files.
   const resourceFilePathList = resourceList.map((resource) => ({
     from: getResourceFilePath(resource),
-    to: `${resourcePath}/${resource.id}`,
+    to: `${resourcePath}/${resource.id}.resource`,
   }));
 
   logToTerminal(

@@ -39,41 +39,41 @@ export const getResourceListOfEpisode = async (
 
   const profile = getProfile(request);
 
-  const resourceFiles = await profile.injectResourceUrls([
-    ...(await Promise.all(
-      db.resource.resources
-        .find({
+  const resourceFiles = await profile.injectResourceUrls(
+    await Promise.all(
+      [
+        ...db.resource.resources.find({
           $or: [
             { episodeIds: { $contains: episodeId }, removed: false },
             { episodeIds: { $size: 0 }, removed: false },
           ],
-        })
-        .map(async (x) => {
-          if (x.type === 'group') return x;
+        }),
+        ...db.resource.postProcessed.find({
+          $or: [
+            { episodeIds: { $contains: episodeId }, removed: false },
+            { episodeIds: { $size: 0 }, removed: false },
+          ],
+        }),
+      ].map(async (x) => {
+        if (x.type === 'group') return x;
 
-          const latestResource = await getResource(x.id);
+        const latestResource = await getResource(x.id);
 
-          if (!latestResource) {
-            return x;
-          }
+        if (!latestResource) {
+          return x;
+        }
 
-          if (latestResource.type === 'group') {
-            throw new TypeError('Mismatch resource type');
-          }
+        if (latestResource.type === 'group') {
+          throw new TypeError('Mismatch resource type');
+        }
 
-          return {
-            ...x,
-            url: latestResource.url,
-          };
-        })
-    )),
-    ...db.resource.postProcessed.find({
-      $or: [
-        { episodeIds: { $contains: episodeId }, removed: false },
-        { episodeIds: { $size: 0 }, removed: false },
-      ],
-    }),
-  ]);
+        return {
+          ...x,
+          url: latestResource.url,
+        };
+      })
+    )
+  );
 
   const resourceGroups = db.resource.resources.find({
     files: { $containsAny: resourceFiles.map((x) => x.id) },

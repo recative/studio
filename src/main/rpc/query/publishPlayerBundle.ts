@@ -50,7 +50,7 @@ export const dumpPlayerConfigs = async (
 ) => {
   const buildPath = await getBuildPath();
 
-  logToTerminal(terminalId, `Extracting bundler configurations`, Level.Info);
+  logToTerminal(terminalId, `Extracting episode configurations`, Level.Info);
   const episodes = await getBundlerConfigs(codeReleaseId, bundleReleaseId);
   const playerBundlePath = join(
     buildPath,
