@@ -1101,8 +1101,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       };
     });
 
-    console.log({ parseResult });
-
     const sortedFiles = parseResult.some((x) => Number.isNaN(x.id))
       ? files.sort((x, y) => x.label.localeCompare(y.label))
       : parseResult.sort((x, y) => x.id - y.id).map((x) => x.file);
@@ -1143,7 +1141,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       removed: false,
       removedTime: -1,
       resourceGroupId: newGroup.id,
-      tags: ['custom:frame-sequence-pointer'],
+      tags: ['custom:frame-sequence-pointer!'],
       thumbnailSrc: '',
       importTime: Date.now(),
       extensionConfigurations: {

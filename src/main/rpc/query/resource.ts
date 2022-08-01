@@ -300,7 +300,11 @@ const updateManagedResources = async (item: IResourceItem) => {
   db.resource.resources.find({ managedBy: item.id }).forEach((managedItem) => {
     MANAGED_RESOURCE_FILE_KEYS.forEach((key) => {
       if (managedItem.type !== 'file') return;
-      (managedItem as any)[key] = item[key];
+      if (key === 'tags') {
+        managedItem[key] = item[key].filter((x) => !x.endsWith('!'));
+      } else {
+        (managedItem as any)[key] = item[key];
+      }
     });
 
     db.resource.resources.update(managedItem);
