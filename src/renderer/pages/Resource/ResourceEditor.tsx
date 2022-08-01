@@ -20,6 +20,7 @@ import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Select } from 'components/Select/Select';
 import { Toggle } from 'components/Toggle/Toggle';
 import { NotFound } from 'components/Illustrations/NotFound';
+import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { LockIconOutline } from 'components/Icons/LockIconOutline';
 import { ExtensionConfiguration } from 'components/ExtensionConfiguration/ExtensionConfiguration';
 import type { SelectProps } from 'components/Select/Select';
@@ -441,6 +442,9 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
     );
   }
 
+  const urlKeys = Object.keys(file.url);
+  const extensionKeys = Object.keys(file.extensionConfigurations);
+
   return (
     <Block>
       {file.type !== 'group' && (
@@ -582,15 +586,45 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
               <LabelLarge className={css(groupLabelStyles)}>
                 Uploaded URL
               </LabelLarge>
-              {Object.keys(file.url).map((key) => (
-                <FormControl key={key} label={key}>
-                  <Input
-                    readOnly
-                    value={file.url[key]}
-                    size={INPUT_SIZE.mini}
-                  />
-                </FormControl>
-              ))}
+              {urlKeys.length ? (
+                urlKeys.map((key) => (
+                  <FormControl key={key} label={key}>
+                    <Input
+                      readOnly
+                      value={file.url[key]}
+                      size={INPUT_SIZE.mini}
+                    />
+                  </FormControl>
+                ))
+              ) : (
+                <EmptySpace
+                  title="Empty"
+                  content="This file has not been uploaded to any CDN"
+                />
+              )}
+            </Block>
+          )}
+          {file?.extensionConfigurations && (
+            <Block>
+              <LabelLarge className={css(groupLabelStyles)}>
+                Extension Configurations
+              </LabelLarge>
+              {extensionKeys.length ? (
+                extensionKeys.map((key) => (
+                  <FormControl key={key} label={key}>
+                    <Input
+                      readOnly
+                      value={file.extensionConfigurations[key]}
+                      size={INPUT_SIZE.mini}
+                    />
+                  </FormControl>
+                ))
+              ) : (
+                <EmptySpace
+                  title="Empty"
+                  content="This file is not configured for any extensions"
+                />
+              )}
             </Block>
           )}
         </>

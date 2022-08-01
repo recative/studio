@@ -196,83 +196,85 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
 
   return (
     <Block>
-      {extensionMetadata.map((extension) => {
-        return (
-          <Block key={extension.id}>
-            <TitleComponent>
-              <span className={css(pluginTitleContainerStyles)}>
-                <span>{extension.label}</span>
-                <span className={css(iconContainerStyle)}>
-                  <ExtensionIconFilled width="1em" height="1em" />
+      {extensionMetadata
+        .filter((x) => x.fields?.length)
+        .map((extension) => {
+          return (
+            <Block key={extension.id}>
+              <TitleComponent>
+                <span className={css(pluginTitleContainerStyles)}>
+                  <span>{extension.label}</span>
+                  <span className={css(iconContainerStyle)}>
+                    <ExtensionIconFilled width="1em" height="1em" />
+                  </span>
                 </span>
-              </span>
-            </TitleComponent>
-            {extension.fields &&
-              extension.fields.map(({ id, ...config }) => {
-                const fieldQueryKey = `${extension.id}~~${id}`;
-                if (config.type === 'string') {
-                  return (
-                    <FormControl key={id} label={config.label}>
-                      <Input
-                        size={INPUT_SIZE.mini}
-                        disabled={disabled}
-                        value={
-                          getOverwrittenValue()[fieldQueryKey] ??
-                          getValue(extension.id, id)
-                        }
-                        onChange={onChangeCallbacks[fieldQueryKey]}
-                      />
-                    </FormControl>
-                  );
-                }
+              </TitleComponent>
+              {extension.fields &&
+                extension.fields.map(({ id, ...config }) => {
+                  const fieldQueryKey = `${extension.id}~~${id}`;
+                  if (config.type === 'string') {
+                    return (
+                      <FormControl key={id} label={config.label}>
+                        <Input
+                          size={INPUT_SIZE.mini}
+                          disabled={disabled}
+                          value={
+                            getOverwrittenValue()[fieldQueryKey] ??
+                            getValue(extension.id, id)
+                          }
+                          onChange={onChangeCallbacks[fieldQueryKey]}
+                        />
+                      </FormControl>
+                    );
+                  }
 
-                if (config.type === 'groupedBoolean') {
-                  return (
-                    <FormControl key={id} label={config.label}>
-                      <ButtonGroup
-                        mode="checkbox"
-                        size={BUTTON_SIZE.mini}
-                        selected={groupedBooleanSelectedValues[fieldQueryKey]}
-                        onClick={onChangeCallbacks[fieldQueryKey]}
-                        disabled={disabled}
-                      >
-                        {config.ids.map((optionId, index) => (
-                          <Button key={optionId}>
-                            <span className={css(optionsStyle)}>
-                              {config.labels[index]}
-                            </span>
-                          </Button>
-                        ))}
-                      </ButtonGroup>
-                    </FormControl>
-                  );
-                }
+                  if (config.type === 'groupedBoolean') {
+                    return (
+                      <FormControl key={id} label={config.label}>
+                        <ButtonGroup
+                          mode="checkbox"
+                          size={BUTTON_SIZE.mini}
+                          selected={groupedBooleanSelectedValues[fieldQueryKey]}
+                          onClick={onChangeCallbacks[fieldQueryKey]}
+                          disabled={disabled}
+                        >
+                          {config.ids.map((optionId, index) => (
+                            <Button key={optionId}>
+                              <span className={css(optionsStyle)}>
+                                {config.labels[index]}
+                              </span>
+                            </Button>
+                          ))}
+                        </ButtonGroup>
+                      </FormControl>
+                    );
+                  }
 
-                if (config.type === 'boolean') {
-                  return (
-                    <FormControl key={id} label={config.title}>
-                      <Toggle
-                        checked={
-                          (getOverwrittenValue()[fieldQueryKey] ??
-                            getValue(extension.id, id)) === 'yes'
-                        }
-                        labelPlacement={CHECKBOX_LABEL_PLACEMENT.right}
-                        onChange={onChangeCallbacks[fieldQueryKey]}
-                        disabled={disabled}
-                      >
-                        {config.label}
-                      </Toggle>
-                    </FormControl>
-                  );
-                }
+                  if (config.type === 'boolean') {
+                    return (
+                      <FormControl key={id} label={config.title}>
+                        <Toggle
+                          checked={
+                            (getOverwrittenValue()[fieldQueryKey] ??
+                              getValue(extension.id, id)) === 'yes'
+                          }
+                          labelPlacement={CHECKBOX_LABEL_PLACEMENT.right}
+                          onChange={onChangeCallbacks[fieldQueryKey]}
+                          disabled={disabled}
+                        >
+                          {config.label}
+                        </Toggle>
+                      </FormControl>
+                    );
+                  }
 
-                throw new TypeError(
-                  `Unknown field type: ${(config as { type: string }).type}`
-                );
-              })}
-          </Block>
-        );
-      })}
+                  throw new TypeError(
+                    `Unknown field type: ${(config as { type: string }).type}`
+                  );
+                })}
+            </Block>
+          );
+        })}
     </Block>
   );
 };
