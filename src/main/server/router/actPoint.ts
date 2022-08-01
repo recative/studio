@@ -2,7 +2,9 @@ import { join } from 'path';
 import { parse } from 'url';
 
 import mime from 'mime-types';
-import { readFile, pathExists, lstatSync } from 'fs-extra';
+import StreamZip from 'node-stream-zip';
+
+import { readFile, pathExists, existsSync, lstatSync } from 'fs-extra';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 
 import { getWorkspace } from '../../rpc/workspace';
@@ -13,6 +15,30 @@ export const getResourceFile = async (
 ) => {
   const workspace = getWorkspace();
   const { codeRepositoryPath } = workspace;
+
+  const previewWebRootBundle = join(
+    workspace.assetsPath,
+    'preview-web-root.zip'
+  );
+  if (existsSync(previewWebRootBundle)) {
+    const previewBundle = new StreamZip.async({ file: previewWebRootBundle });
+    const entries = await previewBundle.entries();
+
+    if (request.url === '/' && entries['index.html']) {
+      const file = await previewBundle.entryData('index.html');
+      reply.type('text/html');
+      reply.send(file);
+      return;
+    }
+
+    const entryKey = request.url.substring(1);
+    if (entries[entryKey]) {
+      const file = await previewBundle.entryData(entryKey);
+      reply.type(mime.lookup(entryKey) || 'application/octet-stream');
+      reply.send(file);
+      return;
+    }
+  }
 
   if (!codeRepositoryPath) {
     throw new Error('Code repository path is not defined');
