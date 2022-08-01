@@ -830,7 +830,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             convertedHash: { xxHash: 'unknown', md5: 'unknown' },
             managedBy: null,
             url: {},
-            cacheToHardDisk: !!currentResources.find((x) => x.cacheToHardDisk),
+            cacheToHardDisk: currentResources.some((x) => x.cacheToHardDisk),
             preloadLevel: getHighestPreloadLevel(
               currentResources.map((x) => x.preloadLevel)
             ),
