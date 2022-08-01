@@ -183,9 +183,10 @@ export class S3Uploader extends Uploader<keyof S3BucketPluginConfig> {
       Bucket: this.config.bucket,
       Key: filePath,
       Body: buffer,
-      Headers: {
-        'Content-MD5': fileHash,
-      },
+      ContentType:
+        typeof config === 'string'
+          ? 'application/octet-stream'
+          : config.mimeType,
     };
 
     await this.s3.send(new PutObjectCommand(uploadParams));
