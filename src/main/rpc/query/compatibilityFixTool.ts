@@ -54,9 +54,14 @@ const getIncompatibleAudioFiles = async () => {
 
       totalFiles += 1;
 
+      const resourcePath = getResourceFilePath(resource);
+      const mimeType = await getMimeType(resourcePath);
+
       const isCompatible =
         resource.mimeType.startsWith('audio') &&
-        (await checkAudioFileCompatibility(resource));
+        (await checkAudioFileCompatibility(resource)) &&
+        mimeType === resource.mimeType;
+
       return {
         ...resource,
         isCompatible,
