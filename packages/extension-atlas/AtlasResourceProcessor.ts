@@ -1092,7 +1092,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     const pointerFileId = nanoid();
 
     const parseResult = files.map((x) => {
-      const regex = /.*?(\d+).*/;
+      const regex = /.*?(\d+)\D*$/;
       const extractedNumber = regex.exec(x.label)?.[1];
 
       return {
