@@ -253,8 +253,12 @@ const useFileIdToFileMap = (
 
           Object.values(draft).forEach((file) => {
             editableResourceGroupProps.forEach((key) => {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (file[key] as any) = resource[key];
+              if (key === 'extensionConfigurations') {
+                file[key] = Object.assign(file[key], resource[key]);
+              } else {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (file[key] as any) = resource[key];
+              }
             });
           });
         }
