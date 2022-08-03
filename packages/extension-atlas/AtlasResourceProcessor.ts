@@ -45,7 +45,7 @@ export interface AtlasResourceProcessorConfig {
 
 // For compatibility concern, we need to hardcode this value.
 const ATLAS_MAX_DIMENSION_SIZE = 2048;
-const REQUIRED_VALID_AREA_RATIO = 0.75;
+const REQUIRED_VALID_AREA_RATIO = 0.6;
 const IDEAL_VALID_AREA_RATIO = 0.8;
 
 export const PARSE_RESOURCE_FILE_TO_BE_REFACTORED_TO_DEFINITIONS = <
@@ -358,7 +358,9 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     const filteredResources = resources.filter((x) => {
       return (
         x.extensionConfigurations[`${AtlasResourceProcessor.id}~~enabled`] ===
-          'yes' && x.tags.includes(imageCategoryTag.id)
+          'yes' &&
+        // x.tags.includes(imageCategoryTag.id) &&
+        !x.tags.includes('custom:frame-sequence-pointer!')
       );
     });
 
@@ -638,8 +640,9 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           sizeLimit = ATLAS_MAX_DIMENSION_SIZE,
           stopTryingShrinkSpace = false
         ): Promise<boolean> => {
+          console.log(sizeLimit);
           // this.dependency.logToTerminal(
-          //   `:: :: [Group ${groupIndex}] It: ${reason}`,
+          //   `:: :: [Group ${groupIndex}] It: ${_reason}`,
           //   Level.Info
           // );
           if (currentTask.length === 0 && nextTask.length === 0) {
@@ -699,7 +702,11 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             2 ** Math.ceil(Math.log2(spaceRect.h))
           );
 
-          if (!taskSuccess) {
+          if (
+            !taskSuccess ||
+            spaceRect.w > sizeLimit ||
+            spaceRect.h > sizeLimit
+          ) {
             const lastTask = currentTask.pop();
 
             if (lastTask) {
@@ -707,7 +714,11 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             }
 
             // Task not success, try to start next iteration.
-            return wrappedTaskIteration('AtlasPackReportFailed', sizeLimit);
+            return wrappedTaskIteration(
+              'AtlasPackReportFailed',
+              sizeLimit < ATLAS_MAX_DIMENSION_SIZE ? sizeLimit * 2 : sizeLimit,
+              true
+            );
           }
 
           const currentResources = currentTask.map((task) => {
@@ -1111,6 +1122,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       x.extensionConfigurations[`${AtlasResourceProcessor.id}~~enabled`] =
         'yes';
       x.managedBy = pointerFileId;
+      x.tags = [...new Set([...x.tags, imageCategoryTag])] as any;
       this.dependency.updateResourceDefinition(x);
     });
 
