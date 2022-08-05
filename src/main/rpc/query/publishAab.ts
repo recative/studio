@@ -121,6 +121,7 @@ export const publishAndroidAab = async (
     codeReleaseId,
     mediaReleaseId,
     bundleReleaseId,
+    configFormat: 'json',
     appTemplateFileName: APP_TEMPLATE_FILE_NAME,
     appTemplateFromPath: 'base/',
     webRootTemplateFileName: 'mobile-web-root.zip',

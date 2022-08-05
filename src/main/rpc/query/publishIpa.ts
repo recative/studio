@@ -22,6 +22,7 @@ export const publishIosIpa = async (
     codeReleaseId,
     mediaReleaseId,
     bundleReleaseId,
+    configFormat: 'json',
     appTemplateFileName: 'template.ipa',
     appTemplateFromPath: null,
     webRootTemplateFileName: 'mobile-web-root.zip',

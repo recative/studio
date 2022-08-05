@@ -16,6 +16,7 @@ import { getEpisodeDetailList } from './episode';
 import { getBuildPath } from './setting';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { analysisPostProcessedRecords } from '../../utils/analysisPostProcessedRecords';
+import { cleanupLoki } from './utils';
 
 const getBundlerConfigs = async (
   codeReleaseId: number,
@@ -54,6 +55,13 @@ export const dumpPlayerConfigs = async (
 
   logToTerminal(terminalId, `Extracting episode configurations`, Level.Info);
   const episodes = await getBundlerConfigs(codeReleaseId, bundleReleaseId);
+
+  episodes.forEach((x) => {
+    x.episode = cleanupLoki(x.episode);
+    x.assets = x.assets.map(cleanupLoki);
+    x.resources = x.resources.map(cleanupLoki) as typeof x.resources;
+  });
+
   const playerBundlePath = join(
     buildPath,
     `player-${bundleReleaseId.toString().padStart(4, '0')}`
@@ -89,15 +97,32 @@ export const dumpPlayerConfigs = async (
     });
   });
 
+  const episodeAbstraction = episodes.map(({ episode, assets, key }) => ({
+    episode,
+    assets,
+    key,
+  }));
+
   logToTerminal(terminalId, `Writing binary files`, Level.Info);
   ensureDir(dataDir);
-  writeFileSync(join(dataDir, 'episodes.bson'), encode(episodes));
-  writeFileSync(join(dataDir, 'episodes.json'), JSON.stringify(episodes));
+  ensureDir(join(dataDir, 'bson'));
+  ensureDir(join(dataDir, 'json'));
+  writeFileSync(
+    join(dataDir, 'bson', 'episodes.bson'),
+    encode(episodeAbstraction)
+  );
+  writeFileSync(
+    join(dataDir, 'json', 'episodes.json'),
+    JSON.stringify(episodeAbstraction)
+  );
 
   episodes.forEach((episode) => {
-    writeFileSync(join(dataDir, `${episode.episode.id}.bson`), encode(episode));
     writeFileSync(
-      join(dataDir, `${episode.episode.id}.json`),
+      join(dataDir, 'bson', `${episode.episode.id}.bson`),
+      encode(episode)
+    );
+    writeFileSync(
+      join(dataDir, 'json', `${episode.episode.id}.json`),
       JSON.stringify(episode)
     );
   });

@@ -22,6 +22,7 @@ export const publishRawBundle = async (
     codeReleaseId,
     mediaReleaseId,
     bundleReleaseId,
+    configFormat: 'json',
     appTemplateFileName: null,
     appTemplateFromPath: null,
     outputPublicPath: 'public',

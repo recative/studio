@@ -34,6 +34,10 @@ interface IPublishAppOptions {
    */
   bundleReleaseId: number;
   /**
+   * The file format of configurations.
+   */
+  configFormat: 'json' | 'bson';
+  /**
    * The template file, which is used to generate the application file, could be
    * an APK, IPA or AAB etc.
    */
@@ -77,8 +81,8 @@ interface IPublishAppOptions {
 
 export const publishApp = async ({
   codeReleaseId,
-  mediaReleaseId,
   bundleReleaseId,
+  configFormat,
   appTemplateFileName = null,
   appTemplateFromPath = null,
   webRootTemplateFileName = null,
@@ -128,6 +132,7 @@ export const publishApp = async ({
     archive,
     bundleReleaseId,
     `${outputPublicPath}/bundle`,
+    configFormat,
     terminalId
   );
   await bundleAdditionalModules(archive, outputPublicPath, terminalId);

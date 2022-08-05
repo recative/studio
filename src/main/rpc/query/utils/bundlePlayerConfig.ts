@@ -21,16 +21,23 @@ export const bundlePlayerConfig = async (
   archive: Archiver,
   bundleReleaseId: number,
   playerConfigPath: string,
+  configFormat: 'json' | 'bson',
   terminalId: string
 ) => {
   const buildPath = await getBuildPath();
 
   const bundleConfigPath = join(
     buildPath,
-    `player-${bundleReleaseId.toString().padStart(4, '0')}`
+    `player-${bundleReleaseId.toString().padStart(4, '0')}`,
+    'data',
+    configFormat
   );
 
   logToTerminal(terminalId, `Bundle player config`, Level.Info);
 
-  return archiverAppendDir(archive, bundleConfigPath, playerConfigPath);
+  return archiverAppendDir(
+    archive,
+    bundleConfigPath,
+    join(playerConfigPath, 'data')
+  );
 };

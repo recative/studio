@@ -90,6 +90,7 @@ export const publishAndroidApk = async (
     codeReleaseId,
     mediaReleaseId,
     bundleReleaseId,
+    configFormat: 'json',
     appTemplateFileName: APP_TEMPLATE_FILE_NAME,
     appTemplateFromPath: null,
     webRootTemplateFileName: WEB_ROOT_TEMPLATE_FILE_NAME,

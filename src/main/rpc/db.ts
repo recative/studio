@@ -4,7 +4,7 @@ import type { Collection, DynamicView } from 'lokijs';
 import { join as joinPath } from 'path';
 import { ensureDir } from 'fs-extra';
 
-import type {
+import {
   IAsset,
   IEpisode,
   IActPoint,
@@ -15,6 +15,8 @@ import type {
   ISimpleRelease,
   IBundleRelease,
   ISeriesMetadata,
+  frameSequenceGroupResourceTag,
+  imageCategoryTag,
 } from '@recative/definitions';
 
 import type {
@@ -258,7 +260,53 @@ export const getDb = async (
     currentDb = newDb;
   }
 
+  // newDb.resource.resources.find({ type: 'file' }).forEach((file) => {
+  //   if ('extensionConfigurations' in file) {
+  //     delete file.url['@recative/redirect'];
+  //   }
+
+  //   newDb.resource.resources.update(file);
+  //   console.log(file.id);
+  // });
+
+  // newDb.resource.resources
+  //   .find({
+  //     tags: { $contains: 'custom:frame-sequence-pointer!' },
+  //   })
+  //   .forEach((resource) => {
+  //     if (resource.type !== 'file') {
+  //       return;
+  //     }
+
+  //     const frames =
+  //       resource.extensionConfigurations[
+  //         '@recative/extension-rs-atlas/AtlasResourceProcessor~~frames'
+  //       ].split(',');
+
+  //     const files = frames
+  //       .map((id) => newDb.resource.resources.findOne({ id }))
+  //       .filter(Boolean);
+
+  //     files.forEach((x) => {
+  //       x!.tags = [...new Set([...x!.tags, imageCategoryTag.id])];
+  //       newDb.resource.resources.update(x!);
+  //     });
+
+  //     console.log(
+  //       'Updated frame sequence resource type',
+  //       files.map((x) => x!.label).join(',')
+  //     );
+  //   });
   newDb.resource.resources.find({ type: 'file' }).forEach((data) => {
+    // if (
+    //   data.type === 'file' &&
+    //   data.url['@recative/uploader-extension-s3-oss/S3Uploader']
+    // ) {
+    //   console.log('cleaning', data.id);
+    //   delete data.url['@recative/uploader-extension-s3-oss/S3Uploader'];
+    //   newDb.resource.resources.update(data);
+    // }
+
     if (data.type === 'file' && !data.extensionConfigurations) {
       console.log('migrated', data.id, data.extensionConfigurations);
       data.extensionConfigurations = {};
