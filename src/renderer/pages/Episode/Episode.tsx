@@ -169,33 +169,6 @@ export const InternalEpisode: React.FC = () => {
     handleSubmitEditEpisodeModal,
   } = useEditEpisodeModalProps(fetchData);
 
-  // In case someone want to export the data.
-  // React.useEffect(() => {
-  //   Promise.all(
-  //     episodes?.map(async (x) => {
-  //       const logs = await Promise.all(
-  //         x.assets.map(async (asset) => {
-  //           const assetDescription = await server.getAssetDescription(asset.id);
-
-  //           return `${asset.id},${x.episode.label.en}/${typeof assetDescription?.label === 'object'
-  //               ? (assetDescription.label as any).en.replaceAll(' ', '').replaceAll(',', '')
-  //               : (assetDescription?.label ?? 'UNKNOWN').replaceAll(' ', '').replaceAll(',', '')
-  //           },${asset.contentId},${asset.contentExtensionId}`;
-  //         })
-  //       );
-
-  //       return logs.join('\r\n');
-  //     }) ?? []
-  //   )
-  //     .then((finalResult) => {
-  //       console.log(`\r\n${finalResult.join('\r\n')}`);
-  //       return 0;
-  //     })
-  //     .catch((e) => {
-  //       console.error(e);
-  //     });
-  // }, [episodes]);
-
   const {
     currentAsset,
     editAssetModalOpen,
