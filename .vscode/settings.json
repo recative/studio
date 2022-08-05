@@ -72,6 +72,7 @@
     "keypass",
     "localstorage",
     "lokijs",
+    "Mergeable",
     "msgpack",
     "napi",
     "nkeyin",

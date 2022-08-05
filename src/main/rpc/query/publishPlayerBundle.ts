@@ -9,11 +9,13 @@ import { ensureDir, writeFileSync, rename, copy, existsSync } from 'fs-extra';
 
 import { TerminalMessageLevel as Level } from '@recative/definitions';
 
+import { PostProcessedResourceItemForUpload } from '@recative/extension-sdk';
 import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
 
 import { getBuildPath } from './setting';
 import { getReleasedDb } from '../../utils/getReleasedDb';
+import { analysisPostProcessedRecords } from '../../utils/analysisPostProcessedRecords';
 
 const getBundlerConfigs = async (
   codeReleaseId: number,
@@ -58,6 +60,34 @@ export const dumpPlayerConfigs = async (
   );
   await ensureDir(playerBundlePath);
   const dataDir = join(playerBundlePath, 'data');
+
+  logToTerminal(terminalId, `:: Episodes`);
+
+  episodes.forEach((episode) => {
+    const totalResourceCount = episode.resources.length;
+    const postProcessedRecords = episode.resources.filter(
+      (resource) => 'postProcessRecord' in resource
+    );
+
+    const postProcessCombination = analysisPostProcessedRecords(
+      postProcessedRecords as PostProcessedResourceItemForUpload[]
+    );
+
+    logToTerminal(
+      terminalId,
+      `:: :: ${episode.episode.label.en} (${episode.episode.id})`
+    );
+
+    logToTerminal(terminalId, `:: :: :: Total: ${totalResourceCount}`);
+    logToTerminal(
+      terminalId,
+      `:: :: :: Processed: ${postProcessedRecords.length}`
+    );
+
+    postProcessCombination.forEach((value, key) => {
+      logToTerminal(terminalId, `:: :: :: :: ${key}: ${value}`);
+    });
+  });
 
   logToTerminal(terminalId, `Writing binary files`, Level.Info);
   ensureDir(dataDir);

@@ -10,6 +10,7 @@ import { logToTerminal } from '../terminal';
 import { getReleasedDb } from '../../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../../utils/getResourceFile';
 import { archiverAppendPathList } from '../../../utils/archiver';
+import { analysisPostProcessedRecords } from '../../../utils/analysisPostProcessedRecords';
 
 import { MOBILE_SHELL_BUILD_IN_KEY } from '../../../utils/buildInResourceUploaderKeys';
 
@@ -65,9 +66,17 @@ export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
     },
   });
 
+  const postProcessCombination =
+    analysisPostProcessedRecords(resourceProcessed);
+
   logToTerminal(terminalId, `:: Build in media bundler:`);
   logToTerminal(terminalId, `:: :: Imported: ${resourceImported.length}`);
   logToTerminal(terminalId, `:: :: Processed: ${resourceProcessed.length}`);
+
+  postProcessCombination.forEach((value, key) => {
+    logToTerminal(terminalId, `:: :: :: ${key}: ${value}`);
+  });
+
   logToTerminal(
     terminalId,
     `:: :: Total: ${resourceImported.length + resourceProcessed.length}`
@@ -112,17 +121,15 @@ export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
     Level.Info
   );
 
+  logToTerminal(terminalId, `:: Total: ${resourceList.length}`);
+  logToTerminal(terminalId, `:: :: Imported: ${resourceImported.length}`);
+  logToTerminal(terminalId, `:: :: Processed: ${resourceProcessed.length}`);
+
   // Get file path of all resource files.
   const resourceFilePathList = resourceList.map((resource) => ({
     from: getResourceFilePath(resource),
     to: `${resourcePath}/${resource.id}.resource`,
   }));
-
-  logToTerminal(
-    terminalId,
-    `${resourceFilePathList.length} files found`,
-    Level.Info
-  );
 
   await archiverAppendPathList(archive, resourceFilePathList).promise;
 };

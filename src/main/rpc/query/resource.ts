@@ -437,7 +437,7 @@ export const listAllDetailedResourcesForClient = async (
   resourceProtocol = 'http'
 ) => {
   const resources = await listAllResources();
-  const cleanedResources = cleanUpResourceListForClient(resources, true);
+  const cleanedResources = cleanUpResourceListForClient(resources, false);
   if (!replaceUrl) return cleanedResources;
   return injectResourceUrlForResourceManager(
     cleanedResources,

@@ -381,6 +381,15 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
   ):
     | Promise<PostProcessedResourceItemForUpload[]>
     | PostProcessedResourceItemForUpload[];
+
+  abstract beforePublishApplicationBundle(
+    resources: (PostProcessedResourceItemForUpload | IResourceItem)[],
+    profileType: string
+  ):
+    | null
+    | Promise<null>
+    | Promise<(PostProcessedResourceItemForUpload | IResourceItem)[]>
+    | (PostProcessedResourceItemForUpload | IResourceItem)[];
   /**
    * While a file is imported, we have a chance to make some magic into
    * the file for various of purposes, like image optimization, format

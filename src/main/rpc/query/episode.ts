@@ -1,4 +1,5 @@
-import { groupBy } from 'lodash';
+/* eslint-disable no-await-in-loop */
+import { cloneDeep, groupBy } from 'lodash';
 
 import { cleanUpResourceListForClient } from '@recative/definitions';
 import type {
@@ -13,7 +14,10 @@ import { getClientSideAssetList } from './asset';
 import { getDb } from '../db';
 
 import { getProfile } from '../../dataGenerationProfiles';
+import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
+
 import type { ProfileConfig } from '../../dataGenerationProfiles';
+
 import { getResource } from './resource';
 
 export const getResourceAndActPoints = async (itemIds: string[]) => {
@@ -79,10 +83,26 @@ export const getResourceListOfEpisode = async (
     files: { $containsAny: resourceFiles.map((x) => x.id) },
   });
 
-  return cleanUpResourceListForClient(
-    [...resourceGroups, ...resourceFiles],
-    true
+  let resources = cloneDeep([...resourceFiles, ...resourceGroups]);
+
+  const extensionInstances = Object.entries(
+    await getResourceProcessorInstances()
   );
+
+  for (let i = 0; i < extensionInstances.length; i += 1) {
+    const [, extension] = extensionInstances[i];
+
+    const processResult = await extension.beforePublishApplicationBundle(
+      resources,
+      request.type
+    );
+
+    if (processResult) {
+      resources = processResult as typeof resources;
+    }
+  }
+
+  return cleanUpResourceListForClient(resources, false);
 };
 
 export const listEpisodes = async (

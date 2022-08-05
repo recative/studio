@@ -311,6 +311,10 @@ export class OfflineBundleProcessor extends ResourceProcessor<
     return null;
   }
 
+  beforePublishApplicationBundle() {
+    return null;
+  }
+
   beforeFileImported(resources: IPostProcessedResourceFileForImport[]) {
     return resources;
   }

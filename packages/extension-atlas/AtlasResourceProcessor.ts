@@ -2,7 +2,7 @@
 /* eslint-disable no-labels */
 /* eslint-disable no-await-in-loop */
 import { nanoid } from 'nanoid';
-import { Image, createCanvas } from '@napi-rs/canvas';
+import { Image, createCanvas, Canvas } from '@napi-rs/canvas';
 
 import {
   RectWh,
@@ -47,6 +47,8 @@ export interface AtlasResourceProcessorConfig {
 const ATLAS_MAX_DIMENSION_SIZE = 2048;
 const REQUIRED_VALID_AREA_RATIO = 0.6;
 const IDEAL_VALID_AREA_RATIO = 0.8;
+
+const ATLAS_REDIRECT_REASON = 'atlas';
 
 export const PARSE_RESOURCE_FILE_TO_BE_REFACTORED_TO_DEFINITIONS = <
   T extends
@@ -249,7 +251,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
   };
 
   private generateAtlasImage = async (
-    resourceId: string,
     spaceRect: RectWh,
     currentTasks: RectXywhf[],
     resourceToTaskMap: BidirectionalMap<
@@ -342,7 +343,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
         currentTask.h.toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~f`] =
         (flipped && !notFlipped).toString();
-      rectResource.url[REDIRECT_URL_EXTENSION_ID] = `redirect://${resourceId}`;
       // #endregion
     }
 
@@ -351,21 +351,30 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     return { canvas, outputBuffer };
   };
 
-  async beforePublishMediaBundle(
+  private cleanupResourceUrl = (
+    resources: IPostProcessedResourceFileForUpload[]
+  ) => {
+    // Cleanup all redirect URLs, since we will generate new ones for each of them
+    resources.forEach((x) => {
+      if (
+        x.url[REDIRECT_URL_EXTENSION_ID] &&
+        x.url[REDIRECT_URL_EXTENSION_ID].endsWith(ATLAS_REDIRECT_REASON)
+      ) {
+        delete x.url[REDIRECT_URL_EXTENSION_ID];
+        this.dependency.updateResourceDefinition(x);
+      }
+    });
+  };
+
+  /**
+   * Split files into different based on grouping rules, current rule is
+   * hard-coded, based on language of the resource, could support more options
+   * via plugin configurations in the future (possible...).
+   */
+  private buildBundleGroupToFileSetMap = (
     resources: IPostProcessedResourceFileForUpload[],
-    mediaBuildId: number,
     bundleGroups: IBundleGroup[]
-  ) {
-    let totalInputSize = 0;
-    let packedInputSize = 0;
-    let totalOutputSize = 0;
-    let totalInputCount = 0;
-    let packedInputCount = 0;
-    let totalOutputCount = 0;
-    let totalSkippedCount = 0;
-    // Split files into different based on grouping rules, current rule is
-    // hard-coded, based on language of the resource, could support more options
-    // via plugin configurations.
+  ) => {
     const bundleGroupToFileSetMap = new Map<
       IBundleGroup,
       IPostProcessedResourceFileForUpload[]
@@ -376,7 +385,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       return (
         x.extensionConfigurations[`${AtlasResourceProcessor.id}~~enabled`] ===
           'yes' &&
-        // x.tags.includes(imageCategoryTag.id) &&
+        x.mimeType.startsWith('image') &&
         !x.tags.includes('custom:frame-sequence-pointer!')
       );
     });
@@ -386,22 +395,11 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       bundleGroups,
       (resourceGroup, groupDefinition) => {
         bundleGroupToFileSetMap.set(groupDefinition, resourceGroup);
-      }
+      },
+      true
     );
 
     const groupDefinitions = [...bundleGroupToFileSetMap.keys()];
-    const resourceToRawRectMap = new BidirectionalMap<
-      IPostProcessedResourceFileForUpload,
-      RectXywhf
-    >();
-    const resourceToTaskMap = new BidirectionalMap<
-      IPostProcessedResourceFileForUpload,
-      RectXywhf
-    >();
-    const resourceToEnvelopeMap = new BidirectionalMap<
-      IPostProcessedResourceFileForUpload,
-      RectXywhf
-    >();
 
     // #region Task Summary
     const emptyGroupCount = groupDefinitions.filter((groupKey) => {
@@ -424,6 +422,34 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       );
     }
     // #endregion
+
+    return bundleGroupToFileSetMap;
+  };
+
+  /**
+   * We build a map of all the resources that are going to be packed into the
+   * atlas, this is used to get the size of the atlas.
+   * @param bundleGroupToFileSetMap A map of bundle group to resource files.
+   */
+  private queryImageSize = async (
+    bundleGroupToFileSetMap: Map<
+      IBundleGroup,
+      IPostProcessedResourceFileForUpload[]
+    >
+  ) => {
+    let totalInputSize = 0;
+    let totalInputCount = 0;
+
+    const groupDefinitions = [...bundleGroupToFileSetMap.keys()];
+
+    const resourceToRawRectMap = new BidirectionalMap<
+      IPostProcessedResourceFileForUpload,
+      RectXywhf
+    >();
+    const resourceToEnvelopeMap = new BidirectionalMap<
+      IPostProcessedResourceFileForUpload,
+      RectXywhf
+    >();
 
     // Build a index of the size of all images.
     const imageSizeQueryForEachGroupTask = await Promise.allSettled(
@@ -509,8 +535,176 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       this.reportFailedTaskToConsole(failedAtlasBoundingTasks);
       throw new Error('Atlas task failed while calculating bounding box');
     }
-
     // #endregion
+
+    return {
+      resourceToRawRectMap,
+      resourceToEnvelopeMap,
+      totalInputCount,
+      totalInputSize,
+    };
+  };
+
+  /**
+   * This method will build a map of resource to the packed image rect.
+   */
+  private getInitialAtlasBoundingBox = (
+    filesInGroup: IPostProcessedResourceFileForUpload[],
+    resourceToEnvelopeMap: BidirectionalMap<
+      IPostProcessedResourceFileForUpload,
+      RectXywhf
+    >
+  ) => {
+    const resourceToTaskMap = new BidirectionalMap<
+      IPostProcessedResourceFileForUpload,
+      RectXywhf
+    >();
+
+    const initialTasks = filesInGroup
+      .map((resource) => {
+        const envelope = resourceToEnvelopeMap.get(resource);
+
+        if (!envelope) {
+          throw new TypeError(
+            `ResourceToEnvelopeMap don't have the envelope (id: ${resource.id}, label: ${resource.label}), it is a bug!`
+          );
+        }
+
+        const task = new RectXywhf(
+          envelope.x,
+          envelope.y,
+          envelope.w,
+          envelope.h
+        );
+        resourceToTaskMap.set(resource, task);
+
+        return task;
+      })
+      .sort((a, b) => a.area() - b.area());
+
+    return { initialTasks, resourceToTaskMap };
+  };
+
+  private reportAtlasGroupResult = (
+    currentTask: RectXywhf[],
+    nextTask: RectXywhf[],
+    groupIndex: number,
+    groupKey: IBundleGroup,
+    filesInGroupCount: number,
+    packedFiles: number,
+    skippedFiles: number
+  ) => {
+    const ceased = currentTask.length === 0 && nextTask.length === 0;
+    const level = ceased ? Level.Warning : Level.Info;
+
+    this.dependency.logToTerminal(
+      `:: :: [Group ${groupIndex}] Group report:`,
+      level
+    );
+
+    this.dependency.logToTerminal(`:: :: :: Selector:`, level);
+
+    Object.entries(groupKey).forEach(([key, value]) => {
+      if (typeof value === 'undefined') {
+        this.dependency.logToTerminal(`:: :: :: :: ${key}: [ANY]`, level);
+      } else {
+        this.dependency.logToTerminal(
+          `:: :: :: :: ${key}: ${value.length ? value.join(', ') : '[EMPTY]'}`,
+          level
+        );
+      }
+    });
+
+    this.dependency.logToTerminal(
+      `:: :: :: Total: ${filesInGroupCount} files`,
+      level
+    );
+
+    if (!ceased) {
+      this.dependency.logToTerminal(
+        `:: :: :: Packed: ${packedFiles} files`,
+        level
+      );
+    }
+
+    this.dependency.logToTerminal(
+      `:: :: :: Skipped: ${skippedFiles} files`,
+      level
+    );
+
+    if (ceased) {
+      this.dependency.logToTerminal(`:: :: :: All files skipped`, level);
+    }
+
+    return true;
+  };
+
+  private reportAtlasImageResult = (
+    resourceDescription: IPostProcessedResourceFileForUpload,
+    spaceRect: RectWh,
+    canvas: Canvas,
+    outputBuffer: Buffer,
+    currentTask: RectXywhf[],
+    nextTask: RectXywhf[],
+    groupIndex: number,
+    skippedFiles: number
+  ) => {
+    // #region Atlas Report
+    this.dependency.logToTerminal(
+      `:: :: [Group ${groupIndex}] Atlas result:`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(
+      `:: :: :: Space size: ${spaceRect.w} x ${spaceRect.h}`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(
+      `:: :: :: Canvas size: ${canvas.width} x ${canvas.height}`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(
+      `:: :: :: Resource#: ${resourceDescription.id}`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(
+      `:: :: :: File Name: ${this.getOutputFileName(resourceDescription, {})}`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(
+      `:: :: :: File size: ${outputBuffer.byteLength} bytes`,
+      Level.Info
+    );
+    this.dependency.logToTerminal(
+      `:: :: :: Task Detail: ${currentTask.length} packed, ${nextTask.length} remains, ${skippedFiles} skipped`,
+      Level.Info
+    );
+    // #endregion
+  };
+
+  async beforePublishMediaBundle(
+    resources: IPostProcessedResourceFileForUpload[],
+    mediaBuildId: number,
+    bundleGroups: IBundleGroup[]
+  ) {
+    let packedInputSize = 0;
+    let totalOutputSize = 0;
+    let packedInputCount = 0;
+    let totalOutputCount = 0;
+    let totalSkippedCount = 0;
+
+    this.cleanupResourceUrl(resources);
+    const bundleGroupToFileSetMap = this.buildBundleGroupToFileSetMap(
+      resources,
+      bundleGroups
+    );
+    const {
+      resourceToRawRectMap,
+      resourceToEnvelopeMap,
+      totalInputCount,
+      totalInputSize,
+    } = await this.queryImageSize(bundleGroupToFileSetMap);
+
+    const groupDefinitions = [...bundleGroupToFileSetMap.keys()];
 
     // Calculating pack for each group of file now.
     const imageGenerationTasks = await Promise.allSettled(
@@ -545,80 +739,17 @@ export class AtlasResourceProcessor extends ResourceProcessor<
          * the largest image, and run the task again, to test if the resting
          * images could be packed successfully.
          */
-        let currentTask = Array.from(
-          filesInGroup
-            .map((resource) => {
-              const envelope = resourceToEnvelopeMap.get(resource);
-
-              if (!envelope) {
-                throw new TypeError(
-                  `ResourceToEnvelopeMap don't have the envelope (id: ${resource.id}, label: ${resource.label}), it is a bug!`
-                );
-              }
-
-              const task = new RectXywhf(
-                envelope.x,
-                envelope.y,
-                envelope.w,
-                envelope.h
-              );
-              resourceToTaskMap.set(resource, task);
-
-              return task;
-            })
-            .sort((a, b) => a.area() - b.area())
+        const initialAtlasAssets = this.getInitialAtlasBoundingBox(
+          filesInGroup,
+          resourceToEnvelopeMap
         );
+
+        const { resourceToTaskMap } = initialAtlasAssets;
+
+        let currentTask = initialAtlasAssets.initialTasks;
         let nextTask = [] as typeof currentTask;
         let packedFiles = 0;
         let skippedFiles = 0;
-
-        const groupReport = () => {
-          const ceased = currentTask.length === 0 && nextTask.length === 0;
-          const level = ceased ? Level.Warning : Level.Info;
-
-          this.dependency.logToTerminal(
-            `:: :: [Group ${groupIndex}] Group report:`,
-            level
-          );
-
-          this.dependency.logToTerminal(`:: :: :: Selector:`, level);
-
-          Object.entries(groupKey).forEach(([key, value]) => {
-            if (typeof value === 'undefined') {
-              this.dependency.logToTerminal(`:: :: :: :: ${key}: [ANY]`, level);
-            } else {
-              this.dependency.logToTerminal(
-                `:: :: :: :: ${key}: ${
-                  value.length ? value.join(', ') : '[EMPTY]'
-                }`,
-                level
-              );
-            }
-          });
-
-          this.dependency.logToTerminal(
-            `:: :: :: Total: ${filesInGroup.length} files`,
-            level
-          );
-
-          if (!ceased) {
-            this.dependency.logToTerminal(
-              `:: :: :: Packed: ${packedFiles} files`,
-              level
-            );
-          }
-
-          this.dependency.logToTerminal(
-            `:: :: :: Skipped: ${skippedFiles} files`,
-            level
-          );
-
-          if (ceased) {
-            this.dependency.logToTerminal(`:: :: :: All files skipped`, level);
-          }
-
-          return true;
-        };
 
         const nextTaskIteration = async (
           reason: string,
@@ -657,13 +788,20 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           sizeLimit = ATLAS_MAX_DIMENSION_SIZE,
           stopTryingShrinkSpace = false
         ): Promise<boolean> => {
-          console.log(sizeLimit);
           // this.dependency.logToTerminal(
           //   `:: :: [Group ${groupIndex}] It: ${_reason}`,
           //   Level.Info
           // );
           if (currentTask.length === 0 && nextTask.length === 0) {
-            groupReport();
+            this.reportAtlasGroupResult(
+              currentTask,
+              nextTask,
+              groupIndex,
+              groupKey,
+              filesInGroup.length,
+              packedFiles,
+              skippedFiles
+            );
 
             return true;
           }
@@ -870,7 +1008,11 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             removed: false,
             removedTime: -1,
             resourceGroupId: '',
-            tags: [...(groupKey.tagContains ?? []), imageCategoryTag.id],
+            tags: [
+              ...(groupKey.tagContains ?? []),
+              imageCategoryTag.id,
+              'custom:merged-atlas!',
+            ],
             extensionConfigurations: {
               [`${AtlasResourceProcessor.id}~~includes`]: currentResources
                 .map((x) => x.id)
@@ -904,7 +1046,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           if (!matchedProcessRecord) {
             // If the file is not cached, generate the atlas image
             const { canvas, outputBuffer } = await this.generateAtlasImage(
-              resourceId,
               spaceRect,
               currentTask,
               resourceToTaskMap,
@@ -944,43 +1085,16 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               this.dependency.updateResourceDefinition(resource);
             });
 
-            // #region Atlas Report
-            this.dependency.logToTerminal(
-              `:: :: [Group ${groupIndex}] Atlas result:`,
-              Level.Info
+            this.reportAtlasImageResult(
+              resourceDescription,
+              spaceRect,
+              canvas,
+              outputBuffer,
+              currentTask,
+              nextTask,
+              groupIndex,
+              skippedFiles
             );
-            this.dependency.logToTerminal(
-              `:: :: :: Resource id: ${resourceId}`,
-              Level.Info
-            );
-            this.dependency.logToTerminal(
-              `:: :: :: Space size: ${spaceRect.w} x ${spaceRect.h}`,
-              Level.Info
-            );
-            this.dependency.logToTerminal(
-              `:: :: :: Canvas size: ${canvas.width} x ${canvas.height}`,
-              Level.Info
-            );
-            this.dependency.logToTerminal(
-              `:: :: :: Resource Id: ${resourceDescription.id}`,
-              Level.Info
-            );
-            this.dependency.logToTerminal(
-              `:: :: :: File Name: ${this.getOutputFileName(
-                resourceDescription,
-                {}
-              )}`,
-              Level.Info
-            );
-            this.dependency.logToTerminal(
-              `:: :: :: File size: ${outputBuffer.byteLength} bytes`,
-              Level.Info
-            );
-            this.dependency.logToTerminal(
-              `:: :: :: Task Detail: ${currentTask.length} packed, ${nextTask.length} remains, ${skippedFiles} skipped`,
-              Level.Info
-            );
-            // #endregion
 
             packedInputSize += ΣTextureSize;
             totalOutputSize += canvas.width * canvas.height;
@@ -994,11 +1108,31 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             );
           }
 
+          currentTask.forEach((taskRect) => {
+            const resource = resourceToTaskMap.get(taskRect);
+
+            if (!resource) {
+              throw new TypeError(
+                `ResourceToTaskMap don't have the task, it is a bug!`
+              );
+            }
+
+            this.dependency.updateResourceDefinition(resource);
+          });
+
           if (nextTask.length > 0) {
             return nextTaskIteration('HasUnpackedTasks');
           }
 
-          return groupReport();
+          return this.reportAtlasGroupResult(
+            currentTask,
+            nextTask,
+            groupIndex,
+            groupKey,
+            filesInGroup.length,
+            packedFiles,
+            skippedFiles
+          );
         };
 
         await wrappedTaskIteration('Initialized');
@@ -1191,6 +1325,65 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     };
   }
 
+  beforePublishApplicationBundle(
+    resources: (PostProcessedResourceItemForUpload | IResourceItem)[]
+  ) {
+    const atlasDefinitions = resources.filter(
+      (x) => x.type === 'file' && x.tags.includes('custom:merged-atlas!')
+    );
+
+    for (let i = 0; i < atlasDefinitions.length; i += 1) {
+      const atlasDefinition = atlasDefinitions[i];
+
+      if (atlasDefinition.type !== 'file') {
+        throw new TypeError(
+          `Expected resource file, got ${atlasDefinition.type}`
+        );
+      }
+
+      const includes =
+        atlasDefinition.extensionConfigurations[
+          `${AtlasResourceProcessor.id}~~includes`
+        ];
+
+      if (!includes) {
+        throw new TypeError(
+          `Atlas image includes nothing, this is not allowed`
+        );
+      }
+
+      const includeIds = includes.split(',');
+
+      const includedFiles = resources.filter(
+        (x) => includeIds.includes(x.id) && x.type === 'file'
+      );
+
+      if (includedFiles.length !== includeIds.length) {
+        throw new TypeError(`Some included files are missing, this is a bug`);
+      }
+
+      for (let j = 0; j < includedFiles.length; j += 1) {
+        const includedFile = includedFiles[j];
+
+        if (includedFile.type !== 'file') {
+          throw new TypeError(
+            `Expected resource file, got ${includedFile.type}`
+          );
+        }
+
+        includedFile.url[
+          REDIRECT_URL_EXTENSION_ID
+        ] = `redirect://${atlasDefinition.id}#atlas`;
+
+        console.log(
+          `:: [Atlas] INJECTED ${includedFile.id}(${includedFile.label}) = ${includedFile.url[REDIRECT_URL_EXTENSION_ID]}`
+        );
+      }
+    }
+
+    return resources;
+  }
+
   beforePreviewResourceMetadataDelivered<
     T extends
       | IResourceItemForClient
@@ -1205,7 +1398,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       ) {
         const redirectTo = resource.extensionConfigurations[
           REDIRECT_URL_EXTENSION_ID
-        ].replace('redirect://', '');
+        ].replace('redirect://', '').split('#')[0];
 
         if (!resources.find((x) => x.id === redirectTo && x.type === 'file')) {
           delete resource.url[REDIRECT_URL_EXTENSION_ID];
