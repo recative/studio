@@ -110,6 +110,8 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
     | IConfigUiField[]
     | Readonly<Readonly<IConfigUiField>[]>;
 
+  static nonMergeableResourceExtensionConfiguration: string[] = [];
+
   protected pluginConfig: Record<ConfigKey, string>;
 
   constructor(

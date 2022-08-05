@@ -6,6 +6,7 @@ import { styled } from 'baseui';
 import { cloneDeep } from 'lodash';
 
 import { useImmer } from 'use-immer';
+import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
 import type { Updater } from 'use-immer';
@@ -242,7 +243,7 @@ const useFileIdToFileMap = (
   );
 
   const handleUpdateFile = React.useCallback(
-    (resource: IEditableResource) => {
+    async (resource: IEditableResource) => {
       const clonedResource = cloneDeep(resource);
 
       setFileIdToFileMap((draft) => {
@@ -554,13 +555,14 @@ const useSelectedFileState = (
 
 const useEditableResourceGroup = (
   groupId: string | null,
-  files: IEditableResourceFile[] | null
+  files: IEditableResourceFile[] | null,
+  extensionMetadata: ReturnType<typeof useExtensionMetadata>
 ) => {
   const [editableResourceGroup, setEditableResourceGroup] =
     React.useState<IEditableResourceGroup | null>(null);
 
   React.useLayoutEffect(() => {
-    if (files && groupId) {
+    if (files && groupId && extensionMetadata) {
       // We want to build such a feature, some fields are treated as group-level,
       // this is possible to make a fake group level resource file, and treated
       // as a group, while this file is updated, all files will be updated at
@@ -573,14 +575,40 @@ const useEditableResourceGroup = (
         delete file[x];
       });
 
-      file.type = 'group';
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (file as any).id = groupId;
-      setEditableResourceGroup(file);
+      for (let i = 0; i < extensionMetadata.length; i += 1) {
+        const metadata = extensionMetadata[i];
+        const configs = metadata.nonMergeableResourceExtensionConfiguration;
+
+        if (configs) {
+          for (let j = 0; j < configs.length; j += 1) {
+            const config = configs[j];
+            delete file.extensionConfigurations[config];
+          }
+        }
+
+        file.type = 'group';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (file as any).id = groupId;
+        setEditableResourceGroup(file);
+      }
     }
-  }, [files, groupId]);
+  }, [files, groupId, extensionMetadata]);
 
   return { editableResourceGroup, setEditableResourceGroup };
+};
+
+const useExtensionMetadata = () => {
+  const asyncFn = React.useCallback(async () => {
+    return (await server.getExtensionMetadata()).resourceProcessor;
+  }, []);
+
+  const [extensionMetadata, actions] = useAsync(asyncFn);
+
+  React.useEffect(() => {
+    actions.execute();
+  }, [actions]);
+
+  return extensionMetadata.result;
 };
 
 const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
@@ -599,8 +627,10 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
 
     const [groupLabel, handleGroupLabelUpdate] = useLabelUpdateCallback(group);
 
+    const extensionMetadata = useExtensionMetadata();
+
     const { editableResourceGroup, setEditableResourceGroup } =
-      useEditableResourceGroup(group?.id ?? null, files);
+      useEditableResourceGroup(group?.id ?? null, files, extensionMetadata);
 
     const {
       fileIdToFileMap,
@@ -768,7 +798,9 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
             />
           </ContextMenu>
           <Block className={css(mainContentStyles)}>
-            <ResourceEditor ref={editorRef} onChange={handleUpdateFile} />
+            {extensionMetadata ? (
+              <ResourceEditor ref={editorRef} onChange={handleUpdateFile} />
+            ) : null}
           </Block>
         </ModalBody>
         <ModalFooter>

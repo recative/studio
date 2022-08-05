@@ -88,6 +88,23 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     },
   ] as const;
 
+  static nonMergeableResourceExtensionConfiguration = [
+    `${AtlasResourceProcessor.id}~~x`,
+    `${AtlasResourceProcessor.id}~~y`,
+    `${AtlasResourceProcessor.id}~~w`,
+    `${AtlasResourceProcessor.id}~~h`,
+    `${AtlasResourceProcessor.id}~~f`,
+    `${AtlasResourceProcessor.id}~~tw`,
+    `${AtlasResourceProcessor.id}~~th`,
+    `${AtlasResourceProcessor.id}~~ex`,
+    `${AtlasResourceProcessor.id}~~ey`,
+    `${AtlasResourceProcessor.id}~~ew`,
+    `${AtlasResourceProcessor.id}~~eh`,
+    `${AtlasResourceProcessor.id}~~includes`,
+    `${AtlasResourceProcessor.id}~~frame`,
+    `${AtlasResourceProcessor.id}~~frames`,
+  ];
+
   protected configValidator(
     x: unknown
   ): x is Record<keyof AtlasResourceProcessorConfig, string> {

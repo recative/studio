@@ -14,6 +14,7 @@ interface IExtensionDescription {
   label: string;
   pluginConfigUiFields?: IConfigUiField[];
   resourceConfigUiFields?: IConfigUiField[];
+  nonMergeableResourceExtensionConfiguration?: string[];
 }
 
 const extensionMetadata = {
@@ -57,6 +58,7 @@ extensions.forEach((extension) => {
           'label',
           'pluginConfigUiFields',
           'resourceConfigUiFields',
+          'nonMergeableResourceExtensionConfiguration',
         ])
       );
 
