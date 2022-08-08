@@ -1312,7 +1312,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       x.extensionConfigurations[`${AtlasResourceProcessor.id}~~enabled`] =
         'yes';
       x.managedBy = pointerFileId;
-      x.tags = [...new Set([...x.tags, imageCategoryTag])] as any;
+      x.tags = [...new Set([...x.tags, imageCategoryTag.id])];
       this.dependency.updateResourceDefinition(x);
     });
 
