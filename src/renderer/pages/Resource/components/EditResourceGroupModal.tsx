@@ -577,11 +577,11 @@ const useEditableResourceGroup = (
 
       for (let i = 0; i < extensionMetadata.length; i += 1) {
         const metadata = extensionMetadata[i];
-        const configs = metadata.nonMergeableResourceExtensionConfiguration;
+        const blackList = metadata.nonMergeableResourceExtensionConfiguration;
 
-        if (configs) {
-          for (let j = 0; j < configs.length; j += 1) {
-            const config = configs[j];
+        if (blackList) {
+          for (let j = 0; j < blackList.length; j += 1) {
+            const config = blackList[j];
             delete file.extensionConfigurations[config];
           }
         }
