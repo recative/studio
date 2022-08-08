@@ -14,9 +14,9 @@ export const getReleasedDb = async (bundleReleaseId?: number) => {
     throw new TypeError(`Release not found: ${bundleReleaseId}`);
   }
 
-  const mediaReleaseId = release.mediaBuildId;
-  const dbPath = await extractDbBackupToTempPath(mediaReleaseId);
-  const db1 = getDb(dbPath, true);
+  const mediaBundleId = release.mediaBuildId;
+  const dbPath = await extractDbBackupToTempPath(mediaBundleId);
+  const db1 = getDb(dbPath, true, { mediaBundleId });
 
   return db1;
 };

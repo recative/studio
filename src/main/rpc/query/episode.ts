@@ -39,9 +39,20 @@ export const getResourceListOfEpisode = async (
   request: ProfileConfig,
   dbPromise: ReturnType<typeof getDb> | null = null
 ) => {
+  const db0 = await getDb();
   const db = await (dbPromise || getDb());
 
   const profile = getProfile(request);
+
+  const mediaBundleId =
+    typeof db.additionalData.mediaBundleId === 'number'
+      ? db.additionalData.mediaBundleId
+      : db0.release.mediaReleases
+          .chain()
+          .simplesort('id', { desc: true })
+          .limit(1)
+          .find({})
+          .data()[0].id;
 
   const resourceFiles = await profile.injectResourceUrls(
     await Promise.all(
@@ -52,12 +63,16 @@ export const getResourceListOfEpisode = async (
             { episodeIds: { $size: 0 }, removed: false },
           ],
         }),
-        ...db.resource.postProcessed.find({
-          $or: [
-            { episodeIds: { $contains: episodeId }, removed: false },
-            { episodeIds: { $size: 0 }, removed: false },
-          ],
-        }),
+        ...db.resource.postProcessed
+          .find({
+            $or: [
+              { episodeIds: { $contains: episodeId }, removed: false },
+              { episodeIds: { $size: 0 }, removed: false },
+            ],
+          })
+          .filter((x) =>
+            x.postProcessRecord.mediaBundleId.includes(mediaBundleId)
+          ),
       ].map(async (x) => {
         if (x.type === 'group') return x;
 
@@ -165,14 +180,24 @@ export const getEpisodeDetail = async (
 
   const episode = db.episode.episodes.findOne({ id: episodeId }) as IEpisode;
   const assets = await getClientSideAssetList(episodeId, request, dbPromise);
-  const resources = await getResourceListOfEpisode(
-    episodeId,
-    request,
-    dbPromise
-  );
-  const key = episode.id;
+  try {
+    const resources = await getResourceListOfEpisode(
+      episodeId,
+      request,
+      dbPromise
+    );
 
-  return { episode, assets, resources, key };
+    const key = episode.id;
+
+    return { episode, assets, resources, key };
+  } catch (e) {
+    if (e instanceof Error) {
+      e.message = `Failed to get resource list of ${episodeId}: ${e.message}`;
+      throw e;
+    } else {
+      throw e;
+    }
+  }
 };
 
 export const getEpisodeDetailList = async (

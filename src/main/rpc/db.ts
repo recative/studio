@@ -15,8 +15,6 @@ import {
   ISimpleRelease,
   IBundleRelease,
   ISeriesMetadata,
-  frameSequenceGroupResourceTag,
-  imageCategoryTag,
 } from '@recative/definitions';
 
 import type {
@@ -62,6 +60,7 @@ export interface IMediaDatabase {
     codeReleases: Collection<ISimpleRelease>;
     bundleReleases: Collection<IBundleRelease>;
   };
+  additionalData: Record<string, unknown>;
 }
 
 export const getTable = (dbPath: string, jsonPath: string): Promise<Loki> => {
@@ -86,7 +85,8 @@ let currentDb: IMediaDatabase | null = null;
 
 export const getDb = async (
   yamlPath: string | null = null,
-  temporary = false
+  temporary = false,
+  additionalData: Record<string, unknown> = {}
 ) => {
   const trueRootPath = temporary
     ? yamlPath
@@ -254,6 +254,7 @@ export const getDb = async (
       $db: settingDb,
       setting: settingCollection,
     },
+    additionalData,
   };
 
   if (!temporary) {
@@ -269,34 +270,49 @@ export const getDb = async (
   //   console.log(file.id);
   // });
 
-  // newDb.resource.resources
-  //   .find({
-  //     tags: { $contains: 'custom:frame-sequence-pointer!' },
-  //   })
-  //   .forEach((resource) => {
-  //     if (resource.type !== 'file') {
-  //       return;
-  //     }
+  newDb.resource.resources
+    .find({
+      tags: { $contains: 'custom:frame-sequence-pointer!' },
+    })
+    .forEach((resource) => {
+      if (resource.type !== 'file') {
+        return;
+      }
 
-  //     const frames =
-  //       resource.extensionConfigurations[
-  //         '@recative/extension-rs-atlas/AtlasResourceProcessor~~frames'
-  //       ].split(',');
+      const managedFiles = newDb.resource.resources.find({
+        managedBy: resource.id,
+      });
 
-  //     const files = frames
-  //       .map((id) => newDb.resource.resources.findOne({ id }))
-  //       .filter(Boolean);
+      const parseResult = managedFiles.map((x) => {
+        const regex = /.*?(\d+)\D*$/;
+        const extractedNumber = regex.exec(x.label)?.[1];
 
-  //     files.forEach((x) => {
-  //       x!.tags = [...new Set([...x!.tags, imageCategoryTag.id])];
-  //       newDb.resource.resources.update(x!);
-  //     });
+        return {
+          id: Number.parseInt(extractedNumber ?? '', 10),
+          file: x,
+        };
+      });
 
-  //     console.log(
-  //       'Updated frame sequence resource type',
-  //       files.map((x) => x!.label).join(',')
-  //     );
-  //   });
+      const sortedFiles = parseResult.some((x) => Number.isNaN(x.id))
+        ? managedFiles.sort((x, y) => x.label.localeCompare(y.label))
+        : parseResult.sort((x, y) => x.id - y.id).map((x) => x.file);
+
+      delete resource.extensionConfigurations[
+        '@recative/extension-rs-atlas/AtlasResourceProcessor/frames'
+      ];
+
+      resource.extensionConfigurations[
+        '@recative/extension-rs-atlas/AtlasResourceProcessor~~frames'
+      ] = sortedFiles.map((x) => x.id).join(',');
+
+      newDb.resource.resources.update(resource);
+
+      console.log(
+        'Updated frame sequence resource type',
+        sortedFiles.map((x) => x!.label).join(',')
+      );
+    });
+
   newDb.resource.resources.find({ type: 'file' }).forEach((data) => {
     // if (
     //   data.type === 'file' &&
