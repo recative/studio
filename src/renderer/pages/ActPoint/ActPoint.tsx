@@ -204,6 +204,7 @@ export const ActPoint: React.FC = () => {
           })}
       </ContentContainer>
       <EditActPointModal
+        key={currentActPoint?.id ?? ''}
         actPoint={currentActPoint}
         isOpen={editActPointModalOpen}
         onClose={handleCloseEditModal}
