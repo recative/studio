@@ -7,16 +7,17 @@ import StreamZip from 'node-stream-zip';
 import { encode } from '@msgpack/msgpack';
 import { ensureDir, writeFileSync, rename, copy, existsSync } from 'fs-extra';
 
+import { stringify as uglyJSONstringify } from '@recative/ugly-json';
 import { TerminalMessageLevel as Level } from '@recative/definitions';
-
 import { PostProcessedResourceItemForUpload } from '@recative/extension-sdk';
+
+import { cleanupLoki } from './utils';
+import { getBuildPath } from './setting';
 import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
 
-import { getBuildPath } from './setting';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { analysisPostProcessedRecords } from '../../utils/analysisPostProcessedRecords';
-import { cleanupLoki } from './utils';
 
 const getBundlerConfigs = async (
   codeReleaseId: number,
@@ -58,7 +59,11 @@ export const dumpPlayerConfigs = async (
 
   episodes.forEach((x) => {
     x.episode = cleanupLoki(x.episode);
-    x.assets = x.assets.map(cleanupLoki);
+    x.assets = x.assets.map((asset) => {
+      asset.spec = cleanupLoki(asset.spec) as any;
+
+      return cleanupLoki(asset);
+    });
     x.resources = x.resources.map(cleanupLoki) as typeof x.resources;
   });
 
@@ -107,6 +112,7 @@ export const dumpPlayerConfigs = async (
   ensureDir(dataDir);
   ensureDir(join(dataDir, 'bson'));
   ensureDir(join(dataDir, 'json'));
+  ensureDir(join(dataDir, 'uson'));
   writeFileSync(
     join(dataDir, 'bson', 'episodes.bson'),
     encode(episodeAbstraction)
@@ -114,6 +120,10 @@ export const dumpPlayerConfigs = async (
   writeFileSync(
     join(dataDir, 'json', 'episodes.json'),
     JSON.stringify(episodeAbstraction)
+  );
+  writeFileSync(
+    join(dataDir, 'uson', 'episodes.uson'),
+    uglyJSONstringify(episodeAbstraction)
   );
 
   episodes.forEach((episode) => {
@@ -124,6 +134,10 @@ export const dumpPlayerConfigs = async (
     writeFileSync(
       join(dataDir, 'json', `${episode.episode.id}.json`),
       JSON.stringify(episode)
+    );
+    writeFileSync(
+      join(dataDir, 'uson', `${episode.episode.id}.uson`),
+      uglyJSONstringify(episode)
     );
   });
 };

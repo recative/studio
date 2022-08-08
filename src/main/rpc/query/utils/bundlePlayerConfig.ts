@@ -21,7 +21,7 @@ export const bundlePlayerConfig = async (
   archive: Archiver,
   bundleReleaseId: number,
   playerConfigPath: string,
-  configFormat: 'json' | 'bson',
+  configFormat: 'json' | 'bson' | 'uson',
   terminalId: string
 ) => {
   const buildPath = await getBuildPath();

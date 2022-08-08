@@ -4509,6 +4509,7 @@ __metadata:
     "@recative/client-sdk": ^0.0.0-dev.137
     "@recative/definitions": ^0.0.0-dev.89
     "@recative/smart-resource": ^0.0.0-dev.7
+    "@recative/ugly-json": ^0.0.0
     "@silvia-odwyer/photon-node": ^0.3.1
     "@teamsupercell/typings-for-css-modules-loader": ^2.4.0
     "@testing-library/jest-dom": ^5.11.6
@@ -4692,6 +4693,13 @@ __metadata:
   version: 0.0.0-dev.6
   resolution: "@recative/time-schedule@npm:0.0.0-dev.6::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Ftime-schedule%2F0.0.0-dev.6%2Fcd962662a71019af012b6b4186c387cc2170f585443a2f3db0a7727cdcc67cbc"
   checksum: eca20aa2995a284533371f58f424714faaf63a6fb4256ba8f8da09092724a95660141756e390794d5d18c2902e2e162547144b26a49eec88824a15ec8bdf949a
+  languageName: node
+  linkType: hard
+
+"@recative/ugly-json@npm:^0.0.0":
+  version: 0.0.0
+  resolution: "@recative/ugly-json@npm:0.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fugly-json%2F0.0.0%2Fce83fec59b3e535efee5d44d2d8656f9ef4c46a6"
+  checksum: df508666ff6145134485927dfdbbb618c81e07e528e0b5de873af1124c2cadd29f8792fd283ff976fcfcb58a17cbbe2a7e0090880914e9e214faa7ef9bc845cd
   languageName: node
   linkType: hard
 

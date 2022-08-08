@@ -36,7 +36,7 @@ interface IPublishAppOptions {
   /**
    * The file format of configurations.
    */
-  configFormat: 'json' | 'bson';
+  configFormat: 'json' | 'bson' | 'uson';
   /**
    * The template file, which is used to generate the application file, could be
    * an APK, IPA or AAB etc.

@@ -251,6 +251,7 @@
     "@recative/client-sdk": "^0.0.0-dev.137",
     "@recative/definitions": "^0.0.0-dev.89",
     "@recative/smart-resource": "^0.0.0-dev.7",
+    "@recative/ugly-json": "^0.0.0",
     "@silvia-odwyer/photon-node": "^0.3.1",
     "@uiw/react-codemirror": "4.7.0",
     "archiver": "5.3.1",
