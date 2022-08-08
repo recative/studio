@@ -88,6 +88,12 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       label: 'Add texture to atlas pack',
       title: 'Enable',
     },
+    {
+      id: 'grouping',
+      type: 'string',
+      label: 'Grouping',
+      required: false,
+    },
   ] as const;
 
   static nonMergeableResourceExtensionConfiguration = [
@@ -376,7 +382,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     bundleGroups: IBundleGroup[]
   ) => {
     const bundleGroupToFileSetMap = new Map<
-      IBundleGroup,
+      IBundleGroup & { atlasGrouping: string },
       IPostProcessedResourceFileForUpload[]
     >();
 
@@ -394,7 +400,37 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       filteredResources,
       bundleGroups,
       (resourceGroup, groupDefinition) => {
-        bundleGroupToFileSetMap.set(groupDefinition, resourceGroup);
+        const resourceByAtlasGrouping: Map<
+          string,
+          IPostProcessedResourceFileForUpload[]
+        > = new Map();
+
+        resourceGroup.forEach((resource) => {
+          const internalGroupingDefinition = {
+            ...groupDefinition,
+            atlasGrouping:
+              resource.extensionConfigurations[
+                `${AtlasResourceProcessor.id}~~grouping`
+              ] || 'default',
+          };
+
+          const groupDefinitionStr = JSON.stringify(internalGroupingDefinition);
+
+          if (!resourceByAtlasGrouping.has(groupDefinitionStr)) {
+            resourceByAtlasGrouping.set(groupDefinitionStr, []);
+          }
+
+          resourceByAtlasGrouping.get(groupDefinitionStr)?.push(resource);
+        });
+
+        resourceByAtlasGrouping.forEach(
+          (resourcesFiles, groupDefinitionStr) => {
+            const newGroup = JSON.parse(groupDefinitionStr) as IBundleGroup & {
+              atlasGrouping: string;
+            };
+            bundleGroupToFileSetMap.set(newGroup, resourcesFiles);
+          }
+        );
       },
       true
     );
@@ -607,6 +643,8 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     Object.entries(groupKey).forEach(([key, value]) => {
       if (typeof value === 'undefined') {
         this.dependency.logToTerminal(`:: :: :: :: ${key}: [ANY]`, level);
+      } else if (typeof value === 'string') {
+        this.dependency.logToTerminal(`:: :: :: :: ${key}: "${value}"`, level);
       } else {
         this.dependency.logToTerminal(
           `:: :: :: :: ${key}: ${value.length ? value.join(', ') : '[EMPTY]'}`,
@@ -987,6 +1025,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
                   // images to be packed. We hope this value is stable enough.
                   postProcessHash: hashObject({
                     ids: resourceIds,
+                    groupKey,
                   }),
                 },
               ],
@@ -1374,10 +1413,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
         includedFile.url[
           REDIRECT_URL_EXTENSION_ID
         ] = `redirect://${atlasDefinition.id}#atlas`;
-
-        console.log(
-          `:: [Atlas] INJECTED ${includedFile.id}(${includedFile.label}) = ${includedFile.url[REDIRECT_URL_EXTENSION_ID]}`
-        );
       }
     }
 
