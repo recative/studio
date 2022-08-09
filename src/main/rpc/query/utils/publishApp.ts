@@ -81,6 +81,7 @@ interface IPublishAppOptions {
 
 export const publishApp = async ({
   codeReleaseId,
+  mediaReleaseId,
   bundleReleaseId,
   configFormat,
   appTemplateFileName = null,
@@ -139,6 +140,7 @@ export const publishApp = async ({
   await bundleMediaResourcesWithoutEpisodeOrWithCacheProperty(
     archive,
     bundleReleaseId,
+    mediaReleaseId,
     `${outputPublicPath}/bundle/resource`,
     terminalId
   );

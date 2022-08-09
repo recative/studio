@@ -27,6 +27,7 @@ import { MOBILE_SHELL_BUILD_IN_KEY } from '../../../utils/buildInResourceUploade
 export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
   archive: Archiver,
   bundleReleaseId: number,
+  mediaReleaseId: number,
   resourcePath: string,
   terminalId: string
 ) => {
@@ -51,20 +52,22 @@ export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
       $nkeyin: [REDIRECT_URL_EXTENSION_ID],
     },
   });
-  const resourceProcessed = db.resource.postProcessed.find({
-    type: 'file',
-    $or: [
-      {
-        episodeIds: { $size: 0 },
+  const resourceProcessed = db.resource.postProcessed
+    .find({
+      type: 'file',
+      $or: [
+        {
+          episodeIds: { $size: 0 },
+        },
+        {
+          cacheToHardDisk: true,
+        },
+      ],
+      mimeType: {
+        $ne: 'application/zip',
       },
-      {
-        cacheToHardDisk: true,
-      },
-    ],
-    mimeType: {
-      $ne: 'application/zip',
-    },
-  });
+    })
+    .filter((x) => x.postProcessRecord.mediaBundleId.includes(mediaReleaseId));
 
   const postProcessCombination =
     analysisPostProcessedRecords(resourceProcessed);
