@@ -103,6 +103,7 @@ export const BatchEditOperation: React.FC<IBatchEditOperationProps> = ({
           finalValue = stringValue.startsWith('t');
           break;
         case 'string':
+        case 'array':
           finalValue = stringValue;
           break;
         default:
