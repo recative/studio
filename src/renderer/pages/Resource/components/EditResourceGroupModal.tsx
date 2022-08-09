@@ -186,6 +186,32 @@ const disabledMenuItemStyles = {
   cursor: 'default',
 };
 
+const mergeGroupConfigurationToIndividualFile = <
+  T extends IEditableResource | IResourceFile
+>(
+  file: T,
+  group: IEditableResource
+) => {
+  editableResourceGroupProps.forEach((key) => {
+    if (key === 'dirty') {
+      return;
+    }
+
+    if (key === 'extensionConfigurations') {
+      const configurationKeys = Object.keys(group[key]);
+
+      configurationKeys.forEach((configurationKey) => {
+        file[key][configurationKey] = group[key][configurationKey];
+      });
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (file[key] as any) = group[key];
+    }
+  });
+
+  return file;
+};
+
 const useFileIdToFileMap = (
   files: IEditableResourceFile[] | null,
   setEditableResourceGroup: React.Dispatch<
@@ -252,15 +278,8 @@ const useFileIdToFileMap = (
         } else {
           setEditableResourceGroup(clonedResource);
 
-          Object.values(draft).forEach((file) => {
-            editableResourceGroupProps.forEach((key) => {
-              if (key === 'extensionConfigurations') {
-                file[key] = Object.assign(file[key], resource[key]);
-              } else {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (file[key] as any) = resource[key];
-              }
-            });
+          Object.values(draft).forEach((fileToBeMerged) => {
+            mergeGroupConfigurationToIndividualFile(fileToBeMerged, resource);
           });
         }
       });
@@ -300,10 +319,10 @@ const useGroupModalSubmitCallback = (
         delete (nextFile as any).dirty;
 
         if (editableResourceGroup) {
-          editableResourceGroupProps.forEach((key) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (nextFile as any)[key] = editableResourceGroup[key];
-          });
+          mergeGroupConfigurationToIndividualFile(
+            nextFile,
+            editableResourceGroup
+          );
         }
 
         return nextFile;
