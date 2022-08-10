@@ -39,7 +39,7 @@ export const bundleAdditionalModules = (
   } else {
     logToTerminal(
       terminalId,
-      `Bundle additional modules: ${containerComponentsPath} not found`,
+      `:: ${containerComponentsPath} not found`,
       Level.Warning
     );
   }
