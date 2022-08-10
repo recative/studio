@@ -1,0 +1,10 @@
+newDb.resource.resources.find({ type: 'file' }).forEach((data) => {
+  if ( 
+   data.type === 'file' &&
+    data.url['@recative/uploader-extension-s3-oss/S3Uploader']
+  ) {
+    console.log('cleaning', data.id);
+    delete data.url['@recative/uploader-extension-s3-oss/S3Uploader'];
+    newDb.resource.resources.update(data);
+  }
+});

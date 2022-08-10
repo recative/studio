@@ -261,36 +261,9 @@ export const getDb = async (
     currentDb = newDb;
   }
 
-  // newDb.resource.resources.find({ type: 'file' }).forEach((file) => {
-  //   if ('extensionConfigurations' in file) {
-  //     delete file.url['@recative/redirect'];
-  //   }
+  return newDb;
+};
 
-  //   newDb.resource.resources.update(file);
-  //   console.log(file.id);
-  // });
-
-  newDb.resource.resources
-    .find({
-      tags: { $contains: 'custom:frame-sequence-pointer!' },
-    })
-    .forEach((resource) => {
-      if (resource.type !== 'file') {
-        return;
-      }
-
-      const managedFiles = newDb.resource.resources.find({
-        managedBy: resource.id,
-      });
-
-      const parseResult = managedFiles.map((x) => {
-        const regex = /.*?(\d+)\D*$/;
-        const extractedNumber = regex.exec(x.label)?.[1];
-
-        return {
-          id: Number.parseInt(extractedNumber ?? '', 10),
-          file: x,
-        };
 export const saveAllDatabase = (db: IMediaDatabase) => {
   const waitFor = Object.entries(db)
     .filter(([, value]) => Object.hasOwn(value, '$db'))
@@ -310,45 +283,8 @@ export const saveAllDatabase = (db: IMediaDatabase) => {
           }
         });
       });
-
-      const sortedFiles = parseResult.some((x) => Number.isNaN(x.id))
-        ? managedFiles.sort((x, y) => x.label.localeCompare(y.label))
-        : parseResult.sort((x, y) => x.id - y.id).map((x) => x.file);
-
-      delete resource.extensionConfigurations[
-        '@recative/extension-rs-atlas/AtlasResourceProcessor/frames'
-      ];
-
-      resource.extensionConfigurations[
-        '@recative/extension-rs-atlas/AtlasResourceProcessor~~frames'
-      ] = sortedFiles.map((x) => x.id).join(',');
-
-      newDb.resource.resources.update(resource);
-
-      console.log(
-        'Updated frame sequence resource type',
-        sortedFiles.map((x) => x!.label).join(',')
-      );
-    });
-
-  newDb.resource.resources.find({ type: 'file' }).forEach((data) => {
-    // if (
-    //   data.type === 'file' &&
-    //   data.url['@recative/uploader-extension-s3-oss/S3Uploader']
-    // ) {
-    //   console.log('cleaning', data.id);
-    //   delete data.url['@recative/uploader-extension-s3-oss/S3Uploader'];
-    //   newDb.resource.resources.update(data);
-    // }
-
-    if (data.type === 'file' && !data.extensionConfigurations) {
-      console.log('migrated', data.id, data.extensionConfigurations);
-      data.extensionConfigurations = {};
-      newDb.resource.resources.update(data);
-    }
-  });
-
-  return newDb;
+    })
+  );
 };
 
 export const setupDb = async (yamlPath: string) => {

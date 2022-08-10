@@ -1,0 +1,8 @@
+newDb.resource.resources.find({ type: 'file' }).forEach((file) => {
+   if ('extensionConfigurations' in file) {
+     delete file.url['@recative/redirect'];
+   }
+
+   newDb.resource.resources.update(file);
+   console.log(file.id);
+ });

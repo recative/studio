@@ -1,0 +1,42 @@
+newDb.resource.resources
+  .find({
+    tags: { $contains: 'custom:frame-sequence-pointer!' },
+  })
+  .forEach((resource) => {
+    if (resource.type !== 'file') {
+      return;
+    }
+
+    const managedFiles = newDb.resource.resources.find({
+      managedBy: resource.id,
+    });
+
+    const parseResult = managedFiles.map((x) => {
+      const regex = /.*?(\d+)\D*$/;
+      const extractedNumber = regex.exec(x.label)?.[1];
+
+      return {
+        id: Number.parseInt(extractedNumber ?? '', 10),
+        file: x,
+      };
+    });
+
+    const sortedFiles = parseResult.some((x) => Number.isNaN(x.id))
+      ? managedFiles.sort((x, y) => x.label.localeCompare(y.label))
+      : parseResult.sort((x, y) => x.id - y.id).map((x) => x.file);
+
+    delete resource.extensionConfigurations[
+      '@recative/extension-rs-atlas/AtlasResourceProcessor/frames'
+    ];
+
+    resource.extensionConfigurations[
+      '@recative/extension-rs-atlas/AtlasResourceProcessor~~frames'
+    ] = sortedFiles.map((x) => x.id).join(',');
+
+    newDb.resource.resources.update(resource);
+
+    console.log(
+      'Updated frame sequence resource type',
+      sortedFiles.map((x) => x!.label).join(',')
+    );
+  });
