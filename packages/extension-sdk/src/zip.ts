@@ -1,7 +1,9 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-restricted-syntax */
 import { glob } from 'glob';
 import { readFile } from 'fs/promises';
 import { createReadStream, createWriteStream } from 'fs';
+import type { QueueObject } from 'async';
 
 import originalArchiver from 'archiver';
 
@@ -15,7 +17,10 @@ export interface IPathListItem {
 export class Zip {
   protected outputStream: WriteStream;
 
-  protected archive: originalArchiver.Archiver;
+  // We use an internal member here.
+  protected archive: originalArchiver.Archiver & {
+    _queue: QueueObject<unknown>;
+  };
 
   protected finished: Promise<null>;
 
@@ -26,7 +31,10 @@ export class Zip {
     }
   ) {
     this.outputStream = createWriteStream(filePath);
-    this.archive = originalArchiver('zip', options);
+    this.archive = originalArchiver(
+      'zip',
+      options
+    ) as unknown as typeof this.archive;
 
     this.finished = new Promise((resolve) => {
       this.outputStream.on('finish', () => {
@@ -93,6 +101,8 @@ export class Zip {
         resolve();
       });
 
+      this.archive._queue.drain(() => resolve());
+
       this.archive.directory(from, to);
     });
   };
@@ -108,6 +118,10 @@ export class Zip {
       this.outputStream.once('end', () => {
         resolve(files);
       });
+
+      // We use an internal member here.
+      this.archive._queue.drain(() => resolve(files));
+
       this.archive.glob(globStr, { cwd });
     });
   };

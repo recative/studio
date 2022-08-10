@@ -1,5 +1,4 @@
 /* eslint-disable no-restricted-syntax */
-import { glob } from 'glob';
 import { createReadStream, createWriteStream } from 'fs';
 import originalArchiver from 'archiver';
 
@@ -76,40 +75,4 @@ export const archiverAppendDir = (
   });
 
   return { promise, archive };
-};
-
-export const archiverGlob = (output: string, globStr: string, cwd?: string) => {
-  const outputStream = createWriteStream(output);
-
-  const archive = originalArchiver('zip', {
-    zlib: { level: 9 },
-  });
-
-  const files = glob.sync(globStr, { cwd });
-
-  const promise = new Promise((resolve, reject) => {
-    archive.on('error', (err) => {
-      reject(err);
-    });
-
-    outputStream.on('end', () => {
-      resolve(true);
-    });
-
-    archive.glob(globStr, { cwd });
-
-    archive.pipe(outputStream);
-
-    archive
-      .finalize()
-      .then(() => {
-        resolve(true);
-        return true;
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
-
-  return { files, promise, archive };
 };

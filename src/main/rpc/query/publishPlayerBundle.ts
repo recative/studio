@@ -21,9 +21,10 @@ import { analysisPostProcessedRecords } from '../../utils/analysisPostProcessedR
 
 const getBundlerConfigs = async (
   codeReleaseId: number,
-  bundleReleaseId: number
+  bundleReleaseId: number,
+  terminalId?: string
 ) => {
-  const db = getReleasedDb(bundleReleaseId);
+  const db = getReleasedDb(bundleReleaseId, terminalId);
 
   const episodes = cloneDeep(
     await getEpisodeDetailList(
@@ -55,7 +56,11 @@ export const dumpPlayerConfigs = async (
   const buildPath = await getBuildPath();
 
   logToTerminal(terminalId, `Extracting episode configurations`, Level.Info);
-  const episodes = await getBundlerConfigs(codeReleaseId, bundleReleaseId);
+  const episodes = await getBundlerConfigs(
+    codeReleaseId,
+    bundleReleaseId,
+    terminalId
+  );
 
   episodes.forEach((x) => {
     x.episode = cleanupLoki(x.episode);

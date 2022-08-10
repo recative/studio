@@ -291,6 +291,24 @@ export const getDb = async (
           id: Number.parseInt(extractedNumber ?? '', 10),
           file: x,
         };
+export const saveAllDatabase = (db: IMediaDatabase) => {
+  const waitFor = Object.entries(db)
+    .filter(([, value]) => Object.hasOwn(value, '$db'))
+    .map(([key]) => key) as Array<keyof IMediaDatabase>;
+
+  console.log(':: Waiting for:', waitFor.length);
+  return Promise.all(
+    waitFor.map((key) => {
+      const collection = db[key] as { $db: Loki };
+
+      return new Promise<void>((resolve, reject) => {
+        collection.$db.saveDatabase((err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
       });
 
       const sortedFiles = parseResult.some((x) => Number.isNaN(x.id))

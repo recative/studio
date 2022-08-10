@@ -4,6 +4,7 @@ import { ensureDir, writeJSON } from 'fs-extra';
 
 import type { Collection } from 'lokijs';
 
+import { Zip } from '@recative/extension-sdk';
 import {
   TaskLockedError,
   WorkspaceNotReadyError,
@@ -20,9 +21,8 @@ import {
 import { getBuildPath } from './setting';
 import { postProcessResource } from './publishPostProcessResource';
 
-import { getDb } from '../db';
 import { getWorkspace } from '../workspace';
-import { archiverGlob } from '../../utils/archiver';
+import { getDb, saveAllDatabase } from '../db';
 
 const listRelease = <T extends ISimpleRelease | IBundleRelease>(
   collection: Collection<T>,
@@ -148,25 +148,18 @@ export const bundleBuild = async (notes: string, terminalId: string) => {
   if (buildId === -Infinity) {
     buildId = 0;
   }
-  const { files, promise, archive } = archiverGlob(
-    `${buildPath}/code-${buildId.toString().padStart(4, '0')}.zip`,
-    'dist/**/*',
-    config.codeRepositoryPath
-  );
 
-  archive.on('progress', (progress) => {
-    logToTerminal(
-      terminalId,
-      `Zipping file ${Math.round(
-        (progress.entries.processed / files.length) * 100
-      )}%, ${progress.fs.processedBytes} bytes, ${
-        progress.entries.processed
-      } files`,
-      Level.Info
-    );
-  });
+  const outputPath = `${buildPath}/code-${buildId
+    .toString()
+    .padStart(4, '0')}.zip`;
 
-  await promise;
+  logToTerminal(terminalId, `:: Output: ${outputPath}`, Level.Info);
+
+  const zip = new Zip(outputPath);
+  zip.appendGlob('dist/**/*', config.codeRepositoryPath);
+
+  await zip.done();
+  logToTerminal(terminalId, `:: Done!`, Level.Info);
 
   updateOrInsertCodeRelease([
     {
@@ -186,15 +179,22 @@ export const bundleDb = async (mediaReleaseId: number, terminalId: string) => {
 
   logToTerminal(terminalId, `Creating database bundle`, Level.Info);
 
-  const { promise } = archiverGlob(
-    `${buildPath}/db-${mediaReleaseId.toString().padStart(4, '0')}.zip`,
-    '**/*',
-    config.dbPath
-  );
+  logToTerminal(terminalId, `:: Syncing local cache to hard disk`, Level.Info);
+  const db = await getDb();
+  await saveAllDatabase(db);
+
+  const outputPath = `${buildPath}/db-${mediaReleaseId
+    .toString()
+    .padStart(4, '0')}.zip`;
+
+  logToTerminal(terminalId, `:: Output: ${outputPath}`, Level.Info);
+
+  const zip = new Zip(outputPath);
+  zip.appendGlob('**/*', config.dbPath);
+
+  await zip.done();
 
   logToTerminal(terminalId, `:: Done!`, Level.Info);
-
-  await promise;
 };
 
 let copyResourcesLock = false;
@@ -329,15 +329,6 @@ export const createMediaRelease = async (
 
   await wrapTaskFunction(
     terminalId,
-    'Copying Media',
-    async () => {
-      return copyMedia(mediaReleaseId, terminalId);
-    },
-    abortController
-  )();
-
-  await wrapTaskFunction(
-    terminalId,
     'Building Database',
     async () => {
       return bundleDb(mediaReleaseId, terminalId);
@@ -347,8 +338,18 @@ export const createMediaRelease = async (
 
   await wrapTaskFunction(
     terminalId,
+    'Copying Media',
+    async () => {
+      return copyMedia(mediaReleaseId, terminalId);
+    },
+    abortController
+  )();
+
+  await wrapTaskFunction(
+    terminalId,
     'Writing Release Record',
     async () => {
+      logToTerminal(terminalId, `Writing release record`);
       updateOrInsertMediaRelease([
         {
           id: mediaReleaseId,
@@ -357,6 +358,7 @@ export const createMediaRelease = async (
           notes,
         },
       ]);
+      logToTerminal(terminalId, `:: Done`);
     },
     abortController
   )();
