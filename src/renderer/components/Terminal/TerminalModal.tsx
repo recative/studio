@@ -194,6 +194,7 @@ const InternalTerminalModal: React.VFC<ITerminalModalProps> = ({
   onClose,
 }) => {
   const [css] = useStyletron();
+  const [scrolled, setScrolled] = React.useState(false);
   const itemListRef = React.useRef<HTMLDivElement | null>(null);
   const { data, closeable, errorCode, handleReset } = useTerminalData(
     id,
@@ -207,19 +208,22 @@ const InternalTerminalModal: React.VFC<ITerminalModalProps> = ({
   }, [handleReset, id, onClose]);
 
   React.useEffect(() => {
-    if (
+    const scrolledToBottom =
       itemListRef.current &&
       itemListRef.current.scrollTop >=
-        itemListRef.current.scrollHeight -
-          itemListRef.current.clientHeight -
-          400
-    ) {
+        itemListRef.current.scrollHeight - itemListRef.current.clientHeight;
+
+    if (itemListRef.current && (!scrolled || scrolledToBottom)) {
       itemListRef.current.scrollTo({
         top: itemListRef.current.scrollHeight,
         behavior: 'smooth',
       });
     }
-  }, [data]);
+  }, [data, scrolled]);
+
+  const onTerminalScrolled = React.useCallback(() => {
+    setScrolled(true);
+  }, []);
 
   if (!data) {
     return null;
@@ -259,14 +263,21 @@ const InternalTerminalModal: React.VFC<ITerminalModalProps> = ({
                 </TaskList>
               </Block>
               <Block width="100%">
-                <Terminal ref={itemListRef}>
+                <Terminal ref={itemListRef} onScroll={onTerminalScrolled}>
                   {data.messages.map((x, i) => (
                     <Block
                       // eslint-disable-next-line react/no-array-index-key
                       key={i.toString()}
                       className={css(MESSAGE_STYLES[x.level])}
                     >
-                      {x.message}
+                      {Array.isArray(x.message) ? (
+                        <details>
+                          <summary>{x.message[0]}</summary>
+                          {x.message[1]}
+                        </details>
+                      ) : (
+                        x.message
+                      )}
                     </Block>
                   ))}
                 </Terminal>

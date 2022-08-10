@@ -44,7 +44,7 @@ export const updateTerminalStepStatus = (
 
 export const logToTerminal = (
   id: string,
-  message: string,
+  message: string | [string, string],
   level = TerminalMessageLevel.Info
 ) => {
   const session = sessions[id];
