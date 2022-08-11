@@ -1,6 +1,5 @@
 import log from 'electron-log';
 import Loki from 'lokijs';
-import nodeCleanup from 'node-cleanup';
 import type { Collection, DynamicView } from 'lokijs';
 
 import { join as joinPath } from 'path';
@@ -24,6 +23,7 @@ import type {
   PostProcessedResourceItemForUpload,
 } from '@recative/extension-sdk';
 
+import { install, uninstall } from '../utils/cleanup';
 import { LokiWorkspaceLockSafeFsAdapter } from '../utils/LokiWorkspaceLockSafeFsAdapter';
 
 export interface IMediaDatabase {
@@ -303,7 +303,7 @@ const initializeCleanupListener = () => {
   if (cleanupListenerInitialized) return;
   log.info(`:: Setting up cleanup listener`);
   cleanupListenerInitialized = true;
-  nodeCleanup((_, signal) => {
+  install((_, signal) => {
     if (signal) {
       log.info(':: Trying to save your data');
       cleanupDb()
@@ -315,7 +315,7 @@ const initializeCleanupListener = () => {
           throw error;
         });
 
-      nodeCleanup.uninstall();
+      uninstall();
       return false;
     }
 

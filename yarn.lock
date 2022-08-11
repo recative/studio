@@ -4529,7 +4529,6 @@ __metadata:
     "@types/lodash": ^4.14.172
     "@types/mime-types": ^2.1.1
     "@types/node": 14.14.10
-    "@types/node-cleanup": ^2.1.2
     "@types/node-localstorage": ^1.3.0
     "@types/proper-lockfile": ^4.1.2
     "@types/react": ^18.0.9
@@ -4626,7 +4625,6 @@ __metadata:
     mime-types: ^2.1.32
     mini-css-extract-plugin: ^1.3.1
     nanoid: ^3.1.23
-    node-cleanup: ^2.1.2
     node-fetch: cjs
     node-json-db: ^1.3.0
     node-localstorage: ^2.2.1
@@ -5341,13 +5339,6 @@ __metadata:
   version: 0.7.31
   resolution: "@types/ms@npm:0.7.31"
   checksum: daadd354aedde024cce6f5aa873fefe7b71b22cd0e28632a69e8b677aeb48ae8caa1c60e5919bb781df040d116b01cb4316335167a3fc0ef6a63fa3614c0f6da
-  languageName: node
-  linkType: hard
-
-"@types/node-cleanup@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "@types/node-cleanup@npm:2.1.2"
-  checksum: fe4bef5e5ca973b99cddc76a28a81750fd97275189bd2ddfd721ba3341a157870e314dfd013562f0e48f6ae600c08ad78e23eaf0f4aeed8501d1b9c20a74e2d4
   languageName: node
   linkType: hard
 
@@ -16461,13 +16452,6 @@ __metadata:
   dependencies:
     semver: ^7.3.5
   checksum: e652a9502a6b62bda01d6134be30195f9d8b3ba75190a4190c76e7ed4f12a410cdc7ec301f878aff11dafc14bc7d9c4fc81f88c1e174c8fb970b7b33eb978b98
-  languageName: node
-  linkType: hard
-
-"node-cleanup@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "node-cleanup@npm:2.1.2"
-  checksum: 584cdc3e42560a998b4579f91ed8f936b27011628f3102e5a1093205f0691cdf8d899287d1f2e4d2071ea4ab1d615810bad6dbe2b988ef173a1cbaa76d8165b3
   languageName: node
   linkType: hard
 
