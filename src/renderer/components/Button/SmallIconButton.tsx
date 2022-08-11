@@ -1,22 +1,23 @@
 import * as React from 'react';
 
-import { StatefulTooltip } from 'baseui/tooltip';
+import { StatefulTooltip, PLACEMENT } from 'baseui/tooltip';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import type { ButtonProps, ButtonOverrides } from 'baseui/button';
 
-const SmallIconButtonContainerOverride: ButtonOverrides = {
+const smallIconButtonContainerOverride: ButtonOverrides = {
   BaseButton: {
     style: {
-      paddingTop: '4px',
-      paddingRight: '4px',
-      paddingLeft: '4px',
-      paddingBottom: '4px',
+      paddingTop: '12px',
+      paddingRight: '12px',
+      paddingLeft: '12px',
+      paddingBottom: '12px',
     },
   },
 };
 
 export interface ISmallIconButtonProps extends ButtonProps {
   title: string;
+  children: React.ReactNode;
 }
 
 export const SmallIconButton: React.FC<ISmallIconButtonProps> = ({
@@ -24,9 +25,13 @@ export const SmallIconButton: React.FC<ISmallIconButtonProps> = ({
   ...props
 }) => {
   return (
-    <StatefulTooltip content={title} returnFocus>
+    <StatefulTooltip
+      content={title}
+      placement={PLACEMENT.bottomRight}
+      returnFocus
+    >
       <Button
-        overrides={SmallIconButtonContainerOverride}
+        overrides={smallIconButtonContainerOverride}
         kind={BUTTON_KIND.tertiary}
         {...props}
       />

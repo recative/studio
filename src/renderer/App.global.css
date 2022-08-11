@@ -5,7 +5,12 @@ body {
   height: 100%;
   background: white;
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+.app-title-bar {
+  height: 32px !important;
+  background: white;
 }
 
 .app-title-bar > :nth-child(1) {
@@ -35,4 +40,8 @@ body {
 
 .selected > .explorer-item-content {
   outline: 2px solid #01579b;
+}
+
+div[data-baseweb="modal"] {
+  padding-top: 32px;
 }

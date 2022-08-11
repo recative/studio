@@ -22,6 +22,9 @@ import {
 } from 'utils/hooks/useFormChangeCallbacks';
 import { server } from 'utils/rpc';
 
+import { BundleProfiles } from './components/BundleProfiles';
+import { EditBundleProfileItemModal } from './components/EditBundleProfileItemModal';
+
 const useSettings = () => {
   const [extensionMetadata, extensionMetadataActions] = useAsync(async () => {
     const settings = await server.getSettings();
@@ -163,6 +166,8 @@ const InternalSetting: React.FC = () => {
               onChange={onServiceProtocolChange}
             />
           </FormControl>
+          <HeadingSmall>Bundling</HeadingSmall>
+          <BundleProfiles />
           <HeadingSmall>Uploader</HeadingSmall>
           <ExtensionConfiguration
             domain="uploader"
@@ -173,6 +178,7 @@ const InternalSetting: React.FC = () => {
           />
         </Block>
       </ContentContainer>
+      <EditBundleProfileItemModal onSubmit={() => {}} />
     </PivotLayout>
   );
 };

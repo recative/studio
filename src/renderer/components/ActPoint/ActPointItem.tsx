@@ -34,7 +34,7 @@ export const ActPointItem: React.FC<IActPoint> = ({
             LabelContent: {
               style: {
                 textOverflow: 'ellipsis',
-                overflow: 'hidden',
+                overflow: 'clip',
                 whiteSpace: 'nowrap',
               },
             },

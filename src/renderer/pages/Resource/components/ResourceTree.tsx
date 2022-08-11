@@ -25,7 +25,7 @@ interface IFilterLabels {
 
 const treeLabelContentCOntainerStyle: StyleObject = {
   whiteSpace: 'nowrap',
-  overflow: 'hidden',
+  overflow: 'clip',
   textOverflow: 'ellipsis',
 };
 

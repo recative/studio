@@ -20,6 +20,7 @@ import { CloseIconOutline } from 'components/Icons/CloseIconOutline';
 import { AboutIconOutline } from 'components/Icons/AboutIconOutline';
 import { CloudIconOutline } from 'components/Icons/CloudIconOutline';
 import { SeriesIconOutline } from 'components/Icons/SeriesIconOutline';
+import { BundleIconOutline } from 'components/Icons/BundleIconOutline';
 // import { CommitIconOutline } from 'components/Icons/CommitIconOutline';
 import { GitHubIconOutline } from 'components/Icons/GitHubIconOutline';
 import { PublishIconOutline } from 'components/Icons/PublishIconOutline';
@@ -118,6 +119,13 @@ export const InternalPivot: React.FC<IPivotProps> = ({
       <Tab title={<TabTitle>Project</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
         <Button
           kind={BUTTON_KIND.tertiary}
+          startEnhancer={<ReleaseManagerIconOutline width={20} />}
+          onClick={() => navigate('/release', { replace: true })}
+        >
+          Release
+        </Button>
+        <Button
+          kind={BUTTON_KIND.tertiary}
           onClick={() => navigate('/publish', { replace: true })}
           startEnhancer={<PublishIconOutline width={20} />}
         >
@@ -125,10 +133,10 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         </Button>
         <Button
           kind={BUTTON_KIND.tertiary}
-          startEnhancer={<ReleaseManagerIconOutline width={20} />}
-          onClick={() => navigate('/release', { replace: true })}
+          onClick={() => navigate('/bundle', { replace: true })}
+          startEnhancer={<BundleIconOutline width={20} />}
         >
-          Release
+          Bundle
         </Button>
         <Separator />
         <Button
@@ -142,8 +150,8 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         <Button
           kind={BUTTON_KIND.tertiary}
           startEnhancer={<CloseIconOutline width={20} />}
-          onClick={() => {
-            server.unlockDb();
+          onClick={async () => {
+            await server.closeDb();
             navigate('/', { replace: true });
           }}
         >

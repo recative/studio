@@ -441,7 +441,8 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
         justifyContent="center"
         alignItems="center"
         maxHeight="--webkit-fill-available"
-        overflow="hidden"
+        // @ts-ignore overflow clip is valid
+        overflow="clip"
       >
         <NotFound width="320px" />
       </Block>

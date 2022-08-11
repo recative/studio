@@ -41,7 +41,7 @@ export interface IMergeModalProps {
 const modalBodyStyles: StyleObject = {
   maxHeight: 'calc(100% - 212px)',
   boxSizing: 'border-box',
-  overflow: 'hidden',
+  overflow: 'clip',
   display: 'flex',
   alignItems: 'stretch',
 };

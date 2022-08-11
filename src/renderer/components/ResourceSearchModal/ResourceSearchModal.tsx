@@ -55,7 +55,7 @@ const ON_RESOURCE_FILE_SELECT = atom<
 const modalBodyStyles: StyleObject = {
   maxHeight: 'calc(100% - 172px)',
   boxSizing: 'border-box',
-  overflow: 'hidden',
+  overflow: 'clip',
   display: 'flex',
   alignItems: 'stretch',
 };

@@ -97,7 +97,7 @@ const nonBatchUpdateFieldsForGroups = ['id', 'label', 'managedBy'] as const;
 const modalBodyStyles: StyleObject = {
   maxHeight: 'calc(100% - 210px)',
   boxSizing: 'border-box',
-  overflow: 'hidden',
+  overflow: 'clip',
   display: 'flex',
   alignItems: 'stretch',
 };

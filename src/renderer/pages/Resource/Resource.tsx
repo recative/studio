@@ -64,8 +64,8 @@ const TAB_COLORS = [{ key: 'resource', color: '#01579B' }];
 const MAIN_CONTAINER_STYLES: StyleObject = {
   width: '100%',
   height: 'calc(100vh - 164px)',
-  overflowX: 'hidden',
-  overflowY: 'hidden',
+  overflowX: 'clip',
+  overflowY: 'clip',
   display: 'grid',
   gridTemplate: `"tree main" 1fr
                  "upload main" min-content

@@ -74,7 +74,7 @@ const detailContentIconStyle: StyleObject = {
 const detailContentStyle: StyleObject = {
   fontFamily: 'Red Hat Mono',
   fontWeight: 400,
-  overflow: 'hidden',
+  overflow: 'clip',
   textOverflow: 'ellipsis',
   display: 'flex',
   alignItems: 'center',
@@ -111,7 +111,7 @@ const recentProjectStyle: StyleObject = {
     maxHeight: 'initial !important',
     marginLeft: '0',
     marginRight: '0',
-    overflow: 'hidden',
+    overflow: 'clip',
   },
 };
 

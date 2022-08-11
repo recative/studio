@@ -17,10 +17,9 @@ import { Pivot } from './Pivot';
 import type { ColorDefinition } from './Pivot';
 
 const mainContainerStyles: StyleObject = {
-  width: '100vw',
+  width: '-webkit-fill-available',
   height: 'calc(100vh - 30px)',
   maxHeight: 'calc(100vh - 30px)',
-  overflowX: 'hidden',
   display: 'grid',
   gridTemplateRows: 'min-content auto min-content',
 };
