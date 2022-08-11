@@ -4515,6 +4515,7 @@ __metadata:
     "@testing-library/jest-dom": ^5.11.6
     "@testing-library/react": ^11.2.2
     "@types/archiver": ^5.1.1
+    "@types/async": ^3.2.15
     "@types/bcryptjs": ^2.4.2
     "@types/cross-spawn": ^6.0.2
     "@types/downloadjs": ^1.4.3
@@ -4528,6 +4529,7 @@ __metadata:
     "@types/lodash": ^4.14.172
     "@types/mime-types": ^2.1.1
     "@types/node": 14.14.10
+    "@types/node-cleanup": ^2.1.2
     "@types/node-localstorage": ^1.3.0
     "@types/proper-lockfile": ^4.1.2
     "@types/react": ^18.0.9
@@ -4549,6 +4551,7 @@ __metadata:
     "@uiw/react-codemirror": 4.7.0
     "@welldone-software/why-did-you-render": ^6.2.3
     archiver: 5.3.1
+    async: ^3.2.4
     async-call-rpc: ^5.1.0
     babel-eslint: ^10.1.0
     babel-jest: ^26.1.0
@@ -4576,7 +4579,7 @@ __metadata:
     electron-builder: 22.13.1
     electron-debug: 3.1.0
     electron-devtools-installer: 3.2.0
-    electron-log: 4.2.4
+    electron-log: ^4.4.8
     electron-notarize: ^1.0.0
     electron-rebuild: 3.2.3
     electron-root-path: ^1.0.16
@@ -4623,6 +4626,7 @@ __metadata:
     mime-types: ^2.1.32
     mini-css-extract-plugin: ^1.3.1
     nanoid: ^3.1.23
+    node-cleanup: ^2.1.2
     node-fetch: cjs
     node-json-db: ^1.3.0
     node-localstorage: ^2.2.1
@@ -4932,6 +4936,13 @@ __metadata:
   version: 4.2.2
   resolution: "@types/aria-query@npm:4.2.2"
   checksum: 6f2ce11d91e2d665f3873258db19da752d91d85d3679eb5efcdf9c711d14492287e1e4eb52613b28e60375841a9e428594e745b68436c963d8bad4bf72188df3
+  languageName: node
+  linkType: hard
+
+"@types/async@npm:^3.2.15":
+  version: 3.2.15
+  resolution: "@types/async@npm:3.2.15"
+  checksum: c0d9dae6cabc000abe3bb60ce1c7f3e6019aacf4f5f4ad659fef9f9f4d5dd2a59c6524da30d411dab67dab9f348c527bb18d59ae06d0a26f4a64ef3e6b2ec998
   languageName: node
   linkType: hard
 
@@ -5330,6 +5341,13 @@ __metadata:
   version: 0.7.31
   resolution: "@types/ms@npm:0.7.31"
   checksum: daadd354aedde024cce6f5aa873fefe7b71b22cd0e28632a69e8b677aeb48ae8caa1c60e5919bb781df040d116b01cb4316335167a3fc0ef6a63fa3614c0f6da
+  languageName: node
+  linkType: hard
+
+"@types/node-cleanup@npm:^2.1.2":
+  version: 2.1.2
+  resolution: "@types/node-cleanup@npm:2.1.2"
+  checksum: fe4bef5e5ca973b99cddc76a28a81750fd97275189bd2ddfd721ba3341a157870e314dfd013562f0e48f6ae600c08ad78e23eaf0f4aeed8501d1b9c20a74e2d4
   languageName: node
   linkType: hard
 
@@ -7107,6 +7125,13 @@ __metadata:
   version: 3.2.3
   resolution: "async@npm:3.2.3"
   checksum: c4bee57ab2249af3dc83ca3ef9acfa8e822c0d5e5aa41bae3eaf7f673648343cd64ecd7d26091ffd357f3f044428b17b5f00098494b6cf8b6b3e9681f0636ca1
+  languageName: node
+  linkType: hard
+
+"async@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "async@npm:3.2.4"
+  checksum: 43d07459a4e1d09b84a20772414aa684ff4de085cbcaec6eea3c7a8f8150e8c62aa6cd4e699fe8ee93c3a5b324e777d34642531875a0817a35697522c1b02e89
   languageName: node
   linkType: hard
 
@@ -10413,10 +10438,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-log@npm:4.2.4":
-  version: 4.2.4
-  resolution: "electron-log@npm:4.2.4"
-  checksum: 741873523bf70cacf4186046241b22e4ac02c4e71c3c1a86d779f89040c76cb9bd4a7709e5934fa259daafa43da36167ba7bb7f66d5f5e146c651b41554a87b0
+"electron-log@npm:^4.4.8":
+  version: 4.4.8
+  resolution: "electron-log@npm:4.4.8"
+  checksum: 5a7958f8fd9a5c95987e885ffe1c5b88be15bb41d348b65c92e2d8664519faddf17ce0208cd4e7027b0908f92fecedfbef246a45061f53e4a53b5d2201aafbd9
   languageName: node
   linkType: hard
 
@@ -16436,6 +16461,13 @@ __metadata:
   dependencies:
     semver: ^7.3.5
   checksum: e652a9502a6b62bda01d6134be30195f9d8b3ba75190a4190c76e7ed4f12a410cdc7ec301f878aff11dafc14bc7d9c4fc81f88c1e174c8fb970b7b33eb978b98
+  languageName: node
+  linkType: hard
+
+"node-cleanup@npm:^2.1.2":
+  version: 2.1.2
+  resolution: "node-cleanup@npm:2.1.2"
+  checksum: 584cdc3e42560a998b4579f91ed8f936b27011628f3102e5a1093205f0691cdf8d899287d1f2e4d2071ea4ab1d615810bad6dbe2b988ef173a1cbaa76d8165b3
   languageName: node
   linkType: hard
 

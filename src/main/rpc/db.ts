@@ -1,4 +1,6 @@
+import log from 'electron-log';
 import Loki from 'lokijs';
+import nodeCleanup from 'node-cleanup';
 import type { Collection, DynamicView } from 'lokijs';
 
 import { join as joinPath } from 'path';
@@ -269,7 +271,7 @@ export const saveAllDatabase = (db: IMediaDatabase) => {
     .filter(([, value]) => Object.hasOwn(value, '$db'))
     .map(([key]) => key) as Array<keyof IMediaDatabase>;
 
-  console.log(':: Waiting for:', waitFor.length);
+  log.info('::', waitFor.length, 'database will be saved');
   return Promise.all(
     waitFor.map((key) => {
       const collection = db[key] as { $db: Loki };
@@ -287,7 +289,48 @@ export const saveAllDatabase = (db: IMediaDatabase) => {
   );
 };
 
+export const cleanupDb = async () => {
+  if (!currentDb) return null;
+
+  log.info(`:: Cleanup database at ${currentDb.path}`);
+  await saveAllDatabase(currentDb);
+  return null;
+};
+
+let cleanupListenerInitialized = false;
+
+const initializeCleanupListener = () => {
+  if (cleanupListenerInitialized) return;
+  log.info(`:: Setting up cleanup listener`);
+  cleanupListenerInitialized = true;
+  nodeCleanup((_, signal) => {
+    if (signal) {
+      log.info(':: Trying to save your data');
+      cleanupDb()
+        .then(() => {
+          process.kill(process.pid, signal);
+          return null;
+        })
+        .catch((error) => {
+          throw error;
+        });
+
+      nodeCleanup.uninstall();
+      return false;
+    }
+
+    return true;
+  });
+};
+
 export const setupDb = async (yamlPath: string) => {
-  console.log(`:: Setting up db: ${yamlPath}`);
+  initializeCleanupListener();
+  cleanupDb();
+  log.info(`:: Setting up db: ${yamlPath}`);
   await getDb(yamlPath);
+};
+
+export const resetDb = async () => {
+  await cleanupDb();
+  currentDb = null;
 };

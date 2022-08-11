@@ -1,4 +1,7 @@
 import jwt_decode from 'jwt-decode';
+import { glob } from 'glob';
+import { stat } from 'fs/promises';
+import { join, basename } from 'path';
 
 import { OpenAPI, AdminService } from '../../../api';
 
@@ -141,6 +144,21 @@ export const getUserData = () => {
     label,
     host,
   };
+};
+
+export const getFileListFromAssetsPath = (globRule: string) => {
+  const workspace = getWorkspace();
+  const { assetsPath } = workspace;
+
+  console.log('::', join(assetsPath, globRule));
+  const files = glob.sync(join(assetsPath, globRule));
+
+  return Promise.all(
+    files.map(async (x) => ({
+      updateTime: (await stat(x)).mtime,
+      fileName: basename(x),
+    }))
+  );
 };
 
 export const userLogin = async (

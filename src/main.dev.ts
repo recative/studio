@@ -11,6 +11,7 @@ import MenuBuilder from './menu';
 import { setMainWindow } from './main/rpc/window/mainWindow';
 import { installDevTools } from './main/devtools';
 import { initializeServer } from './main/rpc';
+import { cleanupDb } from './main/rpc/db';
 import { registerProtocols, initializeProtocols } from './main/protocols';
 
 initializeProtocols();
@@ -110,6 +111,18 @@ const createWindow = async () => {
 /**
  * Add event listeners...
  */
+
+app.on('before-quit', (event) => {
+  event.preventDefault();
+  cleanupDb()
+    .then(() => {
+      process.exit(0);
+      return false;
+    })
+    .catch((error: unknown) => {
+      throw error;
+    });
+});
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even

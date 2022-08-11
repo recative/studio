@@ -3,6 +3,7 @@ export * from './utils';
 export * from './asset';
 export * from './cloud';
 export * from './series';
+export * from './project';
 export * from './episode';
 export * from './publish';
 export * from './release';
