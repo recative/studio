@@ -13,7 +13,7 @@ export class RawBundler extends Bundler<''> {
 
   static outputPublicPath = '';
 
-  static outputPrefix = 'web';
+  static outputPrefix = 'raw';
 
   static outputExtensionName = 'zip';
 
