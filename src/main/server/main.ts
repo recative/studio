@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import { join } from 'path';
 import { existsSync, readFileSync } from 'fs-extra';
 import _fastify from 'fastify';
@@ -33,7 +34,7 @@ const KEY_PATH = join(HOME_DIR, 'privkey');
 const certValid = existsSync(CERT_PATH) && existsSync(KEY_PATH);
 
 if (certValid) {
-  console.log('🎉 Found a SSL Cert, resource server will use it!');
+  log.info(':: 🎉 Found a SSL Cert, resource server will use it!');
 }
 
 let fastifyServer: FastifyInstance | null = null;
