@@ -27,7 +27,7 @@ export class AndroidAabBundler extends Bundler<''> {
 
   static excludeTemplateFilePaths = [MANIFEST_PATH];
 
-  static outputPrefix = 'android';
+  static outputPrefix = 'google';
 
   static outputExtensionName = 'aab';
 
