@@ -1,6 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-restricted-syntax */
+import StreamZip from 'node-stream-zip';
+
 import { glob } from 'glob';
+import { join } from 'path';
 import { readFile } from 'fs/promises';
 import { createReadStream, createWriteStream } from 'fs';
 import type { QueueObject } from 'async';
@@ -49,6 +52,27 @@ export class Zip {
     });
   }
 
+  waitForDrain = <T>(x: T) => {
+    return new Promise<T>((resolve, reject) => {
+      this.archive.once('error', (err) => {
+        reject(err);
+      });
+
+      this.outputStream.once('end', () => {
+        resolve(x);
+      });
+
+      this.archive._queue.drain(() => resolve(x));
+    });
+  };
+
+  appendFile = (from: string | Buffer, to: string) => {
+    const drainPromise = this.waitForDrain(null);
+    this.archive.append(from, { name: to });
+
+    return drainPromise;
+  };
+
   appendFileList = (pathListItem: IPathListItem[]) => {
     const promise = new Promise<void>((resolve, reject) => {
       const allTasks: Record<string, boolean> = {};
@@ -92,38 +116,61 @@ export class Zip {
   };
 
   appendDir = (from: string, to: string) => {
-    return new Promise<void>((resolve, reject) => {
-      this.archive.once('error', (err) => {
-        reject(err);
-      });
+    const drainPromise = this.waitForDrain(null);
+    this.archive.directory(from, to);
 
-      this.outputStream.once('end', () => {
-        resolve();
-      });
-
-      this.archive._queue.drain(() => resolve());
-
-      this.archive.directory(from, to);
-    });
+    return drainPromise;
   };
 
   appendGlob = (globStr: string, cwd?: string) => {
     const files = glob.sync(globStr, { cwd });
 
-    return new Promise<string[]>((resolve, reject) => {
-      this.archive.once('error', (err) => {
-        reject(err);
+    const drainPromise = this.waitForDrain(files);
+    this.archive.glob(globStr, { cwd });
+
+    return drainPromise;
+  };
+
+  transfer = async (
+    fromZip: string,
+    from: string | null = null,
+    to: string | null = null,
+    exclude: string[] | null = null
+  ) => {
+    const baseZip = new StreamZip.async({ file: fromZip });
+    const baseZipFileList = Object.entries(await baseZip.entries())
+      .map(([key, entry]) => {
+        if (!entry.isFile) {
+          return '';
+        }
+
+        if (from && !entry.name.startsWith(from)) {
+          return '';
+        }
+
+        if (exclude) {
+          for (let i = 0; i < exclude.length; i += 1) {
+            if (entry.name.startsWith(exclude[i])) {
+              return '';
+            }
+          }
+        }
+
+        return key;
+      })
+      .filter(Boolean)
+      .map(async (entryName) => {
+        const pathBase = to ? join(to, entryName) : entryName;
+
+        return {
+          from: (await baseZip.stream(
+            entryName
+          )) as unknown as ReadableStream<unknown>,
+          to: from ? pathBase.replace(from, '') : pathBase,
+        };
       });
 
-      this.outputStream.once('end', () => {
-        resolve(files);
-      });
-
-      // We use an internal member here.
-      this.archive._queue.drain(() => resolve(files));
-
-      this.archive.glob(globStr, { cwd });
-    });
+    return this.appendFileList(await Promise.all(baseZipFileList));
   };
 
   done = async () => {

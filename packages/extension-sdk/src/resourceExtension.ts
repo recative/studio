@@ -50,7 +50,7 @@ export type PostProcessedResourceItemForImport =
   | IPostProcessedResourceFileForImport
   | IResourceGroup;
 
-export interface InitializeDependency {
+export interface IResourceExtensionDependency {
   getResourceFilePath: (resource: Pick<IResourceFile, 'id'>) => string;
   writeBufferToPostprocessCache: (
     buffer: Buffer,
@@ -76,8 +76,8 @@ export interface InitializeDependency {
       | PostProcessedResourceItemForUpload
       | PostProcessedResourceItemForImport
   ) => Promise<void>;
-  readPathAsBuffer: (path: string) => Buffer;
-  logToTerminal: (message: string, level: TerminalMessageLevel) => void;
+  readPathAsBuffer: (path: string) => Promise<Buffer>;
+  logToTerminal: (message: string, level?: TerminalMessageLevel) => void;
   md5Hash: (x: Buffer) => Promise<string> | string;
   xxHash: (x: Buffer) => Promise<string> | string;
 }
@@ -116,7 +116,7 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
 
   constructor(
     pluginConfig: Record<string, string>,
-    public dependency: InitializeDependency
+    public dependency: IResourceExtensionDependency
   ) {
     if (this.configValidator(pluginConfig)) {
       this.pluginConfig = pluginConfig;
