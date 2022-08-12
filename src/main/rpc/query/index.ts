@@ -15,6 +15,7 @@ export * from './actPoint';
 export * from './electron';
 export * from './terminal';
 export * from './extension';
+export * from './bundleProfile';
 export * from './publishActServer';
 export * from './resourceBatchEdit';
 export * from './publishPlayerBundle';

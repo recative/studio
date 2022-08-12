@@ -5,6 +5,8 @@ import type { Draft } from 'immer';
 
 import type { SelectProps, OnChangeParams } from 'baseui/select';
 
+import type { Option } from 'components/Select/Select';
+
 import { noUndefined } from '../../../utils/noUndefined';
 import type { WritableKeys } from '../../../utils/typeUtils';
 
@@ -102,6 +104,32 @@ export const useOnChangeEventWrapperForBaseUiSelectWithMultipleValue = (
     },
     [callback]
   );
+
+  return result;
+};
+
+export const useValueOptionForBaseUiSelectWithSingleValue = <
+  T extends Option | Readonly<Option>
+>(
+  value: string | undefined,
+  options: T[]
+) => {
+  const optionsMap = React.useMemo(() => {
+    const result = new Map<string | number, T>();
+
+    options.forEach((x) => {
+      if (x.id) {
+        result.set(x.id, x);
+      }
+    });
+
+    return result;
+  }, [options]);
+
+  const result = React.useMemo(() => {
+    const option = value ? optionsMap.get(value) : undefined;
+    return option ? [option] : [];
+  }, [optionsMap, value]);
 
   return result;
 };

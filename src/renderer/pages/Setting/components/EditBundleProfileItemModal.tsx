@@ -1,5 +1,8 @@
 import * as React from 'react';
-import { atom } from 'jotai';
+
+import { useAsync } from '@react-hookz/web';
+
+import type { IBundleProfile } from '@recative/extension-sdk';
 
 import {
   Modal,
@@ -15,25 +18,32 @@ import { KIND as BUTTON_KIND } from 'baseui/button';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 
+import { IOSIconOutline } from 'components/Icons/IOSIconOutline';
+import { AabIconOutline } from 'components/Icons/AabIconOutline';
 import { InfoIconOutline } from 'components/Icons/InfoIconOutline';
 import { BareIconOutline } from 'components/Icons/BareIconOutline';
+import { AndroidIconOutline } from 'components/Icons/AndroidIconOutline';
 import { FullBundleIconOutline } from 'components/Icons/FullBundleIconOutline';
 import { JsonFormatIconOutline } from 'components/Icons/JsonFormatIconOutline';
 import { BsonFormatIconOutline } from 'components/Icons/BsonFormatIconOutline';
 import { UsonFormatIconOutline } from 'components/Icons/UsonFormatIconOutline';
 import { PartialBundleIconOutline } from 'components/Icons/PartialBundleIconOutline';
 
-import { useToggleAtom } from 'utils/hooks/useToggleAtom';
+import { ModalManager } from 'utils/hooks/useModalManager';
 
+import { server } from 'utils/rpc';
+
+import {
+  useFormChangeCallbacks,
+  useOnChangeEventWrapperForStringType,
+  useValueOptionForBaseUiSelectWithSingleValue,
+  useOnChangeEventWrapperForBaseUiSelectWithSingleValue,
+} from 'utils/hooks/useFormChangeCallbacks';
 import { DetailedSelect } from './DetailedSelect';
 import { AssetFileSelect } from './AssetFilesSelect';
 import { Hint, HintParagraph } from './Hint';
 
-const showEditBundleProfileItemModalOpen = atom(false);
-
-export const useEditBundleProfileItemModal = () => {
-  return useToggleAtom(showEditBundleProfileItemModalOpen);
-};
+export const useEditBundleProfileItemModal = ModalManager<string, null>(null);
 
 export interface IEditBundleProfileItemModalProps {
   onSubmit: () => void;
@@ -63,7 +73,7 @@ const metadataFormatOptions = [
   },
 ];
 
-const bundleTypeOptions = [
+const offlineAvailabilityOptions = [
   {
     id: 'bare',
     label: 'Bare',
@@ -87,9 +97,126 @@ const bundleTypeOptions = [
   },
 ];
 
+const icons: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
+  android: AndroidIconOutline,
+  apple: IOSIconOutline,
+  google: AabIconOutline,
+};
+
+const useExtensionList = () => {
+  const [extensionList, extensionListActions] = useAsync(
+    server.getExtensionMetadata
+  );
+
+  React.useEffect(() => {
+    extensionListActions.execute();
+  }, [extensionListActions]);
+
+  const availableProfileExtensions = React.useMemo(() => {
+    return (
+      extensionList.result?.bundler.map((extension) => ({
+        id: extension.id,
+        label: extension.label,
+        description: extension.id,
+        Icon: icons[extension.iconId],
+      })) ?? []
+    );
+  }, [extensionList.result?.bundler]);
+
+  return availableProfileExtensions;
+};
+
+const useProfileDetail = (profileId: string | null) => {
+  const [profileDetail, profileDetailActions] = useAsync<IBundleProfile | null>(
+    async () =>
+      profileId
+        ? (await server.getBundleProfile(profileId)) ?? {
+            id: profileId,
+            packageId: '',
+            label: '',
+            prefix: '',
+            bundleExtensionId: '',
+            metadataFormat: '',
+            constantFileName: '',
+            offlineAvailability: '',
+            shellTemplateFileName: '',
+            extensionConfiguration: {},
+          }
+        : null
+  );
+
+  React.useEffect(() => {
+    profileDetailActions.execute();
+  }, [profileId, profileDetailActions]);
+
+  return profileDetail.result;
+};
+
 export const EditBundleProfileItemModal: React.FC<IEditBundleProfileItemModalProps> =
-  () => {
-    const [isOpen, , onClose] = useEditBundleProfileItemModal();
+  ({ onSubmit }) => {
+    const [loading, setLoading] = React.useState(false);
+    const [isOpen, profileId, , onClose] = useEditBundleProfileItemModal();
+    const extensionListOptions = useExtensionList();
+
+    const profileDetail = useProfileDetail(profileId);
+
+    const [clonedProfile, valueChangeCallbacks, , setClonedValue] =
+      useFormChangeCallbacks(profileDetail ?? null);
+
+    React.useLayoutEffect(() => {
+      setClonedValue(profileDetail ?? null);
+    }, [profileDetail, setClonedValue]);
+
+    const handleLabelChange = useOnChangeEventWrapperForStringType(
+      valueChangeCallbacks.label
+    );
+    const handlePrefixChange = useOnChangeEventWrapperForStringType(
+      valueChangeCallbacks.prefix
+    );
+    const handlePackageIdChange = useOnChangeEventWrapperForStringType(
+      valueChangeCallbacks.packageId
+    );
+    const handleBundleExtensionIdChange =
+      useOnChangeEventWrapperForBaseUiSelectWithSingleValue(
+        valueChangeCallbacks.bundleExtensionId
+      );
+    const bundleExtensionOptionValue =
+      useValueOptionForBaseUiSelectWithSingleValue(
+        clonedProfile?.bundleExtensionId,
+        extensionListOptions
+      );
+    const handleMetadataFormatChange =
+      useOnChangeEventWrapperForBaseUiSelectWithSingleValue(
+        valueChangeCallbacks.metadataFormat
+      );
+    const metadataFormatOptionValue =
+      useValueOptionForBaseUiSelectWithSingleValue(
+        clonedProfile?.metadataFormat,
+        metadataFormatOptions
+      );
+    const handleOfflineAvailabilityChange =
+      useOnChangeEventWrapperForBaseUiSelectWithSingleValue(
+        valueChangeCallbacks.offlineAvailability
+      );
+    const offlineAvailabilityOptionValue =
+      useValueOptionForBaseUiSelectWithSingleValue(
+        clonedProfile?.offlineAvailability,
+        offlineAvailabilityOptions
+      );
+
+    const formValid = React.useMemo(() => {
+      return Object.values(clonedProfile || {}).every(Boolean);
+    }, [clonedProfile]);
+
+    const handleSubmit = React.useCallback(async () => {
+      if (!clonedProfile) return;
+      setLoading(true);
+      await server.updateOrInsertBundleProfile(clonedProfile);
+      setLoading(false);
+      onSubmit();
+      onClose();
+    }, [clonedProfile, onClose, onSubmit]);
+
     return (
       <Modal
         onClose={onClose}
@@ -100,72 +227,115 @@ export const EditBundleProfileItemModal: React.FC<IEditBundleProfileItemModalPro
         size={SIZE.default}
         role={ROLE.dialog}
       >
-        <ModalHeader>Edit Profile</ModalHeader>
-        <ModalBody>
-          <Hint Artwork={InfoIconOutline}>
-            <HintParagraph>
-              Bundling profile is used to describe how Recative Studio should
-              create application bundle for different platforms.
-            </HintParagraph>
-            <HintParagraph>
-              Please notice that you have to build a specific bundle template
-              and web root template to implement the option you selected.
-            </HintParagraph>
-          </Hint>
-          <FormControl
-            label="Package Identity"
-            caption="The unique package identity of your bundle."
-          >
-            <Input size={INPUT_SIZE.mini} />
-          </FormControl>
-          <FormControl
-            label="Output File Prefix"
-            caption="Add a prefix to the output file to distinguish it from other bundles."
-          >
-            <Input size={INPUT_SIZE.mini} />
-          </FormControl>
-          <FormControl
-            label="Bundle Profile Extension"
-            caption="The extension that will be used to generate the bundle."
-          >
-            <Input size={INPUT_SIZE.mini} />
-          </FormControl>
-          <FormControl
-            label="Metadata Format"
-            caption="The metadata that describes the series and each episode."
-          >
-            <DetailedSelect
-              options={metadataFormatOptions}
-              size={SELECT_SIZE.mini}
-            />
-          </FormControl>
-          <FormControl
-            label="Bundle Type"
-            caption="Offline availability of the bundle."
-          >
-            <DetailedSelect
-              options={bundleTypeOptions}
-              size={SELECT_SIZE.mini}
-            />
-          </FormControl>
-          <FormControl
-            label="Build Constant File"
-            caption="Build constant for different packages, useful for AB test or package for different region."
-          >
-            <AssetFileSelect glob="constant-*.json" size={INPUT_SIZE.mini} />
-          </FormControl>
-          <FormControl
-            label="Template File"
-            caption="Recative Studio will fill metadata and resources into this template and make new bundle."
-          >
-            <AssetFileSelect glob="template*.*" size={INPUT_SIZE.mini} />
-          </FormControl>
-        </ModalBody>
+        <ModalHeader>Edit Bundle Profile</ModalHeader>
+        {profileId !== null ? (
+          <ModalBody>
+            <Hint Artwork={InfoIconOutline}>
+              <HintParagraph>
+                Bundling profile is used to describe how Recative Studio should
+                create application bundle for different platforms.
+              </HintParagraph>
+              <HintParagraph>
+                Please notice that you have to build a specific bundle template
+                and web root template to implement the option you selected.
+              </HintParagraph>
+            </Hint>
+            <FormControl
+              label="Label"
+              caption="Human readable label to distinguish different profiles."
+            >
+              <Input
+                value={clonedProfile?.label || ''}
+                onChange={handleLabelChange}
+                size={INPUT_SIZE.mini}
+              />
+            </FormControl>
+            <FormControl
+              label="Package Identity"
+              caption="The unique package identity of your bundle."
+            >
+              <Input
+                value={clonedProfile?.packageId || ''}
+                onChange={handlePackageIdChange}
+                size={INPUT_SIZE.mini}
+              />
+            </FormControl>
+            <FormControl
+              label="Output File Prefix"
+              caption="Add a prefix to the output file to distinguish it from other bundles."
+            >
+              <Input
+                value={clonedProfile?.prefix || ''}
+                onChange={handlePrefixChange}
+                size={INPUT_SIZE.mini}
+              />
+            </FormControl>
+            <FormControl
+              label="Bundle Profile Extension"
+              caption="The extension that will be used to generate the bundle."
+            >
+              <DetailedSelect
+                value={bundleExtensionOptionValue}
+                onChange={handleBundleExtensionIdChange}
+                options={extensionListOptions}
+                size={SELECT_SIZE.mini}
+              />
+            </FormControl>
+            <FormControl
+              label="Metadata Format"
+              caption="The metadata that describes the series and each episode."
+            >
+              <DetailedSelect
+                value={metadataFormatOptionValue}
+                onChange={handleMetadataFormatChange}
+                options={metadataFormatOptions}
+                size={SELECT_SIZE.mini}
+              />
+            </FormControl>
+            <FormControl
+              label="Bundle Type"
+              caption="Offline availability of the bundle."
+            >
+              <DetailedSelect
+                value={offlineAvailabilityOptionValue}
+                onChange={handleOfflineAvailabilityChange}
+                options={offlineAvailabilityOptions}
+                size={SELECT_SIZE.mini}
+              />
+            </FormControl>
+            <FormControl
+              label="Build Constant File"
+              caption="Build constant for different packages, useful for AB test or package for different region."
+            >
+              <AssetFileSelect
+                value={clonedProfile?.constantFileName}
+                onChange={valueChangeCallbacks.constantFileName}
+                glob="constant-*.json"
+                size={INPUT_SIZE.mini}
+              />
+            </FormControl>
+            <FormControl
+              label="Template File"
+              caption="Recative Studio will fill metadata and resources into this template and make new bundle."
+            >
+              <AssetFileSelect
+                value={clonedProfile?.shellTemplateFileName}
+                onChange={valueChangeCallbacks.shellTemplateFileName}
+                glob="template*.*"
+                size={INPUT_SIZE.mini}
+              />
+            </FormControl>
+          </ModalBody>
+        ) : null}
         <ModalFooter>
           <ModalButton kind={BUTTON_KIND.tertiary} onClick={onClose}>
             Cancel
           </ModalButton>
-          <ModalButton kind={BUTTON_KIND.primary} onClick={onClose}>
+          <ModalButton
+            kind={BUTTON_KIND.primary}
+            onClick={handleSubmit}
+            disabled={!formValid && !loading && clonedProfile}
+          >
             OK
           </ModalButton>
         </ModalFooter>

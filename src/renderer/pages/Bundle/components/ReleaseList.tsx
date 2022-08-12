@@ -1,4 +1,5 @@
 import * as React from 'react';
+import cn from 'classnames';
 
 import { useStyletron } from 'baseui';
 
@@ -57,12 +58,22 @@ export const ReleaseList: React.FC<IReleaseList> = ({ Actions }) => {
     fetchReleaseData();
   }, [fetchReleaseData]);
 
+  const gridTemplateRowStyles = React.useMemo(
+    () =>
+      css({
+        gridTemplateRows: `repeat(${
+          releaseData?.bundle.length ?? 0 + 1
+        }, min-content)`,
+      }),
+    [css, releaseData?.bundle.length]
+  );
+
   if (!releaseData) return null;
 
   return (
     <StyledTable
       role="grid"
-      className={css(tableStyle)}
+      className={cn(css(tableStyle), gridTemplateRowStyles)}
       $gridTemplateColumns={
         Actions
           ? '120px 120px 120px auto max-content'
@@ -74,15 +85,9 @@ export const ReleaseList: React.FC<IReleaseList> = ({ Actions }) => {
         <StyledHeadCell>Media #</StyledHeadCell>
         <StyledHeadCell>Code #</StyledHeadCell>
         <StyledHeadCell>Notes</StyledHeadCell>
-        {Actions && <StyledHeadCell>Actions</StyledHeadCell>}
+        {Actions && <StyledHeadCell />}
       </Block>
-      {[
-        ...releaseData.bundle,
-        ...releaseData.bundle,
-        ...releaseData.bundle,
-        ...releaseData.bundle,
-        ...releaseData.bundle,
-      ].map((release) => (
+      {releaseData.bundle.map((release) => (
         <Block key={release.id} className={css(bodyStyle)} role="row">
           <StyledBodyCell className={css(cellStyle)}>
             {release.id}

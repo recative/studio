@@ -84,7 +84,7 @@ const useSelectValue = <T,>() => {
 const useInputProps = () => {
   const [value, setValue] = React.useState('');
 
-  const handleValueChange = (event: React.FormEvent<HTMLInputElement>) => {
+  const handleValueChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setValue(event.currentTarget.value);
   };
 
@@ -154,8 +154,8 @@ export const CommitForm: React.FC<ICommitFormProps> = ({
                   value={selectedMedia}
                   placeholder="Media Bundle"
                   isLoading={mediaLoading}
-                  getOptionLabel={getOptionLabel}
-                  getValueLabel={getValueLabel}
+                  OptionLabel={getOptionLabel}
+                  ValueLabel={getValueLabel}
                   onChange={setSelectedMedia}
                   onInputChange={handleMediaSearchInputChange}
                 />
@@ -167,8 +167,8 @@ export const CommitForm: React.FC<ICommitFormProps> = ({
                   value={selectedCode}
                   placeholder="Code Bundle"
                   isLoading={codeLoading}
-                  getOptionLabel={getOptionLabel}
-                  getValueLabel={getValueLabel}
+                  OptionLabel={getOptionLabel}
+                  ValueLabel={getValueLabel}
                   onChange={setSelectedCode}
                   onInputChange={handleCodeSearchInputChange}
                 />

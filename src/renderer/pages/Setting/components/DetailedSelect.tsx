@@ -3,11 +3,17 @@ import * as React from 'react';
 import { useStyletron } from 'baseui';
 
 import { Block } from 'baseui/block';
+import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { LabelMedium, LabelXSmall } from 'baseui/typography';
-import { Select, SIZE as SELECT_SIZE } from 'baseui/select';
 
 import type { SelectProps } from 'baseui/select';
 import type { BlockOverrides } from 'baseui/block';
+
+import { Select } from 'components/Select/Select';
+import type {
+  GetOptionLabel,
+  OnChangeCallback,
+} from 'components/Select/Select';
 
 export interface IDetailedSelectOption {
   id: string;
@@ -16,12 +22,16 @@ export interface IDetailedSelectOption {
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
 }
 
-export interface IDetailedSelectProps extends Omit<SelectProps, 'options'> {
+export interface IDetailedSelectProps
+  extends Omit<SelectProps, 'options' | 'value' | 'onChange'> {
   options: IDetailedSelectOption[];
+  value: IDetailedSelectOption[];
+  onChange: OnChangeCallback<IDetailedSelectOption>;
 }
 
-export const DetailedSelect: React.FC<IDetailedSelectProps> = ({
+const InternalDetailedSelect: React.FC<IDetailedSelectProps> = ({
   options,
+  onChange,
   ...props
 }) => {
   const [css, theme] = useStyletron();
@@ -45,18 +55,22 @@ export const DetailedSelect: React.FC<IDetailedSelectProps> = ({
     [css, theme.sizing.scale100]
   );
 
-  const getOptionLabel = React.useCallback(
-    (x: any) => {
+  const getOptionLabel = React.useCallback<
+    GetOptionLabel<IDetailedSelectOption>
+  >(
+    ({ option }) => {
+      if (!option) return <Block>Invalid Option</Block>;
+
       return (
         <Block display="flex" alignItems="center">
           <Block>
-            <x.option.Icon width={32} />
+            <option.Icon width={32} />
           </Block>
           <Block marginLeft="scale500">
-            <LabelMedium>{x.option.label}</LabelMedium>
+            <LabelMedium>{option.label}</LabelMedium>
             <Block className={descriptionContainerStyle}>
               <LabelXSmall overrides={labelOverrides}>
-                {x.option.description}
+                {option.description}
               </LabelXSmall>
             </Block>
           </Block>
@@ -67,11 +81,14 @@ export const DetailedSelect: React.FC<IDetailedSelectProps> = ({
   );
 
   return (
-    <Select
+    <Select<IDetailedSelectOption>
+      onChange={onChange}
       options={options}
-      getOptionLabel={getOptionLabel}
+      OptionLabel={getOptionLabel}
       size={SELECT_SIZE.compact}
       {...props}
     />
   );
 };
+
+export const DetailedSelect = React.memo(InternalDetailedSelect);

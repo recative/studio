@@ -12,7 +12,9 @@ import { getWorkspace } from '../workspace';
 interface IExtensionDescription {
   id: string;
   label: string;
+  iconId: string;
   pluginConfigUiFields?: IConfigUiField[];
+  profileConfigUiFields?: IConfigUiField[];
   resourceConfigUiFields?: IConfigUiField[];
   nonMergeableResourceExtensionConfiguration?: string[];
 }
@@ -20,6 +22,7 @@ interface IExtensionDescription {
 const extensionMetadata = {
   uploader: [] as IExtensionDescription[],
   resourceProcessor: [] as IExtensionDescription[],
+  bundler: [] as IExtensionDescription[],
 } as const;
 
 extensions.forEach((extension) => {
@@ -65,6 +68,19 @@ extensions.forEach((extension) => {
       return description;
     });
     extensionMetadata.resourceProcessor.push(
+      ...(extensionList as IExtensionDescription[])
+    );
+  }
+
+  if ('bundler' in extension && extension.bundler) {
+    const extensionList = extension.bundler.map((item) => {
+      const description = cloneDeep(
+        pick(item, ['id', 'label', 'iconId', 'profileConfigUiFields'])
+      );
+
+      return description;
+    });
+    extensionMetadata.bundler.push(
       ...(extensionList as IExtensionDescription[])
     );
   }

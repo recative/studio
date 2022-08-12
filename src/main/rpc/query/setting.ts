@@ -150,7 +150,6 @@ export const getFileListFromAssetsPath = (globRule: string) => {
   const workspace = getWorkspace();
   const { assetsPath } = workspace;
 
-  console.log('::', join(assetsPath, globRule));
   const files = glob.sync(join(assetsPath, globRule));
 
   return Promise.all(

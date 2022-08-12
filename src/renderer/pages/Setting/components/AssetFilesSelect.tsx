@@ -4,22 +4,40 @@ import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'baseui';
 
 import { Block } from 'baseui/block';
+import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { LabelMedium, LabelXSmall } from 'baseui/typography';
-import { Select, SIZE as SELECT_SIZE } from 'baseui/select';
 
 import type { SelectProps } from 'baseui/select';
 import type { BlockOverrides } from 'baseui/block';
 
+import { Select } from 'components/Select/Select';
 import { FileIconOutline } from 'components/Icons/FileIconOutline';
+import type {
+  GetOptionLabel,
+  OnChangeCallback,
+} from 'components/Select/Select';
 
 import { server } from 'utils/rpc';
 
-export interface IDetailedSelectProps extends Omit<SelectProps, 'options'> {
+export interface IDetailedSelectProps
+  extends Omit<SelectProps, 'options' | 'onChange' | 'value'> {
   glob: string;
+  value?: string;
+  onChange?: (x: string) => void;
 }
+
+export interface IFile {
+  id: string;
+  label: string;
+  updateTime: string;
+}
+
+const EMPTY_ARRAY: IFile[] = [];
 
 export const AssetFileSelect: React.FC<IDetailedSelectProps> = ({
   glob,
+  value,
+  onChange,
   ...props
 }) => {
   const [css, theme] = useStyletron();
@@ -59,18 +77,22 @@ export const AssetFileSelect: React.FC<IDetailedSelectProps> = ({
     [css, theme.sizing.scale100]
   );
 
-  const getOptionLabel = React.useCallback(
-    (x: any) => {
+  const getOptionLabel = React.useCallback<GetOptionLabel<IFile>>(
+    ({ option }) => {
+      if (!option) {
+        return <Block>Invalid Option</Block>;
+      }
+
       return (
         <Block display="flex" alignItems="center">
           <Block paddingTop="4px">
             <FileIconOutline width={32} />
           </Block>
           <Block marginLeft="scale500">
-            <LabelMedium>{x.option.label}</LabelMedium>
+            <LabelMedium>{option.label}</LabelMedium>
             <Block className={descriptionContainerStyle}>
               <LabelXSmall overrides={labelOverrides}>
-                {x.option.updateTime}
+                {option.updateTime}
               </LabelXSmall>
             </Block>
           </Block>
@@ -80,10 +102,29 @@ export const AssetFileSelect: React.FC<IDetailedSelectProps> = ({
     [descriptionContainerStyle, labelOverrides]
   );
 
+  const trueValue = React.useMemo(() => {
+    if (!value) return [];
+    if (!fileList.result) return [];
+
+    const result = fileList.result.find((file) => file.id === value);
+
+    if (!result) return [];
+    return [result];
+  }, [fileList, value]);
+
+  const handleChange = React.useCallback<OnChangeCallback<IFile>>(
+    ({ value: v }) => {
+      onChange?.(v[0].id);
+    },
+    [onChange]
+  );
+
   return (
-    <Select
-      options={fileList.result}
-      getOptionLabel={getOptionLabel}
+    <Select<IFile>
+      value={trueValue}
+      onChange={handleChange}
+      options={fileList.result ?? EMPTY_ARRAY}
+      OptionLabel={getOptionLabel}
       size={SELECT_SIZE.compact}
       {...props}
     />

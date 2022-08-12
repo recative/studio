@@ -9,8 +9,10 @@ import { EditIconOutline } from 'components/Icons/EditIconOutline';
 import { TrashIconOutline } from 'components/Icons/TrashIconOutline';
 
 import { useEditBundleProfileItemModal } from './EditBundleProfileItemModal';
+import { useConfirmRemoveBundleProfileModal } from './ConfirmRemoveBundleProfileModal';
 
 export interface IProfileListItemProps {
+  id: string;
   label: string;
 }
 
@@ -25,24 +27,34 @@ const listItemOverrides = {
   },
 } as const;
 
-export const ProfileListItem: React.FC<IProfileListItemProps> = ({ label }) => {
-  const [, openEditBundleProfileItemModal] = useEditBundleProfileItemModal();
+export const ProfileListItem: React.FC<IProfileListItemProps> = ({
+  id,
+  label,
+}) => {
+  const [, , openEditBundleProfileItemModal] = useEditBundleProfileItemModal();
+  const [, , openConfirmRemoveBundleProfileItemModal] =
+    useConfirmRemoveBundleProfileModal();
+
+  const handleOpenModal = React.useCallback(() => {
+    openEditBundleProfileItemModal(id);
+  }, [id, openEditBundleProfileItemModal]);
+
+  const handleRemove = React.useCallback(() => {
+    openConfirmRemoveBundleProfileItemModal(id);
+  }, [id, openConfirmRemoveBundleProfileItemModal]);
 
   const listItemEnhancer = React.useCallback(
     () => (
       <Block>
         <SmallIconButton title="Remove">
-          <TrashIconOutline width={14} />
+          <TrashIconOutline width={14} onClick={handleRemove} />
         </SmallIconButton>
         <SmallIconButton title="Edit">
-          <EditIconOutline
-            width={14}
-            onClick={openEditBundleProfileItemModal}
-          />
+          <EditIconOutline width={14} onClick={handleOpenModal} />
         </SmallIconButton>
       </Block>
     ),
-    [openEditBundleProfileItemModal]
+    [handleOpenModal, handleRemove]
   );
 
   return (

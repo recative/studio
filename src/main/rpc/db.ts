@@ -17,6 +17,7 @@ import {
   IBundleRelease,
   ISeriesMetadata,
 } from '@recative/definitions';
+import { IBundleProfile } from '@recative/extension-sdk';
 
 import type {
   ISetting,
@@ -46,6 +47,7 @@ export interface IMediaDatabase {
   setting: {
     $db: Loki;
     setting: Collection<ISetting>;
+    bundleProfiles: Collection<IBundleProfile>;
   };
   episode: {
     $db: Loki;
@@ -220,6 +222,14 @@ export const getDb = async (
     indices: ['key', 'value'],
   });
 
+  const bundleProfileCollection = settingDb.addCollection<IBundleProfile>(
+    'bundleProfiles',
+    {
+      autoupdate: true,
+      indices: ['id', 'label', 'packageId'],
+    }
+  );
+
   const newDb = {
     path: trueRootPath,
     resource: {
@@ -255,6 +265,7 @@ export const getDb = async (
     setting: {
       $db: settingDb,
       setting: settingCollection,
+      bundleProfiles: bundleProfileCollection,
     },
     additionalData,
   };

@@ -23,7 +23,6 @@ import {
 import { server } from 'utils/rpc';
 
 import { BundleProfiles } from './components/BundleProfiles';
-import { EditBundleProfileItemModal } from './components/EditBundleProfileItemModal';
 
 const useSettings = () => {
   const [extensionMetadata, extensionMetadataActions] = useAsync(async () => {
@@ -178,7 +177,6 @@ const InternalSetting: React.FC = () => {
           />
         </Block>
       </ContentContainer>
-      <EditBundleProfileItemModal onSubmit={() => {}} />
     </PivotLayout>
   );
 };

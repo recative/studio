@@ -6,14 +6,18 @@ import type {
   OnChangeParams,
 } from 'baseui/select';
 
-interface Option {
-  readonly id?: string | number;
-  readonly label?: React.ReactNode;
-  readonly disabled?: boolean;
-  readonly clearableValue?: boolean;
-  readonly isCreatable?: boolean;
-  readonly __optgroup?: string;
+export interface Option {
+  id?: string | number;
+  label?: React.ReactNode;
+  disabled?: boolean;
+  clearableValue?: boolean;
+  isCreatable?: boolean;
+  __optgroup?: string;
 }
+
+export type OnChangeCallback<T> = (
+  value: Omit<OnChangeParams, 'value'> & { value: ReadonlyArray<T> }
+) => void;
 
 export type GetOptionLabel<T extends Option> = (args: {
   option?: T;
@@ -27,7 +31,7 @@ export type GetValueLabel<T extends Option> = (args: {
   option: T;
 }) => React.ReactNode;
 
-export interface SelectProps<T extends Option>
+export interface ISelectProps<T extends Option | Readonly<Option>>
   extends Omit<
     OriginalSelectProps,
     'onChange' | 'options' | 'value' | 'getOptionLabel' | 'getValueLabel'
@@ -37,27 +41,27 @@ export interface SelectProps<T extends Option>
   readonly onChange: (
     value: Omit<OnChangeParams, 'value'> & { value: ReadonlyArray<T> }
   ) => void;
-  getOptionLabel?: GetOptionLabel<T>;
-  getValueLabel?: GetValueLabel<T>;
+  OptionLabel?: GetOptionLabel<T> | null;
+  ValueLabel?: GetValueLabel<T> | null;
 }
 
 export const Select = <T extends Option>({
   onChange,
   value,
-  getOptionLabel,
-  getValueLabel,
+  OptionLabel,
+  ValueLabel,
   ...props
-}: SelectProps<T>) => {
+}: ISelectProps<T>) => {
   return (
     <OriginalSelect
       {...props}
       value={value ?? undefined}
       onChange={onChange as unknown as OriginalSelectProps['onChange']}
       getOptionLabel={
-        getOptionLabel as unknown as OriginalSelectProps['getOptionLabel']
+        OptionLabel as unknown as OriginalSelectProps['getOptionLabel']
       }
       getValueLabel={
-        getValueLabel as unknown as OriginalSelectProps['getValueLabel']
+        ValueLabel as unknown as OriginalSelectProps['getValueLabel']
       }
     />
   );

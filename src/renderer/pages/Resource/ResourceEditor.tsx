@@ -23,12 +23,13 @@ import { NotFound } from 'components/Illustrations/NotFound';
 import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { LockIconOutline } from 'components/Icons/LockIconOutline';
 import { ExtensionConfiguration } from 'components/ExtensionConfiguration/ExtensionConfiguration';
-import type { SelectProps } from 'components/Select/Select';
+import type { ISelectProps } from 'components/Select/Select';
 
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 import {
   useFormChangeCallbacks,
   useOnChangeEventWrapperForCheckboxType,
+  useValueOptionForBaseUiSelectWithSingleValue,
   useOnChangeEventWrapperForBaseUiSelectWithMultipleValue,
   useOnChangeEventWrapperForBaseUiSelectWithSingleValue,
 } from 'utils/hooks/useFormChangeCallbacks';
@@ -135,7 +136,7 @@ const InternalFormTagItem: React.FC<IFormItemProps> = ({
 
   const options = React.useMemo(() => [emptyResourceTag, ...tag], [tag]);
 
-  const handleChange: SelectProps<
+  const handleChange: ISelectProps<
     IResourceTag | IGroupTypeResourceTag
   >['onChange'] = React.useCallback(
     (params) => {
@@ -380,19 +381,6 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
     setFile
   );
 
-  const levelSelectValue = React.useMemo(
-    () =>
-      file
-        ? [
-            {
-              id: file?.preloadLevel || PreloadLevel.None,
-              label: PRELOAD_LEVEL_MAP[file?.preloadLevel],
-            },
-          ]
-        : [],
-    [file]
-  );
-
   React.useEffect(() => {
     onInitialized?.();
   }, [onInitialized]);
@@ -403,6 +391,11 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
   const handleEpisodesChange =
     useOnChangeEventWrapperForBaseUiSelectWithMultipleValue(
       handleValueChange.episodeIds
+    );
+  const preloadLevelSelectedValue =
+    useValueOptionForBaseUiSelectWithSingleValue(
+      file?.preloadLevel,
+      PRELOAD_LEVELS
     );
   const handlePreloadLevelChange =
     useOnChangeEventWrapperForBaseUiSelectWithSingleValue(
@@ -536,7 +529,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
             <Block>
               <FormControl label="Level">
                 <Select
-                  value={levelSelectValue}
+                  value={preloadLevelSelectedValue}
                   options={PRELOAD_LEVELS}
                   placeholder="Select Level"
                   onChange={handlePreloadLevelChange}
