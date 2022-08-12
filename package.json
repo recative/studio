@@ -143,6 +143,7 @@
     "@types/archiver": "^5.1.1",
     "@types/async": "^3.2.15",
     "@types/bcryptjs": "^2.4.2",
+    "@types/concat-stream": "^2.0.0",
     "@types/cross-spawn": "^6.0.2",
     "@types/downloadjs": "^1.4.3",
     "@types/enzyme": "^3.10.5",
@@ -256,6 +257,7 @@
     "@recative/ugly-json": "^0.0.0",
     "@silvia-odwyer/photon-node": "^0.3.1",
     "@uiw/react-codemirror": "4.7.0",
+    "adm-zip": "^0.5.9",
     "archiver": "5.3.1",
     "async-call-rpc": "^5.1.0",
     "base64-js": "^1.5.1",
@@ -378,7 +380,11 @@
     "packages/extension-s3-bucket",
     "packages/extension-polyv-vod",
     "packages/extension-atlas",
-    "packages/extension-offline-bundle"
+    "packages/extension-offline-bundle",
+    "packages/extension-android",
+    "packages/extension-ios",
+    "packages/extension-web",
+    "packages/extension-raw"
   ],
   "resolutions": {
     "@codemirror/state": "0.20.0"

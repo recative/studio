@@ -9,6 +9,8 @@ import offlineBundleExtension from '@recative/extension-offline-bundle';
 
 import iosIpaBundlerExtension from '@recative/extension-ios';
 import androidApkBundlerExtension from '@recative/extension-android';
+import webBundlerExtension from '@recative/extension-web';
+import rawBundlerExtension from '@recative/extension-raw';
 
 export const extensions = [
   aliOssExtension,
@@ -18,4 +20,6 @@ export const extensions = [
   offlineBundleExtension,
   iosIpaBundlerExtension,
   androidApkBundlerExtension,
+  webBundlerExtension,
+  rawBundlerExtension,
 ] as ExtensionManifest[];

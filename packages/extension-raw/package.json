@@ -1,0 +1,4 @@
+{
+  "name": "@recative/extension-raw",
+  "main": "./manifest.ts"
+}

@@ -24,6 +24,8 @@ import { IOSIconOutline } from 'components/Icons/IOSIconOutline';
 import { AabIconOutline } from 'components/Icons/AabIconOutline';
 import { InfoIconOutline } from 'components/Icons/InfoIconOutline';
 import { BareIconOutline } from 'components/Icons/BareIconOutline';
+import { CodeIconOutline } from 'components/Icons/CodeIconOutline';
+import { RawBundleOutline } from 'components/Icons/RawBundleOutline';
 import { AndroidIconOutline } from 'components/Icons/AndroidIconOutline';
 import { FullBundleIconOutline } from 'components/Icons/FullBundleIconOutline';
 import { JsonFormatIconOutline } from 'components/Icons/JsonFormatIconOutline';
@@ -104,7 +106,11 @@ const icons: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
   android: AndroidIconOutline,
   apple: IOSIconOutline,
   google: AabIconOutline,
+  raw: RawBundleOutline,
+  web: CodeIconOutline,
 };
+
+const RAW_EXTENSION_ID = '@recative/extension-raw/RawBundler';
 
 const useExtensionList = () => {
   const [extensionList, extensionListActions] = useAsync(
@@ -237,7 +243,19 @@ export const EditBundleProfileItemModal: React.FC<IEditBundleProfileItemModalPro
       );
 
     const formValid = React.useMemo(() => {
-      return Object.values(clonedProfile || {}).every(Boolean);
+      return Object.entries(clonedProfile || {}).every(([key, value]) => {
+        if (clonedProfile?.bundleExtensionId === RAW_EXTENSION_ID) {
+          if (
+            key === 'shellTemplateFileName' ||
+            key === 'webRootTemplateFileName' ||
+            key === 'packageId'
+          ) {
+            return true;
+          }
+        }
+
+        return !!value;
+      });
     }, [clonedProfile]);
 
     const handleSubmit = React.useCallback(async () => {
@@ -288,26 +306,6 @@ export const EditBundleProfileItemModal: React.FC<IEditBundleProfileItemModalPro
               />
             </FormControl>
             <FormControl
-              label="Package Identity"
-              caption="The unique package identity of your bundle."
-            >
-              <Input
-                value={clonedProfile?.packageId || ''}
-                onChange={handlePackageIdChange}
-                size={INPUT_SIZE.mini}
-              />
-            </FormControl>
-            <FormControl
-              label="Output File Prefix"
-              caption="Add a prefix to the output file to distinguish it from other bundles."
-            >
-              <Input
-                value={clonedProfile?.prefix || ''}
-                onChange={handlePrefixChange}
-                size={INPUT_SIZE.mini}
-              />
-            </FormControl>
-            <FormControl
               label="Bundle Profile Extension"
               caption="The extension that will be used to generate the bundle."
             >
@@ -316,6 +314,28 @@ export const EditBundleProfileItemModal: React.FC<IEditBundleProfileItemModalPro
                 onChange={handleBundleExtensionIdChange}
                 options={extensionListOptions}
                 size={SELECT_SIZE.mini}
+              />
+            </FormControl>
+            {clonedProfile?.bundleExtensionId !== RAW_EXTENSION_ID && (
+              <FormControl
+                label="Package Identity"
+                caption="The unique package identity of your bundle."
+              >
+                <Input
+                  value={clonedProfile?.packageId || ''}
+                  onChange={handlePackageIdChange}
+                  size={INPUT_SIZE.mini}
+                />
+              </FormControl>
+            )}
+            <FormControl
+              label="Output File Prefix"
+              caption="Add a prefix to the output file to distinguish it from other bundles."
+            >
+              <Input
+                value={clonedProfile?.prefix || ''}
+                onChange={handlePrefixChange}
+                size={INPUT_SIZE.mini}
               />
             </FormControl>
             <FormControl
@@ -351,28 +371,32 @@ export const EditBundleProfileItemModal: React.FC<IEditBundleProfileItemModalPro
                 size={INPUT_SIZE.mini}
               />
             </FormControl>
-            <FormControl
-              label="Template File"
-              caption="Recative Studio will fill metadata and resources into this template and make new bundle."
-            >
-              <AssetFileSelect
-                value={clonedProfile?.shellTemplateFileName}
-                onChange={valueChangeCallbacks.shellTemplateFileName}
-                glob="template*.*"
-                size={INPUT_SIZE.mini}
-              />
-            </FormControl>
-            <FormControl
-              label="Web Root File"
-              caption="The web root file provided by bundle profile developers."
-            >
-              <AssetFileSelect
-                value={clonedProfile?.webRootTemplateFileName}
-                onChange={valueChangeCallbacks.webRootTemplateFileName}
-                glob="*web-root.zip"
-                size={INPUT_SIZE.mini}
-              />
-            </FormControl>
+            {clonedProfile?.bundleExtensionId !== RAW_EXTENSION_ID && (
+              <>
+                <FormControl
+                  label="Template File"
+                  caption="Recative Studio will fill metadata and resources into this template and make new bundle."
+                >
+                  <AssetFileSelect
+                    value={clonedProfile?.shellTemplateFileName}
+                    onChange={valueChangeCallbacks.shellTemplateFileName}
+                    glob="template*.*"
+                    size={INPUT_SIZE.mini}
+                  />
+                </FormControl>
+                <FormControl
+                  label="Web Root File"
+                  caption="The web root file provided by bundle profile developers."
+                >
+                  <AssetFileSelect
+                    value={clonedProfile?.webRootTemplateFileName}
+                    onChange={valueChangeCallbacks.webRootTemplateFileName}
+                    glob="*web-root.zip"
+                    size={INPUT_SIZE.mini}
+                  />
+                </FormControl>
+              </>
+            )}
             {clonedProfile?.bundleExtensionId && (
               <ExtensionConfiguration
                 domain="bundler"

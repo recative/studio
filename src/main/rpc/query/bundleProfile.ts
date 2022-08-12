@@ -26,6 +26,7 @@ import { getBuildPath } from './setting';
 import { getBundlerInstances } from '../../utils/getExtensionInstances';
 
 import { getDb } from '../db';
+import { getWorkspace } from '../workspace';
 
 export const listBundleProfile = async () => {
   const db = await getDb();
@@ -66,11 +67,14 @@ export const removeBundleProfile = async (profile: IBundleProfile | string) => {
   }
 };
 
+const RAW_EXTENSION_ID = '@recative/extension-raw/RawBundler';
+
 export const createBundles = async (
   profiles: string[],
   bundleReleaseId: number,
   terminalId = 'createBundles'
 ) => {
+  const workspace = getWorkspace();
   const db = await getDb();
 
   const bundleProfiles = db.setting.bundleProfiles.find({
@@ -158,24 +162,26 @@ export const createBundles = async (
     });
 
     await wrapTaskFunction(terminalId, taskName, async () => {
-      if (profile.shellTemplateFileName) {
-        await duplicateBasePackage(
-          zip,
-          profile.shellTemplateFileName,
-          Reflect.get(bundler.constructor, 'appTemplateFromPath'),
-          Reflect.get(bundler.constructor, 'outputPublicPath'),
-          Reflect.get(bundler.constructor, 'excludeTemplateFilePaths'),
-          terminalId
-        );
-      }
+      if (profile.bundleExtensionId !== RAW_EXTENSION_ID) {
+        if (profile.shellTemplateFileName) {
+          await duplicateBasePackage(
+            zip,
+            profile.shellTemplateFileName,
+            Reflect.get(bundler.constructor, 'appTemplateFromPath'),
+            Reflect.get(bundler.constructor, 'outputPublicPath'),
+            Reflect.get(bundler.constructor, 'excludeTemplateFilePaths'),
+            terminalId
+          );
+        }
 
-      if (profile.webRootTemplateFileName) {
-        await duplicateWebRootPackage(
-          zip,
-          profile.webRootTemplateFileName,
-          Reflect.get(bundler.constructor, 'appTemplatePublicPath'),
-          terminalId
-        );
+        if (profile.webRootTemplateFileName) {
+          await duplicateWebRootPackage(
+            zip,
+            profile.webRootTemplateFileName,
+            Reflect.get(bundler.constructor, 'appTemplatePublicPath'),
+            terminalId
+          );
+        }
       }
 
       await transferActPointArtifacts(
@@ -190,6 +196,14 @@ export const createBundles = async (
         `${appTemplatePublicPath}/bundle`,
         profile.metadataFormat as any,
         terminalId
+      );
+      await zip.appendFile(
+        join(workspace.assetsPath, profile.constantFileName),
+        `${appTemplatePublicPath}/bundle/ap/constants`
+      );
+      await zip.appendFile(
+        join(workspace.assetsPath, profile.constantFileName),
+        `${appTemplatePublicPath}/bundle/constants`
       );
       await bundleAdditionalModules(zip, appTemplatePublicPath, terminalId);
       await bundleMediaResourcesWithoutEpisodeOrWithCacheProperty(
