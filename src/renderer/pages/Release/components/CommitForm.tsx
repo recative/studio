@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAsync } from '@react-hookz/web';
 
 import { Input } from 'baseui/input';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import { StatefulTooltip, TRIGGER_TYPE } from 'baseui/tooltip';
 

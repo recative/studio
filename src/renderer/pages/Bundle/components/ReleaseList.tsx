@@ -3,7 +3,7 @@ import cn from 'classnames';
 
 import { useStyletron } from 'baseui';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { StyledTable, StyledHeadCell, StyledBodyCell } from 'baseui/table-grid';
 
 import { useReleaseData } from 'pages/Release/Release';

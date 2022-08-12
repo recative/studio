@@ -14,7 +14,7 @@ import {
   SIZE,
 } from 'baseui/modal';
 import { KIND as BUTTON_KIND } from 'baseui/button';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import type { ModalOverrides } from 'baseui/modal';
 
 import { WaitIconOutline } from 'components/Icons/WaitIconOutline';

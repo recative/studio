@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { BackIconButton } from 'components/Button/BackIconButton';
 

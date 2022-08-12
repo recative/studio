@@ -21,7 +21,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { ListItem } from 'baseui/list';
 import { LabelSmall } from 'baseui/typography';
 import { StatefulMenu } from 'baseui/menu';

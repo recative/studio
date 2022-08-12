@@ -9,7 +9,7 @@ import type { StyleObject } from 'styletron-react';
 import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Banner } from 'baseui/banner';
 import { LabelLarge } from 'baseui/typography';
 import { FormControl } from 'baseui/form-control';

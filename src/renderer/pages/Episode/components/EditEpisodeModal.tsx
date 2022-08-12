@@ -13,7 +13,7 @@ import {
   SIZE,
 } from 'baseui/modal';
 import { Input } from 'baseui/input';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { FormControl } from 'baseui/form-control';

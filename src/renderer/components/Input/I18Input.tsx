@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useAtom } from 'jotai';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Input } from 'baseui/input';
 import type { InputProps } from 'baseui/input';
 

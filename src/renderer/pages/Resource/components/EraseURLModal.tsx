@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useSet } from 'react-use';
 import { useAsync } from '@react-hookz/web';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { LabelXSmall } from 'baseui/typography';
 import { ListItem, ListItemLabel } from 'baseui/list';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';

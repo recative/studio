@@ -6,7 +6,7 @@ import { useStyletron } from 'styletron-react';
 
 import { ParagraphLarge } from 'baseui/typography';
 
-import { RecativeBlock } from 'components/block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
 import { SmallIconButton } from 'components/Button/SmallIconButton';

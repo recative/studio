@@ -12,7 +12,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { RadioGroup, Radio } from 'baseui/radio';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';

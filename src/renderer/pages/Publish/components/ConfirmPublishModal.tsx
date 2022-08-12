@@ -12,7 +12,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { LabelMedium, ParagraphSmall } from 'baseui/typography';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import type { ModalOverrides } from 'baseui/modal';

@@ -4,7 +4,7 @@ import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
 import Avatar from 'boring-avatars';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Button } from 'baseui/button';
 import { DisplayXSmall, LabelLarge } from 'baseui/typography';
 import type { ButtonOverrides } from 'baseui/button';

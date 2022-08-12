@@ -10,7 +10,7 @@ import { useDebouncedCallback, useKeyboardEvent } from '@react-hookz/web';
 import type { StyleObject } from 'styletron-react';
 
 import { Tab } from 'baseui/tabs-motion';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Search } from 'baseui/icon';
 import { Spinner, SIZE as SPINNER_SIZE } from 'baseui/spinner';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';

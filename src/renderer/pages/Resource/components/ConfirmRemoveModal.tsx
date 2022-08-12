@@ -9,7 +9,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 
 export interface IConfirmRemoveModalProps {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { LabelMedium, ParagraphXSmall } from 'baseui/typography';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import type { ButtonOverrides } from 'baseui/button';
@@ -11,7 +11,7 @@ import { YYYYMMDD } from 'utils/formatDate';
 import { IBundleRelease } from '@recative/definitions';
 
 export interface IReleaseBundleButtonProps extends IBundleRelease {
-  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick: (event: React.SyntheticEvent<HTMLButtonElement>) => void;
 }
 
 export const buttonOverrides: ButtonOverrides = {

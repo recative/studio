@@ -12,7 +12,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { ListItem } from 'baseui/list';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 

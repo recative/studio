@@ -4,7 +4,7 @@ import cn from 'classnames';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { LabelSmall } from 'baseui/typography';
 
 import { Pattern } from 'components/Pattern/Pattern';

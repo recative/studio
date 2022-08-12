@@ -8,7 +8,7 @@ import type { StyleObject } from 'styletron-react';
 
 import { StatefulTooltip } from 'baseui/tooltip';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { HeadingXXLarge, LabelLarge } from 'baseui/typography';
 
 import type { ButtonOverrides } from 'baseui/button';

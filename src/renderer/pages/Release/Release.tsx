@@ -6,7 +6,7 @@ import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
 import { Card } from 'baseui/card';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { LabelLarge } from 'baseui/typography';
 
 import type { StyleObject } from 'styletron-react';

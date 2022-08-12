@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useStyletron } from 'baseui';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 // @ts-ignore: We just don't have a type definition for this yet
 import { TitleBar } from 'react-desktop/windows';
 import { Routes, Route } from 'react-router-dom';

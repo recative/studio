@@ -7,7 +7,7 @@ import type { StyleObject } from 'styletron-react';
 
 import { labelColorMap, tagIdMap, LabelType } from '@recative/definitions';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Tag, VARIANT } from 'baseui/tag';
 import { ListItemLabel, LabelOverrides } from 'baseui/list';
 

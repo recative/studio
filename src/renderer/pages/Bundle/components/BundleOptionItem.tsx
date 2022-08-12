@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { ListItem } from 'baseui/list';
 import { LabelMedium, LabelXSmall } from 'baseui/typography';
 import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
@@ -22,14 +22,23 @@ export const checkboxOverrides: CheckboxOverrides = {
 };
 
 export interface IBundleOptionItem
-  extends Omit<CheckboxProps, 'labelPlacement' | 'overrides'> {
+  extends Omit<
+    CheckboxProps,
+    'labelPlacement' | 'overrides' | 'value' | 'onChange'
+  > {
   title: string;
   description: string;
+  id: string;
+  onChange: (x: boolean, id: string) => void;
+  value: boolean;
 }
 
 export const BundleOptionItem: React.FC<IBundleOptionItem> = ({
   title,
+  id,
   description,
+  value,
+  onChange,
   ...props
 }) => {
   const labelOverrides = React.useMemo<BlockOverrides>(
@@ -43,11 +52,20 @@ export const BundleOptionItem: React.FC<IBundleOptionItem> = ({
     []
   );
 
+  const handleChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(event.target.checked, id);
+    },
+    [id, onChange]
+  );
+
   return (
     <ListItem>
       <Checkbox
         labelPlacement={LABEL_PLACEMENT.right}
         overrides={checkboxOverrides}
+        checked={value}
+        onChange={handleChange}
         {...props}
       >
         <RecativeBlock>

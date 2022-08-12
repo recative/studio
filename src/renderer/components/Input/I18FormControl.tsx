@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useStyletron } from 'baseui';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { FormControl } from 'baseui/form-control';
 import type { FormControlProps } from 'baseui/form-control';
 

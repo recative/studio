@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStyletron } from 'baseui';
 import { useAsync } from '@react-hookz/web';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import {
   Button,
   SIZE as BUTTON_SIZE,

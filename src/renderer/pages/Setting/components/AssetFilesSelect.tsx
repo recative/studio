@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'baseui';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { LabelMedium, LabelXSmall } from 'baseui/typography';
 
@@ -88,7 +88,7 @@ export const AssetFileSelect: React.FC<IDetailedSelectProps> = ({
           <RecativeBlock paddingTop="4px">
             <FileIconOutline width={32} />
           </RecativeBlock>
-          <RecativeBlock marginLeft="scale500">
+          <RecativeBlock marginLeft={theme.sizing.scale500}>
             <LabelMedium>{option.label}</LabelMedium>
             <RecativeBlock className={descriptionContainerStyle}>
               <LabelXSmall overrides={labelOverrides}>
@@ -99,7 +99,7 @@ export const AssetFileSelect: React.FC<IDetailedSelectProps> = ({
         </RecativeBlock>
       );
     },
-    [descriptionContainerStyle, labelOverrides]
+    [descriptionContainerStyle, labelOverrides, theme.sizing.scale500]
   );
 
   const trueValue = React.useMemo(() => {

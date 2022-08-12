@@ -4,7 +4,7 @@ import { useStyletron } from 'baseui';
 
 import { ActPlayer, Loading } from '@recative/act-player';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Tabs, Tab } from 'baseui/tabs-motion';
 import { FormControl } from 'baseui/form-control';
 import { Accordion, Panel } from 'baseui/accordion';

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useStyletron } from 'baseui';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { EmptyIconOutline } from 'components/Icons/EmptyIconOutline';
 

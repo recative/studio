@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useStyletron } from 'baseui';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { LabelMedium, LabelXSmall } from 'baseui/typography';
 
@@ -66,7 +66,7 @@ const InternalDetailedSelect: React.FC<IDetailedSelectProps> = ({
           <RecativeBlock>
             <option.Icon width={32} />
           </RecativeBlock>
-          <RecativeBlock marginLeft="scale500">
+          <RecativeBlock marginLeft={theme.sizing.scale500}>
             <LabelMedium>{option.label}</LabelMedium>
             <RecativeBlock className={descriptionContainerStyle}>
               <LabelXSmall overrides={labelOverrides}>
@@ -77,7 +77,7 @@ const InternalDetailedSelect: React.FC<IDetailedSelectProps> = ({
         </RecativeBlock>
       );
     },
-    [descriptionContainerStyle, labelOverrides]
+    [descriptionContainerStyle, labelOverrides, theme.sizing.scale500]
   );
 
   return (

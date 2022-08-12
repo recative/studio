@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useStyletron } from 'baseui';
 import type { StyleObject } from 'styletron-react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { ListItemLabel } from 'baseui/list';
 
 import { ActPointIconOutline } from 'components/Icons/ActPointIconOutline';

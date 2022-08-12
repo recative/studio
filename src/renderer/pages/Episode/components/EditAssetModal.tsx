@@ -25,7 +25,7 @@ import {
   SIZE,
 } from 'baseui/modal';
 import { Input } from 'baseui/input';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Tabs, Tab } from 'baseui/tabs-motion';
 import { FormControl } from 'baseui/form-control';
 import { KIND as BUTTON_KIND } from 'baseui/button';

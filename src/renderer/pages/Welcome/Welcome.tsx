@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStyletron } from 'styletron-react';
 import { useLocalStorage } from 'react-use';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { LabelLarge } from 'baseui/typography';
 import { ButtonGroup } from 'baseui/button-group';
 import { StatefulTooltip } from 'baseui/tooltip';

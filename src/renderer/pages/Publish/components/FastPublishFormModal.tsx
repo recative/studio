@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Input } from 'baseui/input';
 import { FormControl } from 'baseui/form-control';
 import { KIND as BUTTON_KIND } from 'baseui/button';

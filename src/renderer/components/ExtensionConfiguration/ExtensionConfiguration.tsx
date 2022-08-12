@@ -4,7 +4,7 @@ import { useAsync } from '@react-hookz/web';
 import { useGetSet } from 'react-use';
 import { useStyletron } from 'styletron-react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { ButtonGroup } from 'baseui/button-group';
 import { FormControl } from 'baseui/form-control';
 import { ParagraphLarge } from 'baseui/typography';

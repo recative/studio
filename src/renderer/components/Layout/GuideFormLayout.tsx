@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Card } from 'baseui/card';
 
 export const containerStyles: StyleObject = {

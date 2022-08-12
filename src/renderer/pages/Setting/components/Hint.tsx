@@ -4,7 +4,7 @@ import { colors } from 'baseui/tokens';
 
 import { useStyletron } from 'styletron-react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Banner } from 'baseui/banner';
 import { ParagraphSmall } from 'baseui/typography';
 

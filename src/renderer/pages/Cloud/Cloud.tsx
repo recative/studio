@@ -10,7 +10,7 @@ import {
   KIND as BUTTON_KIND,
   SIZE as BUTTON_SIZE,
 } from 'baseui/button';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Checkbox } from 'baseui/checkbox';
 import { StatefulTooltip } from 'baseui/tooltip';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';

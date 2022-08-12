@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useDebouncedCallback, useAsync } from '@react-hookz/web';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Select, SIZE as SELECT_SIZE } from 'baseui/select';
 import type { SelectOverrides } from 'baseui/select';
 
@@ -26,7 +26,7 @@ interface IAssetSelectProps {
   value?: (Option | string)[] | null;
   type: AssetSelectType;
   onChange: (x: Option[]) => void;
-  size?: SELECT_SIZE[keyof SELECT_SIZE];
+  size?: typeof SELECT_SIZE[keyof typeof SELECT_SIZE];
   overrides?: SelectOverrides;
 }
 

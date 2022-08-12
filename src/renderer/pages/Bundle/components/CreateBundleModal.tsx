@@ -14,8 +14,8 @@ import {
 } from 'baseui/modal';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 
-import { RecativeBlock } from 'components/Block/Block';
 import { EmptySpace } from 'components/EmptyState/EmptyState';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { ModalManager } from 'utils/hooks/useModalManager';
 
@@ -47,6 +47,33 @@ export const CreateBundleModal: React.FC<ICreateBundleModalProps> = ({
     profilesActions.execute();
   }, [profilesActions, profilesActions.execute]);
 
+  const [selectedProfiles, setSelectedProfiles] = React.useState(
+    () =>
+      new Set(
+        (localStorage.getItem('@recative/studio/selectedProfile') ?? '').split(
+          ',,,'
+        )
+      )
+  );
+
+  const handleSelectProfile = React.useCallback(
+    (checked: boolean, id: string) => {
+      if (checked) {
+        selectedProfiles.add(id);
+      } else {
+        selectedProfiles.delete(id);
+      }
+
+      setSelectedProfiles(new Set(selectedProfiles));
+
+      localStorage.setItem(
+        '@recative/studio/selectedProfile',
+        Array.from(selectedProfiles).join(',,,')
+      );
+    },
+    [selectedProfiles]
+  );
+
   if (profiles.status === 'not-executed' || profiles.status === 'loading') {
     return null;
   }
@@ -71,6 +98,9 @@ export const CreateBundleModal: React.FC<ICreateBundleModalProps> = ({
                   key={x.id}
                   title={x.label}
                   description={x.bundleExtensionId}
+                  id={x.id}
+                  value={selectedProfiles.has(x.id)}
+                  onChange={handleSelectProfile}
                 />
               );
             })}

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { FormControl } from 'baseui/form-control';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Select, SIZE as SELECT_SIZE } from 'baseui/select';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { FileUploader } from 'baseui/file-uploader';
 import {
   Modal,
@@ -25,7 +25,7 @@ export interface IReplaceFileModalProps {
   onClose: () => void;
 }
 
-const fileUploaderOverrides: FileUploaderOverrides<StyleProps> = {
+const fileUploaderOverrides: FileUploaderOverrides = {
   Root: {
     style: {
       width: '--webkit-fill-available',

@@ -2,7 +2,7 @@ import * as React from 'react';
 import download from 'downloadjs';
 
 import { HeadingXXLarge } from 'baseui/typography';
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Button } from 'baseui/button';
 import { FormControl } from 'baseui/form-control';
 

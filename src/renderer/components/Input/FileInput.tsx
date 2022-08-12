@@ -4,7 +4,7 @@ import type Electron from 'electron';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Input } from 'baseui/input';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 
@@ -16,7 +16,7 @@ interface IFileSelectProps {
   directory?: boolean;
   multiple?: boolean;
   initialValue?: string;
-  kind?: BUTTON_KIND[keyof BUTTON_KIND];
+  kind?: typeof BUTTON_KIND[keyof typeof BUTTON_KIND];
   hideIcon?: boolean;
   hideInput?: boolean;
   onChange: (paths: string[]) => void;

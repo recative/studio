@@ -5,7 +5,7 @@ import type { FallbackProps } from 'react-error-boundary';
 import type { StyleObject } from 'styletron-react';
 import { useStyletron } from 'styletron-react';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import {
   DisplayMedium,
   ParagraphMedium,

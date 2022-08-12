@@ -4,7 +4,7 @@ import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 import { atom, useAtom } from 'jotai';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { StatefulTreeView, TreeLabelInteractable } from 'baseui/tree-view';
 import {
   Button,

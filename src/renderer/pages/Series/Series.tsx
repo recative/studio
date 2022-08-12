@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid';
 
 import { useAsync } from '@react-hookz/web';
 
-import { RecativeBlock } from 'components/Block/Block';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Button } from 'baseui/button';
 import { HeadingXXLarge, LabelLarge, LabelXSmall } from 'baseui/typography';
 import { FormControl } from 'baseui/form-control';
