@@ -388,7 +388,6 @@ export const getBundlerInstances = async (terminalId: string) => {
       ) => {
         const buildPath = await getBuildPath();
 
-        log.log(bundler.constructor);
         const outputFileName = `${Reflect.get(
           bundler.constructor,
           'outputPrefix'
