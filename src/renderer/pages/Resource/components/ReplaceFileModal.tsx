@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { FileUploader } from 'baseui/file-uploader';
 import {
   Modal,
@@ -73,10 +73,14 @@ export const ReplaceFileModal: React.FC<IReplaceFileModalProps> = ({
 
   if (multipleFileError) {
     errorElement = (
-      <Block>Unable to replace multiple file at the same time.</Block>
+      <RecativeBlock>
+        Unable to replace multiple file at the same time.
+      </RecativeBlock>
     );
   } else if (!fileId) {
-    errorElement = <Block>Please select a file to replace.</Block>;
+    errorElement = (
+      <RecativeBlock>Please select a file to replace.</RecativeBlock>
+    );
   }
 
   return (
@@ -92,13 +96,13 @@ export const ReplaceFileModal: React.FC<IReplaceFileModalProps> = ({
       <ModalHeader>Replace File</ModalHeader>
       <ModalBody>
         {errorElement || (
-          <Block paddingBottom="4px">
+          <RecativeBlock paddingBottom="4px">
             <FileUploader
               errorMessage={error}
               onDrop={handleDrop}
               overrides={fileUploaderOverrides}
             />
-          </Block>
+          </RecativeBlock>
         )}
       </ModalBody>
       <ModalFooter>

@@ -12,7 +12,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { RadioGroup, Radio } from 'baseui/radio';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
@@ -64,9 +64,9 @@ const InternalEditActPointModal: React.FC<IEditActPointModalProps> = ({
       size={SIZE.default}
     >
       <ModalHeader>
-        <Block>
-          <Block>Act Point Detail</Block>
-        </Block>
+        <RecativeBlock>
+          <RecativeBlock>Act Point Detail</RecativeBlock>
+        </RecativeBlock>
       </ModalHeader>
       <ModalBody className={css(modalBodyStyles)}>
         <FormControl label="Resolution Mode">
@@ -86,7 +86,7 @@ const InternalEditActPointModal: React.FC<IEditActPointModalProps> = ({
             <Radio value={ResolutionMode.FixedSize}>Fixed Size</Radio>
           </RadioGroup>
         </FormControl>
-        <Block
+        <RecativeBlock
           display={
             clonedActPoint?.resolutionMode === ResolutionMode.FixedSize
               ? 'block'
@@ -94,7 +94,7 @@ const InternalEditActPointModal: React.FC<IEditActPointModalProps> = ({
           }
         >
           <FormControl label="Resolution Dimensions">
-            <Block display="flex" alignItems="center" maxWidth="60%">
+            <RecativeBlock display="flex" alignItems="center" maxWidth="60%">
               <Input
                 disabled={databaseLocked}
                 type="number"
@@ -118,9 +118,9 @@ const InternalEditActPointModal: React.FC<IEditActPointModalProps> = ({
                   )
                 }
               />
-            </Block>
+            </RecativeBlock>
           </FormControl>
-        </Block>
+        </RecativeBlock>
       </ModalBody>
       <ModalFooter>
         <ModalButton kind={BUTTON_KIND.tertiary} onClick={onClose}>

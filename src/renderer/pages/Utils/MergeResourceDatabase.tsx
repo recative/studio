@@ -2,7 +2,7 @@ import * as React from 'react';
 import download from 'downloadjs';
 
 import { HeadingXXLarge } from 'baseui/typography';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Button } from 'baseui/button';
 import { FormControl } from 'baseui/form-control';
 
@@ -67,11 +67,15 @@ export const MergeResourceDatabase: React.FC = () => {
             initialValue={fileBPath?.[0]}
           />
         </FormControl>
-        <Block marginTop="48px" display="flex" justifyContent="flex-end">
+        <RecativeBlock
+          marginTop="48px"
+          display="flex"
+          justifyContent="flex-end"
+        >
           <Button disabled={merging} onClick={handleMerge}>
             Merge
           </Button>
-        </Block>
+        </RecativeBlock>
       </ContentContainer>
     </PivotLayout>
   );

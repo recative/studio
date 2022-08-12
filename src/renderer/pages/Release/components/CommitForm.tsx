@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAsync } from '@react-hookz/web';
 
 import { Input } from 'baseui/input';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import { StatefulTooltip, TRIGGER_TYPE } from 'baseui/tooltip';
 
@@ -30,21 +30,21 @@ export interface ICommitFormInputs {
 
 const getValueLabel: GetValueLabel<ISimpleRelease> = ({ option }) => {
   return (
-    <Block display="flex">
-      <Block color="contentTertiary" marginRight="8px">
+    <RecativeBlock display="flex">
+      <RecativeBlock color="contentTertiary" marginRight="8px">
         #{option?.id}
-      </Block>
-      <Block>{option?.notes}</Block>
-    </Block>
+      </RecativeBlock>
+      <RecativeBlock>{option?.notes}</RecativeBlock>
+    </RecativeBlock>
   );
 };
 
 const getOptionLabel: GetOptionLabel<ISimpleRelease> = ({ option }) => {
   return (
-    <Block>
-      <Block color="contentTertiary">#{option?.id}</Block>
-      <Block>{option?.notes}</Block>
-    </Block>
+    <RecativeBlock>
+      <RecativeBlock color="contentTertiary">#{option?.id}</RecativeBlock>
+      <RecativeBlock>{option?.notes}</RecativeBlock>
+    </RecativeBlock>
   );
 };
 
@@ -144,10 +144,10 @@ export const CommitForm: React.FC<ICommitFormProps> = ({
         },
       }}
       content={() => (
-        <Block paddingTop="12px" paddingBottom="12px">
+        <RecativeBlock paddingTop="12px" paddingBottom="12px">
           {selectBundles && (
             <>
-              <Block marginTop="8px" marginBottom="8px">
+              <RecativeBlock marginTop="8px" marginBottom="8px">
                 <Select<ISimpleRelease>
                   disabled={disabled}
                   options={mediaOptions}
@@ -159,8 +159,8 @@ export const CommitForm: React.FC<ICommitFormProps> = ({
                   onChange={setSelectedMedia}
                   onInputChange={handleMediaSearchInputChange}
                 />
-              </Block>
-              <Block marginTop="8px" marginBottom="8px">
+              </RecativeBlock>
+              <RecativeBlock marginTop="8px" marginBottom="8px">
                 <Select<ISimpleRelease>
                   disabled={disabled}
                   options={codeOptions}
@@ -172,7 +172,7 @@ export const CommitForm: React.FC<ICommitFormProps> = ({
                   onChange={setSelectedCode}
                   onInputChange={handleCodeSearchInputChange}
                 />
-              </Block>
+              </RecativeBlock>
             </>
           )}
           <Input
@@ -181,12 +181,12 @@ export const CommitForm: React.FC<ICommitFormProps> = ({
             overrides={{ Input: { style: { width: '256px' } } }}
             onChange={handleMessageChange}
           />
-          <Block paddingTop="12px" display="flex" justifyContent="flex-end">
+          <RecativeBlock paddingTop="12px" display="flex" justifyContent="flex-end">
             <Button disabled={disabled} onClick={handleSubmit}>
               Commit
             </Button>
-          </Block>
-        </Block>
+          </RecativeBlock>
+        </RecativeBlock>
       )}
       triggerType={TRIGGER_TYPE.click}
       showArrow

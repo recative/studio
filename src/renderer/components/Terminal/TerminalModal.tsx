@@ -2,8 +2,8 @@ import * as React from 'react';
 import { styled } from 'baseui';
 import type { StyleObject } from 'styletron-react';
 
-import { useStyletron } from 'styletron-react';
 import { useInterval } from 'react-use';
+import { useStyletron } from 'styletron-react';
 
 import {
   Modal,
@@ -14,13 +14,15 @@ import {
   SIZE,
 } from 'baseui/modal';
 import { KIND as BUTTON_KIND } from 'baseui/button';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import type { ModalOverrides } from 'baseui/modal';
 
 import { WaitIconOutline } from 'components/Icons/WaitIconOutline';
 import { FinishIconOutline } from 'components/Icons/FinishIconOutline';
 import { LoadingIconOutline } from 'components/Icons/LoadingIconOutline';
 import { WarningIconOutline } from 'components/Icons/WarningIconOutline';
+
+import { ModalManager } from 'utils/hooks/useModalManager';
 
 import {
   ITerminal,
@@ -29,12 +31,6 @@ import {
 } from '@recative/definitions';
 
 import { server } from 'utils/rpc';
-
-interface ITerminalModalProps {
-  id: string;
-  isOpen: boolean;
-  onClose: () => void;
-}
 
 const MESSAGE_STYLES: Record<TerminalMessageLevel, StyleObject> = {
   [TerminalMessageLevel.Warning]: {
@@ -66,12 +62,14 @@ const MODAL_OVERRIDES: ModalOverrides = {
   },
 };
 
-const useTerminalData = (id: string, open: boolean) => {
+const useTerminalData = (id: string | null, open: boolean) => {
   const [data, setData] = React.useState<ITerminal | null>(null);
   const [errorCode, setErrorCode] = React.useState<string | null>(null);
   const [closeable, setCloseable] = React.useState<boolean>(false);
 
   const updateData = React.useCallback(() => {
+    if (id === null) return;
+
     server
       .getTerminalSession(id)
       .then(setData)
@@ -188,23 +186,26 @@ const StepStatus = (status: TerminalStepStatus, size = 14) => {
 
   return null;
 };
-const InternalTerminalModal: React.VFC<ITerminalModalProps> = ({
-  id,
-  isOpen,
-  onClose,
-}) => {
+
+export const useTerminalModal = ModalManager<string, null>(null);
+
+const InternalTerminalModal: React.FC = () => {
   const [css] = useStyletron();
   const [scrolled, setScrolled] = React.useState(false);
   const itemListRef = React.useRef<HTMLDivElement | null>(null);
+  const [isOpen, id, , onClose] = useTerminalModal();
+
   const { data, closeable, errorCode, handleReset } = useTerminalData(
-    id,
+    id ?? null,
     isOpen
   );
 
   const handleClose = React.useCallback(() => {
     handleReset();
     onClose();
-    server.destroyTerminalSession(id);
+    if (id !== null) {
+      server.destroyTerminalSession(id);
+    }
   }, [handleReset, id, onClose]);
 
   React.useEffect(() => {
@@ -241,31 +242,37 @@ const InternalTerminalModal: React.VFC<ITerminalModalProps> = ({
       overrides={MODAL_OVERRIDES}
     >
       <ModalBody className={css(MODAL_BODY_STYLES)}>
-        <Block display="flex" width="100%" height="-webkit-fill-available">
+        <RecativeBlock
+          display="flex"
+          width="100%"
+          height="-webkit-fill-available"
+        >
           {!data && <>Loading...</>}
           {errorCode && <>{errorCode}</>}
           {!errorCode && data && (
             <>
-              <Block width="25%" minWidth="204px">
+              <RecativeBlock width="25%" minWidth="204px">
                 <TaskList>
                   {Object.entries(data.steps).map(([key, value]) => (
                     <li key={key}>
-                      <Block
+                      <RecativeBlock
                         display="flex"
                         alignItems="center"
                         marginBottom="10px"
                       >
                         <IconContainer>{StepStatus(value)}</IconContainer>
-                        <Block className={css(STYLE_TEXT_STYLES)}>{key}</Block>
-                      </Block>
+                        <RecativeBlock className={css(STYLE_TEXT_STYLES)}>
+                          {key}
+                        </RecativeBlock>
+                      </RecativeBlock>
                     </li>
                   ))}
                 </TaskList>
-              </Block>
-              <Block width="100%">
+              </RecativeBlock>
+              <RecativeBlock width="100%">
                 <Terminal ref={itemListRef} onScroll={onTerminalScrolled}>
                   {data.messages.map((x, i) => (
-                    <Block
+                    <RecativeBlock
                       // eslint-disable-next-line react/no-array-index-key
                       key={i.toString()}
                       className={css(MESSAGE_STYLES[x.level])}
@@ -278,13 +285,13 @@ const InternalTerminalModal: React.VFC<ITerminalModalProps> = ({
                       ) : (
                         x.message
                       )}
-                    </Block>
+                    </RecativeBlock>
                   ))}
                 </Terminal>
-              </Block>
+              </RecativeBlock>
             </>
           )}
-        </Block>
+        </RecativeBlock>
       </ModalBody>
       <ModalFooter>
         <ModalButton

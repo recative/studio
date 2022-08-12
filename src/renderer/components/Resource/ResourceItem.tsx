@@ -7,7 +7,7 @@ import type { StyleObject } from 'styletron-react';
 
 import { labelColorMap, tagIdMap, LabelType } from '@recative/definitions';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Tag, VARIANT } from 'baseui/tag';
 import { ListItemLabel, LabelOverrides } from 'baseui/list';
 
@@ -95,8 +95,8 @@ const InternalResourceItem: React.FC<IResourceItemProps> = ({
   }, [tags]);
 
   return (
-    <Block className={css(listItemStyles)}>
-      <Block className={css(thumbnailContainerStyles)}>
+    <RecativeBlock className={css(listItemStyles)}>
+      <RecativeBlock className={css(thumbnailContainerStyles)}>
         {thumbnailSrc ? (
           <img
             className={cn(css(thumbnailStyles), {
@@ -109,11 +109,11 @@ const InternalResourceItem: React.FC<IResourceItemProps> = ({
         ) : (
           <Pattern width={60} height={40} val={id} />
         )}
-      </Block>
-      <Block marginLeft="4px">
+      </RecativeBlock>
+      <RecativeBlock marginLeft="4px">
         <ListItemLabel overrides={listItemOverrides}>{label}</ListItemLabel>
         {variant !== ResourceItemVariant.NoTags && (
-          <Block>
+          <RecativeBlock>
             {!!convertedTags.length || (
               <Tag
                 closeable={false}
@@ -144,10 +144,10 @@ const InternalResourceItem: React.FC<IResourceItemProps> = ({
                   </Tag>
                 );
               })}
-          </Block>
+          </RecativeBlock>
         )}
-      </Block>
-    </Block>
+      </RecativeBlock>
+    </RecativeBlock>
   );
 };
 

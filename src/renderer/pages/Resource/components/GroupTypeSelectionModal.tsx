@@ -9,7 +9,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { LabelMedium, ParagraphSmall } from 'baseui/typography';
 import { KIND as BUTTON_KIND, Button } from 'baseui/button';
 import type { ButtonOverrides } from 'baseui/button';
@@ -89,12 +89,12 @@ export const GroupTypeSelectionItem: React.FC<IGroupTypeSelectionItemProps> = ({
       overrides={GroupTypeButtonOverrides}
       onClick={onClick}
     >
-      <Block>
+      <RecativeBlock>
         <LabelMedium>{GROUP_TYPE_DESCRIPTION[groupType].title}</LabelMedium>
         <ParagraphSmall marginTop="4px" marginBottom="0">
           {GROUP_TYPE_DESCRIPTION[groupType].subtitle}
         </ParagraphSmall>
-      </Block>
+      </RecativeBlock>
     </Button>
   );
 };
@@ -120,8 +120,8 @@ export const GroupTypeSelectionModal: React.FC<IGroupTypeSelectionModal> = ({
     >
       <ModalHeader>Create Group</ModalHeader>
       <ModalBody>
-        <Block>Please select a type of resource group:</Block>
-        <Block>
+        <RecativeBlock>Please select a type of resource group:</RecativeBlock>
+        <RecativeBlock>
           {candidates?.map((candidate) => (
             <GroupTypeSelectionItem
               key={candidate.id}
@@ -130,7 +130,7 @@ export const GroupTypeSelectionModal: React.FC<IGroupTypeSelectionModal> = ({
               onClick={() => setSelectedGroupType(candidate)}
             />
           ))}
-        </Block>
+        </RecativeBlock>
       </ModalBody>
       <ModalFooter>
         <ModalButton kind={BUTTON_KIND.tertiary} onClick={onClose}>

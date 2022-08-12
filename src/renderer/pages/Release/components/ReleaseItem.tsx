@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { ListItem } from 'baseui/list';
 
 import { YYYYMMDD } from 'utils/formatDate';
@@ -36,20 +36,20 @@ export const ReleaseItem: React.FC<ISimpleRelease> = ({
 
   return (
     <ListItem>
-      <Block className={css(releaseItemBodyStyles)}>
-        <Block {...labelStyles} gridArea="version">
+      <RecativeBlock className={css(releaseItemBodyStyles)}>
+        <RecativeBlock {...labelStyles} gridArea="version">
           #{id}
-        </Block>
-        <Block {...labelStyles} gridArea="date" justifySelf="end">
+        </RecativeBlock>
+        <RecativeBlock {...labelStyles} gridArea="date" justifySelf="end">
           {YYYYMMDD(commitTime)}
-        </Block>
-        <Block {...labelStyles} gridArea="committer" justifySelf="end">
+        </RecativeBlock>
+        <RecativeBlock {...labelStyles} gridArea="committer" justifySelf="end">
           {committer}
-        </Block>
-        <Block paddingTop="8px" paddingBottom="8px" gridArea="note">
+        </RecativeBlock>
+        <RecativeBlock paddingTop="8px" paddingBottom="8px" gridArea="note">
           {notes}
-        </Block>
-      </Block>
+        </RecativeBlock>
+      </RecativeBlock>
     </ListItem>
   );
 };

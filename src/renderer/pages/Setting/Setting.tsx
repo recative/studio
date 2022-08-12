@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useAsync } from '@react-hookz/web';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { FormControl } from 'baseui/form-control';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import {
@@ -106,7 +106,7 @@ const InternalSetting: React.FC = () => {
   return (
     <PivotLayout>
       <ContentContainer width={1000}>
-        <Block paddingLeft="20px" paddingRight="20px">
+        <RecativeBlock paddingLeft="20px" paddingRight="20px">
           <HeadingXXLarge>Settings</HeadingXXLarge>
           <HeadingSmall>Publish</HeadingSmall>
           <FormControl
@@ -175,7 +175,7 @@ const InternalSetting: React.FC = () => {
             getValue={onSettingsGetValue}
             setValue={onSettingsSetValue}
           />
-        </Block>
+        </RecativeBlock>
       </ContentContainer>
     </PivotLayout>
   );

@@ -4,7 +4,7 @@ import { useStyletron } from 'baseui';
 
 import { ActPlayer, Loading } from '@recative/act-player';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Tabs, Tab } from 'baseui/tabs-motion';
 import { FormControl } from 'baseui/form-control';
 import { Accordion, Panel } from 'baseui/accordion';
@@ -115,13 +115,16 @@ const InternalPreview: React.FC = () => {
 
   return (
     <PivotLayout>
-      <Block
+      <RecativeBlock
         className={layoutContainerStyles}
         display="flex"
         width="100%"
         height="-webkit-fill-available"
       >
-        <Block className={playerContainerStyles} height="calc(100vh - 115px)">
+        <RecativeBlock
+          className={playerContainerStyles}
+          height="calc(100vh - 115px)"
+        >
           {!playerKey && <Loading />}
           {assets && resources && playerKey && interfaceComponents && (
             <ActPlayer
@@ -136,8 +139,8 @@ const InternalPreview: React.FC = () => {
               onInitialized={resetAssetStatus}
             />
           )}
-        </Block>
-        <Block
+        </RecativeBlock>
+        <RecativeBlock
           maxWidth="400px"
           minWidth="250px"
           width="25%"
@@ -218,8 +221,8 @@ const InternalPreview: React.FC = () => {
               </FormControl>
             </Tab>
           </Tabs>
-        </Block>
-      </Block>
+        </RecativeBlock>
+      </RecativeBlock>
       <EnvVariableEditorModal
         isOpen={envVariableModalOpen}
         onClose={handleEnvVariableModalClose}

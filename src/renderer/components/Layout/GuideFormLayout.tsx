@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Card } from 'baseui/card';
 
 export const containerStyles: StyleObject = {
@@ -38,7 +38,7 @@ export const GuideFormLayout: React.FC<IGuideFormLayoutProps> = ({
   const [css] = useStyletron();
 
   return (
-    <Block className={css(containerStyles)}>
+    <RecativeBlock className={css(containerStyles)}>
       <Card
         overrides={{
           Root: {
@@ -55,9 +55,9 @@ export const GuideFormLayout: React.FC<IGuideFormLayoutProps> = ({
         }}
         title={title}
       >
-        <Block className={css(bodyStyles)}>{children}</Block>
-        <Block className={css(footerStyles)}>{footer}</Block>
+        <RecativeBlock className={css(bodyStyles)}>{children}</RecativeBlock>
+        <RecativeBlock className={css(footerStyles)}>{footer}</RecativeBlock>
       </Card>
-    </Block>
+    </RecativeBlock>
   );
 };

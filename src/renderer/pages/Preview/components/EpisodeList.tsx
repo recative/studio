@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStyletron } from 'baseui';
 import { useAsync } from '@react-hookz/web';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import {
   Button,
   SIZE as BUTTON_SIZE,
@@ -83,18 +83,18 @@ export const EpisodeList: React.VFC<IEpisodeListProps> = ({
   }, [episodesAction]);
 
   return (
-    <Block>
+    <RecativeBlock>
       {episodes.result?.map(({ episode }) => {
         return (
-          <Block key={episode.id} marginBottom="8px">
+          <RecativeBlock key={episode.id} marginBottom="8px">
             <EpisodeItem
               id={episode.id}
               label={episode.label.en ?? ''}
               onItemSelected={onItemSelected}
             />
-          </Block>
+          </RecativeBlock>
         );
       })}
-    </Block>
+    </RecativeBlock>
   );
 };

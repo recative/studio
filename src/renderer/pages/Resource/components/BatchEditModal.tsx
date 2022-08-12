@@ -12,7 +12,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { ListItem } from 'baseui/list';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 
@@ -108,22 +108,22 @@ export const BatchEditModal: React.FC<IBatchEditModalProps> = ({
       role={ROLE.dialog}
     >
       <ModalHeader>
-        <Block display="flex" justifyContent="space-between">
-          <Block>Batch Edit</Block>
-          <Block>
+        <RecativeBlock display="flex" justifyContent="space-between">
+          <RecativeBlock>Batch Edit</RecativeBlock>
+          <RecativeBlock>
             <IconButton
               disabled={databaseLocked}
               kind={BUTTON_KIND.tertiary}
               startEnhancer={<AddIconOutline width={20} />}
               onClick={handleAddOperation}
             />
-          </Block>
-        </Block>
+          </RecativeBlock>
+        </RecativeBlock>
       </ModalHeader>
       <ModalBody>
         <ul className={css(UL_STYLE)}>
           {!operations.length && (
-            <Block
+            <RecativeBlock
               marginLeft="auto"
               marginRight="auto"
               paddingTop="60px"
@@ -132,7 +132,7 @@ export const BatchEditModal: React.FC<IBatchEditModalProps> = ({
               justifyContent="center"
             >
               <Add width="320px" />
-            </Block>
+            </RecativeBlock>
           )}
           {!!operations.length &&
             operations.map((operation) => (

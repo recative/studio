@@ -10,7 +10,7 @@ import {
   KIND as BUTTON_KIND,
   SIZE as BUTTON_SIZE,
 } from 'baseui/button';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Checkbox } from 'baseui/checkbox';
 import { StatefulTooltip } from 'baseui/tooltip';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
@@ -147,7 +147,7 @@ export const Cloud: React.FC = () => {
         </>
       }
     >
-      <Block className={css(cloudTableContainerStyles)}>
+      <RecativeBlock className={css(cloudTableContainerStyles)}>
         <TableBuilder {...tableBuilderProps}>
           <TableBuilderColumn
             overrides={TABLE_BUILDER_OVERRIDES}
@@ -287,7 +287,7 @@ export const Cloud: React.FC = () => {
             }
           </TableBuilderColumn>
         </TableBuilder>
-      </Block>
+      </RecativeBlock>
     </PivotLayout>
   );
 };

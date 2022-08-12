@@ -8,7 +8,7 @@ import {
   KIND as BUTTON_KIND,
   SIZE as BUTTON_SIZE,
 } from 'baseui/button';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { LabelLarge, LabelXSmall } from 'baseui/typography';
 import { StatefulTooltip } from 'baseui/tooltip';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
@@ -131,8 +131,8 @@ export const InternalEpisodeUnit: React.FC<IEpisodeUnitProps> = ({
 
   return (
     <>
-      <Block className={css(titleBarStyles)}>
-        <Block className={css(titleContainerStyles)}>
+      <RecativeBlock className={css(titleBarStyles)}>
+        <RecativeBlock className={css(titleContainerStyles)}>
           <StatefulTooltip content={open ? 'Close' : 'Expand'} returnFocus>
             <Button
               startEnhancer={
@@ -151,7 +151,7 @@ export const InternalEpisodeUnit: React.FC<IEpisodeUnitProps> = ({
             {getDisplayValue(episode.label)}
           </LabelLarge>
           <LabelXSmall marginLeft="16px">{episode.id}</LabelXSmall>
-        </Block>
+        </RecativeBlock>
         <StatefulTooltip content="Edit Episode" returnFocus>
           <Button
             startEnhancer={<EditGroupIconOutline width={20} />}
@@ -160,11 +160,11 @@ export const InternalEpisodeUnit: React.FC<IEpisodeUnitProps> = ({
             onClick={onEditEpisodeClick}
           />
         </StatefulTooltip>
-      </Block>
+      </RecativeBlock>
 
       {open && (
         <>
-          <Block className={css(seriesGroupStyles)}>
+          <RecativeBlock className={css(seriesGroupStyles)}>
             <TableBuilder {...tableBuilderProps}>
               <TableBuilderColumn
                 overrides={TABLE_BUILDER_OVERRIDES}
@@ -174,7 +174,7 @@ export const InternalEpisodeUnit: React.FC<IEpisodeUnitProps> = ({
               </TableBuilderColumn>
               <TableBuilderColumn id="id" header="#">
                 {(row: IAsset) => (
-                  <Block
+                  <RecativeBlock
                     onClick={() =>
                       globalThis.navigator.clipboard.writeText(row.id)
                     }
@@ -185,7 +185,7 @@ export const InternalEpisodeUnit: React.FC<IEpisodeUnitProps> = ({
                       overrides={EmptyInputOverrides(100, true)}
                       size={INPUT_SIZE.compact}
                     />
-                  </Block>
+                  </RecativeBlock>
                 )}
               </TableBuilderColumn>
               <TableBuilderColumn id="order" header="Order" sortable>
@@ -208,7 +208,7 @@ export const InternalEpisodeUnit: React.FC<IEpisodeUnitProps> = ({
                 overrides={{ TableBodyCell: { style: { textAlign: 'left' } } }}
               >
                 {(row: IAsset) => (
-                  <Block
+                  <RecativeBlock
                     width="140px"
                     paddingTop="6px"
                     paddingRight="14px"
@@ -216,7 +216,7 @@ export const InternalEpisodeUnit: React.FC<IEpisodeUnitProps> = ({
                     paddingLeft="14px"
                   >
                     <SelectOption option={resources[row.contentId]?.[0]} />
-                  </Block>
+                  </RecativeBlock>
                 )}
               </TableBuilderColumn>
               <TableBuilderColumn id="notes" header="Notes" numeric sortable>
@@ -255,8 +255,8 @@ export const InternalEpisodeUnit: React.FC<IEpisodeUnitProps> = ({
                 )}
               </TableBuilderColumn>
             </TableBuilder>
-          </Block>
-          <Block className={css(actionBarStyles)}>
+          </RecativeBlock>
+          <RecativeBlock className={css(actionBarStyles)}>
             <Button
               disabled={databaseLocked}
               kind={BUTTON_KIND.tertiary}
@@ -265,7 +265,7 @@ export const InternalEpisodeUnit: React.FC<IEpisodeUnitProps> = ({
             >
               Add Asset
             </Button>
-          </Block>
+          </RecativeBlock>
         </>
       )}
     </>

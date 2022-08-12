@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAtom } from 'jotai';
 
 import { HeadingXXLarge } from 'baseui/typography';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Input } from 'baseui/input';
 import { Button } from 'baseui/button';
 import { FormControl } from 'baseui/form-control';
@@ -57,7 +57,7 @@ export const Login: React.FC = () => {
   }, [email, password, actServer, setIsLoginModalOpen, setIsUserInfoOpen]);
 
   return (
-    <Block
+    <RecativeBlock
       width="100vw"
       height="calc(100vh - 30px)"
       display={isLoginModalOpen ? 'flex' : 'none'}
@@ -68,7 +68,7 @@ export const Login: React.FC = () => {
       backgroundColor="#FFFFFF"
     >
       <ToasterContainer autoHideDuration={3000} />
-      <Block
+      <RecativeBlock
         width="50%"
         overrides={{
           Block: {
@@ -79,7 +79,7 @@ export const Login: React.FC = () => {
           },
         }}
       >
-        <Block>
+        <RecativeBlock>
           <HeadingXXLarge>Login</HeadingXXLarge>
           <FormControl label="Act Server">
             <Input
@@ -107,11 +107,11 @@ export const Login: React.FC = () => {
               }}
             />
           </FormControl>
-        </Block>
-        <Block display="flex" justifyContent="end" marginTop="48px">
+        </RecativeBlock>
+        <RecativeBlock display="flex" justifyContent="end" marginTop="48px">
           <Button onClick={loginButtonClick}>Login</Button>
-        </Block>
-      </Block>
-    </Block>
+        </RecativeBlock>
+      </RecativeBlock>
+    </RecativeBlock>
   );
 };

@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useStyletron } from 'baseui';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { LabelMedium, LabelXSmall } from 'baseui/typography';
 
@@ -59,22 +59,22 @@ const InternalDetailedSelect: React.FC<IDetailedSelectProps> = ({
     GetOptionLabel<IDetailedSelectOption>
   >(
     ({ option }) => {
-      if (!option) return <Block>Invalid Option</Block>;
+      if (!option) return <RecativeBlock>Invalid Option</RecativeBlock>;
 
       return (
-        <Block display="flex" alignItems="center">
-          <Block>
+        <RecativeBlock display="flex" alignItems="center">
+          <RecativeBlock>
             <option.Icon width={32} />
-          </Block>
-          <Block marginLeft="scale500">
+          </RecativeBlock>
+          <RecativeBlock marginLeft="scale500">
             <LabelMedium>{option.label}</LabelMedium>
-            <Block className={descriptionContainerStyle}>
+            <RecativeBlock className={descriptionContainerStyle}>
               <LabelXSmall overrides={labelOverrides}>
                 {option.description}
               </LabelXSmall>
-            </Block>
-          </Block>
-        </Block>
+            </RecativeBlock>
+          </RecativeBlock>
+        </RecativeBlock>
       );
     },
     [descriptionContainerStyle, labelOverrides]

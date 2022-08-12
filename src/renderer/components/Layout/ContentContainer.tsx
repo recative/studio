@@ -4,7 +4,7 @@ import cn from 'classnames';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 
 interface IContentContainerProps {
   className?: string;
@@ -37,6 +37,8 @@ export const ContentContainer: React.FC<IContentContainerProps> = ({
   );
 
   return (
-    <Block className={cn(css(containerStyles), className)}>{children}</Block>
+    <RecativeBlock className={cn(css(containerStyles), className)}>
+      {children}
+    </RecativeBlock>
   );
 };

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useDebouncedCallback, useAsync } from '@react-hookz/web';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Select, SIZE as SELECT_SIZE } from 'baseui/select';
 import type { SelectOverrides } from 'baseui/select';
 
@@ -38,7 +38,7 @@ export const SelectOption: React.FC<IAssetSelectOptionProps> = ({
   option: item,
 }) => {
   if (!item) {
-    return <Block>No Item</Block>;
+    return <RecativeBlock>No Item</RecativeBlock>;
   }
 
   if ('type' in item) {

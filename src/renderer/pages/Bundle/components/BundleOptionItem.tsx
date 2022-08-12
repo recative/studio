@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { ListItem } from 'baseui/list';
 import { LabelMedium, LabelXSmall } from 'baseui/typography';
 import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
@@ -50,10 +50,10 @@ export const BundleOptionItem: React.FC<IBundleOptionItem> = ({
         overrides={checkboxOverrides}
         {...props}
       >
-        <Block>
+        <RecativeBlock>
           <LabelMedium>{title}</LabelMedium>
           <LabelXSmall overrides={labelOverrides}>{description}</LabelXSmall>
-        </Block>
+        </RecativeBlock>
       </Checkbox>
     </ListItem>
   );

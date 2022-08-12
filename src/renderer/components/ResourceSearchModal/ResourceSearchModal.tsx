@@ -6,7 +6,7 @@ import { useDebouncedCallback } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import {
@@ -268,7 +268,7 @@ export const ResourceSearchModal: React.FC = () => {
         />
       </ModalHeader>
       <ModalBody className={css(modalBodyStyles)}>
-        <Block className={css(mainContentStyles)}>
+        <RecativeBlock className={css(mainContentStyles)}>
           {resources.map((thisResource) => (
             <Button
               key={thisResource.id}
@@ -279,7 +279,7 @@ export const ResourceSearchModal: React.FC = () => {
               <ResourceItem {...thisResource} />
             </Button>
           ))}
-        </Block>
+        </RecativeBlock>
       </ModalBody>
       {/* <ModalFooter>
         <Button

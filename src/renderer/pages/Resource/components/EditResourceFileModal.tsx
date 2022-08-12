@@ -12,7 +12,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 
@@ -130,12 +130,12 @@ const InternalEditResourceFileModal: React.FC<IMergeModalProps> = ({
         />
       </ModalHeader>
       <ModalBody className={css(modalBodyStyles)}>
-        <Block className={css(mainContentStyles)}>
+        <RecativeBlock className={css(mainContentStyles)}>
           <ResourceEditor
             ref={editorRef}
             onInitialized={handleEditorInitialized}
           />
-        </Block>
+        </RecativeBlock>
       </ModalBody>
       <ModalFooter>
         <ModalButton kind={BUTTON_KIND.tertiary} onClick={onClose}>

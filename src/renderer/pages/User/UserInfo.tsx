@@ -4,7 +4,7 @@ import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
 import Avatar from 'boring-avatars';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Button } from 'baseui/button';
 import { DisplayXSmall, LabelLarge } from 'baseui/typography';
 import type { ButtonOverrides } from 'baseui/button';
@@ -50,7 +50,7 @@ const InternalUserInfo: React.VFC = () => {
   }, [setIsUserInfoOpen, setUser]);
 
   return (
-    <Block
+    <RecativeBlock
       width="100vw"
       height="calc(100vh - 30px)"
       display={isUserInfoOpen ? 'flex' : 'none'}
@@ -60,31 +60,31 @@ const InternalUserInfo: React.VFC = () => {
       bottom="0"
       backgroundColor="#FFFFFF"
     >
-      <Block minWidth="50%" className={css(BODY_STYLE)}>
-        <Block
+      <RecativeBlock minWidth="50%" className={css(BODY_STYLE)}>
+        <RecativeBlock
           paddingTop="80px"
           paddingBottom="80px"
           display="flex"
           justifyContent="center"
           alignItems="center"
         >
-          <Block display="flex">
-            <Block className={css(AVATAR_CONTAINER)} marginRight="32px">
+          <RecativeBlock display="flex">
+            <RecativeBlock className={css(AVATAR_CONTAINER)} marginRight="32px">
               <Avatar size="100px" name={user?.label || 'Untitled'} />
-            </Block>
-            <Block
+            </RecativeBlock>
+            <RecativeBlock
               display="flex"
               flexDirection="column"
               justifyContent="center"
             >
               <DisplayXSmall>{user?.label || 'NoName'}</DisplayXSmall>
-              <Block className={css(SUBTITLE_STYLES)}>
+              <RecativeBlock className={css(SUBTITLE_STYLES)}>
                 <LabelLarge>#{user?.id || '[empty]'}</LabelLarge>
-              </Block>
-            </Block>
-          </Block>
-        </Block>
-        <Block
+              </RecativeBlock>
+            </RecativeBlock>
+          </RecativeBlock>
+        </RecativeBlock>
+        <RecativeBlock
           paddingTop="48px"
           paddingBottom="48px"
           display="flex"
@@ -98,9 +98,9 @@ const InternalUserInfo: React.VFC = () => {
           >
             Logout
           </Button>
-        </Block>
-      </Block>
-    </Block>
+        </RecativeBlock>
+      </RecativeBlock>
+    </RecativeBlock>
   );
 };
 

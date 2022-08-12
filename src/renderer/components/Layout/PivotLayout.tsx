@@ -5,7 +5,7 @@ import type { FallbackProps } from 'react-error-boundary';
 import type { StyleObject } from 'styletron-react';
 import { useStyletron } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import {
   DisplayMedium,
   ParagraphMedium,
@@ -73,18 +73,18 @@ const FallbackComponent: React.FC<FallbackProps> = ({ error }) => {
   const [css] = useStyletron();
 
   return (
-    <Block className={css(errorBoundaryStyles)}>
-      <Block maxWidth="520px">
+    <RecativeBlock className={css(errorBoundaryStyles)}>
+      <RecativeBlock maxWidth="520px">
         <DisplayMedium>(´ﾟдﾟ`)</DisplayMedium>
         <ParagraphMedium>
           The software ran into a problem and needs to restart. You can submit a
           bug report on GitHub so we could fix it.
         </ParagraphMedium>
-        <Block marginTop="32px" display="flex">
-          <Block marginTop="20px" marginRight="20px">
+        <RecativeBlock marginTop="32px" display="flex">
+          <RecativeBlock marginTop="20px" marginRight="20px">
             <QrCode className={css(qrCodeStyle)} width={80} />
-          </Block>
-          <Block>
+          </RecativeBlock>
+          <RecativeBlock>
             <ParagraphSmall>
               For more information about this issue and possible fixes, visit
               https://github.com/recative
@@ -94,10 +94,10 @@ const FallbackComponent: React.FC<FallbackProps> = ({ error }) => {
               <br />
               Error code: {(error?.name || '').toUpperCase()}
             </ParagraphXSmall>
-          </Block>
-        </Block>
-      </Block>
-    </Block>
+          </RecativeBlock>
+        </RecativeBlock>
+      </RecativeBlock>
+    </RecativeBlock>
   );
 };
 
@@ -116,16 +116,18 @@ export const PivotLayout: React.FC<IPivotLayoutProps> = ({
   const [css] = useStyletron();
 
   return (
-    <Block className={css(mainContainerStyles)}>
-      <Block className={css(pivotContainerStyles)}>
+    <RecativeBlock className={css(mainContainerStyles)}>
+      <RecativeBlock className={css(pivotContainerStyles)}>
         <Pivot additionalTabs={additionalTabs} tabColors={tabColors} />
-      </Block>
-      <Block className={css(contentContainerStyles)}>
+      </RecativeBlock>
+      <RecativeBlock className={css(contentContainerStyles)}>
         <ErrorBoundary FallbackComponent={FallbackComponent}>
           {children}
         </ErrorBoundary>
-      </Block>
-      {footer && <Block className={css(footerStyles)}>{footer}</Block>}
-    </Block>
+      </RecativeBlock>
+      {footer && (
+        <RecativeBlock className={css(footerStyles)}>{footer}</RecativeBlock>
+      )}
+    </RecativeBlock>
   );
 };

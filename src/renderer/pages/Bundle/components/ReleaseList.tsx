@@ -3,7 +3,7 @@ import cn from 'classnames';
 
 import { useStyletron } from 'baseui';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { StyledTable, StyledHeadCell, StyledBodyCell } from 'baseui/table-grid';
 
 import { useReleaseData } from 'pages/Release/Release';
@@ -80,15 +80,15 @@ export const ReleaseList: React.FC<IReleaseList> = ({ Actions }) => {
           : '120px 120px 120px auto'
       }
     >
-      <Block id="checker" className={css(headerStyle)} role="row">
+      <RecativeBlock id="checker" className={css(headerStyle)} role="row">
         <StyledHeadCell>Bundle #</StyledHeadCell>
         <StyledHeadCell>Media #</StyledHeadCell>
         <StyledHeadCell>Code #</StyledHeadCell>
         <StyledHeadCell>Notes</StyledHeadCell>
         {Actions && <StyledHeadCell />}
-      </Block>
+      </RecativeBlock>
       {releaseData.bundle.map((release) => (
-        <Block key={release.id} className={css(bodyStyle)} role="row">
+        <RecativeBlock key={release.id} className={css(bodyStyle)} role="row">
           <StyledBodyCell className={css(cellStyle)}>
             {release.id}
           </StyledBodyCell>
@@ -111,7 +111,7 @@ export const ReleaseList: React.FC<IReleaseList> = ({ Actions }) => {
               />
             </StyledBodyCell>
           )}
-        </Block>
+        </RecativeBlock>
       ))}
     </StyledTable>
   );

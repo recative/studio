@@ -8,7 +8,7 @@ import type { StyleObject } from 'styletron-react';
 
 import { StatefulTooltip } from 'baseui/tooltip';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { HeadingXXLarge, LabelLarge } from 'baseui/typography';
 
 import type { ButtonOverrides } from 'baseui/button';
@@ -126,17 +126,17 @@ const ActPointGroup: React.FC<IActPointGroupProps> = ({
   const [css] = useStyletron();
 
   return (
-    <Block id={id}>
-      <Block className={css(GROUP_TITLE_STYLES)}>
+    <RecativeBlock id={id}>
+      <RecativeBlock className={css(GROUP_TITLE_STYLES)}>
         <LabelLarge>{title}</LabelLarge>
-      </Block>
+      </RecativeBlock>
 
-      <Block className={css(CONTENT_CONTAINER_STYLES)}>
+      <RecativeBlock className={css(CONTENT_CONTAINER_STYLES)}>
         {items.map((item) => (
           <ActPointItem key={item.id} onClick={onItemClick} {...item} />
         ))}
-      </Block>
-    </Block>
+      </RecativeBlock>
+    </RecativeBlock>
   );
 };
 

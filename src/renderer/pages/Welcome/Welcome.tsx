@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStyletron } from 'styletron-react';
 import { useLocalStorage } from 'react-use';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { LabelLarge } from 'baseui/typography';
 import { ButtonGroup } from 'baseui/button-group';
 import { StatefulTooltip } from 'baseui/tooltip';
@@ -159,30 +159,30 @@ const RecentProjectButton: React.VFC<
         },
       }}
     >
-      <Block maxWidth="-webkit-fill-available">
-        <Block display="flex" alignItems="center">
+      <RecativeBlock maxWidth="-webkit-fill-available">
+        <RecativeBlock display="flex" alignItems="center">
           <SeriesIconOutline width={20} />
-          <Block marginLeft="8px">{label}</Block>
-        </Block>
-        <Block className={css(recentProjectDetailStyle)}>
-          <Block marginBottom="4px">
-            <Block className={css(detailContentStyle)}>
-              <Block className={css(detailContentIconStyle)}>
+          <RecativeBlock marginLeft="8px">{label}</RecativeBlock>
+        </RecativeBlock>
+        <RecativeBlock className={css(recentProjectDetailStyle)}>
+          <RecativeBlock marginBottom="4px">
+            <RecativeBlock className={css(detailContentStyle)}>
+              <RecativeBlock className={css(detailContentIconStyle)}>
                 <ResourceManagerIconOutline width={14} />
-              </Block>
-              <Block>{workspacePath}</Block>
-            </Block>
-          </Block>
-          <Block>
-            <Block className={css(detailContentStyle)}>
-              <Block className={css(detailContentIconStyle)}>
+              </RecativeBlock>
+              <RecativeBlock>{workspacePath}</RecativeBlock>
+            </RecativeBlock>
+          </RecativeBlock>
+          <RecativeBlock>
+            <RecativeBlock className={css(detailContentStyle)}>
+              <RecativeBlock className={css(detailContentIconStyle)}>
                 <ActPointIconOutline width={14} />
-              </Block>
-              <Block>{repositoryPath}</Block>
-            </Block>
-          </Block>
-        </Block>
-      </Block>
+              </RecativeBlock>
+              <RecativeBlock>{repositoryPath}</RecativeBlock>
+            </RecativeBlock>
+          </RecativeBlock>
+        </RecativeBlock>
+      </RecativeBlock>
     </Button>
   );
 };
@@ -215,10 +215,10 @@ const NavigationButton: React.FC<INavigationButton> = ({
       onClick={onClick}
       overrides={NAVIGATION_BUTTON_OVERRIDES}
     >
-      <Block>
+      <RecativeBlock>
         <ButtonTitle>{title}</ButtonTitle>
         <ButtonSubtitle>{subtitle}</ButtonSubtitle>
-      </Block>
+      </RecativeBlock>
     </Button>
   );
 };
@@ -281,21 +281,21 @@ export const Welcome: React.FC = () => {
   );
 
   return (
-    <Block
+    <RecativeBlock
       width="100vw"
       height="calc(100vh - 30px)"
       display="flex"
       justifyContent="center"
       className={css(mainContainerStyle)}
     >
-      <Block width="80vw" maxWidth="800px">
-        <Block marginBottom="24px">
+      <RecativeBlock width="80vw" maxWidth="800px">
+        <RecativeBlock marginBottom="24px">
           <TitleGroup title="Recative Studio" />
-        </Block>
-        <Block className={css(contentContainerStyle)} display="flex">
-          <Block className={css(fullWidthStyle)} width="40%">
-            <Block marginBottom="8px">
-              <Block
+        </RecativeBlock>
+        <RecativeBlock className={css(contentContainerStyle)} display="flex">
+          <RecativeBlock className={css(fullWidthStyle)} width="40%">
+            <RecativeBlock marginBottom="8px">
+              <RecativeBlock
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
@@ -316,22 +316,25 @@ export const Welcome: React.FC = () => {
                       startEnhancer={
                         (() => {
                           return (
-                            <Block marginRight="-12px" marginBottom="-4px">
+                            <RecativeBlock
+                              marginRight="-12px"
+                              marginBottom="-4px"
+                            >
                               {readonly ? (
                                 <LockIconOutline width={16} />
                               ) : (
                                 <UnlockIconOutline width={16} />
                               )}
-                            </Block>
+                            </RecativeBlock>
                           );
                         }) as unknown as React.ReactNode
                       }
                     />
                   </ButtonGroup>
                 </StatefulTooltip>
-              </Block>
-            </Block>
-            <Block
+              </RecativeBlock>
+            </RecativeBlock>
+            <RecativeBlock
               maxHeight="320px"
               overflow="auto"
               marginRight="14px"
@@ -344,11 +347,11 @@ export const Welcome: React.FC = () => {
                   onClick={handleRecentProjectClick[project.id]}
                 />
               ))}
-            </Block>
-          </Block>
-          <Block className={css(fullWidthStyle)} width="60%">
+            </RecativeBlock>
+          </RecativeBlock>
+          <RecativeBlock className={css(fullWidthStyle)} width="60%">
             <LabelLarge>Getting Started</LabelLarge>
-            <Block>
+            <RecativeBlock>
               <NavigationButton
                 disabled
                 title="Download Resource Source"
@@ -356,26 +359,26 @@ export const Welcome: React.FC = () => {
                 Icon={DownloadIcon}
                 onClick={() => navigate('/', { replace: true })}
               />
-            </Block>
-            <Block>
+            </RecativeBlock>
+            <RecativeBlock>
               <NavigationButton
                 title="Import Resource Source"
                 subtitle="Continue the previous content creation work by importing a resource source that already exists"
                 Icon={ImportIcon}
                 onClick={() => navigate('/import', { replace: true })}
               />
-            </Block>
-            <Block>
+            </RecativeBlock>
+            <RecativeBlock>
               <NavigationButton
                 title="New Resource Source"
                 subtitle="We will usually need to create a new resource source when creating a new show series"
                 Icon={NewIcon}
                 onClick={() => navigate('/new', { replace: true })}
               />
-            </Block>
-          </Block>
-        </Block>
-      </Block>
-    </Block>
+            </RecativeBlock>
+          </RecativeBlock>
+        </RecativeBlock>
+      </RecativeBlock>
+    </RecativeBlock>
   );
 };

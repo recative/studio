@@ -13,7 +13,7 @@ import {
   SIZE,
 } from 'baseui/modal';
 import { Input } from 'baseui/input';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { FormControl } from 'baseui/form-control';
@@ -65,17 +65,17 @@ export const EditEpisodeModal: React.FC<IEditEpisodeModalProps> = ({
       size={SIZE.default}
     >
       <ModalHeader>
-        <Block
+        <RecativeBlock
           marginRight="-8px"
           display="flex"
           alignItems="center"
           justifyContent="space-between"
         >
-          <Block>Episode Detail</Block>
-          <Block>
+          <RecativeBlock>Episode Detail</RecativeBlock>
+          <RecativeBlock>
             <I18Selector />
-          </Block>
-        </Block>
+          </RecativeBlock>
+        </RecativeBlock>
       </ModalHeader>
       <ModalBody className={css(modalBodyStyles)}>
         <I18FormControl

@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useStyletron } from 'baseui';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { LabelXSmall } from 'baseui/typography';
 import {
   Button,
@@ -79,12 +79,12 @@ const ActPointGroup: React.FC<
   const { actPointGroupStyles } = useStyles();
 
   return (
-    <Block id={id}>
-      <Block className={actPointGroupStyles}>
+    <RecativeBlock id={id}>
+      <RecativeBlock className={actPointGroupStyles}>
         <LabelXSmall>{title}</LabelXSmall>
-      </Block>
+      </RecativeBlock>
 
-      <Block>
+      <RecativeBlock>
         {items.map((item) => (
           <ActPointItem
             key={item.id}
@@ -94,8 +94,8 @@ const ActPointGroup: React.FC<
             {...item}
           />
         ))}
-      </Block>
-    </Block>
+      </RecativeBlock>
+    </RecativeBlock>
   );
 };
 
@@ -105,7 +105,7 @@ export const ActPointList: React.FC<IActPointListProps> = ({
   const { actPoints } = useActPoints();
 
   return (
-    <Block>
+    <RecativeBlock>
       {actPoints.result &&
         Object.entries(actPoints.result).map(([groupId, items]) => {
           return (
@@ -118,6 +118,6 @@ export const ActPointList: React.FC<IActPointListProps> = ({
             />
           );
         })}
-    </Block>
+    </RecativeBlock>
   );
 };

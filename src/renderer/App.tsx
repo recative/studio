@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useStyletron } from 'baseui';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 // @ts-ignore: We just don't have a type definition for this yet
 import { TitleBar } from 'react-desktop/windows';
 import { Routes, Route } from 'react-router-dom';
@@ -29,6 +29,7 @@ import { InitializeErrorModal } from './pages/Server/components/InitializeErrorM
 import { MergeResourceDatabase } from './pages/Utils/MergeResourceDatabase';
 
 import { User } from './components/ContextMenu/User';
+import { TerminalModal } from './components/Terminal/TerminalModal';
 import { ResourceSearchModal } from './components/ResourceSearchModal/ResourceSearchModal';
 
 import './App.global.css';
@@ -93,7 +94,7 @@ export const InternalStudioTitleBar = () => {
   }, []);
 
   return (
-    <Block
+    <RecativeBlock
       className={css(titleBarStyles)}
       top="0"
       left="0"
@@ -112,7 +113,7 @@ export const InternalStudioTitleBar = () => {
       >
         <User />
       </TitleBar>
-    </Block>
+    </RecativeBlock>
   );
 };
 
@@ -123,8 +124,8 @@ export const App = () => {
   useDatabaseLockChecker();
 
   return (
-    <Block>
-      <Block width="100vw" height="30px" />
+    <RecativeBlock>
+      <RecativeBlock width="100vw" height="30px" />
       <StudioTitleBar />
       <div className={css(dragAreaStyles)} />
       <Routes>
@@ -149,6 +150,7 @@ export const App = () => {
       <UserInfo />
       <InitializeErrorModal />
       <ResourceSearchModal />
-    </Block>
+      <TerminalModal />
+    </RecativeBlock>
   );
 };

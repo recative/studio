@@ -10,7 +10,7 @@ import { useDebouncedCallback, useKeyboardEvent } from '@react-hookz/web';
 import type { StyleObject } from 'styletron-react';
 
 import { Tab } from 'baseui/tabs-motion';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Search } from 'baseui/icon';
 import { Spinner, SIZE as SPINNER_SIZE } from 'baseui/spinner';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
@@ -651,16 +651,16 @@ const InternalResource: React.FC = () => {
         </>
       }
     >
-      <Block className={css(MAIN_CONTAINER_STYLES)}>
-        <Block position="fixed" top="116px" right="20px">
+      <RecativeBlock className={css(MAIN_CONTAINER_STYLES)}>
+        <RecativeBlock position="fixed" top="116px" right="20px">
           {showSpinner ? <Spinner $size={SPINNER_SIZE.small} /> : null}
-        </Block>
-        <Block
+        </RecativeBlock>
+        <RecativeBlock
           className={css(TREE_CONTAINER_STYLES)}
           gridArea="tree"
           maxHeight="calc(100vh - 320px)"
         >
-          <Block
+          <RecativeBlock
             paddingTop="4px"
             paddingLeft="4px"
             paddingRight="4px"
@@ -673,10 +673,10 @@ const InternalResource: React.FC = () => {
               value={searchTerm}
               onChange={handleSearchInputChange}
             />
-          </Block>
+          </RecativeBlock>
           <ResourceTree />
-        </Block>
-        <Block gridArea="upload" margin="16px">
+        </RecativeBlock>
+        <RecativeBlock gridArea="upload" margin="16px">
           <Uploader
             disabled={databaseLocked}
             onProgressChange={updateResources}
@@ -689,7 +689,7 @@ const InternalResource: React.FC = () => {
               );
             }}
           />
-        </Block>
+        </RecativeBlock>
         <div
           className={css(SCROLL_CONTAINER_STYLES)}
           ref={scrollerRef}
@@ -708,7 +708,9 @@ const InternalResource: React.FC = () => {
             onScroll={onSelectoScroll}
             scrollOptions={scrollOptions}
           />
-          <Block className={cn('resource-list', css(CONTENT_CONTAINER_STYLES))}>
+          <RecativeBlock
+            className={cn('resource-list', css(CONTENT_CONTAINER_STYLES))}
+          >
             {resources?.map((item) => (
               <div key={item.id} onDoubleClick={handleOpenEditModal}>
                 <ResourceItem
@@ -719,9 +721,9 @@ const InternalResource: React.FC = () => {
                 />
               </div>
             ))}
-          </Block>
+          </RecativeBlock>
         </div>
-      </Block>
+      </RecativeBlock>
       <ConfirmSplitModal
         isOpen={splitModalOpen}
         onClose={handleCloseSplitModal}

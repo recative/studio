@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useStyletron } from 'baseui';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 
 import { EmptyIconOutline } from 'components/Icons/EmptyIconOutline';
 
@@ -56,10 +56,10 @@ export const EmptySpace: React.FC<IEmptySpaceProps> = ({ title, content }) => {
   const { titleStyles, contentStyles } = useStyleSheets();
 
   return (
-    <Block className={css(containerStyles)}>
+    <RecativeBlock className={css(containerStyles)}>
       <EmptyIconOutline width={theme.sizing.scale900} />
-      <Block className={titleStyles}>{title}</Block>
-      <Block className={contentStyles}>{content}</Block>
-    </Block>
+      <RecativeBlock className={titleStyles}>{title}</RecativeBlock>
+      <RecativeBlock className={contentStyles}>{content}</RecativeBlock>
+    </RecativeBlock>
   );
 };

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { LabelLarge } from 'baseui/typography';
 
 import { Resource } from './Resource';
@@ -30,12 +30,12 @@ export const ResourceGroup: React.FC<IResourceGroupProps> = ({
   const [css] = useStyletron();
 
   return (
-    <Block id={id}>
-      <Block>
+    <RecativeBlock id={id}>
+      <RecativeBlock>
         <LabelLarge>{title}</LabelLarge>
-      </Block>
+      </RecativeBlock>
 
-      <Block className={css(contentContainerStyles)}>
+      <RecativeBlock className={css(contentContainerStyles)}>
         {items.map((item) => (
           <Resource
             isGroup={false}
@@ -45,7 +45,7 @@ export const ResourceGroup: React.FC<IResourceGroupProps> = ({
             thumbnailSrc={item.thumbnailSrc}
           />
         ))}
-      </Block>
-    </Block>
+      </RecativeBlock>
+    </RecativeBlock>
   );
 };

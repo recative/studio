@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Input } from 'baseui/input';
 import { FormControl } from 'baseui/form-control';
 import { KIND as BUTTON_KIND } from 'baseui/button';
@@ -60,9 +60,9 @@ export const FastPublishFormModal: React.FC<IFastPublishFormModalProps> = ({
     >
       <ModalHeader>Fast Publish</ModalHeader>
       <ModalBody>
-        <Block>
+        <RecativeBlock>
           <FormControl label="Publish Type">
-            <Block>
+            <RecativeBlock>
               <Checkbox
                 checked={formValue?.ifBuildDbRelease || false}
                 onChange={(event) =>
@@ -81,7 +81,7 @@ export const FastPublishFormModal: React.FC<IFastPublishFormModalProps> = ({
               >
                 Create Code Release
               </Checkbox>
-            </Block>
+            </RecativeBlock>
           </FormControl>
           <FormControl label="Notes">
             <Input
@@ -91,7 +91,7 @@ export const FastPublishFormModal: React.FC<IFastPublishFormModalProps> = ({
               }
             />
           </FormControl>
-        </Block>
+        </RecativeBlock>
       </ModalBody>
       <ModalFooter>
         <ModalButton onClick={onClose} kind={BUTTON_KIND.tertiary}>

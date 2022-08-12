@@ -7,7 +7,7 @@ import { useSet } from '@react-hookz/web';
 
 import type { IAsset, IEpisode } from '@recative/definitions';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import { HeadingXXLarge } from 'baseui/typography';
 
@@ -261,7 +261,7 @@ export const InternalEpisode: React.FC = () => {
         <HeadingXXLarge>Episode</HeadingXXLarge>
       </ContentContainer>
       {episodes?.map(({ episode, assets, resources }) => (
-        <Block key={episode.id}>
+        <RecativeBlock key={episode.id}>
           <EpisodeUnit
             episode={episode}
             assets={assets}
@@ -274,7 +274,7 @@ export const InternalEpisode: React.FC = () => {
             onClose={episodeHandlers.get(episode)?.onClose}
             onCheckChange={handleCheckChange}
           />
-        </Block>
+        </RecativeBlock>
       ))}
       <EditEpisodeModal
         episode={currentEpisode}

@@ -9,7 +9,7 @@ import type { StyleObject } from 'styletron-react';
 import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Banner } from 'baseui/banner';
 import { LabelLarge } from 'baseui/typography';
 import { FormControl } from 'baseui/form-control';
@@ -159,7 +159,7 @@ const InternalFormTagItem: React.FC<IFormItemProps> = ({
   );
 
   return (
-    <Block>
+    <RecativeBlock>
       <FormControl label={typeNameMap[typeId]}>
         <Select
           size={SELECT_SIZE.mini}
@@ -171,7 +171,7 @@ const InternalFormTagItem: React.FC<IFormItemProps> = ({
           onChange={handleChange}
         />
       </FormControl>
-    </Block>
+    </RecativeBlock>
   );
 };
 
@@ -429,7 +429,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
 
   if (!file) {
     return (
-      <Block
+      <RecativeBlock
         display="flex"
         justifyContent="center"
         alignItems="center"
@@ -438,7 +438,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
         overflow="clip"
       >
         <NotFound width="320px" />
-      </Block>
+      </RecativeBlock>
     );
   }
 
@@ -446,16 +446,16 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
   const extensionKeys = Object.keys(file.extensionConfigurations);
 
   return (
-    <Block>
+    <RecativeBlock>
       {file.type !== 'group' && (
         <>
-          <Block>
+          <RecativeBlock>
             <img
               className={css(previewStyles)}
               src={file?.thumbnailSrc || ''}
               alt={file?.label}
             />
-          </Block>
+          </RecativeBlock>
           {!!file.managedBy && (
             <Banner
               title="File Locked"
@@ -482,7 +482,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
             />
           </FormControl>
           <LabelLarge className={css(groupLabelStyles)}>Tags</LabelLarge>
-          <Block className={css(tagFormItemContainerStyles)}>
+          <RecativeBlock className={css(tagFormItemContainerStyles)}>
             {Object.keys(typeNameMap)
               .filter((x) => x !== 'meta-status' && x !== 'custom')
               .map((_typeId) => (
@@ -496,8 +496,8 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   }
                 />
               ))}
-          </Block>
-          <Block>
+          </RecativeBlock>
+          <RecativeBlock>
             <FormTagItem
               custom
               disabled={databaseLocked || !!file.managedBy}
@@ -505,7 +505,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
               onTagChange={handleResourceTagChange}
               tagReference={tagTypeToReferenceMap[LabelType.Custom]}
             />
-          </Block>
+          </RecativeBlock>
         </>
       )}
       {(!file.resourceGroupId || file.type === 'group') && (
@@ -513,8 +513,8 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
           <LabelLarge className={css(groupLabelStyles)}>
             Resource Loading
           </LabelLarge>
-          <Block className={css(preloadFormItemContainerStyles)}>
-            <Block>
+          <RecativeBlock className={css(preloadFormItemContainerStyles)}>
+            <RecativeBlock>
               <FormControl label="Cache">
                 <Toggle
                   checked={file?.cacheToHardDisk || false}
@@ -525,8 +525,8 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   Cache Resource to Hard Disk
                 </Toggle>
               </FormControl>
-            </Block>
-            <Block>
+            </RecativeBlock>
+            <RecativeBlock>
               <FormControl label="Level">
                 <Select
                   value={preloadLevelSelectedValue}
@@ -537,8 +537,8 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   size={SELECT_SIZE.mini}
                 />
               </FormControl>
-            </Block>
-            <Block>
+            </RecativeBlock>
+            <RecativeBlock>
               <FormControl label="Episodes">
                 <Select
                   multi
@@ -550,8 +550,8 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   size={SELECT_SIZE.mini}
                 />
               </FormControl>
-            </Block>
-            <Block>
+            </RecativeBlock>
+            <RecativeBlock>
               <FormControl label="Preload Triggers">
                 <Select
                   multi
@@ -564,9 +564,9 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   size={SELECT_SIZE.mini}
                 />
               </FormControl>
-            </Block>
-          </Block>
-          <Block paddingTop="16px" paddingBottom="16px">
+            </RecativeBlock>
+          </RecativeBlock>
+          <RecativeBlock paddingTop="16px" paddingBottom="16px">
             <ExtensionConfiguration
               key={file.id}
               domain="resourceProcessor"
@@ -576,13 +576,13 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
               setValue={setExtensionSettings}
               disabled={databaseLocked || !!file.managedBy}
             />
-          </Block>
+          </RecativeBlock>
         </>
       )}
       {file.type !== 'group' && (
         <>
           {file?.url && (
-            <Block>
+            <RecativeBlock>
               <LabelLarge className={css(groupLabelStyles)}>
                 Uploaded URL
               </LabelLarge>
@@ -602,10 +602,10 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   content="This file has not been uploaded to any CDN"
                 />
               )}
-            </Block>
+            </RecativeBlock>
           )}
           {file?.extensionConfigurations && (
-            <Block>
+            <RecativeBlock>
               <LabelLarge className={css(groupLabelStyles)}>
                 Extension Configurations
               </LabelLarge>
@@ -625,11 +625,11 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   content="This file is not configured for any extensions"
                 />
               )}
-            </Block>
+            </RecativeBlock>
           )}
         </>
       )}
-    </Block>
+    </RecativeBlock>
   );
 };
 

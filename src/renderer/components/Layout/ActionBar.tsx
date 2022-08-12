@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 
 interface IActionBarProps {
   children: React.ReactNode;
@@ -8,7 +8,7 @@ interface IActionBarProps {
 
 export const ActionBar: React.FC<IActionBarProps> = ({ children }) => {
   return (
-    <Block
+    <RecativeBlock
       overrides={{
         Block: {
           style: ({ $theme }) => ({
@@ -26,6 +26,6 @@ export const ActionBar: React.FC<IActionBarProps> = ({ children }) => {
       }}
     >
       {children}
-    </Block>
+    </RecativeBlock>
   );
 };

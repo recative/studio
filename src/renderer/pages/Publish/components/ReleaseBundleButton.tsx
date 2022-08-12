@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { LabelMedium, ParagraphXSmall } from 'baseui/typography';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import type { ButtonOverrides } from 'baseui/button';
@@ -40,9 +40,9 @@ export const ReleaseBundleButton: React.FC<IReleaseBundleButtonProps> = (
       kind={BUTTON_KIND.secondary}
       onClick={onClick}
     >
-      <Block paddingTop="12px">
+      <RecativeBlock paddingTop="12px">
         <LabelMedium>{formatReleaseNumber(props)}</LabelMedium>
-      </Block>
+      </RecativeBlock>
       <ParagraphXSmall>{YYYYMMDD(commitTime)}</ParagraphXSmall>
     </Button>
   );

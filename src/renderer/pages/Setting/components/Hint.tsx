@@ -4,7 +4,7 @@ import { colors } from 'baseui/tokens';
 
 import { useStyletron } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Banner } from 'baseui/banner';
 import { ParagraphSmall } from 'baseui/typography';
 
@@ -56,7 +56,7 @@ export const Hint: React.FC<IHintProps> = ({ Artwork, children }) => {
 
   return (
     <Banner overrides={bannerOverride} artwork={artwork}>
-      <Block className={css(contentStyles)}>{children}</Block>
+      <RecativeBlock className={css(contentStyles)}>{children}</RecativeBlock>
     </Banner>
   );
 };

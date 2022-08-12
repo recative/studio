@@ -6,7 +6,7 @@ import { useStyletron } from 'styletron-react';
 
 import { ParagraphLarge } from 'baseui/typography';
 
-import { Block } from 'components/block/Block';
+import { RecativeBlock } from 'components/block/Block';
 import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
@@ -51,15 +51,19 @@ export const BundleProfiles = () => {
   }
 
   return (
-    <Block>
-      <Block display="flex" justifyContent="space-between" alignItems="center">
+    <RecativeBlock>
+      <RecativeBlock
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+      >
         <ParagraphLarge>Bundling Profiles</ParagraphLarge>
-        <Block>
+        <RecativeBlock>
           <SmallIconButton title="Add Profile" onClick={handleAddProfile}>
             <AddIconOutline width={16} />
           </SmallIconButton>
-        </Block>
-      </Block>
+        </RecativeBlock>
+      </RecativeBlock>
       <ul className={css(profileListStyles)}>
         {profiles.result?.length ? (
           profiles.result.map((profile) => (
@@ -82,6 +86,6 @@ export const BundleProfiles = () => {
         onSubmit={handleRemoveProfile}
         onCancel={null}
       />
-    </Block>
+    </RecativeBlock>
   );
 };

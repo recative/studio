@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'baseui';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { LabelMedium, LabelXSmall } from 'baseui/typography';
 
@@ -80,23 +80,23 @@ export const AssetFileSelect: React.FC<IDetailedSelectProps> = ({
   const getOptionLabel = React.useCallback<GetOptionLabel<IFile>>(
     ({ option }) => {
       if (!option) {
-        return <Block>Invalid Option</Block>;
+        return <RecativeBlock>Invalid Option</RecativeBlock>;
       }
 
       return (
-        <Block display="flex" alignItems="center">
-          <Block paddingTop="4px">
+        <RecativeBlock display="flex" alignItems="center">
+          <RecativeBlock paddingTop="4px">
             <FileIconOutline width={32} />
-          </Block>
-          <Block marginLeft="scale500">
+          </RecativeBlock>
+          <RecativeBlock marginLeft="scale500">
             <LabelMedium>{option.label}</LabelMedium>
-            <Block className={descriptionContainerStyle}>
+            <RecativeBlock className={descriptionContainerStyle}>
               <LabelXSmall overrides={labelOverrides}>
                 {option.updateTime}
               </LabelXSmall>
-            </Block>
-          </Block>
-        </Block>
+            </RecativeBlock>
+          </RecativeBlock>
+        </RecativeBlock>
       );
     },
     [descriptionContainerStyle, labelOverrides]

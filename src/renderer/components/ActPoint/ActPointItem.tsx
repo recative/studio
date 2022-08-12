@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useStyletron } from 'baseui';
 import type { StyleObject } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { ListItemLabel } from 'baseui/list';
 
 import { ActPointIconOutline } from 'components/Icons/ActPointIconOutline';
@@ -24,11 +24,11 @@ export const ActPointItem: React.FC<IActPoint> = ({
   const [css] = useStyletron();
 
   return (
-    <Block className={css(actPointContainerStyles)}>
-      <Block gridArea="icon">
+    <RecativeBlock className={css(actPointContainerStyles)}>
+      <RecativeBlock gridArea="icon">
         <ActPointIconOutline width={20} style={{ marginRight: '4px' }} />
-      </Block>
-      <Block gridArea="firstLevelPath" marginRight="4px">
+      </RecativeBlock>
+      <RecativeBlock gridArea="firstLevelPath" marginRight="4px">
         <ListItemLabel
           overrides={{
             LabelContent: {
@@ -42,13 +42,13 @@ export const ActPointItem: React.FC<IActPoint> = ({
         >
           {firstLevelPath}
         </ListItemLabel>
-      </Block>
-      <Block gridArea="separator" marginLeft="2px" marginRight="2px">
+      </RecativeBlock>
+      <RecativeBlock gridArea="separator" marginLeft="2px" marginRight="2px">
         <ListItemLabel> / </ListItemLabel>
-      </Block>
-      <Block gridArea="secondLevelPath">
+      </RecativeBlock>
+      <RecativeBlock gridArea="secondLevelPath">
         <ListItemLabel>{secondLevelPath}</ListItemLabel>
-      </Block>
-    </Block>
+      </RecativeBlock>
+    </RecativeBlock>
   );
 };

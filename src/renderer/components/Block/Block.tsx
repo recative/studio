@@ -86,6 +86,6 @@ const InternalBlock: React.ForwardRefRenderFunction<
   return <div {...divProps} className={cn(style, className)} />;
 };
 
-export const Block = React.memo(
+export const RecativeBlock = React.memo(
   React.forwardRef<HTMLDivElement, IBlockProps>(InternalBlock)
 );

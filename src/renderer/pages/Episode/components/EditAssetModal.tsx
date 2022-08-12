@@ -25,7 +25,7 @@ import {
   SIZE,
 } from 'baseui/modal';
 import { Input } from 'baseui/input';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Tabs, Tab } from 'baseui/tabs-motion';
 import { FormControl } from 'baseui/form-control';
 import { KIND as BUTTON_KIND } from 'baseui/button';
@@ -179,7 +179,7 @@ export const EditAssetModal: React.VFC<IEditAssetModalProps> = ({
             title={<TabTitle>Metadata</TabTitle>}
             overrides={PIVOT_TAB_OVERRIDES}
           >
-            <Block marginTop="8px" />
+            <RecativeBlock marginTop="8px" />
             <FormControl label="Order" caption="Asset order of the asset.">
               <Input
                 type="number"

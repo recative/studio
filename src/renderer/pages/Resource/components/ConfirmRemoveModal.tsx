@@ -9,7 +9,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 
 export interface IConfirmRemoveModalProps {
@@ -38,17 +38,17 @@ export const ConfirmRemoveModal: React.FC<IConfirmRemoveModalProps> = ({
       <ModalHeader>Remove Resource</ModalHeader>
       <ModalBody>
         {!isHard && (
-          <Block>
+          <RecativeBlock>
             The selected file will be marked as deleted and will no longer be
             available.
-          </Block>
+          </RecativeBlock>
         )}
         {isHard && (
-          <Block color="negative">
+          <RecativeBlock color="negative">
             The selected file will be permanently deleted, including the
             database record nor the files on the hard disk; this operation is
             irreversible.
-          </Block>
+          </RecativeBlock>
         )}
       </ModalBody>
       <ModalFooter>

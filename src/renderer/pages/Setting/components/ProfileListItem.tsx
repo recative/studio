@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { ListItem } from 'baseui/list';
 import { LabelSmall } from 'baseui/typography';
 
@@ -45,14 +45,14 @@ export const ProfileListItem: React.FC<IProfileListItemProps> = ({
 
   const listItemEnhancer = React.useCallback(
     () => (
-      <Block>
+      <RecativeBlock>
         <SmallIconButton title="Remove">
           <TrashIconOutline width={14} onClick={handleRemove} />
         </SmallIconButton>
         <SmallIconButton title="Edit">
           <EditIconOutline width={14} onClick={handleOpenModal} />
         </SmallIconButton>
-      </Block>
+      </RecativeBlock>
     ),
     [handleOpenModal, handleRemove]
   );

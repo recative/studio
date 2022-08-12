@@ -4,7 +4,7 @@ import cn from 'classnames';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { LabelSmall } from 'baseui/typography';
 
 import { Pattern } from 'components/Pattern/Pattern';
@@ -51,11 +51,11 @@ export const InternalResource: React.FC<IResourceProps> = ({
 
   return (
     <>
-      <Block
+      <RecativeBlock
         className={cn('explorer-item', css(resourceItemStyles))}
         data-resource-id={id}
       >
-        <Block
+        <RecativeBlock
           className="explorer-item-content"
           display="flex"
           flexDirection="column"
@@ -84,8 +84,8 @@ export const InternalResource: React.FC<IResourceProps> = ({
             )}
             {fileName}
           </LabelSmall>
-        </Block>
-      </Block>
+        </RecativeBlock>
+      </RecativeBlock>
     </>
   );
 };

@@ -4,7 +4,7 @@ import type Electron from 'electron';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Input } from 'baseui/input';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 
@@ -78,7 +78,7 @@ export const FileInput: React.FC<IFileSelectProps> = ({
   );
 
   return (
-    <Block className={css(bodyStyles)}>
+    <RecativeBlock className={css(bodyStyles)}>
       {!hideInput && <Input value={displayPath} disabled />}
       <Button
         kind={kind}
@@ -87,6 +87,6 @@ export const FileInput: React.FC<IFileSelectProps> = ({
       >
         {children || 'Select'}
       </Button>
-    </Block>
+    </RecativeBlock>
   );
 };

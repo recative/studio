@@ -12,7 +12,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { LabelMedium, ParagraphSmall } from 'baseui/typography';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import type { ModalOverrides } from 'baseui/modal';
@@ -171,14 +171,14 @@ export const PublishTarget: React.FC<IPublishTargetProps> = ({
       overrides={GroupTypeButtonOverrides}
       onClick={onClick}
     >
-      <Block paddingTop="4px">
+      <RecativeBlock paddingTop="4px">
         <LabelMedium>
           {PUBLISH_TARGET_TYPE_DESCRIPTION[publishTargetType].title}
         </LabelMedium>
         <ParagraphSmall marginTop="4px" marginBottom="0">
           {PUBLISH_TARGET_TYPE_DESCRIPTION[publishTargetType].subtitle}
         </ParagraphSmall>
-      </Block>
+      </RecativeBlock>
     </Button>
   );
 };
@@ -239,14 +239,14 @@ export const ConfirmPublishModal: React.FC<IConfirmPublishModalProps> = ({
     >
       <ModalHeader>Publish Bundle</ModalHeader>
       <ModalBody>
-        <Block>
+        <RecativeBlock>
           <p>
             We will publish your bundle to the cloud service providers, please
             do not close this window while the publish action is in progress.
           </p>
           <p>Please select bundles you want to publish:</p>
-        </Block>
-        <Block
+        </RecativeBlock>
+        <RecativeBlock
           className={css(PUBLISH_TYPE_LIST_STYLE)}
           height="calc(80vh - 268px)"
           display="grid"
@@ -307,7 +307,7 @@ export const ConfirmPublishModal: React.FC<IConfirmPublishModalProps> = ({
             selected={selectedPostProcessType}
             onClick={togglePostProcessType}
           />
-        </Block>
+        </RecativeBlock>
       </ModalBody>
       <ModalFooter>
         <ModalButton onClick={onClose} kind={BUTTON_KIND.tertiary}>

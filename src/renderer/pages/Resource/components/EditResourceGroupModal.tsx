@@ -21,7 +21,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { ListItem } from 'baseui/list';
 import { LabelSmall } from 'baseui/typography';
 import { StatefulMenu } from 'baseui/menu';
@@ -388,16 +388,16 @@ const useListItemContextMenu = (
     () => [
       {
         label: (
-          <Block id="replace" className={css(menuItemStyles)}>
+          <RecativeBlock id="replace" className={css(menuItemStyles)}>
             <ReplaceIconOutline width={18} /> <span>Replace</span>
-          </Block>
+          </RecativeBlock>
         ),
       },
       {
         label: (
-          <Block id="delete" className={css(menuItemStyles)}>
+          <RecativeBlock id="delete" className={css(menuItemStyles)}>
             <TrashIconOutline width={18} /> <span>Delete</span>
-          </Block>
+          </RecativeBlock>
         ),
       },
     ],
@@ -473,28 +473,28 @@ const useModalEditMenu = (
           {
             id: 'id',
             label: (
-              <Block
+              <RecativeBlock
                 id="id"
                 className={cn(css(menuItemStyles), css(disabledMenuItemStyles))}
               >
                 <span>{group?.id}</span>
-              </Block>
+              </RecativeBlock>
             ),
           },
           {
             id: 'add',
             label: (
-              <Block id="add" className={css(menuItemStyles)}>
+              <RecativeBlock id="add" className={css(menuItemStyles)}>
                 <AddIconOutline width={18} /> <span>Add Resource</span>
-              </Block>
+              </RecativeBlock>
             ),
           },
           {
             id: 'labelToTag',
             label: (
-              <Block id="labelToTag" className={css(menuItemStyles)}>
+              <RecativeBlock id="labelToTag" className={css(menuItemStyles)}>
                 <MigrateTagIconOutline width={18} /> <span>Label To Tag</span>
-              </Block>
+              </RecativeBlock>
             ),
           },
         ]}
@@ -741,7 +741,7 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
         overrides={modalOverrides}
       >
         <ModalHeader>
-          <Block display="flex">
+          <RecativeBlock display="flex">
             <Input
               disabled={databaseLocked}
               size={INPUT_SIZE.large}
@@ -761,7 +761,7 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
                 overrides={IconButtonOverrides}
               />
             </StatefulTooltip>
-          </Block>
+          </RecativeBlock>
         </ModalHeader>
         <ModalBody className={css(modalBodyStyles)}>
           <List>
@@ -778,12 +778,12 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
                     onClick={handleButtonClickCallbacks[group.id]}
                   >
                     <LabelSmall>
-                      <Block display="flex">
-                        <Block marginRight="8px">
+                      <RecativeBlock display="flex">
+                        <RecativeBlock marginRight="8px">
                           <ResourceManagerIconOutline width={16} />
-                        </Block>
-                        <Block>Group</Block>
-                      </Block>
+                        </RecativeBlock>
+                        <RecativeBlock>Group</RecativeBlock>
+                      </RecativeBlock>
                     </LabelSmall>
                   </Button>
                 </div>
@@ -816,11 +816,11 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
               onItemSelect={handleItemClick}
             />
           </ContextMenu>
-          <Block className={css(mainContentStyles)}>
+          <RecativeBlock className={css(mainContentStyles)}>
             {extensionMetadata ? (
               <ResourceEditor ref={editorRef} onChange={handleUpdateFile} />
             ) : null}
-          </Block>
+          </RecativeBlock>
         </ModalBody>
         <ModalFooter>
           <ModalButton kind={BUTTON_KIND.tertiary} onClick={handleModalClose}>

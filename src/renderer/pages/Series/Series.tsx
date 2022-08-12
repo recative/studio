@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid';
 
 import { useAsync } from '@react-hookz/web';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Button } from 'baseui/button';
 import { HeadingXXLarge, LabelLarge, LabelXSmall } from 'baseui/typography';
 import { FormControl } from 'baseui/form-control';
@@ -108,7 +108,7 @@ export const Series: React.FC = () => {
     <PivotLayout>
       <ContentContainer width={1000}>
         <ToasterContainer autoHideDuration={3000} />
-        <Block
+        <RecativeBlock
           display="flex"
           justifyContent="space-between"
           alignItems="center"
@@ -117,7 +117,7 @@ export const Series: React.FC = () => {
             Series<LabelXSmall>{clonedMetadata?.id}</LabelXSmall>
           </HeadingXXLarge>
           <I18Selector />
-        </Block>
+        </RecativeBlock>
         <LabelLarge>Metadata</LabelLarge>
         <I18FormControl
           label="Show Title"
@@ -142,7 +142,7 @@ export const Series: React.FC = () => {
           />
         </I18FormControl>
         <LabelLarge>Graphical Assets</LabelLarge>
-        <Block>
+        <RecativeBlock>
           <FormControl
             label="16:9 Loading Cover for Catalog Page"
             caption="When resources are not loaded, this video will be displayed to remind the user that the content is loading."
@@ -175,8 +175,8 @@ export const Series: React.FC = () => {
               }}
             />
           </FormControl>
-        </Block>
-        <Block display="flex" justifyContent="flex-end">
+        </RecativeBlock>
+        <RecativeBlock display="flex" justifyContent="flex-end">
           <Button
             disabled={databaseLocked}
             onClick={async () => {
@@ -189,7 +189,7 @@ export const Series: React.FC = () => {
           >
             Update
           </Button>
-        </Block>
+        </RecativeBlock>
       </ContentContainer>
     </PivotLayout>
   );

@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useStyletron } from 'baseui';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { FormControl } from 'baseui/form-control';
 import type { FormControlProps } from 'baseui/form-control';
 
@@ -44,14 +44,14 @@ export const I18FormControl: React.FC<I18FormControlProps> = ({
   return (
     <FormControl
       label={
-        <Block
+        <RecativeBlock
           display="flex"
           justifyContent="space-between"
           alignItems="flex-end"
         >
-          <Block>{label}</Block>
-          <Block className={i18nIconStyle}>I18N</Block>
-        </Block>
+          <RecativeBlock>{label}</RecativeBlock>
+          <RecativeBlock className={i18nIconStyle}>I18N</RecativeBlock>
+        </RecativeBlock>
       }
       {...props}
     >

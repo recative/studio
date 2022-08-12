@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useAtom } from 'jotai';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Input } from 'baseui/input';
 import type { InputProps } from 'baseui/input';
 
@@ -45,9 +45,9 @@ export const I18Input: React.FC<
   );
 
   return (
-    <Block>
+    <RecativeBlock>
       {LANGUAGES.map((language, index) => (
-        <Block
+        <RecativeBlock
           key={language}
           display={currentLanguage !== language ? 'none' : 'block'}
         >
@@ -57,8 +57,8 @@ export const I18Input: React.FC<
             onChange={handleChangeCallbacks[index]}
             {...props}
           />
-        </Block>
+        </RecativeBlock>
       ))}
-    </Block>
+    </RecativeBlock>
   );
 };

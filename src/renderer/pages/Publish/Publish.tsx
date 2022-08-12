@@ -3,12 +3,12 @@ import * as React from 'react';
 import { useStyletron } from 'baseui';
 
 import { HeadingXXLarge } from 'baseui/typography';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { Button } from 'baseui/button';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
 import { ContentContainer } from 'components/Layout/ContentContainer';
-import { TerminalModal } from 'components/Terminal/TerminalModal';
+import { useTerminalModal } from 'components/Terminal/TerminalModal';
 
 import { useReleaseData } from 'pages/Release/Release';
 
@@ -56,39 +56,31 @@ const usePublishModalCallback = () => {
 };
 
 const usePublishStatus = (selectedBundle: number | null) => {
-  const [publishProgressModalOpen, setPublishProgressModalOpen] =
-    React.useState<boolean>();
+  const [, , openTerminal] = useTerminalModal();
 
   const handlePublishBundle = React.useCallback(
     async (tasks: IPublishTasks) => {
       if (selectedBundle === null) return;
 
-      setPublishProgressModalOpen(true);
+      openTerminal('uploadBundle');
       await server.uploadBundle(selectedBundle, tasks);
     },
-    [selectedBundle]
+    [openTerminal, selectedBundle]
   );
 
-  const handlePublishProgressModalClose = React.useCallback(() => {
-    setPublishProgressModalOpen(false);
-  }, []);
-
   return {
-    publishProgressModalOpen,
     handlePublishBundle,
-    handlePublishProgressModalClose,
   } as const;
 };
 
 const useFastPublish = () => {
+  const [, , openTerminal] = useTerminalModal();
   const [fastPublishFormModalOpen, setFastPublishFormModalOpen] =
-    React.useState(false);
-  const [fastPublishStatusModalOpen, setFastPublishStatusModalOpen] =
     React.useState(false);
 
   const handleFastPublishButtonClick = React.useCallback(() => {
-    setFastPublishFormModalOpen(true);
-  }, []);
+    openTerminal('fastPublish');
+  }, [openTerminal]);
 
   const handleFastPublishModalClose = React.useCallback(() => {
     setFastPublishFormModalOpen(false);
@@ -97,27 +89,20 @@ const useFastPublish = () => {
   const handleFastPublishFormModalSubmit = React.useCallback(
     async (config: IPublishFormValue) => {
       setFastPublishFormModalOpen(false);
-      setFastPublishStatusModalOpen(true);
+      openTerminal('fastPublish');
       await server.fastPublish(
         config.ifBuildDbRelease,
         config.ifCreateCodeBundle,
         config.notes
       );
     },
-    []
+    [openTerminal]
   );
-
-  const handleFastPublishFormModalClose = React.useCallback(() => {
-    setFastPublishStatusModalOpen(false);
-    server.destroyTerminalSession('fastPublish');
-  }, []);
 
   return {
     fastPublishFormModalOpen,
-    fastPublishStatusModalOpen,
     handleFastPublishButtonClick,
     handleFastPublishModalClose,
-    handleFastPublishFormModalClose,
     handleFastPublishFormModalSubmit,
   };
 };
@@ -132,18 +117,12 @@ export const Publish: React.FC = () => {
     handleOpenPublishModal,
     handleClosePublishModal: handleClosePublishTypeModal,
   } = usePublishModalCallback();
-  const {
-    publishProgressModalOpen,
-    handlePublishBundle,
-    handlePublishProgressModalClose,
-  } = usePublishStatus(selectedBundle);
+  const { handlePublishBundle } = usePublishStatus(selectedBundle);
 
   const {
     fastPublishFormModalOpen,
-    fastPublishStatusModalOpen,
     handleFastPublishButtonClick,
     handleFastPublishModalClose,
-    handleFastPublishFormModalClose,
     handleFastPublishFormModalSubmit,
   } = useFastPublish();
 
@@ -156,9 +135,9 @@ export const Publish: React.FC = () => {
   return (
     <PivotLayout>
       <ContentContainer width={1000}>
-        <Block paddingLeft="20px" paddingRight="20px">
+        <RecativeBlock paddingLeft="20px" paddingRight="20px">
           <HeadingXXLarge>Publish</HeadingXXLarge>
-          <Block
+          <RecativeBlock
             className={css({
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -183,8 +162,8 @@ export const Publish: React.FC = () => {
                 }}
               />
             ))}
-          </Block>
-        </Block>
+          </RecativeBlock>
+        </RecativeBlock>
       </ContentContainer>
       <ConfirmPublishModal
         isOpen={publishTypeModalOpen}
@@ -194,20 +173,10 @@ export const Publish: React.FC = () => {
           handleClosePublishTypeModal();
         }}
       />
-      <TerminalModal
-        id="uploadBundle"
-        isOpen={!!publishProgressModalOpen}
-        onClose={handlePublishProgressModalClose}
-      />
       <FastPublishFormModal
         isOpen={fastPublishFormModalOpen}
         onClose={handleFastPublishModalClose}
         onSubmit={handleFastPublishFormModalSubmit}
-      />
-      <TerminalModal
-        id="fastPublish"
-        isOpen={!!fastPublishStatusModalOpen}
-        onClose={handleFastPublishFormModalClose}
       />
     </PivotLayout>
   );

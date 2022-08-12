@@ -1,14 +1,12 @@
 import * as React from 'react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { HeadingXXLarge } from 'baseui/typography';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
 import { ContentContainer } from 'components/Layout/ContentContainer';
 import { BundleIconOutline } from 'components/Icons/BundleIconOutline';
-
-import { server } from 'utils/rpc';
 
 import { ReleaseList } from './components/ReleaseList';
 import {
@@ -17,14 +15,14 @@ import {
 } from './components/CreateBundleModal';
 
 const Actions: React.FC = () => {
-  const [, open] = useCreateBundleModal();
+  const [, , open] = useCreateBundleModal();
 
   return (
-    <Block>
+    <RecativeBlock>
       <SmallIconButton title="Create Bundle">
         <BundleIconOutline width={16} onClick={open} />
       </SmallIconButton>
-    </Block>
+    </RecativeBlock>
   );
 };
 
@@ -32,7 +30,7 @@ const InternalBundle: React.FC = () => {
   return (
     <PivotLayout>
       <ContentContainer width={1000} limitedHeight>
-        <Block
+        <RecativeBlock
           paddingLeft="20px"
           paddingRight="20px"
           display="grid"
@@ -47,16 +45,16 @@ const InternalBundle: React.FC = () => {
           overflow="clip"
         >
           <HeadingXXLarge gridArea="title">Bundle</HeadingXXLarge>
-          <Block
+          <RecativeBlock
             gridArea="content"
             height="-webkit-fill-available"
             position="relative"
           >
-            <Block width="100%" height="100%" position="absolute">
+            <RecativeBlock width="100%" height="100%" position="absolute">
               <ReleaseList Actions={Actions} />
-            </Block>
-          </Block>
-        </Block>
+            </RecativeBlock>
+          </RecativeBlock>
+        </RecativeBlock>
       </ContentContainer>
       <CreateBundleModal onSubmit={() => {}} />
     </PivotLayout>

@@ -6,15 +6,15 @@ import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
 import { Card } from 'baseui/card';
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { LabelLarge } from 'baseui/typography';
 
 import type { StyleObject } from 'styletron-react';
 import type { CardOverrides } from 'baseui/card';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
-import { TerminalModal } from 'components/Terminal/TerminalModal';
 import { ContentContainer } from 'components/Layout/ContentContainer';
+import { useTerminalModal } from 'components/Terminal/TerminalModal';
 
 import { WORKSPACE_CONFIGURATION } from 'stores/ProjectDetail';
 
@@ -93,8 +93,8 @@ export const useReleaseData = () => {
   return { releaseData, fetchReleaseData };
 };
 
-const useBuildCodeProps = (fetchReleaseData: () => void) => {
-  const [showBuildCodeModal, setShowBuildModal] = React.useState(false);
+const useBuildCodeProps = () => {
+  const [, , openTerminal] = useTerminalModal();
 
   const [workspaceConfiguration] = useAtom(WORKSPACE_CONFIGURATION);
 
@@ -102,46 +102,32 @@ const useBuildCodeProps = (fetchReleaseData: () => void) => {
     async (inputs: ICommitFormInputs) => {
       if (!workspaceConfiguration) return;
 
-      setShowBuildModal(true);
+      openTerminal('createCodeRelease');
       server.createCodeRelease(inputs.message);
     },
     []
   );
 
-  const handleModalClose = React.useCallback(() => {
-    fetchReleaseData();
-    setShowBuildModal(false);
-  }, []);
-
   return {
-    showBuildCodeModal,
     handleBuildCode,
-    handleModalClose,
   };
 };
 
-const useBundleMediaProps = (fetchReleaseData: () => void) => {
-  const [showBuildMediaModal, setShowBuildMediaModal] = React.useState(false);
+const useBundleMediaProps = () => {
+  const [, , openTerminal] = useTerminalModal();
   const [workspaceConfiguration] = useAtom(WORKSPACE_CONFIGURATION);
 
   const handleBuildMedia = React.useCallback(
     async (inputs: ICommitFormInputs) => {
       if (!workspaceConfiguration) return;
 
-      setShowBuildMediaModal(true);
+      openTerminal('createMediaRelease');
       server.createMediaRelease(inputs.message);
     },
     []
   );
 
-  const handleBuildMediaModalClose = React.useCallback(() => {
-    fetchReleaseData();
-    setShowBuildMediaModal(false);
-  }, []);
-
   return {
-    showBuildMediaModal,
-    handleBuildMediaModalClose,
     handleBuildMedia,
   };
 };
@@ -181,13 +167,8 @@ const useCreateBundleReleaseProps = (fetchReleaseData: () => void) => {
 export const Release: React.FC = () => {
   const [css] = useStyletron();
   const { releaseData, fetchReleaseData } = useReleaseData();
-  const {
-    showBuildCodeModal,
-    handleBuildCode,
-    handleModalClose: handleBuildCodeModalClose,
-  } = useBuildCodeProps(fetchReleaseData);
-  const { showBuildMediaModal, handleBuildMediaModalClose, handleBuildMedia } =
-    useBundleMediaProps(fetchReleaseData);
+  const { handleBuildCode } = useBuildCodeProps();
+  const { handleBuildMedia } = useBundleMediaProps();
   const {
     showBundleReleaseSuccessModal,
     handleCreateBundleRelease,
@@ -195,62 +176,66 @@ export const Release: React.FC = () => {
   } = useCreateBundleReleaseProps(fetchReleaseData);
 
   const databaseLocked = useDatabaseLocked();
+  
+  const [isTerminalOpen, ] = useTerminalModal();
 
   React.useEffect(() => {
-    fetchReleaseData();
-  }, []);
+    if (isTerminalOpen) {
+      fetchReleaseData();
+    }
+  }, [isTerminalOpen]);
 
   return (
     <PivotLayout>
       <ContentContainer className={css(mainContainerStyles)} width={1400}>
-        <Block gridArea="media">
+        <RecativeBlock gridArea="media">
           <Card overrides={cardOverrides}>
-            <Block className={css(cardContentContainerStyles)}>
-              <Block className={css(cardHeaderStyles)}>
+            <RecativeBlock className={css(cardContentContainerStyles)}>
+              <RecativeBlock className={css(cardHeaderStyles)}>
                 <LabelLarge>Media</LabelLarge>
-              </Block>
+              </RecativeBlock>
               <ReleaseList className={css(cardBodyStyles)}>
                 {releaseData?.media.map((item) => (
                   <ReleaseItem key={item.id} {...item} />
                 ))}
               </ReleaseList>
-              <Block className={css(cardFooterStyles)}>
+              <RecativeBlock className={css(cardFooterStyles)}>
                 <CommitForm
                   disabled={databaseLocked}
                   label="New Media Release"
                   onSubmit={handleBuildMedia}
                 />
-              </Block>
-            </Block>
+              </RecativeBlock>
+            </RecativeBlock>
           </Card>
-        </Block>
-        <Block gridArea="code">
+        </RecativeBlock>
+        <RecativeBlock gridArea="code">
           <Card overrides={cardOverrides}>
-            <Block className={css(cardContentContainerStyles)}>
-              <Block className={css(cardHeaderStyles)}>
+            <RecativeBlock className={css(cardContentContainerStyles)}>
+              <RecativeBlock className={css(cardHeaderStyles)}>
                 <LabelLarge>Code</LabelLarge>
-              </Block>
+              </RecativeBlock>
               <ReleaseList className={css(cardBodyStyles)}>
                 {releaseData?.code?.map((item) => (
                   <ReleaseItem key={item.id} {...item} />
                 ))}
               </ReleaseList>
-              <Block className={css(cardFooterStyles)}>
+              <RecativeBlock className={css(cardFooterStyles)}>
                 <CommitForm
                   disabled={databaseLocked}
                   label="New Code Release"
                   onSubmit={handleBuildCode}
                 />
-              </Block>
-            </Block>
+              </RecativeBlock>
+            </RecativeBlock>
           </Card>
-        </Block>
-        <Block gridArea="bundle">
+        </RecativeBlock>
+        <RecativeBlock gridArea="bundle">
           <Card overrides={cardOverrides}>
-            <Block className={css(cardContentContainerStyles)}>
-              <Block className={css(cardHeaderStyles)}>
+            <RecativeBlock className={css(cardContentContainerStyles)}>
+              <RecativeBlock className={css(cardHeaderStyles)}>
                 <LabelLarge>Bundle</LabelLarge>
-              </Block>
+              </RecativeBlock>
               <ReleaseList className={css(cardBodyStyles)}>
                 {releaseData?.bundle.map((item) => (
                   <ReleaseItem
@@ -260,28 +245,18 @@ export const Release: React.FC = () => {
                   />
                 ))}
               </ReleaseList>
-              <Block className={css(cardFooterStyles)}>
+              <RecativeBlock className={css(cardFooterStyles)}>
                 <CommitForm
                   disabled={databaseLocked}
                   selectBundles
                   label="New Bundle Release"
                   onSubmit={handleCreateBundleRelease}
                 />
-              </Block>
-            </Block>
+              </RecativeBlock>
+            </RecativeBlock>
           </Card>
-        </Block>
+        </RecativeBlock>
       </ContentContainer>
-      <TerminalModal
-        id="createCodeRelease"
-        isOpen={showBuildCodeModal}
-        onClose={handleBuildCodeModalClose}
-      />
-      <TerminalModal
-        id="createMediaRelease"
-        isOpen={showBuildMediaModal}
-        onClose={handleBuildMediaModalClose}
-      />
       <BundleReleaseSuccessModal
         isOpen={showBundleReleaseSuccessModal}
         onClose={handleBundleSuccessModalClose}

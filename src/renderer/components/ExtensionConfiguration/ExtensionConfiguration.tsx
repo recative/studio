@@ -4,7 +4,7 @@ import { useAsync } from '@react-hookz/web';
 import { useGetSet } from 'react-use';
 import { useStyletron } from 'styletron-react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { ButtonGroup } from 'baseui/button-group';
 import { FormControl } from 'baseui/form-control';
 import { ParagraphLarge } from 'baseui/typography';
@@ -195,12 +195,12 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
   }, [extensionMetadata, getValue, overwrittenValue]);
 
   return (
-    <Block>
+    <RecativeBlock>
       {extensionMetadata
         .filter((x) => x.fields?.length)
         .map((extension) => {
           return (
-            <Block key={extension.id}>
+            <RecativeBlock key={extension.id}>
               <TitleComponent>
                 <span className={css(pluginTitleContainerStyles)}>
                   <span>{extension.label}</span>
@@ -272,9 +272,9 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
                     `Unknown field type: ${(config as { type: string }).type}`
                   );
                 })}
-            </Block>
+            </RecativeBlock>
           );
         })}
-    </Block>
+    </RecativeBlock>
   );
 };

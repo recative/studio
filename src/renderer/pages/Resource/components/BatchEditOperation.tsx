@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { FormControl } from 'baseui/form-control';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Select, SIZE as SELECT_SIZE } from 'baseui/select';
@@ -186,7 +186,7 @@ export const BatchEditOperation: React.FC<IBatchEditOperationProps> = ({
   }, [onRemove, value.operationId]);
 
   return (
-    <Block width="100%" paddingBottom="8px">
+    <RecativeBlock width="100%" paddingBottom="8px">
       <FormControl label="What">
         <Select
           clearable={false}
@@ -210,8 +210,8 @@ export const BatchEditOperation: React.FC<IBatchEditOperationProps> = ({
       {complexField &&
         (operationValue === 'edit' || operationValue === 'remove') && (
           <FormControl label="Where">
-            <Block display="flex">
-              <Block paddingRight="8px">
+            <RecativeBlock display="flex">
+              <RecativeBlock paddingRight="8px">
                 <Select
                   clearable={false}
                   size={SELECT_SIZE.mini}
@@ -221,28 +221,28 @@ export const BatchEditOperation: React.FC<IBatchEditOperationProps> = ({
                     fieldType === 'array' ? ARRAY_SEEK_FOR : OBJECT_SEEK_FOR
                   }
                 />
-              </Block>
+              </RecativeBlock>
               <Input
                 size={INPUT_SIZE.mini}
                 value={whereValue}
                 onChange={handleWhereChange}
               />
-            </Block>
+            </RecativeBlock>
           </FormControl>
         )}
       {operationValue !== 'remove' && (
         <>
           <FormControl label="To">
-            <Block display="flex">
+            <RecativeBlock display="flex">
               {fieldType === 'object' && (
-                <Block paddingRight="8px">
+                <RecativeBlock paddingRight="8px">
                   <Input
                     size={INPUT_SIZE.mini}
                     value={KeyValue}
                     onChange={handleKeyChange}
                     placeholder="key"
                   />
-                </Block>
+                </RecativeBlock>
               )}
               <Input
                 size={INPUT_SIZE.mini}
@@ -250,18 +250,18 @@ export const BatchEditOperation: React.FC<IBatchEditOperationProps> = ({
                 onChange={handleValueChange}
                 placeholder="value"
               />
-            </Block>
+            </RecativeBlock>
           </FormControl>
-          <Block display="flex" justifyContent="flex-end">
+          <RecativeBlock display="flex" justifyContent="flex-end">
             <IconButton
               kind={BUTTON_KIND.tertiary}
               startEnhancer={<TrashIconOutline width={14} />}
               onClick={handleRemove}
               size={BUTTON_SIZE.mini}
             />
-          </Block>
+          </RecativeBlock>
         </>
       )}
-    </Block>
+    </RecativeBlock>
   );
 };

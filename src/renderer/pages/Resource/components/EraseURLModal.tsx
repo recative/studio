@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useSet } from 'react-use';
 import { useAsync } from '@react-hookz/web';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { LabelXSmall } from 'baseui/typography';
 import { ListItem, ListItemLabel } from 'baseui/list';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
@@ -84,11 +84,11 @@ export const EraseURLModal: React.FC<IEraseURLModalProps> = ({
     >
       <ModalHeader>Erase Resource URL</ModalHeader>
       <ModalBody>
-        <Block marginBottom="20px">
+        <RecativeBlock marginBottom="20px">
           This will erase resource URL of specific episode. It does not delete
           files that are already deployed online, only the data entries in the
           local database. This operation is irrevocable.
-        </Block>
+        </RecativeBlock>
         {extensionList?.uploader.map((uploader) => (
           <ListItem
             key={uploader.id}

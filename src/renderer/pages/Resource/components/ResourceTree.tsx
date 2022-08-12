@@ -4,7 +4,7 @@ import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 import { atom, useAtom } from 'jotai';
 
-import { Block } from 'baseui/block';
+import { RecativeBlock } from 'components/Block/Block';
 import { StatefulTreeView, TreeLabelInteractable } from 'baseui/tree-view';
 import {
   Button,
@@ -50,7 +50,7 @@ const getSimpleButtonLabel = (label: string) =>
 
     return (
       <TreeLabelInteractable>
-        <Block className={css(treeLabelContentCOntainerStyle)}>
+        <RecativeBlock className={css(treeLabelContentCOntainerStyle)}>
           <Button
             size={BUTTON_SIZE.compact}
             kind={BUTTON_KIND.tertiary}
@@ -58,7 +58,7 @@ const getSimpleButtonLabel = (label: string) =>
           >
             {label}
           </Button>
-        </Block>
+        </RecativeBlock>
       </TreeLabelInteractable>
     );
   };
@@ -91,7 +91,7 @@ const getLabelButton = (condition: IFilterLabels) =>
 
     return (
       <TreeLabelInteractable>
-        <Block className={css(treeLabelContentCOntainerStyle)}>
+        <RecativeBlock className={css(treeLabelContentCOntainerStyle)}>
           <Button
             size={BUTTON_SIZE.compact}
             kind={BUTTON_KIND.tertiary}
@@ -100,7 +100,7 @@ const getLabelButton = (condition: IFilterLabels) =>
           >
             {condition.label}
           </Button>
-        </Block>
+        </RecativeBlock>
       </TreeLabelInteractable>
     );
   };
@@ -203,11 +203,11 @@ export const InternalResourceTree: React.FC = () => {
   );
 
   return (
-    <Block minWidth="240px">
+    <RecativeBlock minWidth="240px">
       {episodes.result ? (
         <StatefulTreeView indentGuides data={trueData} />
       ) : null}
-    </Block>
+    </RecativeBlock>
   );
 };
 
