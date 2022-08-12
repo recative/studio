@@ -107,6 +107,7 @@ export const createBundles = async (
   })();
 
   const instances = await getBundlerInstances(terminalId);
+  const buildPath = await getBuildPath();
 
   for (let i = 0; i < profiles.length; i += 1) {
     const profileId = profiles[i];
@@ -140,8 +141,6 @@ export const createBundles = async (
       bundler.constructor,
       'appTemplatePublicPath'
     );
-
-    const buildPath = await getBuildPath();
 
     const outputFileName = `${Reflect.get(
       bundler.constructor,

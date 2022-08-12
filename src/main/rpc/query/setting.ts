@@ -1,4 +1,6 @@
+import log from 'electron-log';
 import jwt_decode from 'jwt-decode';
+
 import { glob } from 'glob';
 import { stat } from 'fs/promises';
 import { join, basename } from 'path';
@@ -150,11 +152,11 @@ export const getFileListFromAssetsPath = (globRule: string) => {
   const workspace = getWorkspace();
   const { assetsPath } = workspace;
 
-  const files = glob.sync(join(assetsPath, globRule));
+  const files = glob.sync(globRule, { cwd: assetsPath });
 
   return Promise.all(
     files.map(async (x) => ({
-      updateTime: (await stat(x)).mtime,
+      updateTime: (await stat(join(assetsPath, x))).mtime,
       fileName: basename(x),
     }))
   );

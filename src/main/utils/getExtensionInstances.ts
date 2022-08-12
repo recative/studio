@@ -1,6 +1,7 @@
 import proto from 'protobufjs';
 import StreamZip from 'node-stream-zip';
 
+import log from 'electron-log';
 import { h32 } from 'xxhashjs';
 import { join } from 'path';
 import { fileSync } from 'tmp';
@@ -192,7 +193,7 @@ export const getResourceProcessorInstances = async (terminalId: string) => {
     extensionResourceProcessor?.forEach((ResourceProcessorClass) => {
       projectResourceProcessor[ResourceProcessorClass.id] =
         // @ts-ignore
-        new ResourceProcessorClass({}, resourceProcessorDependencies);
+        new ResourceProcessorClass({}, { ...resourceProcessorDependencies });
 
       projectResourceProcessor[
         ResourceProcessorClass.id
@@ -307,11 +308,11 @@ export const getBundlerInstances = async (terminalId: string) => {
     const extensionBundler = extension.bundler;
 
     extensionBundler?.forEach((BundlerClass) => {
-      bundlers[BundlerClass.id] =
+      const bundler: Bundler<string> =
         // @ts-ignore
-        new BundlerClass({}, bundlerDependencies);
+        new BundlerClass({}, { ...bundlerDependencies });
 
-      bundlers[BundlerClass.id].dependency.executeExternalTool = async (
+      bundler.dependency.executeExternalTool = async (
         toolId: typeof TOOLS[number],
         parameters: string[],
         executeInBuildPath: boolean
@@ -373,35 +374,33 @@ export const getBundlerInstances = async (terminalId: string) => {
         return executable;
       };
 
-      bundlers[BundlerClass.id].dependency.logToTerminal = (
+      bundler.dependency.logToTerminal = (
         message: string | [string, string],
         logLevel?: TerminalMessageLevel
       ) => {
         logToTerminal(terminalId, message, logLevel);
       };
 
-      bundlers[BundlerClass.id].dependency.getOutputFilePath = async (
+      bundler.dependency.getOutputFilePath = async (
         suffix,
         bundleReleaseId,
         profile
       ) => {
         const buildPath = await getBuildPath();
 
+        log.log(bundler.constructor);
         const outputFileName = `${Reflect.get(
-          bundlers[BundlerClass.id].constructor,
+          bundler.constructor,
           'outputPrefix'
         )}-${profile.prefix}-${bundleReleaseId.toString().padStart(4, '0')}${
           suffix ? `-${suffix}` : ''
-        }.${Reflect.get(
-          bundlers[BundlerClass.id].constructor,
-          'outputExtensionName'
-        )}`;
+        }.${Reflect.get(bundler.constructor, 'outputExtensionName')}`;
 
         const outputPath = join(buildPath, outputFileName);
 
         return outputPath;
       };
-      bundlers[BundlerClass.id].dependency.prepareOutputFile = async (
+      bundler.dependency.prepareOutputFile = async (
         suffix,
         bundleReleaseId,
         profile
@@ -416,6 +415,8 @@ export const getBundlerInstances = async (terminalId: string) => {
 
         return join(buildPath, outputFileName);
       };
+
+      bundlers[BundlerClass.id] = bundler;
     });
   });
 
