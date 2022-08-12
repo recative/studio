@@ -1,5 +1,4 @@
-import type { Archiver } from 'archiver';
-
+import { Zip } from '@recative/extension-sdk';
 import {
   REDIRECT_URL_EXTENSION_ID,
   TerminalMessageLevel as Level,
@@ -9,7 +8,6 @@ import { logToTerminal } from '../terminal';
 
 import { getReleasedDb } from '../../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../../utils/getResourceFile';
-import { archiverAppendPathList } from '../../../utils/archiver';
 import { analysisPostProcessedRecords } from '../../../utils/analysisPostProcessedRecords';
 
 import { MOBILE_SHELL_BUILD_IN_KEY } from '../../../utils/buildInResourceUploaderKeys';
@@ -20,12 +18,12 @@ import { MOBILE_SHELL_BUILD_IN_KEY } from '../../../utils/buildInResourceUploade
  * Copy them to the `assets/public/bundle/resource` directory of the
  * apk file.
  *
- * @param archive The archiver instance.
+ * @param zip The archiver instance.
  * @param mediaReleaseId release ID of media release.
  * @param terminalId Output information to which terminal.
  */
 export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
-  archive: Archiver,
+  zip: Zip,
   bundleReleaseId: number,
   mediaReleaseId: number,
   resourcePath: string,
@@ -134,5 +132,5 @@ export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
     to: `${resourcePath}/${resource.id}.resource`,
   }));
 
-  await archiverAppendPathList(archive, resourceFilePathList).promise;
+  await zip.appendFileList(resourceFilePathList);
 };

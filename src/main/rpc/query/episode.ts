@@ -101,7 +101,7 @@ export const getResourceListOfEpisode = async (
   let resources = cloneDeep([...resourceFiles, ...resourceGroups]);
 
   const extensionInstances = Object.entries(
-    await getResourceProcessorInstances()
+    await getResourceProcessorInstances('')
   );
 
   for (let i = 0; i < extensionInstances.length; i += 1) {

@@ -54,7 +54,7 @@ export const postProcessResource = async (
   ];
 
   const resourceProcessorInstances = Object.entries(
-    await getResourceProcessorInstances()
+    await getResourceProcessorInstances(terminalId)
   );
 
   logToTerminal(
@@ -111,13 +111,6 @@ export const postProcessResource = async (
       terminalId,
       `:: Postprocessing with ${serviceProviderLabel}!`
     );
-
-    processor.dependency.logToTerminal = (
-      message: string,
-      logLevel: TerminalMessageLevel
-    ) => {
-      logToTerminal(terminalId, message, logLevel);
-    };
 
     resourceToBePostProcessed = await processor.beforePublishMediaBundle(
       resourceToBePostProcessed,

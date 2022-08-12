@@ -675,7 +675,7 @@ export const mergeResources = async (itemIds: string[], tag: GroupTag) => {
   });
 
   const resourceProcessorInstances = Object.entries(
-    await getResourceProcessorInstances()
+    await getResourceProcessorInstances('')
   );
 
   // Preprocessing the resources

@@ -4,9 +4,10 @@ import StreamZip from 'node-stream-zip';
 import { join } from 'path';
 import { fileSync } from 'tmp';
 
-import type { Archiver } from 'archiver';
 import type { FileResult } from 'tmp';
 import type { PromiseValue } from 'type-fest';
+
+import type { Zip } from '@recative/extension-sdk';
 
 import { createEmptyZip } from '../../../utils/archiver';
 import { promisifySpawn } from '../../../utils/promiseifySpawn';
@@ -142,7 +143,7 @@ export const dumpAndroidManifest = async (
 };
 
 interface IReplaceManifestOptions {
-  archive: Archiver;
+  zip: Zip;
   shellTemplatePath: string;
   templateManifestPath: string;
   outputManifestPath: string;
@@ -155,7 +156,7 @@ interface IReplaceManifestOptions {
 }
 
 export const replaceManifest = async ({
-  archive: buildArtifactArchive,
+  zip,
   shellTemplatePath,
   templateManifestPath,
   outputManifestPath = templateManifestPath,
@@ -277,5 +278,5 @@ export const replaceManifest = async ({
   }
 
   logToTerminal(terminalId, 'Appending AndroidManifest.xml');
-  buildArtifactArchive.append(modifiedManifest, { name: outputManifestPath });
+  zip.appendFile(modifiedManifest, outputManifestPath);
 };

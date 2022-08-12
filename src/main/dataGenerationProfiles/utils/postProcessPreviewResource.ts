@@ -19,7 +19,7 @@ export const injectByResourceProcessor = async <
   resources: T[]
 ): Promise<T[]> => {
   const resourceProcessorInstances: [string, ResourceProcessor<string>][] =
-    Object.entries(getResourceProcessorInstances());
+    Object.entries(getResourceProcessorInstances(''));
 
   let result = cloneDeep(resources);
   for (const [, instance] of resourceProcessorInstances) {

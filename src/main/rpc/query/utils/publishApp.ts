@@ -1,13 +1,10 @@
 import { join } from 'path';
 
+import { Zip } from '@recative/extension-sdk';
 import { TerminalMessageLevel as Level } from '@recative/definitions';
-
-import type { Archiver } from 'archiver';
 
 import { getBuildPath } from '../setting';
 import { logToTerminal } from '../terminal';
-
-import { createEmptyZip } from '../../../utils/archiver';
 
 import { dumpPlayerConfigs } from '../publishPlayerBundle';
 
@@ -72,7 +69,7 @@ interface IPublishAppOptions {
   /**
    * Post process function for the output file.
    */
-  postProcess?: (archive: Archiver) => Promise<void>;
+  postProcess?: (zip: Zip) => Promise<void>;
   /**
    * The terminal id of the terminal to output the information.
    */
@@ -98,7 +95,7 @@ export const publishApp = async ({
 
   const outputPath = join(buildPath, outputFileName);
 
-  const { archive, finished } = createEmptyZip(outputPath, {
+  const zip = new Zip(outputPath, {
     zlib: { level: 0 },
   });
 
@@ -106,7 +103,7 @@ export const publishApp = async ({
   await dumpPlayerConfigs(codeReleaseId, bundleReleaseId, terminalId);
   if (appTemplateFileName) {
     await duplicateBasePackage(
-      archive,
+      zip,
       appTemplateFileName,
       appTemplateFromPath,
       appTemplatePublicPath,
@@ -117,36 +114,35 @@ export const publishApp = async ({
 
   if (webRootTemplateFileName) {
     duplicateWebRootPackage(
-      archive,
+      zip,
       webRootTemplateFileName,
       outputPublicPath,
       terminalId
     );
   }
   await transferActPointArtifacts(
-    archive,
+    zip,
     codeReleaseId,
     `${outputPublicPath}/bundle/ap`,
     terminalId
   );
   await bundlePlayerConfig(
-    archive,
+    zip,
     bundleReleaseId,
     `${outputPublicPath}/bundle`,
     configFormat,
     terminalId
   );
-  await bundleAdditionalModules(archive, outputPublicPath, terminalId);
+  await bundleAdditionalModules(zip, outputPublicPath, terminalId);
   await bundleMediaResourcesWithoutEpisodeOrWithCacheProperty(
-    archive,
+    zip,
     bundleReleaseId,
     mediaReleaseId,
     `${outputPublicPath}/bundle/resource`,
     terminalId
   );
 
-  await postProcess?.(archive);
+  await postProcess?.(zip);
 
-  archive.finalize();
-  await finished;
+  await zip.done();
 };

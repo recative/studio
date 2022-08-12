@@ -137,7 +137,7 @@ export const publishAndroidAab = async (
       );
 
       return replaceManifest({
-        archive: archiver,
+        zip: archiver,
         shellTemplatePath,
         templateManifestPath: MANIFEST_PATH,
         outputManifestPath: OUTPUT_MANIFEST_PATH,

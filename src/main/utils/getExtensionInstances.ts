@@ -1,3 +1,6 @@
+import proto from 'protobufjs';
+import StreamZip from 'node-stream-zip';
+
 import { h32 } from 'xxhashjs';
 import { join } from 'path';
 import { fileSync } from 'tmp';
@@ -7,43 +10,62 @@ import { ensureDirSync } from 'fs-extra';
 import { readFile, writeFile } from 'fs/promises';
 
 import type {
+  TOOLS,
+  Bundler,
   Uploader,
   ResourceProcessor,
+  IBundlerExtensionDependency,
+  IResourceExtensionDependency,
   PostProcessedResourceItemForUpload,
   PostProcessedResourceItemForImport,
+  IBundleProfile,
 } from '@recative/extension-sdk';
 
 import { Zip } from '@recative/extension-sdk/src/zip';
-import { Category } from '@recative/definitions';
+import {
+  Category,
+  IResourceFile,
+  TerminalMessageLevel,
+} from '@recative/definitions';
 
 import { getDb } from '../rpc/db';
 import { extensions } from '../extensions';
 import { cleanupLoki } from '../rpc/query/utils';
 import { getWorkspace } from '../rpc/workspace';
 import { logToTerminal } from '../rpc/query/terminal';
+import { STUDIO_BINARY_PATH } from '../constant/appPath';
+import { HOME_DIR, ANDROID_BUILD_TOOLS_PATH } from '../constant/configPath';
 
+import { getBuildPath } from '../rpc/query/setting';
+import { getVersionName } from '../rpc/query/utils/getVersionName';
 import { getResourceFilePath } from './getResourceFile';
+import { promisifySpawn, SpawnFailedError } from './promiseifySpawn';
 
-const resourceProcessorDependencies = {
+const resourceProcessorDependencies: IResourceExtensionDependency = {
   getResourceFilePath,
-  writeBufferToResource: (buffer: Buffer, fileName: string) => {
+  writeBufferToResource: async (buffer: Buffer, fileName: string) => {
     const workspace = getWorkspace();
     const filePath = join(workspace.mediaPath, fileName);
-    return writeFile(filePath, buffer);
+    await writeFile(filePath, buffer);
+    return filePath;
   },
-  writeBufferToPostprocessCache: (buffer: Buffer, fileName: string) => {
+  writeBufferToPostprocessCache: async (buffer: Buffer, fileName: string) => {
     const workspace = getWorkspace();
     const postProcessedPath = join(workspace.mediaPath, 'post-processed');
     ensureDirSync(postProcessedPath);
     const filePath = join(postProcessedPath, fileName);
-    return writeFile(filePath, buffer);
+    await writeFile(filePath, buffer);
+    return filePath;
   },
-  writeBufferToTemporaryFile: (buffer: Buffer) => {
+  writeBufferToTemporaryFile: async (buffer: Buffer) => {
     const file = fileSync();
-    return writeFile(file.name, buffer);
+    await writeFile(file.name, buffer);
+
+    return file.name;
   },
   updateResourceDefinition: async (
     resource:
+      | IResourceFile
       | PostProcessedResourceItemForUpload
       | PostProcessedResourceItemForImport
   ) => {
@@ -126,8 +148,9 @@ const resourceProcessorDependencies = {
 
     db.resource.postProcessed.update(resourceDefinition);
   },
-  readPathAsBuffer: (path: string) => readFile(path),
-  logToTerminal,
+  readPathAsBuffer: (path: string) => readFile(path) as Promise<Buffer>,
+  //
+  logToTerminal: logToTerminal as any,
   createTemporaryZip: () => new Zip(fileSync().name),
   md5Hash: (x: Buffer) => {
     return createHash('md5').update(x).digest('hex');
@@ -158,7 +181,7 @@ const getExtensionConfig = async () => {
  * Initialize all necessary resource processor instances.
  * @returns A map of uploader instances.
  */
-export const getResourceProcessorInstances = async () => {
+export const getResourceProcessorInstances = async (terminalId: string) => {
   const projectResourceProcessor: Record<
     string,
     ResourceProcessor<string>
@@ -170,6 +193,15 @@ export const getResourceProcessorInstances = async () => {
       projectResourceProcessor[ResourceProcessorClass.id] =
         // @ts-ignore
         new ResourceProcessorClass({}, resourceProcessorDependencies);
+
+      projectResourceProcessor[
+        ResourceProcessorClass.id
+      ].dependency.logToTerminal = (
+        message: string | [string, string],
+        logLevel?: TerminalMessageLevel
+      ) => {
+        logToTerminal(terminalId, message, logLevel);
+      };
     });
   });
 
@@ -221,4 +253,139 @@ export const getUploaderInstances = async (categories: Category[]) => {
   });
 
   return projectUploader;
+};
+
+const bundlerDependencies: IBundlerExtensionDependency = {
+  /** We replace it later */
+  executeExternalTool: null as any,
+  /** We replace it later */
+  prepareOutputFile: null as any,
+  getBuildInProtoDefinition: (fileName: string) => {
+    const protoPath = join(STUDIO_BINARY_PATH, fileName);
+
+    return proto.load(protoPath);
+  },
+  /** We replace it later */
+  logToTerminal: null as any,
+  readBundleTemplate: async (profile: IBundleProfile) => {
+    const buildPath = await getBuildPath();
+
+    return new StreamZip.async({
+      file: join(buildPath, profile.shellTemplateFileName),
+    });
+  },
+  readZipFile: (path: string) => {
+    return new StreamZip.async({
+      file: path,
+    });
+  },
+  getTemporaryFile: () => {
+    return fileSync().name;
+  },
+  getVersionName: (bundleReleaseId: number, profile: IBundleProfile) => {
+    return getVersionName(
+      bundleReleaseId,
+      profile.webRootTemplateFileName,
+      profile.shellTemplateFileName
+    );
+  },
+  getAssetFilePath: (path: string) => {
+    const workspace = getWorkspace();
+
+    return join(workspace.assetsPath, path);
+  },
+  getLocalConfigFilePath: (path: string) => {
+    return join(HOME_DIR, path);
+  },
+};
+
+export const getBundlerInstances = async (terminalId: string) => {
+  const bundlers: Record<string, Bundler<string>> = {};
+
+  extensions.forEach((extension) => {
+    const extensionBundler = extension.bundler;
+
+    extensionBundler?.forEach((BundlerClass) => {
+      bundlers[BundlerClass.id] =
+        // @ts-ignore
+        new BundlerClass({}, bundlerDependencies);
+
+      bundlers[BundlerClass.id].dependency.executeExternalTool = async (
+        toolId: typeof TOOLS[number],
+        parameters: string[],
+        executeInBuildPath: boolean
+      ) => {
+        const buildPath = await getBuildPath();
+        const isJavaTool = ['bundletool', 'apksigner'].includes(toolId);
+        // const isBuildInTool = ['apktool', 'bundletool', 'jarsigner'].includes(
+        //   toolId
+        // );
+        const isMultiPlatformBinary = ['jarsigner'].includes(toolId);
+        const isAndroidExternalTool = ['zipalign', 'aapt2'].includes(toolId);
+
+        const internalParameters: string[] = [];
+        const commandSuffix = isMultiPlatformBinary
+          ? `-${process.platform}-${process.arch}`
+          : '';
+        const executable = isJavaTool ? 'java' : `toolId${commandSuffix}`;
+
+        if (isAndroidExternalTool && !ANDROID_BUILD_TOOLS_PATH) {
+          throw new SpawnFailedError(
+            `Android build tools path is not set. Please set ANDROID_BUILD_TOOLS_PATH environment variable.`,
+            parameters,
+            -1
+          );
+        }
+
+        if (isJavaTool) {
+          internalParameters.push('-jar');
+          internalParameters.push(
+            join(
+              isAndroidExternalTool
+                ? STUDIO_BINARY_PATH
+                : ANDROID_BUILD_TOOLS_PATH ?? '',
+              'bundletool.jar'
+            )
+          );
+        }
+
+        await promisifySpawn(
+          executable,
+          [...internalParameters, ...parameters],
+          executeInBuildPath ? { cwd: buildPath } : undefined,
+          terminalId
+        );
+
+        return executable;
+      };
+
+      bundlers[BundlerClass.id].dependency.logToTerminal = (
+        message: string | [string, string],
+        logLevel?: TerminalMessageLevel
+      ) => {
+        logToTerminal(terminalId, message, logLevel);
+      };
+
+      bundlers[BundlerClass.id].dependency.prepareOutputFile = async (
+        suffix: string,
+        bundleReleaseId: number,
+        profile: IBundleProfile
+      ) => {
+        const buildPath = await getBuildPath();
+
+        const outputFileName = `${Reflect.get(BundlerClass, 'outputPrefix')}-${
+          profile.prefix
+        }-${bundleReleaseId
+          .toString()
+          .padStart(4, '0')}-${suffix}.${Reflect.get(
+          BundlerClass,
+          'outputExtensionName'
+        )}`;
+
+        return join(buildPath, outputFileName);
+      };
+    });
+  });
+
+  return bundlers;
 };

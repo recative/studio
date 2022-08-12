@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import type { Updater } from 'use-immer';
+
 import { useAsync } from '@react-hookz/web';
 
 import type { IBundleProfile } from '@recative/extension-sdk';
@@ -27,6 +29,7 @@ import { FullBundleIconOutline } from 'components/Icons/FullBundleIconOutline';
 import { JsonFormatIconOutline } from 'components/Icons/JsonFormatIconOutline';
 import { BsonFormatIconOutline } from 'components/Icons/BsonFormatIconOutline';
 import { UsonFormatIconOutline } from 'components/Icons/UsonFormatIconOutline';
+import { ExtensionConfiguration } from 'components/ExtensionConfiguration/ExtensionConfiguration';
 import { PartialBundleIconOutline } from 'components/Icons/PartialBundleIconOutline';
 
 import { ModalManager } from 'utils/hooks/useModalManager';
@@ -140,7 +143,8 @@ const useProfileDetail = (profileId: string | null) => {
             constantFileName: '',
             offlineAvailability: '',
             shellTemplateFileName: '',
-            extensionConfiguration: {},
+            webRootTemplateFileName: '',
+            extensionConfigurations: {},
           }
         : null
   );
@@ -152,6 +156,34 @@ const useProfileDetail = (profileId: string | null) => {
   return profileDetail.result;
 };
 
+const useExtensionSettings = (
+  profile: IBundleProfile | null,
+  setProfile?: Updater<IBundleProfile | null>
+) => {
+  const getValue = React.useCallback(
+    (extensionId: string, fieldId: string) => {
+      const fieldQueryKey = `${extensionId}~~${fieldId}`;
+      return profile?.extensionConfigurations[fieldQueryKey] || '';
+    },
+    [profile]
+  );
+
+  const setValue = React.useCallback(
+    (extensionId: string, key: string, value: string) => {
+      const fieldQueryKey = `${extensionId}~~${key}`;
+      setProfile?.((draft) => {
+        if (draft) {
+          draft.extensionConfigurations[fieldQueryKey] = value;
+        }
+        return draft;
+      });
+    },
+    [setProfile]
+  );
+
+  return [getValue, setValue] as const;
+};
+
 export const EditBundleProfileItemModal: React.FC<IEditBundleProfileItemModalProps> =
   ({ onSubmit }) => {
     const [loading, setLoading] = React.useState(false);
@@ -160,12 +192,12 @@ export const EditBundleProfileItemModal: React.FC<IEditBundleProfileItemModalPro
 
     const profileDetail = useProfileDetail(profileId);
 
-    const [clonedProfile, valueChangeCallbacks, , setClonedValue] =
+    const [clonedProfile, valueChangeCallbacks, , setClonedProfile] =
       useFormChangeCallbacks(profileDetail ?? null);
 
     React.useLayoutEffect(() => {
-      setClonedValue(profileDetail ?? null);
-    }, [profileDetail, setClonedValue]);
+      setClonedProfile(profileDetail ?? null);
+    }, [profileDetail, setClonedProfile]);
 
     const handleLabelChange = useOnChangeEventWrapperForStringType(
       valueChangeCallbacks.label
@@ -216,6 +248,11 @@ export const EditBundleProfileItemModal: React.FC<IEditBundleProfileItemModalPro
       onSubmit();
       onClose();
     }, [clonedProfile, onClose, onSubmit]);
+
+    const [getExtensionSettings, setExtensionSettings] = useExtensionSettings(
+      clonedProfile,
+      setClonedProfile
+    );
 
     return (
       <Modal
@@ -325,6 +362,26 @@ export const EditBundleProfileItemModal: React.FC<IEditBundleProfileItemModalPro
                 size={INPUT_SIZE.mini}
               />
             </FormControl>
+            <FormControl
+              label="Web Root File"
+              caption="The web root file provided by bundle profile developers."
+            >
+              <AssetFileSelect
+                value={clonedProfile?.webRootTemplateFileName}
+                onChange={valueChangeCallbacks.webRootTemplateFileName}
+                glob="*web-root.zip"
+                size={INPUT_SIZE.mini}
+              />
+            </FormControl>
+            {clonedProfile?.bundleExtensionId && (
+              <ExtensionConfiguration
+                domain="bundler"
+                type="bundler"
+                extensionId={clonedProfile?.bundleExtensionId}
+                getValue={getExtensionSettings}
+                setValue={setExtensionSettings}
+              />
+            )}
           </ModalBody>
         ) : null}
         <ModalFooter>

@@ -1,19 +1,17 @@
 import { join } from 'path';
 import { existsSync } from 'fs-extra';
 
-import type { Archiver } from 'archiver';
-
+import { Zip } from '@recative/extension-sdk';
 import { TerminalMessageLevel as Level } from '@recative/definitions';
 
 import { logToTerminal } from '../terminal';
 
 import { getWorkspace } from '../../workspace';
-import { archiverAppendPathList } from '../../../utils/archiver';
 
 import type { IPathListItem } from '../../../utils/archiver';
 
 export const bundleAdditionalModules = (
-  archive: Archiver,
+  zip: Zip,
   rootDir: string,
   terminalId: string
 ) => {
@@ -44,5 +42,5 @@ export const bundleAdditionalModules = (
     );
   }
 
-  return archiverAppendPathList(archive, paths).promise;
+  return zip.appendFileList(paths);
 };
