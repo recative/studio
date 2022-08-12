@@ -156,7 +156,7 @@ export const bundleBuild = async (notes: string, terminalId: string) => {
   logToTerminal(terminalId, `:: Output: ${outputPath}`, Level.Info);
 
   const zip = new Zip(outputPath);
-  zip.appendGlob('dist/**/*', config.codeRepositoryPath);
+  await zip.appendGlob('dist/**/*', config.codeRepositoryPath);
 
   await zip.done();
   logToTerminal(terminalId, `:: Done!`, Level.Info);
@@ -190,7 +190,7 @@ export const bundleDb = async (mediaReleaseId: number, terminalId: string) => {
   logToTerminal(terminalId, `:: Output: ${outputPath}`, Level.Info);
 
   const zip = new Zip(outputPath);
-  zip.appendGlob('**/*', config.dbPath);
+  await zip.appendGlob('**/*', config.dbPath);
 
   await zip.done();
 
