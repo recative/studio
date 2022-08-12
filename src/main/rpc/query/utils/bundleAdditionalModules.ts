@@ -1,14 +1,12 @@
 import { join } from 'path';
 import { existsSync } from 'fs-extra';
 
-import { Zip } from '@recative/extension-sdk';
+import { Zip, IPathListItem } from '@recative/extension-sdk';
 import { TerminalMessageLevel as Level } from '@recative/definitions';
 
 import { logToTerminal } from '../terminal';
 
 import { getWorkspace } from '../../workspace';
-
-import type { IPathListItem } from '../../../utils/archiver';
 
 export const bundleAdditionalModules = (
   zip: Zip,

@@ -6,7 +6,7 @@ import { join } from 'path';
 import { fileSync } from 'tmp';
 import { cloneDeep } from 'lodash';
 import { createHash } from 'crypto';
-import { ensureDirSync } from 'fs-extra';
+import { ensureDirSync, remove } from 'fs-extra';
 import { readFile, writeFile } from 'fs/promises';
 
 import type {
@@ -21,7 +21,7 @@ import type {
   IBundleProfile,
 } from '@recative/extension-sdk';
 
-import { Zip } from '@recative/extension-sdk/src/zip';
+import { Zip } from '@recative/extension-sdk';
 import {
   Category,
   IResourceFile,
@@ -260,6 +260,7 @@ const bundlerDependencies: IBundlerExtensionDependency = {
   executeExternalTool: null as any,
   /** We replace it later */
   prepareOutputFile: null as any,
+  getOutputFilePath: null as any,
   getBuildInProtoDefinition: (fileName: string) => {
     const protoPath = join(STUDIO_BINARY_PATH, fileName);
 
@@ -268,10 +269,10 @@ const bundlerDependencies: IBundlerExtensionDependency = {
   /** We replace it later */
   logToTerminal: null as any,
   readBundleTemplate: async (profile: IBundleProfile) => {
-    const buildPath = await getBuildPath();
+    const workspace = getWorkspace();
 
     return new StreamZip.async({
-      file: join(buildPath, profile.shellTemplateFileName),
+      file: join(workspace.assetsPath, profile.shellTemplateFileName),
     });
   },
   readZipFile: (path: string) => {
@@ -317,19 +318,17 @@ export const getBundlerInstances = async (terminalId: string) => {
       ) => {
         const buildPath = await getBuildPath();
         const isJavaTool = ['bundletool', 'apksigner'].includes(toolId);
-        // const isBuildInTool = ['apktool', 'bundletool', 'jarsigner'].includes(
-        //   toolId
-        // );
+        const isBuildInTool = ['apktool', 'bundletool', 'jarsigner'].includes(
+          toolId
+        );
         const isMultiPlatformBinary = ['jarsigner'].includes(toolId);
         const isAndroidExternalTool = ['zipalign', 'aapt2'].includes(toolId);
+        const isAndroidExternalLibTool = ['apksigner'].includes(toolId);
 
-        const internalParameters: string[] = [];
-        const commandSuffix = isMultiPlatformBinary
-          ? `-${process.platform}-${process.arch}`
-          : '';
-        const executable = isJavaTool ? 'java' : `toolId${commandSuffix}`;
-
-        if (isAndroidExternalTool && !ANDROID_BUILD_TOOLS_PATH) {
+        if (
+          (isAndroidExternalTool || isAndroidExternalLibTool) &&
+          !ANDROID_BUILD_TOOLS_PATH
+        ) {
           throw new SpawnFailedError(
             `Android build tools path is not set. Please set ANDROID_BUILD_TOOLS_PATH environment variable.`,
             parameters,
@@ -337,16 +336,31 @@ export const getBundlerInstances = async (terminalId: string) => {
           );
         }
 
+        let path = STUDIO_BINARY_PATH;
+
+        if (isAndroidExternalTool) {
+          path = ANDROID_BUILD_TOOLS_PATH ?? '';
+        }
+
+        if (isBuildInTool) {
+          path = STUDIO_BINARY_PATH;
+        }
+
+        if (isAndroidExternalLibTool) {
+          path = join(ANDROID_BUILD_TOOLS_PATH ?? '', 'lib');
+        }
+
+        const internalParameters: string[] = [];
+        const commandSuffix = isMultiPlatformBinary
+          ? `-${process.platform}-${process.arch}`
+          : '';
+        const executable = isJavaTool
+          ? 'java'
+          : join(path, `${toolId}${commandSuffix}`);
+
         if (isJavaTool) {
           internalParameters.push('-jar');
-          internalParameters.push(
-            join(
-              isAndroidExternalTool
-                ? STUDIO_BINARY_PATH
-                : ANDROID_BUILD_TOOLS_PATH ?? '',
-              'bundletool.jar'
-            )
-          );
+          internalParameters.push(join(path, `${toolId}.jar`));
         }
 
         await promisifySpawn(
@@ -366,21 +380,39 @@ export const getBundlerInstances = async (terminalId: string) => {
         logToTerminal(terminalId, message, logLevel);
       };
 
-      bundlers[BundlerClass.id].dependency.prepareOutputFile = async (
-        suffix: string,
-        bundleReleaseId: number,
-        profile: IBundleProfile
+      bundlers[BundlerClass.id].dependency.getOutputFilePath = async (
+        suffix,
+        bundleReleaseId,
+        profile
       ) => {
         const buildPath = await getBuildPath();
 
-        const outputFileName = `${Reflect.get(BundlerClass, 'outputPrefix')}-${
-          profile.prefix
-        }-${bundleReleaseId
-          .toString()
-          .padStart(4, '0')}-${suffix}.${Reflect.get(
-          BundlerClass,
+        const outputFileName = `${Reflect.get(
+          bundlers[BundlerClass.id].constructor,
+          'outputPrefix'
+        )}-${profile.prefix}-${bundleReleaseId.toString().padStart(4, '0')}${
+          suffix ? `-${suffix}` : ''
+        }.${Reflect.get(
+          bundlers[BundlerClass.id].constructor,
           'outputExtensionName'
         )}`;
+
+        const outputPath = join(buildPath, outputFileName);
+
+        return outputPath;
+      };
+      bundlers[BundlerClass.id].dependency.prepareOutputFile = async (
+        suffix,
+        bundleReleaseId,
+        profile
+      ) => {
+        const buildPath = await getBuildPath();
+
+        const outputFileName = await bundlers[
+          BundlerClass.id
+        ].dependency.getOutputFilePath(suffix, bundleReleaseId, profile);
+
+        await remove(join(buildPath, outputFileName));
 
         return join(buildPath, outputFileName);
       };

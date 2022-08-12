@@ -61,6 +61,8 @@ export class Zip {
 
   writing = false;
 
+  closed = false;
+
   constructor(
     public readonly filePath: string,
     options: Partial<IZipOption> | undefined = {
@@ -114,6 +116,10 @@ export class Zip {
       throw new Error('Cannot write new content to zip while writing');
     }
 
+    if (this.closed) {
+      throw new Error('Cannot write new content to zip after close');
+    }
+
     this.writing = true;
     const result = await this.entry(text, { name: to });
     this.writing = false;
@@ -124,6 +130,10 @@ export class Zip {
   appendFile = async (from: string | Buffer | Stream, to: string) => {
     if (this.writing) {
       throw new Error('Cannot write new content to zip while writing');
+    }
+
+    if (this.closed) {
+      throw new Error('Cannot write new content to zip after close');
     }
 
     const writeEntry = async (source: Buffer | Stream) => {
@@ -260,6 +270,8 @@ export class Zip {
     if (this.writing) {
       throw new Error('Writing is not finished, unable to close the file');
     }
+
+    this.closed = true;
 
     log.log(`:: [${basename(this.filePath)}] Closing archive`);
 

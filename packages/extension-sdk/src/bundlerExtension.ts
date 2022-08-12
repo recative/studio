@@ -23,6 +23,11 @@ export interface IBundlerExtensionDependency {
     parameters: string[],
     executeInBuildPath: boolean
   ) => Promise<string>;
+  getOutputFilePath: (
+    suffix: string | null,
+    bundleReleaseId: number,
+    profile: IBundleProfile
+  ) => Promise<string>;
   prepareOutputFile: (
     suffix: string,
     bundleReleaseId: number,
@@ -59,6 +64,8 @@ export abstract class Bundler<ConfigKey extends string> {
 
   static appTemplatePublicPath: string | null;
 
+  static outputPublicPath: string | null;
+
   static excludeTemplateFilePaths: string[] = [];
 
   static outputPrefix: string;
@@ -89,26 +96,14 @@ export abstract class Bundler<ConfigKey extends string> {
   protected configValidator(
     x: Record<string, string>
   ): x is Record<ConfigKey, string> {
-    const uiFields = Reflect.get(
-      this.constructor,
-      'configUiFields'
-    ) as IConfigUiField[];
-    const pluginId = Reflect.get(this.constructor, 'id');
-
-    return uiFields
-      .map((field) => {
-        const valid =
-          typeof x[field.id] === 'string' ||
-          (!field.required && typeof x[field.id] === 'undefined');
-
-        if (!valid) {
-          log.warn(`:: [${pluginId}] ${field.id} is not a string`);
-        }
-
-        return valid;
-      })
-      .reduce((a, b) => a && b);
+    return true;
   }
+
+  abstract beforeBundleFinalized: (
+    zip: Zip,
+    profile: IBundleProfile,
+    bundleReleaseId: number
+  ) => void | Promise<void>;
 
   abstract afterBundleCreated: (
     zip: Zip,

@@ -1,0 +1,4 @@
+{
+  "name": "@recative/extension-ios",
+  "main": "./manifest.ts"
+}

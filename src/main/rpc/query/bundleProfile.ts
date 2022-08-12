@@ -1,16 +1,17 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/no-loop-func */
 import { join } from 'path';
+import { remove } from 'fs-extra';
 
 import { Zip } from '@recative/extension-sdk';
+import { TerminalMessageLevel as Level } from '@recative/definitions';
 import type { IBundleProfile } from '@recative/extension-sdk';
-import type { TerminalMessageLevel } from '@recative/definitions';
 
 import { dumpPlayerConfigs } from './publishPlayerBundle';
 import {
-  logToTerminal,
   wrapTaskFunction,
   newTerminalSession,
+  logToTerminal,
 } from './terminal';
 
 import { bundlePlayerConfig } from './utils/bundlePlayerConfig';
@@ -89,7 +90,7 @@ export const createBundles = async (
       throw new TypeError(`Profile ${profileId} not found`);
     }
 
-    const taskName = `Bundling ${Reflect.get(profile, 'label')}`;
+    const taskName = `Bundling ${profile.label}`;
     profileIdToTaskNameMap.set(profileId, taskName);
 
     return taskName;
@@ -116,20 +117,41 @@ export const createBundles = async (
       throw new TypeError(`Profile ${profileId} not found`);
     }
 
+    const title = `== ${profile.label} (${profile.bundleExtensionId}) ==`;
+    logToTerminal(
+      terminalId,
+      Array(title.length).fill('=').join(''),
+      Level.Info
+    );
+    logToTerminal(terminalId, title, Level.Info);
+    logToTerminal(
+      terminalId,
+      Array(title.length).fill('=').join(''),
+      Level.Info
+    );
+
     const bundler = instances[profile.bundleExtensionId];
 
-    const outputPublicPath = Reflect.get(bundler, 'outputPublicPath');
+    const appTemplatePublicPath = Reflect.get(
+      bundler.constructor,
+      'appTemplatePublicPath'
+    );
 
     const buildPath = await getBuildPath();
 
-    const outputFileName = `${Reflect.get(bundler, 'outputPrefix')}-${
-      profile.prefix
-    }-${bundleReleaseId.toString().padStart(4, '0')}.${Reflect.get(
-      bundler,
+    const outputFileName = `${Reflect.get(
+      bundler.constructor,
+      'outputPrefix'
+    )}-${profile.prefix}-${bundleReleaseId
+      .toString()
+      .padStart(4, '0')}.${Reflect.get(
+      bundler.constructor,
       'outputExtensionName'
     )}`;
 
     const outputPath = join(buildPath, outputFileName);
+
+    await remove(outputPath);
 
     const zip = new Zip(outputPath, {
       zlib: { level: 0 },
@@ -140,42 +162,47 @@ export const createBundles = async (
         await duplicateBasePackage(
           zip,
           profile.shellTemplateFileName,
-          Reflect.get(bundler, 'appTemplateFromPath'),
-          Reflect.get(bundler, 'appTemplatePublicPath'),
-          Reflect.get(bundler, 'excludeTemplateFilePaths'),
+          Reflect.get(bundler.constructor, 'appTemplateFromPath'),
+          Reflect.get(bundler.constructor, 'outputPublicPath'),
+          Reflect.get(bundler.constructor, 'excludeTemplateFilePaths'),
           terminalId
         );
       }
 
       if (profile.webRootTemplateFileName) {
-        duplicateWebRootPackage(
+        await duplicateWebRootPackage(
           zip,
           profile.webRootTemplateFileName,
-          Reflect.get(bundler, 'outputPublicPath'),
+          Reflect.get(bundler.constructor, 'appTemplatePublicPath'),
           terminalId
         );
       }
+
       await transferActPointArtifacts(
         zip,
         release.codeBuildId,
-        `${outputPublicPath}/bundle/ap`,
+        `${appTemplatePublicPath}/bundle/ap`,
         terminalId
       );
       await bundlePlayerConfig(
         zip,
         bundleReleaseId,
-        `${outputPublicPath}/bundle`,
+        `${appTemplatePublicPath}/bundle`,
         profile.metadataFormat as any,
         terminalId
       );
-      await bundleAdditionalModules(zip, outputPublicPath, terminalId);
+      await bundleAdditionalModules(zip, appTemplatePublicPath, terminalId);
       await bundleMediaResourcesWithoutEpisodeOrWithCacheProperty(
         zip,
         bundleReleaseId,
         release.mediaBuildId,
-        `${outputPublicPath}/bundle/resource`,
+        `${appTemplatePublicPath}/bundle/resource`,
         terminalId
       );
+
+      await bundler.beforeBundleFinalized?.(zip, profile, bundleReleaseId);
+
+      await zip.done();
 
       await bundler.afterBundleCreated?.(zip, profile, bundleReleaseId);
     })();

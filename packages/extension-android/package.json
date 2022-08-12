@@ -1,0 +1,4 @@
+{
+  "name": "@recative/extension-android",
+  "main": "./manifest.ts"
+}

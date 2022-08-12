@@ -24,7 +24,7 @@ import { server } from 'utils/rpc';
 import { BundleOptionItem } from './BundleOptionItem';
 
 export interface ICreateBundleModalProps {
-  onSubmit: () => void;
+  onSubmit: (ids: string[], bundleReleaseId: number) => void;
 }
 
 const ulStyles = {
@@ -33,15 +33,19 @@ const ulStyles = {
   listStyle: 'none',
 };
 
-export const useCreateBundleModal = ModalManager(null);
+export const useCreateBundleModal = ModalManager<number, null>(null);
 
 export const CreateBundleModal: React.FC<ICreateBundleModalProps> = ({
   onSubmit,
 }) => {
   const [profiles, profilesActions] = useAsync(server.listBundleProfile);
 
+  const profileIds = React.useMemo(() => {
+    return profiles.result?.map((profile) => profile.id) ?? [];
+  }, [profiles.result]);
+
   const [css] = useStyletron();
-  const [showBundleOption, , , onClose] = useCreateBundleModal();
+  const [showBundleOption, data, , onClose] = useCreateBundleModal();
 
   React.useEffect(() => {
     profilesActions.execute();
@@ -50,9 +54,9 @@ export const CreateBundleModal: React.FC<ICreateBundleModalProps> = ({
   const [selectedProfiles, setSelectedProfiles] = React.useState(
     () =>
       new Set(
-        (localStorage.getItem('@recative/studio/selectedProfile') ?? '').split(
-          ',,,'
-        )
+        (localStorage.getItem('@recative/studio/selectedProfile') ?? '')
+          .split(',,,')
+          .filter(Boolean)
       )
   );
 
@@ -73,6 +77,17 @@ export const CreateBundleModal: React.FC<ICreateBundleModalProps> = ({
     },
     [selectedProfiles]
   );
+
+  const handleSubmit = React.useCallback(() => {
+    if (data === null) {
+      return;
+    }
+    onSubmit(
+      Array.from(selectedProfiles).filter((x) => profileIds.includes(x)),
+      data
+    );
+    onClose();
+  }, [data, onClose, onSubmit, profileIds, selectedProfiles]);
 
   if (profiles.status === 'not-executed' || profiles.status === 'loading') {
     return null;
@@ -122,7 +137,7 @@ export const CreateBundleModal: React.FC<ICreateBundleModalProps> = ({
         <ModalButton kind={BUTTON_KIND.tertiary} onClick={onClose}>
           Cancel
         </ModalButton>
-        <ModalButton kind={BUTTON_KIND.primary} onClick={onSubmit}>
+        <ModalButton kind={BUTTON_KIND.primary} onClick={handleSubmit}>
           OK
         </ModalButton>
       </ModalFooter>

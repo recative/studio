@@ -8,25 +8,47 @@ import { SmallIconButton } from 'components/Button/SmallIconButton';
 import { ContentContainer } from 'components/Layout/ContentContainer';
 import { BundleIconOutline } from 'components/Icons/BundleIconOutline';
 
+import { useTerminalModal } from 'components/Terminal/TerminalModal';
+
+import { server } from 'utils/rpc';
+
 import { ReleaseList } from './components/ReleaseList';
 import {
   CreateBundleModal,
   useCreateBundleModal,
 } from './components/CreateBundleModal';
 
-const Actions: React.FC = () => {
+interface IActionsProps {
+  id: number;
+}
+
+const Actions: React.FC<IActionsProps> = ({ id }) => {
   const [, , open] = useCreateBundleModal();
+
+  const handleOpen = React.useCallback(() => {
+    open(id);
+  }, [id, open]);
 
   return (
     <RecativeBlock>
       <SmallIconButton title="Create Bundle">
-        <BundleIconOutline width={16} onClick={open} />
+        <BundleIconOutline width={16} onClick={handleOpen} />
       </SmallIconButton>
     </RecativeBlock>
   );
 };
 
 const InternalBundle: React.FC = () => {
+  const [, , openTerminal] = useTerminalModal();
+
+  const handleSubmit = React.useCallback(
+    (profileIds: string[], bundleReleaseId: number) => {
+      server.createBundles(profileIds, bundleReleaseId);
+      openTerminal('createBundles');
+    },
+    [openTerminal]
+  );
+
   return (
     <PivotLayout>
       <ContentContainer width={1000} limitedHeight>
@@ -56,7 +78,7 @@ const InternalBundle: React.FC = () => {
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
-      <CreateBundleModal onSubmit={() => {}} />
+      <CreateBundleModal onSubmit={handleSubmit} />
     </PivotLayout>
   );
 };

@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import {
   TerminalStepStatus,
   TerminalMessageLevel,
@@ -69,9 +70,8 @@ export const wrapTaskFunction = <
   const handleError = (error: unknown) => {
     updateTerminalStepStatus(id, step, TerminalStepStatus.Failed);
 
+    log.error(`:: ${step}`, error);
     if (error instanceof Error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
       logToTerminal(id, error.message, TerminalMessageLevel.Error);
     } else {
       logToTerminal(id, 'Unknown Error', TerminalMessageLevel.Error);
