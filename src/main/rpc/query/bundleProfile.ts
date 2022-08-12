@@ -202,7 +202,7 @@ export const createBundles = async (
       );
       await zip.appendFile(
         join(workspace.assetsPath, profile.constantFileName),
-        `${appTemplatePublicPath}/bundle/constants`
+        `${appTemplatePublicPath}/constants`
       );
       await bundleAdditionalModules(zip, appTemplatePublicPath, terminalId);
       await bundleMediaResourcesWithoutEpisodeOrWithCacheProperty(
