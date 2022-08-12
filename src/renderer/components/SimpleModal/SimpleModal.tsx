@@ -22,7 +22,7 @@ export const SimpleModalFactory = <T,>(
   head: string | ((x: T | null) => React.ReactNode),
   body: string | ((x: T | null) => React.ReactNode),
   confirm: string | ((x: T | null) => React.ReactNode),
-  cancel: string | ((x: T | null) => React.ReactNode)
+  cancel?: string | ((x: T | null) => React.ReactNode)
 ) => {
   const useModalManager = ModalManager<T, null>(null);
 
@@ -56,9 +56,11 @@ export const SimpleModalFactory = <T,>(
         </ModalHeader>
         <ModalBody>{typeof body === 'string' ? head : body(data)}</ModalBody>
         <ModalFooter>
-          <ModalButton kind={BUTTON_KIND.tertiary} onClick={handleCancel}>
-            {typeof cancel === 'string' ? cancel : cancel(data)}
-          </ModalButton>
+          {cancel && (
+            <ModalButton kind={BUTTON_KIND.tertiary} onClick={handleCancel}>
+              {typeof cancel === 'string' ? cancel : cancel(data)}
+            </ModalButton>
+          )}
           <ModalButton onClick={handleSubmit}>
             {typeof confirm === 'string' ? confirm : confirm(data)}
           </ModalButton>

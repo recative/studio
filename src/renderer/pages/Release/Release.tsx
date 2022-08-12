@@ -24,7 +24,10 @@ import { server } from 'utils/rpc';
 
 import { CommitForm } from './components/CommitForm';
 import { ReleaseItem } from './components/ReleaseItem';
-import { BundleReleaseSuccessModal } from './components/BundleReleaseSuccessModal';
+import {
+  BundleReleaseSuccessModal,
+  useBundleReleaseSuccessModal,
+} from './components/BundleReleaseSuccessModal';
 
 import type { ICommitFormInputs } from './components/CommitForm';
 
@@ -132,9 +135,8 @@ const useBundleMediaProps = () => {
   };
 };
 
-const useCreateBundleReleaseProps = (fetchReleaseData: () => void) => {
-  const [showBundleReleaseSuccessModal, setShowBundleReleaseSuccessModal] =
-    React.useState(false);
+const useCreateBundleReleaseProps = () => {
+  const [, , openReleaseSuccessModal] = useBundleReleaseSuccessModal();
 
   const handleCreateBundleRelease = React.useCallback(
     async (inputs: ICommitFormInputs) => {
@@ -147,20 +149,13 @@ const useCreateBundleReleaseProps = (fetchReleaseData: () => void) => {
         inputs.message
       );
 
-      setShowBundleReleaseSuccessModal(true);
+      openReleaseSuccessModal(true);
     },
     []
   );
 
-  const handleModalClose = React.useCallback(() => {
-    fetchReleaseData();
-    setShowBundleReleaseSuccessModal(false);
-  }, []);
-
   return {
-    showBundleReleaseSuccessModal,
     handleCreateBundleRelease,
-    handleModalClose,
   };
 };
 
@@ -170,19 +165,15 @@ export const Release: React.FC = () => {
   const { handleBuildCode } = useBuildCodeProps();
   const { handleBuildMedia } = useBundleMediaProps();
   const {
-    showBundleReleaseSuccessModal,
     handleCreateBundleRelease,
-    handleModalClose: handleBundleSuccessModalClose,
-  } = useCreateBundleReleaseProps(fetchReleaseData);
+  } = useCreateBundleReleaseProps();
 
   const databaseLocked = useDatabaseLocked();
   
   const [isTerminalOpen, ] = useTerminalModal();
 
   React.useEffect(() => {
-    if (isTerminalOpen) {
-      fetchReleaseData();
-    }
+    fetchReleaseData();
   }, [isTerminalOpen]);
 
   return (
@@ -257,10 +248,7 @@ export const Release: React.FC = () => {
           </Card>
         </RecativeBlock>
       </ContentContainer>
-      <BundleReleaseSuccessModal
-        isOpen={showBundleReleaseSuccessModal}
-        onClose={handleBundleSuccessModalClose}
-      />
+      <BundleReleaseSuccessModal onCancel={null} onSubmit={fetchReleaseData} />
     </PivotLayout>
   );
 };
