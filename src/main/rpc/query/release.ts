@@ -4,13 +4,13 @@ import { ensureDir, writeJSON } from 'fs-extra';
 
 import type { Collection } from 'lokijs';
 
-import { Zip } from '@recative/extension-sdk';
+import { Zip, TerminalMessageLevel as Level } from '@recative/extension-sdk';
 import {
   TaskLockedError,
   WorkspaceNotReadyError,
   cleanUpResourceListForClient,
-  TerminalMessageLevel as Level,
 } from '@recative/definitions';
+
 import type { ISimpleRelease, IBundleRelease } from '@recative/definitions';
 
 import {

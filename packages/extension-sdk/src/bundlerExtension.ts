@@ -2,8 +2,7 @@ import log from 'electron-log';
 import proto from 'protobufjs';
 import type StreamZip from 'node-stream-zip';
 
-import type { Zip } from '@recative/extension-sdk';
-import type { TerminalMessageLevel } from '@recative/definitions';
+import type { Zip, TerminalMessageLevel } from '@recative/extension-sdk';
 
 import type { IBundleProfile } from './bundler';
 import type { IConfigUiField } from './settings';

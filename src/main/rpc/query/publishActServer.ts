@@ -3,11 +3,8 @@ import { join } from 'path';
 
 import StreamZip from 'node-stream-zip';
 
-import {
-  PreloadLevel,
-  TerminalMessageLevel,
-  ResolutionMode,
-} from '@recative/definitions';
+import { TerminalMessageLevel } from '@recative/extension-sdk';
+import { PreloadLevel, ResolutionMode } from '@recative/definitions';
 import type {
   IAsset,
   IEpisode,

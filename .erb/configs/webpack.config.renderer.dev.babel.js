@@ -191,6 +191,7 @@ export default merge(baseConfig, {
       watch: true,
     },
     client: {
+      logging: 'warn',
       webSocketURL: {
         hostname: '127.0.0.1',
       },

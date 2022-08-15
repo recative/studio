@@ -28,7 +28,7 @@ import {
   ITerminal,
   TerminalStepStatus,
   TerminalMessageLevel,
-} from '@recative/definitions';
+} from '@recative/extension-sdk';
 
 import { server } from 'utils/rpc';
 

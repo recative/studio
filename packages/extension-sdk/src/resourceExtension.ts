@@ -1,4 +1,5 @@
-import { hashObject, TerminalMessageLevel } from '@recative/definitions';
+import { hashObject } from '@recative/definitions';
+import { TerminalMessageLevel } from '@recative/extension-sdk';
 
 import type {
   IResourceItem,

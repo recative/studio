@@ -3,7 +3,8 @@ import { join } from 'path';
 
 import StreamZip from 'node-stream-zip';
 
-import { Category, TerminalMessageLevel as Level } from '@recative/definitions';
+import { Category } from '@recative/definitions';
+import { TerminalMessageLevel as Level } from '@recative/extension-sdk';
 
 import { logToTerminal } from './terminal';
 

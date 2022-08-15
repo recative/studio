@@ -15,6 +15,7 @@ import type {
   Bundler,
   Uploader,
   ResourceProcessor,
+  TerminalMessageLevel,
   IBundlerExtensionDependency,
   IResourceExtensionDependency,
   PostProcessedResourceItemForUpload,
@@ -23,11 +24,7 @@ import type {
 } from '@recative/extension-sdk';
 
 import { Zip } from '@recative/extension-sdk';
-import {
-  Category,
-  IResourceFile,
-  TerminalMessageLevel,
-} from '@recative/definitions';
+import { Category, IResourceFile } from '@recative/definitions';
 
 import { getDb } from '../rpc/db';
 import { extensions } from '../extensions';

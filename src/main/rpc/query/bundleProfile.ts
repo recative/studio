@@ -3,8 +3,7 @@
 import { join } from 'path';
 import { remove } from 'fs-extra';
 
-import { Zip } from '@recative/extension-sdk';
-import { TerminalMessageLevel as Level } from '@recative/definitions';
+import { Zip, TerminalMessageLevel as Level } from '@recative/extension-sdk';
 import type { IBundleProfile } from '@recative/extension-sdk';
 
 import { dumpPlayerConfigs } from './publishPlayerBundle';

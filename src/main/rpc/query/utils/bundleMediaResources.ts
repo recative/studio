@@ -1,8 +1,9 @@
-import { IBundleProfile, Zip } from '@recative/extension-sdk';
 import {
-  REDIRECT_URL_EXTENSION_ID,
+  Zip,
+  IBundleProfile,
   TerminalMessageLevel as Level,
-} from '@recative/definitions';
+} from '@recative/extension-sdk';
+import { REDIRECT_URL_EXTENSION_ID } from '@recative/definitions';
 
 import { logToTerminal } from '../terminal';
 

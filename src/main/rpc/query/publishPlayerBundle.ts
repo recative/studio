@@ -7,9 +7,8 @@ import StreamZip from 'node-stream-zip';
 import { encode } from '@msgpack/msgpack';
 import { rename, copy, existsSync } from 'fs-extra';
 
-import { Zip } from '@recative/extension-sdk';
-import { TerminalMessageLevel as Level } from '@recative/definitions';
 import { stringify as uglyJSONstringify } from '@recative/ugly-json';
+import { Zip, TerminalMessageLevel as Level } from '@recative/extension-sdk';
 import type {
   IBundleProfile,
   PostProcessedResourceItemForUpload,
@@ -161,10 +160,14 @@ export const dumpPlayerConfigs = async (
     join(playerConfigPath, 'data', `episodes.${profile.metadataFormat}`)
   );
 
-  for (const { episode } of episodes) {
+  for (const episode of episodes) {
     await writeData(
       serializer(episode),
-      join(playerConfigPath, 'data', `${episode.id}.${profile.metadataFormat}`)
+      join(
+        playerConfigPath,
+        'data',
+        `${episode.episode.id}.${profile.metadataFormat}`
+      )
     );
   }
 };
