@@ -2,6 +2,7 @@ import {
   IResourceItemForClient,
   IDetailedResourceItemForClient,
 } from '@recative/definitions';
+import { IBundleProfile } from '@recative/extension-sdk';
 
 import {
   DESKTOP_SHELL_KEY,
@@ -76,6 +77,27 @@ export const injectResourceUrlForResourceManager = <
   resources: T[],
   resourceHost: string,
   resourceProtocol: string
+): T[] => {
+  const step0 = injectResourceUrl(
+    resources,
+    constructResourceManagerUrlPattern(resourceHost, resourceProtocol)
+  );
+  const step1 = injectResourceUrl(
+    step0,
+    'http://localhost:12453/notExists',
+    '@recative/uploader-extension-error/not-exists'
+  );
+
+  return step1;
+};
+
+export const injectResourceUrlForBundleProfile = <
+  T extends IDetailedResourceItemForClient | IResourceItemForClient
+>(
+  resources: T[],
+  resourceHost: string,
+  resourceProtocol: string,
+  profile: IBundleProfile
 ): T[] => {
   const step0 = injectResourceUrl(
     resources,

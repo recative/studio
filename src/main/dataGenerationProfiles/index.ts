@@ -1,7 +1,11 @@
+import type { IBundleProfile } from '@recative/extension-sdk';
+
+import { BundlerProfile } from './bundlerProfile';
 import { PlayerShellProfile } from './playerShellProfile';
 import { ApPackLivePreviewProfile } from './apPackLivePreviewProfile';
 import { ApPackDistPreviewProfile } from './apPackDistPreviewProfile';
 
+import type { IBundlerProfileConfig } from './bundlerProfile';
 import type { IPlayerShellProfileConfig } from './playerShellProfile';
 import type { IApPackLivePreviewProfileConfig } from './apPackLivePreviewProfile';
 import type { IApPackDistPreviewProfileConfig } from './apPackDistPreviewProfile';
@@ -15,12 +19,20 @@ export type ApPackPreviewProfileConfig = IApPackLivePreviewProfileConfig & {
 export type StudioPreviewProfileConfig = IApPackDistPreviewProfileConfig & {
   type: 'apPackDistPreview';
 };
+export type BundleProfileConfig = IBundlerProfileConfig & {
+  type: 'bundleProfile';
+  mediaReleaseId: number;
+  codeReleaseId: number;
+  bundleProfile: IBundleProfile;
+};
 
 export type ProfileConfig =
   | PlayerShellProfileConfig
   | ApPackPreviewProfileConfig
-  | StudioPreviewProfileConfig;
+  | StudioPreviewProfileConfig
+  | BundleProfileConfig;
 
+// TODO: Let's refactor this part later to make sure it can fit the plugin system.
 export const getProfile = ({ type, ...config }: ProfileConfig) => {
   if (type === 'playerShell') {
     return new PlayerShellProfile(
@@ -40,6 +52,14 @@ export const getProfile = ({ type, ...config }: ProfileConfig) => {
     return new ApPackDistPreviewProfile(
       thisConfig.resourceHostName,
       thisConfig.apProtocol
+    );
+  }
+  if (type === 'bundleProfile') {
+    const thisConfig = config as BundleProfileConfig;
+    return new BundlerProfile(
+      thisConfig.codeReleaseId,
+      thisConfig.mediaReleaseId,
+      thisConfig.bundleProfile
     );
   }
   throw new Error(`Unknown profile type: ${type}`);

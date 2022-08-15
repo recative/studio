@@ -14,12 +14,11 @@ import {
   logToTerminal,
 } from './terminal';
 
-import { bundlePlayerConfig } from './utils/bundlePlayerConfig';
+import { bundleMediaResources } from './utils/bundleMediaResources';
 import { duplicateBasePackage } from './utils/duplicateBasePackage';
 import { duplicateWebRootPackage } from './utils/duplicateWebRootPackage';
 import { bundleAdditionalModules } from './utils/bundleAdditionalModules';
 import { transferActPointArtifacts } from './utils/transferActPointArtifacts';
-import { bundleMediaResourcesWithoutEpisodeOrWithCacheProperty } from './utils/bundleMediaResourcesWithoutEpisodeOrWithCacheProperty';
 
 import { getBuildPath } from './setting';
 
@@ -100,11 +99,7 @@ export const createBundles = async (
     return taskName;
   });
 
-  newTerminalSession(terminalId, ['Dump player configurations', ...tasks]);
-
-  await wrapTaskFunction(terminalId, 'Dump player configurations', async () => {
-    dumpPlayerConfigs(release.codeBuildId, bundleReleaseId, terminalId);
-  })();
+  newTerminalSession(terminalId, tasks);
 
   const instances = await getBundlerInstances(terminalId);
   const buildPath = await getBuildPath();
@@ -190,11 +185,14 @@ export const createBundles = async (
         `${appTemplatePublicPath}/bundle/ap`,
         terminalId
       );
-      await bundlePlayerConfig(
+
+      await dumpPlayerConfigs(
         zip,
+        release.mediaBuildId,
+        release.codeBuildId,
         bundleReleaseId,
-        `${appTemplatePublicPath}/bundle`,
-        profile.metadataFormat as any,
+        appTemplatePublicPath,
+        profile,
         terminalId
       );
       await zip.appendFile(
@@ -207,11 +205,12 @@ export const createBundles = async (
       );
       await bundleAdditionalModules(zip, appTemplatePublicPath, terminalId);
 
-      await bundleMediaResourcesWithoutEpisodeOrWithCacheProperty(
+      await bundleMediaResources(
         zip,
         bundleReleaseId,
         release.mediaBuildId,
         `${appTemplatePublicPath}/bundle/resource`,
+        profile,
         terminalId
       );
 

@@ -1,4 +1,4 @@
-import { Zip } from '@recative/extension-sdk';
+import { IBundleProfile, Zip } from '@recative/extension-sdk';
 import {
   REDIRECT_URL_EXTENSION_ID,
   TerminalMessageLevel as Level,
@@ -8,9 +8,8 @@ import { logToTerminal } from '../terminal';
 
 import { getReleasedDb } from '../../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../../utils/getResourceFile';
+import { ifResourceIncludedInBundle } from '../../../dataGenerationProfiles/utils/ifResourceIncludedInBundle';
 import { analysisPostProcessedRecords } from '../../../utils/analysisPostProcessedRecords';
-
-import { MOBILE_SHELL_BUILD_IN_KEY } from '../../../utils/buildInResourceUploaderKeys';
 
 /**
  * Find all not-deleted resource files, which don't have any episode, or
@@ -22,50 +21,33 @@ import { MOBILE_SHELL_BUILD_IN_KEY } from '../../../utils/buildInResourceUploade
  * @param mediaReleaseId release ID of media release.
  * @param terminalId Output information to which terminal.
  */
-export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
+export const bundleMediaResources = async (
   zip: Zip,
   bundleReleaseId: number,
   mediaReleaseId: number,
   resourcePath: string,
+  profile: IBundleProfile,
   terminalId: string
 ) => {
   const db = await getReleasedDb(bundleReleaseId);
 
-  // Get all resource that is not removed and have no episode record.
-  const resourceImported = db.resource.resources.find({
-    type: 'file',
-    removed: false,
-    $or: [
-      {
-        episodeIds: { $size: 0 },
+  const resourceImported = db.resource.resources
+    .find({
+      type: 'file',
+      removed: false,
+      redirectTo: {
+        $or: [{ $exists: false }, { $eq: false }],
       },
-      {
-        cacheToHardDisk: true,
+      url: {
+        $nkeyin: [REDIRECT_URL_EXTENSION_ID],
       },
-    ],
-    redirectTo: {
-      $or: [{ $exists: false }, { $eq: false }],
-    },
-    url: {
-      $nkeyin: [REDIRECT_URL_EXTENSION_ID],
-    },
-  });
+    })
+    .filter((x) => ifResourceIncludedInBundle(x, mediaReleaseId, profile));
   const resourceProcessed = db.resource.postProcessed
     .find({
       type: 'file',
-      $or: [
-        {
-          episodeIds: { $size: 0 },
-        },
-        {
-          cacheToHardDisk: true,
-        },
-      ],
-      mimeType: {
-        $ne: 'application/zip',
-      },
     })
-    .filter((x) => x.postProcessRecord.mediaBundleId.includes(mediaReleaseId));
+    .filter((x) => ifResourceIncludedInBundle(x, mediaReleaseId, profile));
 
   const postProcessCombination =
     analysisPostProcessedRecords(resourceProcessed);
@@ -81,37 +63,6 @@ export const bundleMediaResourcesWithoutEpisodeOrWithCacheProperty = async (
   logToTerminal(
     terminalId,
     `:: :: Total: ${resourceImported.length + resourceProcessed.length}`
-  );
-
-  const withBuildInResourceImported = resourceImported.filter((resource) => {
-    return (
-      resource.type === 'file' && MOBILE_SHELL_BUILD_IN_KEY in resource.url
-    );
-  });
-
-  const withBuildInResourcePostProcessed = resourceImported.filter(
-    (resource) => {
-      return (
-        resource.type === 'file' && MOBILE_SHELL_BUILD_IN_KEY in resource.url
-      );
-    }
-  );
-
-  logToTerminal(terminalId, `:: With build-in url:`);
-  logToTerminal(
-    terminalId,
-    `:: :: Imported: ${withBuildInResourceImported.length}`
-  );
-  logToTerminal(
-    terminalId,
-    `:: :: Processed: ${withBuildInResourcePostProcessed.length}`
-  );
-  logToTerminal(
-    terminalId,
-    `:: :: Total: ${
-      withBuildInResourceImported.length +
-      withBuildInResourcePostProcessed.length
-    }`
   );
 
   const resourceList = [...resourceImported, ...resourceProcessed];

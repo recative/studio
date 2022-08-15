@@ -5,11 +5,15 @@ import { cloneDeep } from 'lodash';
 
 import StreamZip from 'node-stream-zip';
 import { encode } from '@msgpack/msgpack';
-import { ensureDir, writeFileSync, rename, copy, existsSync } from 'fs-extra';
+import { rename, copy, existsSync } from 'fs-extra';
 
-import { stringify as uglyJSONstringify } from '@recative/ugly-json';
+import { Zip } from '@recative/extension-sdk';
 import { TerminalMessageLevel as Level } from '@recative/definitions';
-import { PostProcessedResourceItemForUpload } from '@recative/extension-sdk';
+import { stringify as uglyJSONstringify } from '@recative/ugly-json';
+import type {
+  IBundleProfile,
+  PostProcessedResourceItemForUpload,
+} from '@recative/extension-sdk';
 
 import { cleanupLoki } from './utils';
 import { getBuildPath } from './setting';
@@ -20,19 +24,32 @@ import { getReleasedDb } from '../../utils/getReleasedDb';
 import { analysisPostProcessedRecords } from '../../utils/analysisPostProcessedRecords';
 
 const getBundlerConfigs = async (
+  mediaReleaseId: number | null,
   codeReleaseId: number,
   bundleReleaseId: number,
+  profile?: IBundleProfile,
   terminalId?: string
 ) => {
   const db = getReleasedDb(bundleReleaseId, terminalId);
 
+  if (profile && mediaReleaseId === null) {
+    throw new Error('mediaReleaseId is required when profile is provided');
+  }
+
   const episodes = cloneDeep(
     await getEpisodeDetailList(
       null,
-      {
-        type: 'playerShell',
-        codeReleaseId,
-      },
+      profile
+        ? {
+            type: 'bundleProfile',
+            mediaReleaseId: mediaReleaseId as number,
+            codeReleaseId,
+            bundleProfile: profile,
+          }
+        : {
+            type: 'playerShell',
+            codeReleaseId,
+          },
       db
     )
   );
@@ -44,21 +61,24 @@ const getBundlerConfigs = async (
  * Dumping all binary data files to player dump path.
  *
  * @param codeReleaseId release ID of code release.
- * @param mediaReleaseId release ID of media release.
  * @param bundleReleaseId Release ID of bundle release.
  * @param terminalId Output information to which terminal.
  */
 export const dumpPlayerConfigs = async (
+  zip: Zip,
+  mediaReleaseId: number,
   codeReleaseId: number,
   bundleReleaseId: number,
-  terminalId: string
+  appTemplatePublicPath: string,
+  profile: IBundleProfile,
+  terminalId?: string
 ) => {
-  const buildPath = await getBuildPath();
-
   logToTerminal(terminalId, `Extracting episode configurations`, Level.Info);
   const episodes = await getBundlerConfigs(
+    mediaReleaseId,
     codeReleaseId,
     bundleReleaseId,
+    profile,
     terminalId
   );
 
@@ -71,13 +91,6 @@ export const dumpPlayerConfigs = async (
     });
     x.resources = x.resources.map(cleanupLoki) as typeof x.resources;
   });
-
-  const playerBundlePath = join(
-    buildPath,
-    `player-${bundleReleaseId.toString().padStart(4, '0')}`
-  );
-  await ensureDir(playerBundlePath);
-  const dataDir = join(playerBundlePath, 'data');
 
   logToTerminal(terminalId, `:: Episodes`);
 
@@ -114,37 +127,46 @@ export const dumpPlayerConfigs = async (
   }));
 
   logToTerminal(terminalId, `Writing binary files`, Level.Info);
-  ensureDir(dataDir);
-  ensureDir(join(dataDir, 'bson'));
-  ensureDir(join(dataDir, 'json'));
-  ensureDir(join(dataDir, 'uson'));
-  writeFileSync(
-    join(dataDir, 'bson', 'episodes.bson'),
-    encode(episodeAbstraction)
-  );
-  writeFileSync(
-    join(dataDir, 'json', 'episodes.json'),
-    JSON.stringify(episodeAbstraction)
-  );
-  writeFileSync(
-    join(dataDir, 'uson', 'episodes.uson'),
-    uglyJSONstringify(episodeAbstraction)
+
+  let serializer: (x: unknown) => string | Uint8Array;
+
+  switch (profile.metadataFormat) {
+    case 'json':
+      serializer = JSON.stringify;
+      break;
+    case 'uson':
+      serializer = uglyJSONstringify;
+      break;
+    case 'bson':
+      serializer = encode;
+      break;
+    default:
+      throw new Error('Unknown metadata format');
+  }
+
+  const writeData = (x: string | Uint8Array, to: string) => {
+    if (typeof x === 'string') {
+      return zip.appendText(x, to);
+    }
+    const buffer = Buffer.from(x);
+    return zip.appendFile(buffer, to);
+  };
+
+  const episodesData = serializer(episodeAbstraction);
+
+  const playerConfigPath = join(appTemplatePublicPath, 'bundle');
+
+  await writeData(
+    episodesData,
+    join(playerConfigPath, 'data', `episodes.${profile.metadataFormat}`)
   );
 
-  episodes.forEach((episode) => {
-    writeFileSync(
-      join(dataDir, 'bson', `${episode.episode.id}.bson`),
-      encode(episode)
+  for (const { episode } of episodes) {
+    await writeData(
+      serializer(episode),
+      join(playerConfigPath, 'data', `${episode.id}.${profile.metadataFormat}`)
     );
-    writeFileSync(
-      join(dataDir, 'json', `${episode.episode.id}.json`),
-      JSON.stringify(episode)
-    );
-    writeFileSync(
-      join(dataDir, 'uson', `${episode.episode.id}.uson`),
-      uglyJSONstringify(episode)
-    );
-  });
+  }
 };
 
 /**
@@ -236,7 +258,12 @@ export const publishPlayerBundle = async (
     await rmdir(playerBundlePath, { recursive: true });
   }
 
-  await dumpPlayerConfigs(codeReleaseId, bundleReleaseId, terminalId);
+  // await dumpPlayerConfigs(
+  //   mediaReleaseId,
+  //   codeReleaseId,
+  //   bundleReleaseId,
+  //   terminalId
+  // );
   await dumpActPointArtifacts(codeReleaseId, bundleReleaseId, terminalId);
   await dumpMediaResources(mediaReleaseId, bundleReleaseId, terminalId);
 };

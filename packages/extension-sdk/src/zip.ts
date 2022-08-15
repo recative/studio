@@ -271,11 +271,11 @@ export class Zip {
       throw new Error('Writing is not finished, unable to close the file');
     }
 
+    await this.appendText('yay', '.recative');
+
     this.closed = true;
 
     log.log(`:: [${basename(this.filePath)}] Closing archive`);
-
-    // await this.appendText('yay', '.recative');
 
     this.archive.finalize();
 

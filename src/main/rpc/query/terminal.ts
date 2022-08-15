@@ -44,10 +44,14 @@ export const updateTerminalStepStatus = (
 };
 
 export const logToTerminal = (
-  id: string,
+  id: string | undefined,
   message: string | [string, string],
   level = TerminalMessageLevel.Info
 ) => {
+  if (id === undefined) {
+    return;
+  }
+
   const session = sessions[id];
   if (session) {
     session.messages.push({

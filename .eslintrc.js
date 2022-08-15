@@ -6,6 +6,7 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off',
     'new-cap': 'off',
     'no-continue': 'off',
+    'no-await-in-loop': 'off',
     'max-classes-per-file': 'off',
     'import/prefer-default-export': 'off',
     'react/prop-types': 'off',
