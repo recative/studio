@@ -61,10 +61,6 @@ export const fastPublish = async (
         codeBundle: true,
         databaseBundle: false,
         playerBundle: false,
-        rawBundle: false,
-        androidPackage: false,
-        aabPackage: false,
-        iOSPackage: false,
         postProcessTest: false,
       });
     }

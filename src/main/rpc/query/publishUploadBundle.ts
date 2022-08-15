@@ -8,10 +8,6 @@ import {
 import { uploadDatabase } from './publishActServer';
 import { uploadCodeBundle } from './publishUploadBundleCode';
 import { uploadMediaBundle } from './publishUploadBundleMedia';
-import { publishIosIpa } from './publishIpa';
-import { publishRawBundle } from './publishRawBundle';
-import { publishAndroidApk } from './publishApk';
-import { publishAndroidAab } from './publishAab';
 import { publishPlayerBundle } from './publishPlayerBundle';
 import { postProcessResource } from './publishPostProcessResource';
 
@@ -45,10 +41,6 @@ export const uploadBundle = async (
     codeBundle,
     databaseBundle,
     playerBundle,
-    rawBundle,
-    androidPackage,
-    aabPackage,
-    iOSPackage,
     postProcessTest,
   }: IPublishTasks,
   terminalId = 'uploadBundle'
@@ -61,10 +53,6 @@ export const uploadBundle = async (
         codeBundle && 'Uploading Code Files',
         databaseBundle && 'Uploading Database Files',
         playerBundle && 'Creating Player Data Bundle',
-        rawBundle && 'Creating Raw App Bundle',
-        androidPackage && 'Creating Android APK',
-        aabPackage && 'Creating Android AAB',
-        iOSPackage && 'Creating iOS IPA',
         postProcessTest && 'Post Processing Test',
       ].filter(Boolean) as string[]
     );
@@ -152,50 +140,6 @@ export const uploadBundle = async (
       }
     }
   )();
-
-  await wrapTaskFunction(terminalId, 'Creating Raw App Bundle', async () => {
-    if (rawBundle) {
-      await publishRawBundle(
-        targetRelease.codeBuildId,
-        targetRelease.mediaBuildId,
-        targetRelease.id,
-        terminalId
-      );
-    }
-  })();
-
-  await wrapTaskFunction(terminalId, 'Creating Android APK', async () => {
-    if (androidPackage) {
-      await publishAndroidApk(
-        targetRelease.codeBuildId,
-        targetRelease.mediaBuildId,
-        targetRelease.id,
-        terminalId
-      );
-    }
-  })();
-
-  await wrapTaskFunction(terminalId, 'Creating Android AAB', async () => {
-    if (aabPackage) {
-      await publishAndroidAab(
-        targetRelease.codeBuildId,
-        targetRelease.mediaBuildId,
-        targetRelease.id,
-        terminalId
-      );
-    }
-  })();
-
-  await wrapTaskFunction(terminalId, 'Creating iOS IPA', async () => {
-    if (iOSPackage) {
-      await publishIosIpa(
-        targetRelease.codeBuildId,
-        targetRelease.mediaBuildId,
-        targetRelease.id,
-        terminalId
-      );
-    }
-  })();
 
   await wrapTaskFunction(terminalId, 'Post Processing Test', async () => {
     if (postProcessTest) {

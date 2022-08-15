@@ -178,6 +178,7 @@ export const createBundles = async (
             zip,
             profile.webRootTemplateFileName,
             Reflect.get(bundler.constructor, 'appTemplatePublicPath'),
+            Reflect.get(bundler.constructor, 'excludeWebRootFilePaths'),
             terminalId
           );
         }
@@ -205,6 +206,7 @@ export const createBundles = async (
         `${appTemplatePublicPath}/constants`
       );
       await bundleAdditionalModules(zip, appTemplatePublicPath, terminalId);
+
       await bundleMediaResourcesWithoutEpisodeOrWithCacheProperty(
         zip,
         bundleReleaseId,
