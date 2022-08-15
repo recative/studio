@@ -17,7 +17,9 @@ export class WebBundler extends Bundler<''> {
 
   static outputExtensionName = 'zip';
 
-  static excludeTemplateFilePaths = [
+  static excludeTemplateFilePaths = [];
+
+  static excludeWebRootFilePaths = [
     'plugins',
     'cordova_plugins.js',
     'cordova.js',

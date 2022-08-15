@@ -19,6 +19,8 @@ export class RawBundler extends Bundler<''> {
 
   static excludeTemplateFilePaths = [];
 
+  static excludeWebRootFilePaths = [];
+
   beforeBundleFinalized = () => {};
 
   afterBundleCreated = () => {};

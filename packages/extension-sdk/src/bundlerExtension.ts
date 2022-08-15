@@ -68,6 +68,8 @@ export abstract class Bundler<ConfigKey extends string> {
 
   static excludeTemplateFilePaths: string[] = [];
 
+  static excludeWebRootFilePaths: string[] = [];
+
   static outputPrefix: string;
 
   static outputExtensionName: string;

@@ -46,6 +46,8 @@ export class AndroidApkBundler extends Bundler<''> {
 
   static excludeTemplateFilePaths = [MANIFEST_PATH];
 
+  static excludeWebRootFilePaths = [];
+
   androidTools = new AndroidTools(this.dependency);
 
   private signApk = async (

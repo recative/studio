@@ -117,6 +117,7 @@ export const publishApp = async ({
       zip,
       webRootTemplateFileName,
       outputPublicPath,
+      [],
       terminalId
     );
   }

@@ -19,6 +19,8 @@ export class IOSIpaBundler extends Bundler<''> {
 
   static excludeTemplateFilePaths = [];
 
+  static excludeWebRootFilePaths = [];
+
   beforeBundleFinalized = () => {};
 
   afterBundleCreated = () => {};

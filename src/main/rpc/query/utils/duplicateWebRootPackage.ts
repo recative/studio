@@ -20,6 +20,7 @@ export const duplicateWebRootPackage = async (
   zip: Zip,
   templatePackageFileName: string,
   publicPath: string,
+  excludeFilePaths: string[],
   terminalId: string
 ) => {
   logToTerminal(terminalId, `Copy web root package`, Level.Info);
@@ -28,5 +29,5 @@ export const duplicateWebRootPackage = async (
 
   const basePackagePath = join(workspace.assetsPath, templatePackageFileName);
 
-  return zip.transfer(basePackagePath, null, publicPath);
+  return zip.transfer(basePackagePath, null, publicPath, excludeFilePaths);
 };
