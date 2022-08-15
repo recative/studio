@@ -1,12 +1,9 @@
 import { join } from 'path';
-import type { Archiver } from 'archiver';
-
 import { Zip } from '@recative/extension-sdk';
 import { TerminalMessageLevel as Level } from '@recative/definitions';
 
 import { logToTerminal } from '../terminal';
 
-import { archiverAppendDir } from '../../../utils/archiver';
 import { getBuildPath } from '../setting';
 
 /**

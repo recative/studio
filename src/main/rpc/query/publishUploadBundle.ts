@@ -8,7 +8,6 @@ import {
 import { uploadDatabase } from './publishActServer';
 import { uploadCodeBundle } from './publishUploadBundleCode';
 import { uploadMediaBundle } from './publishUploadBundleMedia';
-import { publishPlayerBundle } from './publishPlayerBundle';
 import { postProcessResource } from './publishPostProcessResource';
 
 import { getDb } from '../db';
@@ -126,20 +125,20 @@ export const uploadBundle = async (
     }
   })();
 
-  await wrapTaskFunction(
-    terminalId,
-    'Creating Player Data Bundle',
-    async () => {
-      if (playerBundle) {
-        await publishPlayerBundle(
-          targetRelease.codeBuildId,
-          targetRelease.mediaBuildId,
-          targetRelease.id,
-          terminalId
-        );
-      }
-    }
-  )();
+  // await wrapTaskFunction(
+  //   terminalId,
+  //   'Creating Player Data Bundle',
+  //   async () => {
+  //     if (playerBundle) {
+  //       await publishPlayerBundle(
+  //         targetRelease.codeBuildId,
+  //         targetRelease.mediaBuildId,
+  //         targetRelease.id,
+  //         terminalId
+  //       );
+  //     }
+  //   }
+  // )();
 
   await wrapTaskFunction(terminalId, 'Post Processing Test', async () => {
     if (postProcessTest) {
