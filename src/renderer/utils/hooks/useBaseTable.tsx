@@ -110,7 +110,7 @@ export const useSelectableTableProps = <
   }, [hasAll, setData]);
 
   const handleToggle = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, checked } = event.currentTarget;
 
       setData((prevData) => {

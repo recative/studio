@@ -53,7 +53,9 @@ const useSearchAssetCallback = (type: AssetSelectType) => {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const handleSearch = useDebouncedCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
+    async (
+      event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
       const { value } = event.target;
 
       const searchResult =
@@ -69,7 +71,7 @@ const useSearchAssetCallback = (type: AssetSelectType) => {
   );
 
   const handleInputChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setIsLoading(true);
       handleSearch(event);
     },

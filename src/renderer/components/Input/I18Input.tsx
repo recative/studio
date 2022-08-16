@@ -32,7 +32,9 @@ export const I18Input: React.FC<
   const handleChangeCallbacks = React.useMemo(
     () =>
       LANGUAGES.map((language) => {
-        return (event: React.ChangeEvent<HTMLInputElement>) => {
+        return (
+          event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        ) => {
           if (!value) return;
 
           onChange({

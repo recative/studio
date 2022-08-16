@@ -154,7 +154,9 @@ const useSearchQuery = (onModalClose: () => void) => {
   >([]);
 
   const handleSearch = useDebouncedCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
+    async (
+      event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
       const { value } = event.target;
 
       if (mode === ResourceSearchMode.Asset) {
@@ -172,7 +174,7 @@ const useSearchQuery = (onModalClose: () => void) => {
   );
 
   const handleQueryChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setQuery(event.currentTarget.value);
       handleSearch(event);
     },
