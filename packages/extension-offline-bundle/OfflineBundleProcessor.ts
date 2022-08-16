@@ -6,10 +6,12 @@ import {
   Category,
   hashObject,
   PreloadLevel,
+  IResourceItem,
   TerminalMessageLevel as Level,
 } from '@recative/definitions';
 import type {
   IBundleGroup,
+  PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForUpload,
   IPostProcessedResourceFileForImport,
 } from '@recative/extension-sdk';
@@ -49,6 +51,8 @@ export class OfflineBundleProcessor extends ResourceProcessor<
           const files: IPostProcessedResourceFileForUpload[] = resource.filter(
             (x) =>
               x.type === 'file' &&
+              // We should not include the bundle file since it will cause
+              // circular 0bundling.
               !(
                 `${OfflineBundleProcessor.id}~~includes` in
                 x.extensionConfigurations
@@ -311,8 +315,49 @@ export class OfflineBundleProcessor extends ResourceProcessor<
     return null;
   }
 
-  beforePublishApplicationBundle() {
-    return null;
+  beforePublishApplicationBundle(
+    resources: (PostProcessedResourceItemForUpload | IResourceItem)[]
+  ) {
+    const bundles = resources.filter(
+      (x) =>
+        x.type === 'file' &&
+        `${OfflineBundleProcessor.id}~~includes` in x.extensionConfigurations
+    );
+
+    for (let i = 0; i < bundles.length; i += 1) {
+      const bundleResource = bundles[i];
+
+      if (bundleResource.type !== 'file') {
+        throw new TypeError(
+          `Expected file type, got ${bundleResource.type}, this is a bug`
+        );
+      }
+
+      const resourceIds = new Set(
+        bundleResource.extensionConfigurations[
+          `${OfflineBundleProcessor.id}~~includes`
+        ]
+          .split(',')
+          .filter(Boolean)
+      );
+
+      const bundleResources = resources.filter((x) => resourceIds.has(x.id));
+
+      for (let j = 0; j < bundleResources.length; j += 1) {
+        const resource = bundleResources[j];
+        if (resource.type !== 'file') {
+          throw new TypeError(
+            `Expected file type, got ${resource.type}, this is a bug`
+          );
+        }
+
+        resource.url[
+          `@recative/extension-offline-bundle/OfflineBundleProcessor`
+        ] = `http://localhost:34652/${bundleResource.id}/${resource.id}.resource`;
+      }
+    }
+
+    return resources;
   }
 
   beforeFileImported(resources: IPostProcessedResourceFileForImport[]) {
