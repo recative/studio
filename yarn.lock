@@ -4477,6 +4477,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@recative/studio-definitions@workspace:packages/studio-definitions":
+  version: 0.0.0-use.local
+  resolution: "@recative/studio-definitions@workspace:packages/studio-definitions"
+  languageName: unknown
+  linkType: soft
+
 "@recative/studio-src@workspace:src":
   version: 0.0.0-use.local
   resolution: "@recative/studio-src@workspace:src"

@@ -1,11 +1,8 @@
 import { join } from 'path';
 import { existsSync } from 'fs-extra';
 
-import {
-  Zip,
-  IPathListItem,
-  TerminalMessageLevel as Level,
-} from '@recative/extension-sdk';
+import { Zip, IPathListItem } from '@recative/extension-sdk';
+import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
 
 import { logToTerminal } from '../terminal';
 

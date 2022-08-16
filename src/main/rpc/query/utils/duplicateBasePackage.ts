@@ -1,6 +1,7 @@
 import { join } from 'path';
 
-import { Zip, TerminalMessageLevel as Level } from '@recative/extension-sdk';
+import { Zip } from '@recative/extension-sdk';
+import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
 
 import { logToTerminal } from '../terminal';
 

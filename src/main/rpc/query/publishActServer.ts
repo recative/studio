@@ -3,8 +3,8 @@ import { join } from 'path';
 
 import StreamZip from 'node-stream-zip';
 
-import { TerminalMessageLevel } from '@recative/extension-sdk';
 import { PreloadLevel, ResolutionMode } from '@recative/definitions';
+import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
 import type {
   IAsset,
   IEpisode,
@@ -60,12 +60,12 @@ export const uploadDatabase = async (
     await SeriesService.getSeriesSeriesId(series.id);
   } catch (error) {
     if (error instanceof Error) {
-      logToTerminal(terminalId, error.message, TerminalMessageLevel.Error);
+      logToTerminal(terminalId, error.message, Level.Error);
     }
     logToTerminal(
       terminalId,
       'Series not found, Upload suspended',
-      TerminalMessageLevel.Error
+      Level.Error
     );
     console.error(error);
     return;
@@ -113,12 +113,12 @@ export const uploadDatabase = async (
     await ReleaseService.postAdminSeriesSeriesIdRelease(series.id, releaseList);
   } catch (error) {
     if (error instanceof Error) {
-      logToTerminal(terminalId, error.message, TerminalMessageLevel.Error);
+      logToTerminal(terminalId, error.message, Level.Error);
     }
     logToTerminal(
       terminalId,
       'Release Insert Error, Upload suspended',
-      TerminalMessageLevel.Error
+      Level.Error
     );
     return;
   }
@@ -148,7 +148,7 @@ export const uploadDatabase = async (
     );
   } catch (error) {
     if (error instanceof Error) {
-      logToTerminal(terminalId, error.message, TerminalMessageLevel.Error);
+      logToTerminal(terminalId, error.message, Level.Error);
     }
     console.error(error);
   }
@@ -197,7 +197,7 @@ export const uploadDatabase = async (
     );
   } catch (error) {
     if (error instanceof Error) {
-      logToTerminal(terminalId, error.message, TerminalMessageLevel.Error);
+      logToTerminal(terminalId, error.message, Level.Error);
     }
     console.error(error);
   }
@@ -272,7 +272,7 @@ export const uploadDatabase = async (
     );
   } catch (error) {
     if (error instanceof Error) {
-      logToTerminal(terminalId, error.message, TerminalMessageLevel.Error);
+      logToTerminal(terminalId, error.message, Level.Error);
     }
     console.error(error);
   }
@@ -303,7 +303,7 @@ export const uploadDatabase = async (
     );
   } catch (error) {
     if (error instanceof Error) {
-      logToTerminal(terminalId, error.message, TerminalMessageLevel.Error);
+      logToTerminal(terminalId, error.message, Level.Error);
     }
     console.error(error);
   }

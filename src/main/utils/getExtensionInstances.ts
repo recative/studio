@@ -1,7 +1,6 @@
 import proto from 'protobufjs';
 import StreamZip from 'node-stream-zip';
 
-import log from 'electron-log';
 import { h32 } from 'xxhashjs';
 import { join } from 'path';
 import { fileSync } from 'tmp';
@@ -15,13 +14,13 @@ import type {
   Bundler,
   Uploader,
   ResourceProcessor,
-  TerminalMessageLevel,
   IBundlerExtensionDependency,
   IResourceExtensionDependency,
   PostProcessedResourceItemForUpload,
   PostProcessedResourceItemForImport,
   IBundleProfile,
 } from '@recative/extension-sdk';
+import type { TerminalMessageLevel } from '@recative/studio-definitions';
 
 import { Zip } from '@recative/extension-sdk';
 import { Category, IResourceFile } from '@recative/definitions';

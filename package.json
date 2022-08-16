@@ -384,7 +384,8 @@
     "packages/extension-android",
     "packages/extension-ios",
     "packages/extension-web",
-    "packages/extension-raw"
+    "packages/extension-raw",
+    "packages/studio-definitions"
   ],
   "resolutions": {
     "@codemirror/state": "0.20.0"

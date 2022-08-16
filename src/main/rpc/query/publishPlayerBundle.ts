@@ -7,8 +7,10 @@ import StreamZip from 'node-stream-zip';
 import { encode } from '@msgpack/msgpack';
 import { rename, copy, existsSync } from 'fs-extra';
 
+import { Zip } from '@recative/extension-sdk';
 import { stringify as uglyJSONstringify } from '@recative/ugly-json';
-import { Zip, TerminalMessageLevel as Level } from '@recative/extension-sdk';
+import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
+
 import type {
   IBundleProfile,
   PostProcessedResourceItemForUpload,

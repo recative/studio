@@ -1,7 +1,7 @@
 import spawn from 'cross-spawn';
 import type { SpawnOptions } from 'child_process';
 
-import { TerminalMessageLevel as Level } from '@recative/extension-sdk';
+import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
 
 import { logToTerminal } from '../rpc/query/terminal';
 

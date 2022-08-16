@@ -2,8 +2,8 @@ import log from 'electron-log';
 import {
   TerminalStepStatus,
   TerminalMessageLevel,
-} from '@recative/extension-sdk';
-import type { ITerminal } from '@recative/extension-sdk';
+} from '@recative/studio-definitions';
+import type { ITerminal } from '@recative/studio-definitions';
 
 export class AbortedError extends Error {
   code = 'Aborted';

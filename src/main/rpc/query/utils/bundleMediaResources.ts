@@ -1,8 +1,6 @@
-import {
-  Zip,
-  IBundleProfile,
-  TerminalMessageLevel as Level,
-} from '@recative/extension-sdk';
+import { Zip, IBundleProfile } from '@recative/extension-sdk';
+import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
+
 import { REDIRECT_URL_EXTENSION_ID } from '@recative/definitions';
 
 import { logToTerminal } from '../terminal';

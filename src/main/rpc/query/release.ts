@@ -4,7 +4,9 @@ import { ensureDir, writeJSON } from 'fs-extra';
 
 import type { Collection } from 'lokijs';
 
-import { Zip, TerminalMessageLevel as Level } from '@recative/extension-sdk';
+import { Zip } from '@recative/extension-sdk';
+import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
+
 import {
   TaskLockedError,
   WorkspaceNotReadyError,
