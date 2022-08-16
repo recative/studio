@@ -50,8 +50,7 @@ export const ifResourceIncludedInBundle = (
       const { cacheToHardDisk } = resource;
 
       return (
-        resourceDoNotHaveAnyEpisode &&
-        cacheToHardDisk &&
+        (resourceDoNotHaveAnyEpisode || cacheToHardDisk) &&
         !resourceRedirected &&
         validPostProcessed
       );
