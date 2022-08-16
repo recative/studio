@@ -71,10 +71,10 @@ const InternalBlock: React.ForwardRefRenderFunction<
     const b: Partial<Properties> = {};
 
     Object.keys(props).forEach((key) => {
-      if (!HTML_KEYS.includes(key as any)) {
-        (b as any)[key] = (props as any)[key];
-      } else {
+      if (key.startsWith('data-') || HTML_KEYS.includes(key as any)) {
         (a as any)[key] = (props as any)[key];
+      } else {
+        (b as any)[key] = (props as any)[key];
       }
     });
 
