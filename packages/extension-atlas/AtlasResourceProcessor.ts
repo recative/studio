@@ -1,6 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-labels */
 /* eslint-disable no-await-in-loop */
+import log from 'electron-log';
 import { nanoid } from 'nanoid';
 import { Image, createCanvas, Canvas } from '@napi-rs/canvas';
 
@@ -1002,9 +1003,13 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             return x.type !== 'file' ? [] : x.preloadTriggers;
           });
 
-          const resourceIds = currentTask.map(
-            (x) => resourceToTaskMap.get(x)?.id
-          );
+          const textureRecords = currentTask.map((x) => ({
+            id: resourceToTaskMap.get(x)?.id,
+            dimension: {
+              w: x.w,
+              h: x.h,
+            },
+          }));
 
           const episodeIds = [
             ...(groupKey.episodeContains || []),
@@ -1024,7 +1029,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
                   // The hash of the atlas task is based on  the resource id of
                   // images to be packed. We hope this value is stable enough.
                   postProcessHash: hashObject({
-                    ids: resourceIds,
+                    textures: textureRecords,
                     groupKey,
                   }),
                 },
@@ -1273,10 +1278,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       );
 
       if (task.reason instanceof Error) {
-        console.error(':: Failed task');
-        console.error(':: :: Stack');
-        console.error(task.reason.stack);
-        console.error(':: :: End');
+        log.error(':: Failed task');
+        log.error(':: :: Stack');
+        log.error(task.reason.stack);
+        log.error(':: :: End');
       }
     }
   }
@@ -1365,7 +1370,8 @@ export class AtlasResourceProcessor extends ResourceProcessor<
   }
 
   beforePublishApplicationBundle(
-    resources: (PostProcessedResourceItemForUpload | IResourceItem)[]
+    resources: (PostProcessedResourceItemForUpload | IResourceItem)[],
+    profile: string
   ) {
     const atlasDefinitions = resources.filter(
       (x) => x.type === 'file' && x.tags.includes('custom:merged-atlas!')
@@ -1398,7 +1404,18 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       );
 
       if (includedFiles.length !== includeIds.length) {
-        throw new TypeError(`Some included files are missing, this is a bug`);
+        if (profile === 'apPackLivePreview') {
+          continue;
+        }
+
+        const missingIds = includeIds.filter(
+          (x) => !includedFiles.some((y) => y.id === x)
+        );
+        throw new TypeError(
+          `Some included files are missing, this is a bug. Missing file: ${missingIds.join(
+            `, `
+          )}`
+        );
       }
 
       for (let j = 0; j < includedFiles.length; j += 1) {
