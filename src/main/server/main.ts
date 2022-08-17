@@ -84,18 +84,12 @@ export const startResourceServer = async () => {
   fastify.get('/resource/:id/binary', getResourceBinary);
   fastify.head('/resource/:id/binary', getResourceBinary);
   fastify.get('/resource/:id/metadata', getResourceMetadata);
-  fastify.get('/episode', getEpisodeList);
-  fastify.get('/episode/:id/asset', getAssetList);
-  fastify.get('/episode/:id/resource', getResourceList);
   fastify.get('/envVariable', getEnvVariableHandler);
-  fastify.get('/containerComponents', getContainerComponents);
-  fastify.get('/containerComponents.js', getContainerComponents);
-  fastify.get('/containerComponents.js.map', getContainerComponents);
-  fastify.get('/bson/containerComponents.js', getContainerComponents);
-  fastify.get('/bson/containerComponents.js.map', getContainerComponents);
-  fastify.get('/bson/:id', getAssetListForSdk);
-  fastify.get('/bson/episodes', getEpisodeListForSdk);
-  fastify.get('/bson/resources', getResourceListForSdk);
+  fastify.get('/preview/containerComponents.js', getContainerComponents);
+  fastify.get('/preview/containerComponents.js.map', getContainerComponents);
+  fastify.get('/preview/:id.:serializer', getAssetListForSdk);
+  fastify.get('/preview/episodes.:serializer', getEpisodeListForSdk);
+  fastify.get('/preview/resources.:serializer', getResourceListForSdk);
   fastify.get('*', getResourceFile);
   fastify.head('*', getResourceFile);
 

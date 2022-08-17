@@ -4,11 +4,9 @@ import { rmdir } from 'fs/promises';
 import { cloneDeep } from 'lodash';
 
 import StreamZip from 'node-stream-zip';
-import { encode } from '@msgpack/msgpack';
 import { rename, copy, existsSync } from 'fs-extra';
 
 import { Zip } from '@recative/extension-sdk';
-import { stringify as uglyJSONstringify } from '@recative/ugly-json';
 import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
 
 import type {
@@ -21,6 +19,7 @@ import { getBuildPath } from './setting';
 import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
 
+import { stringify } from '../../utils/serializer';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { analysisPostProcessedRecords } from '../../utils/analysisPostProcessedRecords';
 
@@ -129,22 +128,6 @@ export const dumpPlayerConfigs = async (
 
   logToTerminal(terminalId, `Writing binary files`, Level.Info);
 
-  let serializer: (x: unknown) => string | Uint8Array;
-
-  switch (profile.metadataFormat) {
-    case 'json':
-      serializer = JSON.stringify;
-      break;
-    case 'uson':
-      serializer = uglyJSONstringify;
-      break;
-    case 'bson':
-      serializer = encode;
-      break;
-    default:
-      throw new Error('Unknown metadata format');
-  }
-
   const writeData = (x: string | Uint8Array, to: string) => {
     if (typeof x === 'string') {
       return zip.appendText(x, to);
@@ -153,7 +136,7 @@ export const dumpPlayerConfigs = async (
     return zip.appendFile(buffer, to);
   };
 
-  const episodesData = serializer(episodeAbstraction);
+  const episodesData = stringify(episodeAbstraction, profile.metadataFormat);
 
   const playerConfigPath = join(appTemplatePublicPath, 'bundle');
 
@@ -164,7 +147,7 @@ export const dumpPlayerConfigs = async (
 
   for (const episode of episodes) {
     await writeData(
-      serializer(episode),
+      stringify(episode, profile.metadataFormat),
       join(
         playerConfigPath,
         'data',

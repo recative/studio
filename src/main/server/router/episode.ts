@@ -1,6 +1,6 @@
+import log from 'electron-log';
 import { Buffer } from 'buffer';
 
-import { encode } from '@msgpack/msgpack';
 import type { FastifyRequest } from 'fastify';
 
 import {
@@ -8,6 +8,7 @@ import {
   getEpisodeDetailList,
   getResourceListOfEpisode,
 } from '../../rpc/query/episode';
+import { stringify } from '../../utils/serializer';
 import { getSettings } from '../../rpc/query/setting';
 import { getDbFromRequest } from '../utils/getDbFromRequest';
 
@@ -57,19 +58,31 @@ export const getEpisodeList = async (request: FastifyRequest) => {
   );
 };
 
+interface IParameterWithSerializer {
+  serializer: string;
+}
+
 // ${episodeId}.bson
 export const getAssetListForSdk = async (request: FastifyRequest) => {
   const result = await getAssetList(request);
-  return Buffer.from(encode(result));
+  const { serializer } = request.params as IParameterWithSerializer;
+
+  return Buffer.from(stringify(result, serializer));
 };
 
 // episodes.bson
 export const getEpisodeListForSdk = async (request: FastifyRequest) => {
   const result = await getEpisodeList(request);
-  return Buffer.from(encode(result));
+  const { serializer } = request.params as IParameterWithSerializer;
+
+  log.log(request.params);
+
+  return Buffer.from(stringify(result, serializer));
 };
 
 // resources.bson
 export const getResourceListForSdk = async (request: FastifyRequest) => {
-  return Buffer.from(encode(await getResourceList(request)));
+  const { serializer } = request.params as IParameterWithSerializer;
+
+  return Buffer.from(stringify(await getResourceList(request), serializer));
 };
