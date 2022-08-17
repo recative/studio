@@ -134,25 +134,20 @@ export const PublishTarget: React.FC<IPublishTargetProps> = ({
   );
 };
 
-const usePublishBundleCallback = () => {
+const usePublishBundleCallback = (tasks: IPublishTasks) => {
   const [, , openTerminal] = useTerminalModal();
 
   const [, selectedBundle, , onClose] = useConfirmPublishModal();
 
-  const handlePublishBundle = React.useCallback(
-    async (tasks: IPublishTasks) => {
-      if (selectedBundle === null) return;
+  const handlePublishBundle = React.useCallback(async () => {
+    if (selectedBundle === null) return;
 
-      openTerminal('uploadBundle');
-      onClose();
-      await server.uploadBundle(selectedBundle, tasks);
-    },
-    [onClose, openTerminal, selectedBundle]
-  );
+    openTerminal('uploadBundle');
+    onClose();
+    await server.uploadBundle(selectedBundle, tasks);
+  }, [onClose, openTerminal, selectedBundle, tasks]);
 
-  return {
-    handlePublishBundle,
-  } as const;
+  return handlePublishBundle;
 };
 
 export const ConfirmPublishModal: React.FC = () => {
@@ -164,7 +159,22 @@ export const ConfirmPublishModal: React.FC = () => {
   const [selectedDatabaseType, toggleDatabaseType] = useToggle(false);
   const [selectedPostProcessType, togglePostProcessType] = useToggle(false);
 
-  const handleSubmit = usePublishBundleCallback();
+  const publishRequest = React.useMemo<IPublishTasks>(
+    () => ({
+      mediaBundle: selectedMediaType,
+      codeBundle: selectedCodeType,
+      databaseBundle: selectedDatabaseType,
+      postProcessTest: selectedPostProcessType,
+    }),
+    [
+      selectedCodeType,
+      selectedDatabaseType,
+      selectedMediaType,
+      selectedPostProcessType,
+    ]
+  );
+
+  const handleSubmit = usePublishBundleCallback(publishRequest);
 
   return (
     <Modal
