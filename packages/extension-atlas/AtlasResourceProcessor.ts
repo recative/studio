@@ -49,6 +49,8 @@ const ATLAS_MAX_DIMENSION_SIZE = 2048;
 const REQUIRED_VALID_AREA_RATIO = 0.6;
 const IDEAL_VALID_AREA_RATIO = 0.8;
 
+const ATLAS_PADDING = 2;
+
 const ATLAS_REDIRECT_REASON = 'atlas';
 
 export const PARSE_RESOURCE_FILE_TO_BE_REFACTORED_TO_DEFINITIONS = <
@@ -299,10 +301,11 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       const subImage = new Image();
       subImage.src = await this.getResourceBuffer(rectResource);
 
-      const notFlipped =
-        currentTask.w === envelopeRect.w && currentTask.h === envelopeRect.h;
-      const flipped =
-        currentTask.w === envelopeRect.h && currentTask.h === envelopeRect.w;
+      const ew = envelopeRect.w + 2 * ATLAS_PADDING;
+      const eh = envelopeRect.h + 2 * ATLAS_PADDING;
+
+      const notFlipped = currentTask.w === ew && currentTask.h === eh;
+      const flipped = currentTask.w === eh && currentTask.h === ew;
       if (notFlipped) {
         // Draw directly
         ctx.drawImage(
@@ -311,10 +314,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           envelopeRect.y,
           envelopeRect.w,
           envelopeRect.h,
-          currentTask.x,
-          currentTask.y,
-          currentTask.w,
-          currentTask.h
+          currentTask.x + ATLAS_PADDING,
+          currentTask.y + ATLAS_PADDING,
+          envelopeRect.w,
+          envelopeRect.h
         );
       } else if (flipped) {
         // Draw rotated
@@ -327,10 +330,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           envelopeRect.y,
           envelopeRect.w,
           envelopeRect.h,
-          0,
-          0,
-          currentTask.h,
-          currentTask.w
+          ATLAS_PADDING,
+          ATLAS_PADDING,
+          envelopeRect.w,
+          envelopeRect.h
         );
         ctx.restore();
       } else {
@@ -341,13 +344,13 @@ export class AtlasResourceProcessor extends ResourceProcessor<
 
       // #region Inject Configuration
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~x`] =
-        currentTask.x.toString();
+        (currentTask.x + ATLAS_PADDING).toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~y`] =
-        currentTask.y.toString();
+        (currentTask.y + ATLAS_PADDING).toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~w`] =
-        currentTask.w.toString();
+        (currentTask.w - 2 * ATLAS_PADDING).toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~h`] =
-        currentTask.h.toString();
+        (currentTask.h - 2 * ATLAS_PADDING).toString();
       rectResource.extensionConfigurations[`${AtlasResourceProcessor.id}~~f`] =
         (flipped && !notFlipped).toString();
       // #endregion
@@ -610,8 +613,8 @@ export class AtlasResourceProcessor extends ResourceProcessor<
         const task = new RectXywhf(
           envelope.x,
           envelope.y,
-          envelope.w,
-          envelope.h
+          envelope.w + ATLAS_PADDING * 2,
+          envelope.h + ATLAS_PADDING * 2
         );
         resourceToTaskMap.set(resource, task);
 
