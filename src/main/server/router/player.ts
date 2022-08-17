@@ -1,11 +1,11 @@
 import { join } from 'path';
-import { createReadStream } from 'fs';
+import { readFile } from 'fs/promises';
 import { existsSync } from 'fs-extra';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 
 import { getWorkspace } from '../../rpc/workspace';
 
-export const GetFile =
+export const GetComponentFile =
   (fileName: string) => async (_: FastifyRequest, reply: FastifyReply) => {
     const workspace = getWorkspace();
     const componentFilePath = process.env.COMPONENT_FILE_PATH
@@ -16,10 +16,14 @@ export const GetFile =
       reply.status(404).send({ code: 'NOT_FOUND' });
       return;
     }
-    const stream = createReadStream(componentFilePath);
+    const file = await readFile(componentFilePath);
 
-    reply.status(200).send(stream);
+    reply.status(200).send(file);
   };
 
-export const getContainerComponents = GetFile('containerComponents.js');
-export const getContainerComponentsMap = GetFile('containerComponents.js.map');
+export const getContainerComponents = GetComponentFile(
+  'containerComponents.js'
+);
+export const getContainerComponentsMap = GetComponentFile(
+  'containerComponents.js.map'
+);
