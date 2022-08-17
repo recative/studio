@@ -90,7 +90,7 @@ export const ReleaseList: React.FC<IReleaseList> = ({ Actions }) => {
       {releaseData.bundle.map((release) => (
         <RecativeBlock key={release.id} className={css(bodyStyle)} role="row">
           <StyledBodyCell className={css(cellStyle)}>
-            {release.id}
+            <RecativeBlock fontWeight={500}>{release.id}</RecativeBlock>
           </StyledBodyCell>
           <StyledBodyCell className={css(cellStyle)}>
             {release.mediaBuildId}
