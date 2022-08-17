@@ -19,7 +19,7 @@ import { getContainerComponents } from './router/player';
 
 import { HOME_DIR } from '../constant/configPath';
 
-const cors = require('fastify-cors');
+const cors = require('@fastify/cors');
 
 const CERT_PATH = join(HOME_DIR, 'cert');
 const KEY_PATH = join(HOME_DIR, 'privkey');
@@ -74,17 +74,18 @@ export const startResourceServer = async () => {
   });
 
   fastify.get('/resource/:id/binary', getResourceBinary);
-  fastify.head('/resource/:id/binary', getResourceBinary);
   fastify.get('/envVariable', getEnvVariableHandler);
   fastify.get('/preview/containerComponents.js', getContainerComponents);
   fastify.get('/preview/containerComponents.js.map', getContainerComponents);
-  fastify.get('/preview/:id.:serializer', getAssetListForSdk);
+  fastify.get('/preview/:id(.+?).:serializer', getAssetListForSdk);
   fastify.get('/preview/episodes.:serializer', getEpisodeListForSdk);
   fastify.get('/preview/resources.:serializer', getResourceListForSdk);
   fastify.get('*', getResourceFile);
-  fastify.head('*', getResourceFile);
 
-  fastify.listen(9999, '0.0.0.0');
+  fastify.listen({
+    port: 9999,
+    host: '0.0.0.0',
+  });
 
   fastifyServer = fastify;
 };
