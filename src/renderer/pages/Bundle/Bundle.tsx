@@ -1,9 +1,9 @@
 import * as React from 'react';
 
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { HeadingXXLarge } from 'baseui/typography';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
 import { ContentContainer } from 'components/Layout/ContentContainer';
 import { BundleIconOutline } from 'components/Icons/BundleIconOutline';
@@ -63,7 +63,6 @@ const InternalBundle: React.FC = () => {
           maxHeight="calc(100% - 24px)"
           height="-webkit-fill-available"
           paddingBottom="24px"
-          // @ts-ignore: This is a possible, and a pull request is on the way.
           overflow="clip"
         >
           <HeadingXXLarge gridArea="title">Bundle</HeadingXXLarge>

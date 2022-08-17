@@ -18,19 +18,16 @@ import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import type { ModalOverrides } from 'baseui/modal';
 import type { ButtonOverrides } from 'baseui/button';
 
-import { AabIconOutline } from 'components/Icons/AabIconOutline';
-import { IOSIconOutline } from 'components/Icons/IOSIconOutline';
-import { RawBundleOutline } from 'components/Icons/RawBundleOutline';
-import { MacOSIconOutline } from 'components/Icons/MacOsIconOutline';
-import { PlayerIconOutline } from 'components/Icons/PlayerIconOutline';
-import { WindowsIconOutline } from 'components/Icons/WindowsIconOutline';
-import { AndroidIconOutline } from 'components/Icons/AndroidIconOutline';
+import { useTerminalModal } from 'components/Terminal/TerminalModal';
 import { ActPointIconOutline } from 'components/Icons/ActPointIconOutline';
 import { DatabaseIconOutline } from 'components/Icons/DatabaseIconOutline';
 import { PostProcessIconOutline } from 'components/Icons/PostProcessIconOutline';
 import { ResourceManagerIconOutline } from 'components/Icons/ResourceManagerIconOutline';
 
-import { IPublishTasks } from 'utils/IPublishTask';
+import { server } from 'utils/rpc';
+import { ModalManager } from 'utils/hooks/useModalManager';
+
+import type { IPublishTasks } from 'utils/IPublishTask';
 
 const PUBLISH_TYPE_LIST_STYLE = {
   gap: '6px',
@@ -49,20 +46,7 @@ enum PublishTargetType {
   Media = 'media',
   Code = 'code',
   Database = 'database',
-  Player = 'player',
-  Android = 'android',
-  RawBundle = 'raw-bundle',
-  Aab = 'aab',
-  IOS = 'ios',
-  MacOS = 'mac',
-  Windows = 'windows',
   PostProcess = 'post-process',
-}
-
-export interface IConfirmPublishModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (tasks: IPublishTasks) => void;
 }
 
 interface IPublishTargetProps {
@@ -72,7 +56,7 @@ interface IPublishTargetProps {
 }
 
 interface IPublishTargetDescription {
-  icon: React.ReactChild;
+  icon: React.ReactNode;
   title: string;
   subtitle: string;
 }
@@ -117,47 +101,14 @@ const PUBLISH_TARGET_TYPE_DESCRIPTION: Record<
     title: 'Database Bundle',
     subtitle: 'Publish the metadata of this release to act server.',
   },
-  [PublishTargetType.Player]: {
-    icon: <PlayerIconOutline width={40} style={iconStyle} />,
-    title: 'Player Bundle',
-    subtitle: 'Publish resource bundle for player shells.',
-  },
-  [PublishTargetType.Android]: {
-    icon: <AndroidIconOutline width={40} style={iconStyle} />,
-    title: 'Android APK Package',
-    subtitle: 'Create and sign an Android APK installer.',
-  },
-  [PublishTargetType.Aab]: {
-    icon: <AabIconOutline width={40} style={iconStyle} />,
-    title: 'Android AAB Package',
-    subtitle: 'Create and sign an Android App Bundle.',
-  },
-  [PublishTargetType.RawBundle]: {
-    icon: <RawBundleOutline width={40} style={iconStyle} />,
-    title: 'Raw Bundle Package',
-    subtitle: 'Create an resource bundle for debug purpose.',
-  },
-  [PublishTargetType.IOS]: {
-    icon: <IOSIconOutline width={40} style={iconStyle} />,
-    title: 'iOS Package',
-    subtitle: 'Create an unsigned iOS package.',
-  },
-  [PublishTargetType.MacOS]: {
-    icon: <MacOSIconOutline width={40} style={iconStyle} />,
-    title: 'macOS Package',
-    subtitle: 'Create an unsigned macOS package.',
-  },
-  [PublishTargetType.Windows]: {
-    icon: <WindowsIconOutline width={40} style={iconStyle} />,
-    title: 'Windows Package',
-    subtitle: "An Windows PROGRAM that don't need to be signed.",
-  },
   [PublishTargetType.PostProcess]: {
     icon: <PostProcessIconOutline width={40} style={iconStyle} />,
     title: 'Post Process Test',
     subtitle: 'Run all post process plugins to test if it works.',
   },
 };
+
+export const useConfirmPublishModal = ModalManager<number, null>(null);
 
 export const PublishTarget: React.FC<IPublishTargetProps> = ({
   publishTargetType,
@@ -183,48 +134,37 @@ export const PublishTarget: React.FC<IPublishTargetProps> = ({
   );
 };
 
-export const ConfirmPublishModal: React.FC<IConfirmPublishModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-}) => {
+const usePublishBundleCallback = () => {
+  const [, , openTerminal] = useTerminalModal();
+
+  const [, selectedBundle, , onClose] = useConfirmPublishModal();
+
+  const handlePublishBundle = React.useCallback(
+    async (tasks: IPublishTasks) => {
+      if (selectedBundle === null) return;
+
+      openTerminal('uploadBundle');
+      onClose();
+      await server.uploadBundle(selectedBundle, tasks);
+    },
+    [onClose, openTerminal, selectedBundle]
+  );
+
+  return {
+    handlePublishBundle,
+  } as const;
+};
+
+export const ConfirmPublishModal: React.FC = () => {
+  const [isOpen, , , onClose] = useConfirmPublishModal();
+
   const [css] = useStyletron();
   const [selectedMediaType, toggleMediaType] = useToggle(false);
   const [selectedCodeType, toggleCodeType] = useToggle(false);
   const [selectedDatabaseType, toggleDatabaseType] = useToggle(false);
-  const [selectedPlayerType, togglePlayerType] = useToggle(false);
-  const [selectedRawBundleType, toggleRawBundleType] = useToggle(false);
-  const [selectedAndroidType, toggleAndroidType] = useToggle(false);
-  const [selectedAabType, toggleAabType] = useToggle(false);
-  const [selectedIOSType, toggleIOSType] = useToggle(false);
-  const [selectedMacOSType, toggleMacOSType] = useToggle(false);
-  const [selectedWindowsType, toggleWindowsType] = useToggle(false);
   const [selectedPostProcessType, togglePostProcessType] = useToggle(false);
 
-  const handleSubmit = React.useCallback(() => {
-    onSubmit({
-      mediaBundle: selectedMediaType,
-      codeBundle: selectedCodeType,
-      databaseBundle: selectedDatabaseType,
-      playerBundle: selectedPlayerType,
-      rawBundle: selectedRawBundleType,
-      androidPackage: selectedAndroidType,
-      aabPackage: selectedAabType,
-      iOSPackage: selectedIOSType,
-      postProcessTest: selectedPostProcessType,
-    });
-  }, [
-    onSubmit,
-    selectedMediaType,
-    selectedCodeType,
-    selectedDatabaseType,
-    selectedPlayerType,
-    selectedRawBundleType,
-    selectedAndroidType,
-    selectedAabType,
-    selectedIOSType,
-    selectedPostProcessType,
-  ]);
+  const handleSubmit = usePublishBundleCallback();
 
   return (
     <Modal
@@ -268,41 +208,6 @@ export const ConfirmPublishModal: React.FC<IConfirmPublishModalProps> = ({
             onClick={toggleDatabaseType}
           />
           <PublishTarget
-            publishTargetType={PublishTargetType.Player}
-            selected={selectedPlayerType}
-            onClick={togglePlayerType}
-          />
-          <PublishTarget
-            publishTargetType={PublishTargetType.RawBundle}
-            selected={selectedRawBundleType}
-            onClick={toggleRawBundleType}
-          />
-          <PublishTarget
-            publishTargetType={PublishTargetType.Android}
-            selected={selectedAndroidType}
-            onClick={toggleAndroidType}
-          />
-          <PublishTarget
-            publishTargetType={PublishTargetType.Aab}
-            selected={selectedAabType}
-            onClick={toggleAabType}
-          />
-          <PublishTarget
-            publishTargetType={PublishTargetType.IOS}
-            selected={selectedIOSType}
-            onClick={toggleIOSType}
-          />
-          <PublishTarget
-            publishTargetType={PublishTargetType.MacOS}
-            selected={selectedMacOSType}
-            onClick={toggleMacOSType}
-          />
-          <PublishTarget
-            publishTargetType={PublishTargetType.Windows}
-            selected={selectedWindowsType}
-            onClick={toggleWindowsType}
-          />
-          <PublishTarget
             publishTargetType={PublishTargetType.PostProcess}
             selected={selectedPostProcessType}
             onClick={togglePostProcessType}
@@ -319,13 +224,6 @@ export const ConfirmPublishModal: React.FC<IConfirmPublishModalProps> = ({
               selectedMediaType ||
               selectedCodeType ||
               selectedDatabaseType ||
-              selectedPlayerType ||
-              selectedIOSType ||
-              selectedAndroidType ||
-              selectedAabType ||
-              selectedMacOSType ||
-              selectedWindowsType ||
-              selectedRawBundleType ||
               selectedPostProcessType
             )
           }

@@ -60,7 +60,6 @@ export const fastPublish = async (
         mediaBundle: true,
         codeBundle: true,
         databaseBundle: false,
-        playerBundle: false,
         postProcessTest: false,
       });
     }

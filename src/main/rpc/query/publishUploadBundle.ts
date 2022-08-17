@@ -35,13 +35,7 @@ import { IPublishTasks } from '../../../utils/IPublishTask';
  */
 export const uploadBundle = async (
   id: number | null,
-  {
-    mediaBundle,
-    codeBundle,
-    databaseBundle,
-    playerBundle,
-    postProcessTest,
-  }: IPublishTasks,
+  { mediaBundle, codeBundle, databaseBundle, postProcessTest }: IPublishTasks,
   terminalId = 'uploadBundle'
 ) => {
   if (terminalId === 'uploadBundle') {
@@ -51,7 +45,6 @@ export const uploadBundle = async (
         mediaBundle && 'Uploading Media Files',
         codeBundle && 'Uploading Code Files',
         databaseBundle && 'Uploading Database Files',
-        playerBundle && 'Creating Player Data Bundle',
         postProcessTest && 'Post Processing Test',
       ].filter(Boolean) as string[]
     );
@@ -124,21 +117,6 @@ export const uploadBundle = async (
       await uploadDatabase(id || 0, terminalId);
     }
   })();
-
-  // await wrapTaskFunction(
-  //   terminalId,
-  //   'Creating Player Data Bundle',
-  //   async () => {
-  //     if (playerBundle) {
-  //       await publishPlayerBundle(
-  //         targetRelease.codeBuildId,
-  //         targetRelease.mediaBuildId,
-  //         targetRelease.id,
-  //         terminalId
-  //       );
-  //     }
-  //   }
-  // )();
 
   await wrapTaskFunction(terminalId, 'Post Processing Test', async () => {
     if (postProcessTest) {
