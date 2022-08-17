@@ -1,4 +1,3 @@
-import log from 'electron-log';
 import { Buffer } from 'buffer';
 
 import type { FastifyRequest } from 'fastify';
@@ -74,8 +73,6 @@ export const getAssetListForSdk = async (request: FastifyRequest) => {
 export const getEpisodeListForSdk = async (request: FastifyRequest) => {
   const result = await getEpisodeList(request);
   const { serializer } = request.params as IParameterWithSerializer;
-
-  log.log(request.params);
 
   return Buffer.from(stringify(result, serializer));
 };
