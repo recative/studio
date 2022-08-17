@@ -1,6 +1,7 @@
 import { localStorage } from '../../utils/localStorage';
 
 import { getEpisode } from './episode';
+import { getLocalSettings } from './setting';
 import { getClientSideAssetList } from './asset';
 
 export const setEnvVariable = (x: Record<string, unknown>) => {
@@ -8,16 +9,15 @@ export const setEnvVariable = (x: Record<string, unknown>) => {
 };
 
 export const getEnvVariable = async (
-  apHostName: string,
-  apProtocol: string,
   episodeId: string | null = null
 ): Promise<Record<string, unknown>> => {
+  const localSettings = await getLocalSettings();
   const assets = episodeId
     ? await getClientSideAssetList(episodeId, {
         type: 'apPackDistPreview',
-        resourceHostName: apHostName,
-        apHostName,
-        apProtocol,
+        resourceHostName: localSettings.resourceHost,
+        apHostName: localSettings.apHost,
+        apProtocol: localSettings.contentProtocol,
       })
     : [];
   const episode = episodeId ? await getEpisode(episodeId) : null;

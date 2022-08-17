@@ -1,4 +1,3 @@
-import log from 'electron-log';
 import jwt_decode from 'jwt-decode';
 
 import { glob } from 'glob';
@@ -22,13 +21,27 @@ interface IToken {
   iat: number;
 }
 
-const localSettingKeys = new Set([
+const localSettingKeysArr = [
   'resourceHost',
   'apHost',
   'contentProtocol',
   'playerUiModulePathOverride',
   'buildPathOverride',
-]);
+] as const;
+const localSettingKeys = new Set<string>(localSettingKeysArr);
+
+export const getLocalSettings = async () => {
+  const seriesId = await getSeriesId();
+  const result = {} as Record<typeof localSettingKeysArr[number], string>;
+
+  localSettingKeys.forEach((key) => {
+    result[key as typeof localSettingKeysArr[number]] =
+      localStorage.getItem(`@recative/ap-studio/settings/${seriesId}/${key}`) ||
+      '';
+  });
+
+  return result;
+};
 
 export const getSettings = async (): Promise<Record<string, string>> => {
   const db = await getDb();

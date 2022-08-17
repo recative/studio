@@ -12,6 +12,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@antfu/utils@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "@antfu/utils@npm:0.5.2"
+  checksum: 9b91446b2dbb823abeeba1cc33d6ebf701a462923408ad4751fbe162da46ae0669c774c2b5435fc77691dc207ce5de5945e693d5163e07d6ef42e376b04c7af4
+  languageName: node
+  linkType: hard
+
 "@apidevtools/json-schema-ref-parser@npm:9.0.9":
   version: 9.0.9
   resolution: "@apidevtools/json-schema-ref-parser@npm:9.0.9"
@@ -4200,16 +4207,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/act-player@npm:^0.0.0-dev.171":
-  version: 0.0.0-dev.171
-  resolution: "@recative/act-player@npm:0.0.0-dev.171::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-player%2F0.0.0-dev.171%2Fea91017739454433610d4882dd84dd1eb5efd56a"
+"@recative/act-player@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@recative/act-player@npm:0.1.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-player%2F0.1.1%2F02ff11f67af19f8c4246c567f207711ceda52b56"
   dependencies:
     "@nanostores/react": 0.2.0
     "@react-hookz/web": ^12.3.0
-    "@recative/act-protocol": ^0.0.0-dev.58
-    "@recative/core-manager": ^0.0.0-dev.159
-    "@recative/definitions": ^0.0.0-dev.86
-    "@recative/smart-resource": ^0.0.0-dev.7
+    "@recative/act-protocol": ^0.2.7
+    "@recative/core-manager": ^0.4.5
+    "@recative/definitions": ^0.4.0
+    "@recative/smart-resource": ^0.2.0
     classnames: ^2.3.1
     debug: ^4.3.4
     lodash: ^4.17.21
@@ -4217,26 +4224,27 @@ __metadata:
     nanostores: ^0.5.12
     react-click-away-listener: ^2.0.5
     react-error-boundary: ^3.1.4
-    react-slider: ^1.3.1
+    react-slider: 2.0.1
     react-tooltip: ^4.2.21
     react-use: ^17.3.1
+    unplugin-auto-import: ^0.11.1
     use-constant: ^1.1.0
   peerDependencies:
     baseui: ^10.6.0
-    react: ^17.0.2
-    react-dom: ^17.0.2
-  checksum: 668f949b637b6bf0f3ff07a0be2f7751f260548bebd821a97a7a918fc0b0f34e21faf96b309edcf841fe8b1225f028d10e29af5f2688fbbeedb564cca6d9b2cf
+    react: ^18.1.0
+    react-dom: ^18.1.0
+  checksum: ff81049375282f70e44ec5ea493d3e9099aa19adc22b769e4c7f756bc1dbd66281e6cf1855eb31f60fa8ffbb963521ec198c0ae49f397ffad59fe664d14fef6e
   languageName: node
   linkType: hard
 
-"@recative/act-protocol@npm:^0.0.0-dev.58":
-  version: 0.0.0-dev.58
-  resolution: "@recative/act-protocol@npm:0.0.0-dev.58::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-protocol%2F0.0.0-dev.58%2F05f63f7fe04ed5bd50c3582bd314c85f9e1f789783702ba3ab531ebe8a890849"
+"@recative/act-protocol@npm:^0.2.7":
+  version: 0.2.7
+  resolution: "@recative/act-protocol@npm:0.2.7::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-protocol%2F0.2.7%2F3c1fc5513f073e681f89ebfab586c5d88132a063"
   dependencies:
-    "@recative/definitions": ^0.0.0-dev.84
-    async-call-rpc: ^6.0.1
+    "@recative/definitions": ^0.4.0
+    async-call-rpc: 6.1.2
     debug: ^4.3.3
-  checksum: 3613a8267d8c65f56cca9700b3f28c64211ce08790fc7f2176c290b31833916b1e06d34b19749fb23b95980658bc0f97659ccd26b97d11e4167e852671c568c8
+  checksum: a80e093eb090de3bfa8787aab14dfc0103b81641646d30a606669fc75e7dc81c199da4796855790a25e84197b9288d62efddc202a8234a3f37b1e64fa87042c6
   languageName: node
   linkType: hard
 
@@ -4247,22 +4255,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/audio-station@npm:^0.0.0-dev.15":
-  version: 0.0.0-dev.15
-  resolution: "@recative/audio-station@npm:0.0.0-dev.15::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Faudio-station%2F0.0.0-dev.15%2F6cfbeddfc79c63e5908f75b58b360d71f5f2e4fc841fe346d79ca9c1f31abcc2"
+"@recative/audio-station@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@recative/audio-station@npm:0.2.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Faudio-station%2F0.2.0%2F100559e83f0234f62065e45e38187f8c12a890b0"
   dependencies:
     standardized-audio-context: ^25.3.28
-  checksum: a1b39a3bb848673e45de101919db135499a2998be537d87b69b7dfd4f1a6c62168075aa84f961ac05c2ad744d073669f3ffd5b63dc974a86b3f6ebcab1c3b53b
+  checksum: 66f9ac74435efb3a54ce59c96b300cdebee238aae65b5a809d69a8882e24112386f1524306470a16c813d51b313e98b8cdde7c25b46cfb6074dcb3ebd2e5015f
   languageName: node
   linkType: hard
 
-"@recative/client-sdk@npm:^0.0.0-dev.137":
-  version: 0.0.0-dev.137
-  resolution: "@recative/client-sdk@npm:0.0.0-dev.137::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fclient-sdk%2F0.0.0-dev.137%2F99f5c37ca740ce5799fc66c2d96a5aa52eb36a5c"
+"@recative/client-sdk@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "@recative/client-sdk@npm:3.4.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fclient-sdk%2F3.4.0%2F714410b533f1bb76720094e57cd57d31e19f2e38"
   dependencies:
     "@msgpack/msgpack": ^2.7.2
     "@react-hookz/web": ^13.0.0
-    "@recative/open-promise": ^0.0.0-dev.32
+    "@recative/definitions": ^0.4.0
+    "@recative/open-promise": ^0.2.0
+    "@recative/ugly-json": ^0.0.0
     debug: ^4.3.3
     nanoid: ^3.3.3
   peerDependencies:
@@ -4271,65 +4281,39 @@ __metadata:
     "@recative/act-player": "*"
     "@recative/act-protocol": "*"
     "@recative/core-manager": "*"
-    "@recative/definitions": "*"
     "@recative/smart-resource": "*"
     baseui: "*"
     classnames: "*"
     lottie-react: "*"
     nanostores: ^0.5.10
-    react: ^17.0.2
-    react-dom: "*"
+    react: ^18.1.0
+    react-dom: ^18.1.0
     react-slider: "*"
     react-use: "*"
     use-constant: "*"
-  checksum: beb7353e2a48f0a6c7c00b6105fd5e1b5e2a284516f06776d9d1bf91e6894ace06bd9ce87c754862aea0ef164f0a32de9b01b810ad7990fe8eadcec6c4da2e37
+  checksum: 359b2060704520c9d10ea8ffa7dcf1790607b18529a4f863c9baefb40ada1d80894b99d1ef1f38cda4b240ab8db74db19019de17fed38e248b4468157ebf2540
   languageName: node
   linkType: hard
 
-"@recative/core-manager@npm:^0.0.0-dev.159":
-  version: 0.0.0-dev.160
-  resolution: "@recative/core-manager@npm:0.0.0-dev.160::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fcore-manager%2F0.0.0-dev.160%2F1c1016c3190d17262ebc61634022c06e76c8ed1d"
+"@recative/core-manager@npm:^0.4.5":
+  version: 0.4.5
+  resolution: "@recative/core-manager@npm:0.4.5::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fcore-manager%2F0.4.5%2Fedeb9885cf06c519288abb98a7fc97144e08e74d"
   dependencies:
     "@nanostores/persistent": ^0.5.2
-    "@recative/act-protocol": ^0.0.0-dev.58
-    "@recative/audio-station": ^0.0.0-dev.15
-    "@recative/definitions": ^0.0.0-dev.86
-    "@recative/open-promise": ^0.0.0-dev.32
-    "@recative/resource-loader": ^0.0.0-dev.12
-    "@recative/smart-resource": ^0.0.0-dev.7
-    "@recative/time-schedule": ^0.0.0-dev.6
+    "@recative/act-protocol": ^0.2.7
+    "@recative/audio-station": ^0.2.0
+    "@recative/definitions": ^0.4.0
+    "@recative/open-promise": ^0.2.0
+    "@recative/resource-loader": ^0.2.2
+    "@recative/smart-resource": ^0.2.0
+    "@recative/time-schedule": ^0.2.0
     "@ungap/event-target": ^0.2.3
     debug: ^4.3.3
     nanoid: ^3.1.30
     nanostores: ^0.5.10
     object.entries: ^1.1.5
     srt-parser-2: ^1.1.7
-  checksum: 5eb67e5b42d22ce604f16af1a4022a511dfed78927ad3f106db92d9bb7617cdc0799e39e4ae8683649d205f1d21a627baffac92a2e71c54fa53a9603a2d4b36a
-  languageName: node
-  linkType: hard
-
-"@recative/definitions@npm:^0.0.0-dev.44":
-  version: 0.0.0-dev.44
-  resolution: "@recative/definitions@npm:0.0.0-dev.44::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.0.0-dev.44%2F71189796cfa3aae76bbd2ac5f70440c79c084ebb0c14314033a358a7891256f1"
-  checksum: 19754723694f4876c4f96b99bfadcb56e4408ffe0dc21c7c2197fd92fef4798a85171278ae11083f9145152c02fee5af54a61d2a852aac31c70c9f9c4a402a21
-  languageName: node
-  linkType: hard
-
-"@recative/definitions@npm:^0.0.0-dev.84":
-  version: 0.0.0-dev.85
-  resolution: "@recative/definitions@npm:0.0.0-dev.85::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.0.0-dev.85%2Fb7af6395be565ee061e5eacd4e4681f8478e099c6e87f9bce582eccb5ad97087"
-  dependencies:
-    xxhashjs: ^0.2.2
-  checksum: 168838cbaa4cfeb915c08b1de69db0244a7b8e5296318cae1bb93ab38dc7f753c299febde3327912e77963fa953d5fb36698862c4e86daf8ad22965d9bddefe5
-  languageName: node
-  linkType: hard
-
-"@recative/definitions@npm:^0.0.0-dev.86":
-  version: 0.0.0-dev.87
-  resolution: "@recative/definitions@npm:0.0.0-dev.87::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.0.0-dev.87%2F7c89caddc35ec9f76f2f16852b815c8a44581fb3"
-  dependencies:
-    xxhashjs: ^0.2.2
-  checksum: e62884f9545a03b20f6382629758042d1c363e632562ece291b06ed8cd5b48caf6daff9b65e327528169b6558e2f0765cf71c280fc0779e8322d3324a449c6bb
+  checksum: e2285a7f876f333d482d932318eac3f272af1b91dd5fd2701eed55020a4ec43c51698a7dabfff2521037e537236af043f9c357e00c2c5da11358df99ef2ef8b3
   languageName: node
   linkType: hard
 
@@ -4339,6 +4323,15 @@ __metadata:
   dependencies:
     xxhashjs: ^0.2.2
   checksum: 4043dde93447bc87e371567906a3f28461ed3f6e3d6fc265d9719e28c5d250ab1f02f2f900ba761782445b6bc7a91ae733649b48b723880c4ca0ad764252f81c
+  languageName: node
+  linkType: hard
+
+"@recative/definitions@npm:^0.4.0":
+  version: 0.4.1
+  resolution: "@recative/definitions@npm:0.4.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.4.1%2F0de5f6189a944de094da371a3e7e0866b4381a3a"
+  dependencies:
+    xxhashjs: ^0.2.2
+  checksum: 24cb4fa372bb19566e0847b7ebfa20164339b46ef173906507915135db52bd2f14f93d6a57c8d9e290c02f90ac4dca0bfb8f2099b2a4aa1b91f68e14b976ed39
   languageName: node
   linkType: hard
 
@@ -4426,21 +4419,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@recative/open-promise@npm:^0.0.0-dev.31":
-  version: 0.0.0-dev.31
-  resolution: "@recative/open-promise@npm:0.0.0-dev.31::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fopen-promise%2F0.0.0-dev.31%2F4058920eabe5680ddcdef06ed56d19fe4f094283a18b47e9a03af2193db379ba"
+"@recative/open-promise@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@recative/open-promise@npm:0.2.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fopen-promise%2F0.2.0%2F9e95a5727d1966c591910286a15d3f5d085bcb95"
   dependencies:
     debug: ^4.3.4
-  checksum: a7064f2ab6fe5a314d8ee08637c71ed34a8050d691311e2ee66e9794827f1cc44f5214acc6542cd0e5f22f168ce589b65514f0cfc8dba5106ec9d297b6594572
-  languageName: node
-  linkType: hard
-
-"@recative/open-promise@npm:^0.0.0-dev.32":
-  version: 0.0.0-dev.32
-  resolution: "@recative/open-promise@npm:0.0.0-dev.32::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fopen-promise%2F0.0.0-dev.32%2Ffc071347e2dab019b60b10b9eb1ee4761e913a5f"
-  dependencies:
-    debug: ^4.3.4
-  checksum: de50a1eafa99619e62a51f6af48afab8e1dc8b3d827b01416916e307c8022099f04e75a408e5361d302ca1bfa27de3940705a90eb1adb82e25058f1136d83e4e
+  checksum: 92be31039d1d921afb0818b14f2694322e95298b2569434dbfb96cfeb8c67b3d05de1a78bed4b967321ddf8e6125083227056772c42153b9fa29ac66130f6556
   languageName: node
   linkType: hard
 
@@ -4457,14 +4441,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/resource-loader@npm:^0.0.0-dev.12":
-  version: 0.0.0-dev.12
-  resolution: "@recative/resource-loader@npm:0.0.0-dev.12::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fresource-loader%2F0.0.0-dev.12%2F804342ba9cbd5b80a2a03015452758b5e16e12c898c06f9991cb5e8f967dd51a"
+"@recative/resource-loader@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "@recative/resource-loader@npm:0.2.2::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fresource-loader%2F0.2.2%2Ff670b987157163c087f6d0375256b9e5c8ae272f"
   dependencies:
-    "@recative/definitions": ^0.0.0-dev.44
-    "@recative/open-promise": ^0.0.0-dev.31
+    "@recative/definitions": ^0.4.0
+    "@recative/open-promise": ^0.2.0
     idb-keyval: ^6.0.3
-  checksum: 5bf468a518b823e53c41da377ff1c9318663c55bdecd7eb37ba217ea1af0f9a050e03c3346fe9162d440f1559369e71cfd2c7b571e972ec4d68c6a1fc04a30f3
+  checksum: 7d44795863dcd0f8eb313348975d9fdb4b8499cd3374e340d6504f5532718242fe1ea39f4260870b3defa976f7665a18b1d28ac8a0f4680661038be69919d8c1
   languageName: node
   linkType: hard
 
@@ -4474,6 +4458,15 @@ __metadata:
   dependencies:
     debug: ^4.3.4
   checksum: 10ceb549f45bcb4127377c5c3c6cb651ab1d9f691a5c2473bff0c589bf1608d9a1f927eb1816512678bf93500c8f049571d97f5d2348bc6b2cf9f641751a4a0e
+  languageName: node
+  linkType: hard
+
+"@recative/smart-resource@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@recative/smart-resource@npm:0.2.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fsmart-resource%2F0.2.0%2F4c5061583bfabade5df58c5f61f8179cbceb0b28"
+  dependencies:
+    debug: ^4.3.4
+  checksum: 20fde9dd0d34fd95e0e482e6e30ac9387da97c8872bbe00e1809d6ed795e2141002096fabe007309d213c03e8ff2b5abf69f9c1e499e60f318b2adbdb56a4458
   languageName: node
   linkType: hard
 
@@ -4535,8 +4528,8 @@ __metadata:
     "@pmmmwh/react-refresh-webpack-plugin": 0.5.6
     "@reach/portal": ^0.16.2
     "@react-hookz/web": ^14.2.2
-    "@recative/act-player": ^0.0.0-dev.171
-    "@recative/client-sdk": ^0.0.0-dev.137
+    "@recative/act-player": ^0.1.1
+    "@recative/client-sdk": ^3.4.0
     "@recative/definitions": ^0.0.0-dev.89
     "@recative/smart-resource": ^0.0.0-dev.7
     "@recative/ugly-json": ^0.0.0
@@ -4723,10 +4716,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@recative/time-schedule@npm:^0.0.0-dev.6":
-  version: 0.0.0-dev.6
-  resolution: "@recative/time-schedule@npm:0.0.0-dev.6::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Ftime-schedule%2F0.0.0-dev.6%2Fcd962662a71019af012b6b4186c387cc2170f585443a2f3db0a7727cdcc67cbc"
-  checksum: eca20aa2995a284533371f58f424714faaf63a6fb4256ba8f8da09092724a95660141756e390794d5d18c2902e2e162547144b26a49eec88824a15ec8bdf949a
+"@recative/time-schedule@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@recative/time-schedule@npm:0.2.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Ftime-schedule%2F0.2.0%2Fea9a39b4986f0c46665c37a142b11572cc95c83e"
+  checksum: b36bff35a27b9df7e9a4e2effff42186baa4fc4ef0cc6e34f67dd9ae56694006029185a53d82edfae0159b5c2960a2354d26f47cff00c970ec88938feca8ae6f
   languageName: node
   linkType: hard
 
@@ -4734,6 +4727,16 @@ __metadata:
   version: 0.0.0
   resolution: "@recative/ugly-json@npm:0.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fugly-json%2F0.0.0%2Fce83fec59b3e535efee5d44d2d8656f9ef4c46a6"
   checksum: df508666ff6145134485927dfdbbb618c81e07e528e0b5de873af1124c2cadd29f8792fd283ff976fcfcb58a17cbbe2a7e0090880914e9e214faa7ef9bc845cd
+  languageName: node
+  linkType: hard
+
+"@rollup/pluginutils@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "@rollup/pluginutils@npm:4.2.1"
+  dependencies:
+    estree-walker: ^2.0.1
+    picomatch: ^2.2.2
+  checksum: 6bc41f22b1a0f1efec3043899e4d3b6b1497b3dea4d94292d8f83b4cf07a1073ecbaedd562a22d11913ff7659f459677b01b09e9598a98936e746780ecc93a12
   languageName: node
   linkType: hard
 
@@ -6458,6 +6461,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"acorn@npm:^8.7.1, acorn@npm:^8.8.0":
+  version: 8.8.0
+  resolution: "acorn@npm:8.8.0"
+  bin:
+    acorn: bin/acorn
+  checksum: 7270ca82b242eafe5687a11fea6e088c960af712683756abf0791b68855ea9cace3057bd5e998ffcef50c944810c1e0ca1da526d02b32110e13c722aa959afdc
+  languageName: node
+  linkType: hard
+
 "address@npm:>=0.0.1, address@npm:^1.0.0, address@npm:^1.0.1":
   version: 1.1.2
   resolution: "address@npm:1.1.2"
@@ -7109,17 +7121,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"async-call-rpc@npm:6.1.2":
+  version: 6.1.2
+  resolution: "async-call-rpc@npm:6.1.2"
+  checksum: 6c1d3e929f1a97fc51495e8b072e6331c4a1e4b59006f12e19a07e4ce6b23b8de42f6cfda2f59869d89ffe3086f2b544991db30edc716d313e07ec50e311fd2a
+  languageName: node
+  linkType: hard
+
 "async-call-rpc@npm:^5.1.0":
   version: 5.1.0
   resolution: "async-call-rpc@npm:5.1.0"
   checksum: 7c87f01f0ce8467dc0e61f35fc78290a1829eefd7beb1f065e030bf28a58ff6fb9eaa57c91461a336083a993ee396bc52b570e9a6f633e3252f7d1592cd4e61a
-  languageName: node
-  linkType: hard
-
-"async-call-rpc@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "async-call-rpc@npm:6.0.1"
-  checksum: d2d6eecf31cc41e8404eb8c96ac34b6d2ede44a1039d95e973f0debfcf866ea90b18c67cba06fc5413a822a9e69fe3af10d4c63e0897a6e7407533e7ca8b4ffe
   languageName: node
   linkType: hard
 
@@ -8158,7 +8170,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:>=3.0.0 <4.0.0":
+"chokidar@npm:>=3.0.0 <4.0.0, chokidar@npm:^3.5.3":
   version: 3.5.3
   resolution: "chokidar@npm:3.5.3"
   dependencies:
@@ -11009,6 +11021,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"escape-string-regexp@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "escape-string-regexp@npm:5.0.0"
+  checksum: 20daabe197f3cb198ec28546deebcf24b3dbb1a5a269184381b3116d12f0532e06007f4bc8da25669d6a7f8efb68db0758df4cd981f57bc5b57f521a3e12c59e
+  languageName: node
+  linkType: hard
+
 "escodegen@npm:^1.8.1":
   version: 1.14.3
   resolution: "escodegen@npm:1.14.3"
@@ -11585,6 +11604,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"estree-walker@npm:^2.0.1":
+  version: 2.0.2
+  resolution: "estree-walker@npm:2.0.2"
+  checksum: 6151e6f9828abe2259e57f5fd3761335bb0d2ebd76dc1a01048ccee22fabcfef3c0859300f6d83ff0d1927849368775ec5a6d265dde2f6de5a1be1721cd94efc
+  languageName: node
+  linkType: hard
+
 "esutils@npm:^2.0.2":
   version: 2.0.3
   resolution: "esutils@npm:2.0.3"
@@ -11861,7 +11887,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:^3.2.9":
+"fast-glob@npm:^3.2.11, fast-glob@npm:^3.2.9":
   version: 3.2.11
   resolution: "fast-glob@npm:3.2.11"
   dependencies:
@@ -15043,6 +15069,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsonc-parser@npm:^3.0.0":
+  version: 3.1.0
+  resolution: "jsonc-parser@npm:3.1.0"
+  checksum: 81b00c565c60cb1b400523a918d42ad9c7bb3d9cf34c708bf78d37c8c496ecd670c3ff8828f2f60aa6e6627ef4287982794ddf92261ea71e320973c54b29fb22
+  languageName: node
+  linkType: hard
+
 "jsonfile@npm:^4.0.0":
   version: 4.0.0
   resolution: "jsonfile@npm:4.0.0"
@@ -15437,6 +15470,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"local-pkg@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "local-pkg@npm:0.4.2"
+  checksum: 22be451353c25c4411b552bf01880ebc9e995b93574b2facc7757968d888356df59199cacada14162ab53bbc9da055bb692c907b4171f008dbce45a2afc777c1
+  languageName: node
+  linkType: hard
+
 "locate-path@npm:^2.0.0":
   version: 2.0.0
   resolution: "locate-path@npm:2.0.0"
@@ -15699,6 +15739,15 @@ __metadata:
   bin:
     lzmajs: bin/lzmajs
   checksum: abf2c527101060ab450d49c28693226ab175aeb2b56d976fb4ce49985ddba1e8251bd0e5af13fa225dac80faa805b71f0bba984c0ac1f7db5fbbc65e9f8d7b62
+  languageName: node
+  linkType: hard
+
+"magic-string@npm:^0.26.2":
+  version: 0.26.2
+  resolution: "magic-string@npm:0.26.2"
+  dependencies:
+    sourcemap-codec: ^1.4.8
+  checksum: b4db4e2b370ac8d9ffc6443a2b591b75364bf1fc9121b5a4068d5b89804abff6709d1fa4a0e0c2d54f2e61e0e44db83efdfe219a5ab0ba6d25ee1f2b51fbed55
   languageName: node
   linkType: hard
 
@@ -16248,6 +16297,18 @@ __metadata:
   bin:
     mkdirp: bin/cmd.js
   checksum: a96865108c6c3b1b8e1d5e9f11843de1e077e57737602de1b82030815f311be11f96f09cce59bd5b903d0b29834733e5313f9301e3ed6d6f6fba2eae0df4298f
+  languageName: node
+  linkType: hard
+
+"mlly@npm:^0.5.3, mlly@npm:^0.5.7":
+  version: 0.5.12
+  resolution: "mlly@npm:0.5.12"
+  dependencies:
+    acorn: ^8.8.0
+    pathe: ^0.3.4
+    pkg-types: ^0.3.3
+    ufo: ^0.8.5
+  checksum: fe8cf9e7f758b356298fd64fcf892e665977b9eada8159aae7a3689b8800d0d506b7779e8637403c06b80dc0b9af0d7fb98cd5b36349fb820af2ee8eadd134f3
   languageName: node
   linkType: hard
 
@@ -17477,6 +17538,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pathe@npm:^0.3.0, pathe@npm:^0.3.3, pathe@npm:^0.3.4":
+  version: 0.3.4
+  resolution: "pathe@npm:0.3.4"
+  checksum: 4ebed2a60e5b7e88b2752137606e228570af2f0e06d5964c92f0b47ada3523842a1c73feb9976a054a47b96789a62ab861fb3b8170e5f80c83b4625e1d42c2d7
+  languageName: node
+  linkType: hard
+
 "pause-stream@npm:~0.0.11":
   version: 0.0.11
   resolution: "pause-stream@npm:0.0.11"
@@ -17511,6 +17579,13 @@ __metadata:
   version: 2.3.0
   resolution: "picomatch@npm:2.3.0"
   checksum: 16818720ea7c5872b6af110760dee856c8e4cd79aed1c7a006d076b1cc09eff3ae41ca5019966694c33fbd2e1cc6ea617ab10e4adac6df06556168f13be3fca2
+  languageName: node
+  linkType: hard
+
+"picomatch@npm:^2.2.2":
+  version: 2.3.1
+  resolution: "picomatch@npm:2.3.1"
+  checksum: 050c865ce81119c4822c45d3c84f1ced46f93a0126febae20737bd05ca20589c564d6e9226977df859ed5e03dc73f02584a2b0faad36e896936238238b0446cf
   languageName: node
   linkType: hard
 
@@ -17626,6 +17701,17 @@ __metadata:
   dependencies:
     find-up: ^5.0.0
   checksum: b167bb8dac7bbf22b1d5e30ec223e6b064b84b63010c9d49384619a36734caf95ed23ad23d4f9bd975e8e8082b60a83395f43a89bb192df53a7c25a38ecb57d9
+  languageName: node
+  linkType: hard
+
+"pkg-types@npm:^0.3.3":
+  version: 0.3.3
+  resolution: "pkg-types@npm:0.3.3"
+  dependencies:
+    jsonc-parser: ^3.0.0
+    mlly: ^0.5.3
+    pathe: ^0.3.0
+  checksum: 1c74b65e12274c157bbbadfad50e68a17e4091f1e352d30c600de5da18200dbea35f349516e02a1fec6992a9b5531074bf0b3bcee9da160fe0754135127ede24
   languageName: node
   linkType: hard
 
@@ -18831,13 +18917,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-slider@npm:^1.3.1":
-  version: 1.3.1
-  resolution: "react-slider@npm:1.3.1"
+"react-slider@npm:2.0.1":
+  version: 2.0.1
+  resolution: "react-slider@npm:2.0.1"
+  dependencies:
+    prop-types: ^15.8.1
   peerDependencies:
-    prop-types: ^15.6
-    react: ^16 || ^17
-  checksum: 8a385381d8346137970205936c36d1192108b5ca5619cbcf203c8449d0b4c3a5d8b0716f28eb10aedbef6f3cb958ad5f549d5b083c1ac13eeb39c292e7df2100
+    react: ^16 || ^17 || ^18
+  checksum: dac8bfbb3d7134ada291743d0047d620bd1f2a7982b4827fd1b4c607000a407367affc4702dcee1ad02c44039292eef36c9ec51f5dab4e644dca07ae11354a4c
   languageName: node
   linkType: hard
 
@@ -19881,6 +19968,13 @@ resolve@^2.0.0-next.3:
   version: 5.1.0
   resolution: "screenfull@npm:5.1.0"
   checksum: e8ab486ba2310055aeabd84d8f76f1c9e729669942a4b1bdd675131333076ac9ee6655fb41c2507de3be93865e120cf3641e5ff636090f9e2458170827e650c7
+  languageName: node
+  linkType: hard
+
+"scule@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "scule@npm:0.3.2"
+  checksum: cac6c0e66e474fcac8b0a581cd206055a4984b9da04f4cfef8883689c045a2ac0b70bda6851fe714e5f22998fab365fa0f4ad218bdddd41c15a55c0b43f3be47
   languageName: node
   linkType: hard
 
@@ -21049,6 +21143,15 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"strip-literal@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "strip-literal@npm:0.4.0"
+  dependencies:
+    acorn: ^8.7.1
+  checksum: f764939203f24bc948dd22319de780e50b6ffa1a20915207090ddc851475a8ed7d99c94c446b75686e2f9f7fcb343dc99bc721a43ae2857f7848e79fc73b8200
+  languageName: node
+  linkType: hard
+
 "strtok3@npm:^6.2.4":
   version: 6.2.4
   resolution: "strtok3@npm:6.2.4"
@@ -21869,6 +21972,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"ufo@npm:^0.8.5":
+  version: 0.8.5
+  resolution: "ufo@npm:0.8.5"
+  checksum: 4dcf657a906550112ab1eb045110ebb768a914fb653373a2c363776a1f6ba25ea9d20bd5ed7f4bb44fb72bd4421b37d62991cd5ce4e3a2aef7e3eae450bb9508
+  languageName: node
+  linkType: hard
+
 "uglify-js@npm:^3.1.4":
   version: 3.14.5
   resolution: "uglify-js@npm:3.14.5"
@@ -21927,6 +22037,24 @@ resolve@^2.0.0-next.3:
   version: 1.1.0
   resolution: "unicode-property-aliases-ecmascript@npm:1.1.0"
   checksum: 1a96dc462d251bb1c5237f7bc77956b29f01cefce7f3e7448430742930961557c3d1515a9669715ebb06209bf01072e2f78ba1627247017daa84346414bc02f1
+  languageName: node
+  linkType: hard
+
+"unimport@npm:^0.6.5":
+  version: 0.6.7
+  resolution: "unimport@npm:0.6.7"
+  dependencies:
+    "@rollup/pluginutils": ^4.2.1
+    escape-string-regexp: ^5.0.0
+    fast-glob: ^3.2.11
+    local-pkg: ^0.4.2
+    magic-string: ^0.26.2
+    mlly: ^0.5.7
+    pathe: ^0.3.3
+    scule: ^0.3.2
+    strip-literal: ^0.4.0
+    unplugin: ^0.9.0
+  checksum: 2a46aa1cc72b97b69cd4d5c144020457066c3e6f44903e4782669bc0413b8507bf990481a0d6f5e0534c7e39a07405afbd9f2ebb416dcd1c00f98c90a5867a3b
   languageName: node
   linkType: hard
 
@@ -22001,6 +22129,51 @@ resolve@^2.0.0-next.3:
   version: 1.0.0
   resolution: "unpipe@npm:1.0.0"
   checksum: 4fa18d8d8d977c55cb09715385c203197105e10a6d220087ec819f50cb68870f02942244f1017565484237f1f8c5d3cd413631b1ae104d3096f24fdfde1b4aa2
+  languageName: node
+  linkType: hard
+
+"unplugin-auto-import@npm:^0.11.1":
+  version: 0.11.1
+  resolution: "unplugin-auto-import@npm:0.11.1"
+  dependencies:
+    "@antfu/utils": ^0.5.2
+    "@rollup/pluginutils": ^4.2.1
+    local-pkg: ^0.4.2
+    magic-string: ^0.26.2
+    unimport: ^0.6.5
+    unplugin: ^0.9.0
+  peerDependencies:
+    "@vueuse/core": "*"
+  peerDependenciesMeta:
+    "@vueuse/core":
+      optional: true
+  checksum: 35c09b325bfd5b53e0dbafcc1b1488ee14309838e0f0ae4d8ac28e10afd47d759512dbad7bd972cb031f4b368a1d184911fcefa20a29b6fc45040cdfcca490cf
+  languageName: node
+  linkType: hard
+
+"unplugin@npm:^0.9.0":
+  version: 0.9.2
+  resolution: "unplugin@npm:0.9.2"
+  dependencies:
+    acorn: ^8.8.0
+    chokidar: ^3.5.3
+    webpack-sources: ^3.2.3
+    webpack-virtual-modules: ^0.4.4
+  peerDependencies:
+    esbuild: ">=0.13"
+    rollup: ^2.50.0
+    vite: ^2.3.0 || ^3.0.0-0
+    webpack: 4 || 5
+  peerDependenciesMeta:
+    esbuild:
+      optional: true
+    rollup:
+      optional: true
+    vite:
+      optional: true
+    webpack:
+      optional: true
+  checksum: 203dd4df964982bb7e0c48fb7cdfd0c114a74f647205750a9c1102efd354647109e120968b9f6db57ba413b88afd6b335731378a2ecc947e7411c61c2c082fbb
   languageName: node
   linkType: hard
 
@@ -22629,6 +22802,20 @@ resolve@^2.0.0-next.3:
   version: 3.2.0
   resolution: "webpack-sources@npm:3.2.0"
   checksum: 8f1d686bd6aab2eda330579a07e14803cb2e01415f5a603697402aea3c36e98c1d2731167c3e97e50170cf1b0214cf8ef945fc639b100d1e3b67c023feb35716
+  languageName: node
+  linkType: hard
+
+"webpack-sources@npm:^3.2.3":
+  version: 3.2.3
+  resolution: "webpack-sources@npm:3.2.3"
+  checksum: 989e401b9fe3536529e2a99dac8c1bdc50e3a0a2c8669cbafad31271eadd994bc9405f88a3039cd2e29db5e6d9d0926ceb7a1a4e7409ece021fe79c37d9c4607
+  languageName: node
+  linkType: hard
+
+"webpack-virtual-modules@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "webpack-virtual-modules@npm:0.4.4"
+  checksum: 6720b4c47d76dc9cbaff557562506c192da7560a90395e9918a418e257a0c0cda9f5e3ac92107ec0789f8f23ad942313bd8cdebc95031d0adef1032bf6142bc7
   languageName: node
   linkType: hard
 

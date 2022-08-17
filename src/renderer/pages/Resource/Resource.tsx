@@ -450,7 +450,7 @@ const useResources = (searchTerm: string) => {
   React.useLayoutEffect(() => {
     setShowSpinner(true);
     updateResources();
-  }, [updateResources]);
+  }, [updateResources, selectedTags]);
 
   return { resources, updateResources, showSpinner };
 };

@@ -8,8 +8,8 @@ import { useSet } from '@react-hookz/web';
 import type { IAsset, IEpisode } from '@recative/definitions';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import { HeadingXXLarge } from 'baseui/typography';
+import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
 import { ContentContainer } from 'components/Layout/ContentContainer';

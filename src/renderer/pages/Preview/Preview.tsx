@@ -1,38 +1,39 @@
 import * as React from 'react';
 
+import { useAtom } from 'jotai';
 import { useStyletron } from 'baseui';
 
-import { ActPlayer, Loading } from '@recative/act-player';
+import { Loading } from '@recative/act-player';
+import {
+  useSdkConfig,
+  PlayerSdkProvider,
+  ContentModuleFactory,
+} from '@recative/client-sdk';
 
-import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { Tabs, Tab } from 'baseui/tabs-motion';
-import { FormControl } from 'baseui/form-control';
-import { Accordion, Panel } from 'baseui/accordion';
-import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import {
   Button,
   SIZE as BUTTON_SIZE,
   KIND as BUTTON_KIND,
 } from 'baseui/button';
+import { Tabs, Tab } from 'baseui/tabs-motion';
 
+import { PivotLayout } from 'components/Layout/PivotLayout';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { LogIconOutline } from 'components/Icons/LogIconOutline';
 import { EditIconOutline } from 'components/Icons/EditIconOutline';
-import { PivotLayout } from 'components/Layout/PivotLayout';
 import { EpisodeIconOutline } from 'components/Icons/EpisodeIconOutline';
 import { ResourceServerConfigOutline } from 'components/Icons/ResourceServerConfigOutline';
 
 import { TABS_OVERRIDES, ICON_TAB_OVERRIDES } from 'utils/style/tab';
 
-import { EpisodeList } from './components/EpisodeList';
-import { ActPointList } from './components/ActPointList';
-import { EnvVariableEditorModal } from './components/EnvVariableEditorModal';
+import { useStudioSettings } from 'pages/Setting/hooks/useStudioSettings';
 
-import { useAssets } from './hooks/useAssets';
-import { useSettings } from './hooks/useSettings';
+import { EnvVariableEditorModal } from './components/EnvVariableEditorModal';
+import { AssetListTree, PREVIEW_ITEM_ATOM } from './components/AssetListTree';
+
 import { useEnvVariable } from './hooks/useEnvVariable';
-import { useInterfaceComponents } from './hooks/useInterfaceComponents';
 import {
-  useResetAssetStatusCallback,
+  initialAssetStatusAtom,
   useUserImplementedFunctions,
 } from './hooks/useUserImplementedFunctions';
 
@@ -40,24 +41,20 @@ const PREFERRED_UPLOADERS = [
   '@recative/uploader-extension-studio/ResourceManager',
 ];
 
-const LAYOUT_CONTAINER_STYLES = {
+const TRUSTED_UPLOADERS = [
+  '@recative/uploader-extension-studio/ResourceManager',
+];
+
+const DEPENDENCIES = {};
+
+const LayoutContainerStyles = {
   width: '100%',
   height: '100%',
 };
 
-const PLAYER_CONTAINER_STYLES = {
+const PlayerContainerStyles = {
   flexGrow: 1,
 } as const;
-
-const ACCORDION_OVERRIDES = {
-  Content: {
-    style: {
-      paddingTop: '0',
-      paddingBottom: '12px',
-      backgroundColor: 'transparent',
-    },
-  },
-};
 
 const ENV_VARIABLE_EDITOR_BUTTON_OVERRIDES = {
   BaseButton: {
@@ -69,23 +66,23 @@ const ENV_VARIABLE_EDITOR_BUTTON_OVERRIDES = {
   },
 };
 
-const InternalPreview: React.FC = () => {
+const InternalPreview: React.FC = React.memo(() => {
   const [css] = useStyletron();
 
-  const [activeKey, setActiveKey] = React.useState<React.Key>(1);
-  const layoutContainerStyles = css(LAYOUT_CONTAINER_STYLES);
-  const playerContainerStyles = css(PLAYER_CONTAINER_STYLES);
+  const [previewAssetId, internalSetPreviewEpisodeId] =
+    useAtom(PREVIEW_ITEM_ATOM);
+  const [initialAsset] = useAtom(initialAssetStatusAtom);
 
-  const { settings, valueChangeCallbacks } = useSettings();
-  const {
-    handleEpisodeClick,
-    handleActPointClick,
-    assets,
-    resources,
-    playerKey,
-    selectedItemId,
-    selectedItemType,
-  } = useAssets(settings);
+  const [activeKey, setActiveKey] = React.useState<React.Key>(1);
+  const layoutContainerStyles = css(LayoutContainerStyles);
+  const playerContainerStyles = css(PlayerContainerStyles);
+
+  const config = useSdkConfig();
+
+  const Content = React.useMemo(
+    () => ContentModuleFactory(config.pathPattern, config.dataType),
+    [config.pathPattern, config.dataType]
+  );
 
   const {
     envVariable,
@@ -93,25 +90,12 @@ const InternalPreview: React.FC = () => {
     handleEnvVariableModalOpen,
     handleEnvVariableModalClose,
     handleEnvVariableSubmit,
-  } = useEnvVariable(
-    settings,
-    selectedItemType === 'episode' ? selectedItemId : null
-  );
+  } = useEnvVariable(previewAssetId);
 
-  const resetAssetStatus = useResetAssetStatusCallback();
   const userImplementedFunctions = useUserImplementedFunctions(
-    selectedItemId,
-    handleEpisodeClick
+    previewAssetId,
+    internalSetPreviewEpisodeId
   );
-
-  const { interfaceComponents, fetchInterfaceComponents } =
-    useInterfaceComponents(
-      settings ? `${settings.protocol}://${settings.resourceHost}` : null
-    );
-
-  React.useEffect(() => {
-    fetchInterfaceComponents();
-  }, [fetchInterfaceComponents, settings]);
 
   return (
     <PivotLayout>
@@ -125,19 +109,21 @@ const InternalPreview: React.FC = () => {
           className={playerContainerStyles}
           height="calc(100vh - 115px)"
         >
-          {!playerKey && <Loading />}
-          {assets && resources && playerKey && interfaceComponents && (
-            <ActPlayer
-              episodeId={playerKey}
-              assets={assets}
-              resources={resources}
-              userData={undefined}
-              initialUserImplementedFunctions={userImplementedFunctions}
-              envVariable={envVariable}
-              interfaceComponents={interfaceComponents}
-              preferredUploaders={PREFERRED_UPLOADERS}
-              onInitialized={resetAssetStatus}
-            />
+          {previewAssetId ? (
+            <React.Suspense fallback={<Loading />}>
+              <Content
+                episodeId={previewAssetId}
+                initialAsset={initialAsset}
+                userImplementedFunctions={userImplementedFunctions}
+                envVariable={envVariable}
+                trustedUploaders={TRUSTED_UPLOADERS}
+                preferredUploaders={PREFERRED_UPLOADERS}
+                loadingComponent={Loading}
+                playerPropsHookDependencies={DEPENDENCIES}
+              />
+            </React.Suspense>
+          ) : (
+            <Loading />
           )}
         </RecativeBlock>
         <RecativeBlock
@@ -165,60 +151,22 @@ const InternalPreview: React.FC = () => {
               artwork={() => <EpisodeIconOutline width={16} />}
               overrides={ICON_TAB_OVERRIDES}
             >
-              <Accordion accordion overrides={ACCORDION_OVERRIDES}>
-                <Panel title="Episodes">
-                  <EpisodeList onItemSelected={handleEpisodeClick} />
-                </Panel>
-                <Panel title="Act Points">
-                  <ActPointList onItemSelected={handleActPointClick} />
-                </Panel>
-              </Accordion>
+              <AssetListTree />
             </Tab>
             <Tab
               title="Environment"
               artwork={() => <ResourceServerConfigOutline width={16} />}
               overrides={ICON_TAB_OVERRIDES}
             >
-              <FormControl label={<>Resource Host</>}>
-                <Input
-                  value={settings?.resourceHost}
-                  size={INPUT_SIZE.mini}
-                  onChange={(event) =>
-                    valueChangeCallbacks?.resourceHost(
-                      event.currentTarget.value
-                    )
-                  }
-                />
-              </FormControl>
-              <FormControl label={<>Act Point Host</>}>
-                <Input
-                  value={settings?.apHost}
-                  size={INPUT_SIZE.mini}
-                  onChange={(event) =>
-                    valueChangeCallbacks?.apHost(event.currentTarget.value)
-                  }
-                />
-              </FormControl>
-              <FormControl label={<>Content Protocol</>}>
-                <Input
-                  value={settings?.protocol}
-                  size={INPUT_SIZE.mini}
-                  onChange={(event) =>
-                    valueChangeCallbacks?.protocol(event.currentTarget.value)
-                  }
-                />
-              </FormControl>
-              <FormControl label={<>Environment Variable</>}>
-                <Button
-                  startEnhancer={<EditIconOutline width={14} color="white" />}
-                  kind={BUTTON_KIND.secondary}
-                  size={BUTTON_SIZE.mini}
-                  overrides={ENV_VARIABLE_EDITOR_BUTTON_OVERRIDES}
-                  onClick={handleEnvVariableModalOpen}
-                >
-                  Open Editor
-                </Button>
-              </FormControl>
+              <Button
+                startEnhancer={<EditIconOutline width={14} color="white" />}
+                kind={BUTTON_KIND.secondary}
+                size={BUTTON_SIZE.mini}
+                overrides={ENV_VARIABLE_EDITOR_BUTTON_OVERRIDES}
+                onClick={handleEnvVariableModalOpen}
+              >
+                Open Editor
+              </Button>
             </Tab>
           </Tabs>
         </RecativeBlock>
@@ -230,6 +178,21 @@ const InternalPreview: React.FC = () => {
       />
     </PivotLayout>
   );
-};
+});
 
-export const Preview = React.memo(InternalPreview);
+export const Preview = () => {
+  const studioSettings = useStudioSettings();
+
+  if (!studioSettings) {
+    return <Loading />;
+  }
+
+  return (
+    <PlayerSdkProvider
+      pathPattern={`${studioSettings.contentProtocol}://${studioSettings.resourceHost}/preview/$fileName`}
+      dataType="json"
+    >
+      <InternalPreview />
+    </PlayerSdkProvider>
+  );
+};

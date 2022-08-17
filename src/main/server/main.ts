@@ -8,19 +8,12 @@ import selfSigned from 'selfsigned';
 import type { FastifyInstance } from 'fastify';
 
 import {
-  getAssetList,
-  getEpisodeList,
-  getResourceList,
   getAssetListForSdk,
   getEpisodeListForSdk,
   getResourceListForSdk,
 } from './router/episode';
-import {
-  getResourceBinary,
-  getResourceMetadata,
-  getResourceListOfSeries,
-} from './router/resource';
 import { getResourceFile } from './router/actPoint';
+import { getResourceBinary } from './router/resource';
 import { getEnvVariableHandler } from './router/preview';
 import { getContainerComponents } from './router/player';
 
@@ -80,10 +73,8 @@ export const startResourceServer = async () => {
     origin: true,
   });
 
-  fastify.get('/resource', getResourceListOfSeries);
   fastify.get('/resource/:id/binary', getResourceBinary);
   fastify.head('/resource/:id/binary', getResourceBinary);
-  fastify.get('/resource/:id/metadata', getResourceMetadata);
   fastify.get('/envVariable', getEnvVariableHandler);
   fastify.get('/preview/containerComponents.js', getContainerComponents);
   fastify.get('/preview/containerComponents.js.map', getContainerComponents);

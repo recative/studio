@@ -5,24 +5,16 @@ import { useAsync } from '@react-hookz/web';
 
 import { server } from 'utils/rpc';
 
-import { INITIAL_PREVIEW_CONFIG } from './useSettings';
-
 const NOTHING = {};
 
 const log = debug('renderer:use-env');
 
-export const useEnvVariable = (
-  settings: typeof INITIAL_PREVIEW_CONFIG | null,
-  episodeId: string | null
-) => {
+export const useEnvVariable = (episodeId: string | null) => {
   const [envVariableModalOpen, setEnvVariableModalOpen] = React.useState(false);
 
   const fetchEnvVariable = React.useCallback(
-    async () =>
-      settings
-        ? server.getEnvVariable(settings.apHost, settings.protocol, episodeId)
-        : {},
-    [settings, episodeId]
+    async () => server.getEnvVariable(episodeId),
+    [episodeId]
   );
 
   const [{ result: envVariable }, envVariableController] =

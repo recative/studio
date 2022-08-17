@@ -4,16 +4,17 @@ import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 import { atom, useAtom } from 'jotai';
 
-import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { StatefulTreeView, TreeLabelInteractable } from 'baseui/tree-view';
+import type { StyleObject } from 'styletron-standard';
+import type { ButtonOverrides } from 'baseui/button';
+
+import { StatefulTreeView } from 'baseui/tree-view';
 import {
   Button,
   SIZE as BUTTON_SIZE,
   KIND as BUTTON_KIND,
 } from 'baseui/button';
 
-import type { StyleObject } from 'styletron-standard';
-import type { ButtonOverrides } from 'baseui/button';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { server } from 'utils/rpc';
 
@@ -23,7 +24,7 @@ interface IFilterLabels {
   episodeIds: string[] | null;
 }
 
-const treeLabelContentCOntainerStyle: StyleObject = {
+const treeLabelContentContainerStyle: StyleObject = {
   whiteSpace: 'nowrap',
   overflow: 'clip',
   textOverflow: 'ellipsis',
@@ -49,17 +50,15 @@ const getSimpleButtonLabel = (label: string) =>
     const [css] = useStyletron();
 
     return (
-      <TreeLabelInteractable>
-        <RecativeBlock className={css(treeLabelContentCOntainerStyle)}>
-          <Button
-            size={BUTTON_SIZE.compact}
-            kind={BUTTON_KIND.tertiary}
-            overrides={simpleButtonLabelOverride}
-          >
-            {label}
-          </Button>
-        </RecativeBlock>
-      </TreeLabelInteractable>
+      <RecativeBlock className={css(treeLabelContentContainerStyle)}>
+        <Button
+          size={BUTTON_SIZE.compact}
+          kind={BUTTON_KIND.tertiary}
+          overrides={simpleButtonLabelOverride}
+        >
+          {label}
+        </Button>
+      </RecativeBlock>
     );
   };
 
@@ -90,18 +89,16 @@ const getLabelButton = (condition: IFilterLabels) =>
     );
 
     return (
-      <TreeLabelInteractable>
-        <RecativeBlock className={css(treeLabelContentCOntainerStyle)}>
-          <Button
-            size={BUTTON_SIZE.compact}
-            kind={BUTTON_KIND.tertiary}
-            onClick={handleButtonClick}
-            overrides={buttonOverride}
-          >
-            {condition.label}
-          </Button>
-        </RecativeBlock>
-      </TreeLabelInteractable>
+      <RecativeBlock className={css(treeLabelContentContainerStyle)}>
+        <Button
+          size={BUTTON_SIZE.compact}
+          kind={BUTTON_KIND.tertiary}
+          onClick={handleButtonClick}
+          overrides={buttonOverride}
+        >
+          {condition.label}
+        </Button>
+      </RecativeBlock>
     );
   };
 

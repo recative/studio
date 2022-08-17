@@ -73,8 +73,6 @@ export const getResourceFile = async (
 
   const file = await readFile(filePath);
 
-  console.log('::', filePath);
-
   if (!file) {
     reply.code(404).send({
       message: 'File not found',

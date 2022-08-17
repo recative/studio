@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import { useAsync } from '@react-hookz/web';
-
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { FormControl } from 'baseui/form-control';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
@@ -24,22 +22,10 @@ import { server } from 'utils/rpc';
 
 import { BundleProfiles } from './components/BundleProfiles';
 
-const useSettings = () => {
-  const [extensionMetadata, extensionMetadataActions] = useAsync(async () => {
-    const settings = await server.getSettings();
-
-    return settings;
-  });
-
-  React.useEffect(() => {
-    extensionMetadataActions.execute();
-  }, [extensionMetadataActions, extensionMetadataActions.execute]);
-
-  return extensionMetadata.result;
-};
+import { useStudioSettings } from './hooks/useStudioSettings';
 
 const InternalSetting: React.FC = () => {
-  const settings = useSettings();
+  const settings = useStudioSettings();
   const databaseLocked = useDatabaseLocked();
 
   const handleSubmitConfigToServer = React.useCallback(

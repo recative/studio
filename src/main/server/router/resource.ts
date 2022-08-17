@@ -34,32 +34,6 @@ const ErrorMismatchResourceType = {
   message: 'Resource group do not have a related binary file.',
 };
 
-export const getResourceListOfSeries = async (
-  request: FastifyRequest,
-  reply: FastifyReply
-) => {
-  const db = await getDbFromRequest(request);
-
-  if (!db) {
-    reply.statusCode = 503;
-    return ErrorDbNotReady;
-  }
-
-  const dbQuery: Record<string, unknown> = {
-    removed: false,
-  };
-
-  const requestQuery = request.query as Record<string, string>;
-
-  if (requestQuery.label) {
-    dbQuery.label = requestQuery.label;
-  }
-
-  const result = db.resource.resources.find(dbQuery);
-
-  return result;
-};
-
 interface ResourceBinaryParameters {
   id: string;
 }
