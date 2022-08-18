@@ -413,7 +413,10 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
    */
   abstract beforeFileImported(
     resources: PostProcessedResourceItemForImport[]
-  ): Promise<IResourceItem[]> | IResourceItem[];
+  ):
+    | Promise<PostProcessedResourceItemForImport[] | null>
+    | PostProcessedResourceItemForImport[]
+    | null;
   abstract afterGroupCreated(
     files: IResourceFile[],
     newGroup: IResourceGroup

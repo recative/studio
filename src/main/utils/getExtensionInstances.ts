@@ -146,7 +146,8 @@ const resourceProcessorDependencies: IResourceExtensionDependency = {
     db.resource.postProcessed.update(resourceDefinition);
   },
   readPathAsBuffer: (path: string) => readFile(path) as Promise<Buffer>,
-  //
+  // This will be replaced later
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logToTerminal: logToTerminal as any,
   createTemporaryZip: () => new Zip(fileSync().name),
   md5Hash: (x: Buffer) => {
@@ -253,10 +254,12 @@ export const getUploaderInstances = async (categories: Category[]) => {
 };
 
 const bundlerDependencies: IBundlerExtensionDependency = {
-  /** We replace it later */
+  /** We replace these later */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   executeExternalTool: null as any,
-  /** We replace it later */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prepareOutputFile: null as any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getOutputFilePath: null as any,
   getBuildInProtoDefinition: (fileName: string) => {
     const protoPath = join(STUDIO_BINARY_PATH, fileName);
@@ -264,6 +267,7 @@ const bundlerDependencies: IBundlerExtensionDependency = {
     return proto.load(protoPath);
   },
   /** We replace it later */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logToTerminal: null as any,
   readBundleTemplate: async (profile: IBundleProfile) => {
     const workspace = getWorkspace();

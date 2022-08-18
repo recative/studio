@@ -270,6 +270,32 @@ export const getDb = async (
     additionalData,
   };
 
+  // newDb.resource.resources
+  //   .find({
+  //     label: {
+  //       $in: ['chords_box', 'to_practice_button'],
+  //     },
+  //   })
+  //   .forEach((x) => {
+  //     if (x.type === 'file') {
+  //       console.log(`:: Migrated ${x.label}`);
+  //       delete x.extensionConfigurations[
+  //         `@recative/extension-rs-atlas/AtlasResourceProcessor~~tw`
+  //       ];
+  //     } else {
+  //       const files = newDb.resource.resources.find({
+  //         resourceGroupId: x.id,
+  //       }) as IResourceFile[];
+
+  //       files.forEach((file) => {
+  //         console.log(`:: Migrated ${file.label}`);
+  //         delete file.extensionConfigurations[
+  //           `@recative/extension-rs-atlas/AtlasResourceProcessor~~tw`
+  //         ];
+  //       });
+  //     }
+  //   });
+
   if (!temporary) {
     currentDb = newDb;
   }

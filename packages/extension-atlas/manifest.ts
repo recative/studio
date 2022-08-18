@@ -1,5 +1,6 @@
 import { AtlasResourceProcessor } from './AtlasResourceProcessor';
+import { TextureAnalysisProcessor } from './TextureAnalysisProcessor';
 
 export default {
-  resourceProcessor: [AtlasResourceProcessor],
+  resourceProcessor: [TextureAnalysisProcessor, AtlasResourceProcessor],
 };
