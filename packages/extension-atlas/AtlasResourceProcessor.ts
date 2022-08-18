@@ -1054,7 +1054,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
                 );
               }
 
-              task.flipped = flipped;
+              task.flipped = !notFlipped;
             });
             resourceDescription.extensionConfigurations[
               `${AtlasResourceProcessor.id}~~dict`
