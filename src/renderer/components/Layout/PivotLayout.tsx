@@ -45,6 +45,7 @@ const contentContainerStyles: StyleObject = {
   height: '-webkit-fill-available',
   maxHeight: '100%',
   overflowY: 'auto',
+  position: 'relative',
 };
 
 const footerStyles: StyleObject = {

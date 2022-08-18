@@ -36,6 +36,10 @@ const PlayerContainerStyles = {
   flexGrow: 1,
 } as const;
 
+const iFrameStyles = {
+  border: 0,
+};
+
 const ENV_VARIABLE_EDITOR_BUTTON_OVERRIDES = {
   BaseButton: {
     style: {
@@ -73,15 +77,17 @@ const InternalPreview: React.FC = () => {
       <RecativeBlock
         className={layoutContainerStyles}
         display="flex"
+        top="0"
+        left="0"
+        position="absolute"
         width="100%"
-        height="-webkit-fill-available"
+        height="100%"
+        overflow="clip"
       >
-        <RecativeBlock
-          className={playerContainerStyles}
-          height="calc(100vh - 115px)"
-        >
+        <RecativeBlock className={playerContainerStyles}>
           {previewAssetId ? (
             <iframe
+              className={css(iFrameStyles)}
               title="Recative Player"
               width="100%"
               height="100%"
@@ -96,7 +102,6 @@ const InternalPreview: React.FC = () => {
           minWidth="250px"
           width="25%"
           paddingLeft="8px"
-          height="calc(100vh - 115px)"
           overflow="auto"
         >
           <Tabs

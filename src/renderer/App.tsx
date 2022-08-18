@@ -127,7 +127,7 @@ export const App = () => {
   return (
     <RecativeBlock>
       <RecativeBlock width="100vw" height="30px" />
-      <StudioTitleBar />
+      {window.location.hash !== '#/preview-player' && <StudioTitleBar />}
       <div className={css(dragAreaStyles)} />
       <Routes>
         <Route path="import" element={<ImportResource />} />
