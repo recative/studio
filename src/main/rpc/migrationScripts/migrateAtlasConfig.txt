@@ -1,0 +1,96 @@
+import { readFile } from 'fs/promises';
+
+import { PostProcessedResourceItemForImport } from '@recative/extension-sdk';
+
+import { getDb } from '../db';
+import { getResourceFilePath } from '../../utils/getResourceFile';
+import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
+
+export const migration = async () => {
+  const db = await getDb();
+
+  const resourceProcessorInstances = Object.entries(
+    await getResourceProcessorInstances('')
+  );
+
+  const resources = db.resource.resources.find({
+    type: 'file',
+    mimeType: 'image/png',
+  });
+
+  console.log('::: Migrating resources', resources.length);
+
+  resources.forEach((x) => {
+    if (x.type !== 'file') {
+      return;
+    }
+
+    delete x.extensionConfigurations[
+      `@recative/extension-rs-atlas/AtlasResourceProcessor~~tw`
+    ];
+    delete x.extensionConfigurations[
+      `@recative/extension-rs-atlas/AtlasResourceProcessor~~th`
+    ];
+    delete x.extensionConfigurations[
+      `@recative/extension-rs-atlas/AtlasResourceProcessor~~ex`
+    ];
+    delete x.extensionConfigurations[
+      `@recative/extension-rs-atlas/AtlasResourceProcessor~~ey`
+    ];
+    delete x.extensionConfigurations[
+      `@recative/extension-rs-atlas/AtlasResourceProcessor~~ew`
+    ];
+    delete x.extensionConfigurations[
+      `@recative/extension-rs-atlas/AtlasResourceProcessor~~eh`
+    ];
+    delete x.extensionConfigurations[
+      `@recative/extension-rs-atlas/AtlasResourceProcessor~~x`
+    ];
+    delete x.extensionConfigurations[
+      `@recative/extension-rs-atlas/AtlasResourceProcessor~~y`
+    ];
+    delete x.extensionConfigurations[
+      `@recative/extension-rs-atlas/AtlasResourceProcessor~~w`
+    ];
+    delete x.extensionConfigurations[
+      `@recative/extension-rs-atlas/AtlasResourceProcessor~~h`
+    ];
+    delete x.extensionConfigurations[
+      `@recative/extension-rs-atlas/AtlasResourceProcessor~~f`
+    ];
+  });
+
+  let preprocessedFiles: PostProcessedResourceItemForImport[] =
+    await Promise.all(
+      resources.map(async (x) => ({
+        ...x,
+        postProcessedFile: await readFile(getResourceFilePath(x)),
+      }))
+    );
+
+  for (let i = 0; i < resourceProcessorInstances.length; i += 1) {
+    const [, processor] = resourceProcessorInstances[i];
+
+    const processedFiles = await processor.beforeFileImported(
+      preprocessedFiles
+    );
+
+    if (processedFiles) {
+      preprocessedFiles = processedFiles;
+    }
+  }
+
+  const metadataForImport = await Promise.all(
+    preprocessedFiles.map(async (resource) => {
+      if (resource.type !== 'file') {
+        return resource;
+      }
+
+      const { postProcessedFile, ...metadata } = resource;
+
+      return metadata;
+    })
+  );
+
+  db.resource.resources.update(metadataForImport);
+};

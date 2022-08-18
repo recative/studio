@@ -29,6 +29,7 @@ export const setupWorkspace = async (
   readonly = false
 ): Promise<IWorkspaceConfiguration> => {
   console.log(`:: Setting up workspace, ${mediaWorkspacePath}`);
+
   // Check if paths exists, if not, create them.
   ensureDir(mediaWorkspacePath);
   if (codeRepositoryPath) {

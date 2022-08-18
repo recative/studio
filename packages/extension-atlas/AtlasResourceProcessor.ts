@@ -1039,8 +1039,14 @@ export class AtlasResourceProcessor extends ResourceProcessor<
                 );
               }
 
-              const notFlipped = task.w === envelope.w && task.h === envelope.h;
-              const flipped = task.w === envelope.h && task.h === envelope.w;
+              const pEnvelope = {
+                w: envelope.w + 2 * ATLAS_PADDING,
+                h: envelope.h + 2 * ATLAS_PADDING,
+              };
+
+              const notFlipped =
+                task.w === pEnvelope.w && task.h === pEnvelope.h;
+              const flipped = task.w === pEnvelope.h && task.h === pEnvelope.w;
 
               if (!notFlipped && !flipped) {
                 throw new Error(
@@ -1424,7 +1430,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
         ] = (currentTask.h - 2 * ATLAS_PADDING).toString();
         includedFile.extensionConfigurations[
           `${AtlasResourceProcessor.id}~~f`
-        ] = currentTask.f.toString();
+        ] = currentTask.flipped.toString();
       }
     }
 

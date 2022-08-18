@@ -14,6 +14,7 @@ export * from './resource';
 export * from './actPoint';
 export * from './electron';
 export * from './terminal';
+export * from './migration';
 export * from './extension';
 export * from './bundleProfile';
 export * from './publishActServer';

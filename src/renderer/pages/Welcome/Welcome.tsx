@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import { useStyletron } from 'styletron-react';
 import { useLocalStorage } from 'react-use';
 
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { LabelLarge } from 'baseui/typography';
 import { ButtonGroup } from 'baseui/button-group';
 import { StatefulTooltip } from 'baseui/tooltip';
@@ -19,6 +18,7 @@ import {
 } from 'baseui/button';
 
 import { TitleGroup } from 'components/Layout/TitleGroup';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { NewIcon } from 'components/Icons/NewIcon';
 import { ImportIcon } from 'components/Icons/ImportIcon';
@@ -241,6 +241,7 @@ const useRecentProjectClickCallback = (
       await server.setupDb(result.dbPath);
       if (!(await server.ifDbLocked())) {
         await server.lockDb();
+        await server.migration();
       }
 
       setWorkspaceConfiguration(result);
