@@ -1,8 +1,7 @@
 import * as React from 'react';
 
-import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
-import { atom, useAtom } from 'jotai';
+import { useAsync, useLocalStorageValue } from '@react-hookz/web';
 
 import {
   Button,
@@ -17,12 +16,12 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { server } from 'utils/rpc';
 
+import { SELECTED_ASSET_ID } from '../constants/storageKeys';
+
 interface IAssetLabel {
   label: string;
   id: string;
 }
-
-export const PREVIEW_ITEM_ATOM = atom<string | null>(null);
 
 const treeLabelContentContainerStyle = {
   whiteSpace: 'nowrap',
@@ -43,7 +42,9 @@ const useEpisodesData = () => {
 const getLabelButton = (label: IAssetLabel) =>
   function LabelButton() {
     const [css] = useStyletron();
-    const [selectedLabel, setSelectedLabel] = useAtom(PREVIEW_ITEM_ATOM);
+    const [selectedLabel, setSelectedLabel] = useLocalStorageValue<
+      string | undefined
+    >(SELECTED_ASSET_ID, undefined);
 
     const handleButtonClick = React.useCallback(() => {
       setSelectedLabel(label?.id);
@@ -98,7 +99,7 @@ const useTreeStructures = () => {
               id: `as:${asset?.id}`,
               label: getLabelButton({
                 label: asset?.id,
-                id: asset?.id,
+                id: `as:${asset?.id}`,
               }),
             })),
           }))

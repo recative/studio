@@ -1,15 +1,9 @@
 import * as React from 'react';
 
-import { useAtom } from 'jotai';
 import { useStyletron } from 'baseui';
+import { useLocalStorageValue } from '@react-hookz/web';
 
 import { Loading } from '@recative/act-player';
-import {
-  useSdkConfig,
-  PlayerSdkProvider,
-  ContentModuleFactory,
-} from '@recative/client-sdk';
-
 import {
   Button,
   SIZE as BUTTON_SIZE,
@@ -26,26 +20,12 @@ import { ResourceServerConfigOutline } from 'components/Icons/ResourceServerConf
 
 import { TABS_OVERRIDES, ICON_TAB_OVERRIDES } from 'utils/style/tab';
 
-import { useStudioSettings } from 'pages/Setting/hooks/useStudioSettings';
-
+import { AssetListTree } from './components/AssetListTree';
 import { EnvVariableEditorModal } from './components/EnvVariableEditorModal';
-import { AssetListTree, PREVIEW_ITEM_ATOM } from './components/AssetListTree';
 
 import { useEnvVariable } from './hooks/useEnvVariable';
-import {
-  initialAssetStatusAtom,
-  useUserImplementedFunctions,
-} from './hooks/useUserImplementedFunctions';
 
-const PREFERRED_UPLOADERS = [
-  '@recative/uploader-extension-studio/ResourceManager',
-];
-
-const TRUSTED_UPLOADERS = [
-  '@recative/uploader-extension-studio/ResourceManager',
-];
-
-const DEPENDENCIES = {};
+import { SELECTED_ASSET_ID } from './constants/storageKeys';
 
 const LayoutContainerStyles = {
   width: '100%',
@@ -66,36 +46,27 @@ const ENV_VARIABLE_EDITOR_BUTTON_OVERRIDES = {
   },
 };
 
-const InternalPreview: React.FC = React.memo(() => {
+const InternalPreview: React.FC = () => {
   const [css] = useStyletron();
 
-  const [previewAssetId, internalSetPreviewEpisodeId] =
-    useAtom(PREVIEW_ITEM_ATOM);
-  const [initialAsset] = useAtom(initialAssetStatusAtom);
+  const [previewAssetId] = useLocalStorageValue<string | undefined>(
+    SELECTED_ASSET_ID,
+    undefined
+  );
 
   const [activeKey, setActiveKey] = React.useState<React.Key>(1);
   const layoutContainerStyles = css(LayoutContainerStyles);
   const playerContainerStyles = css(PlayerContainerStyles);
 
-  const config = useSdkConfig();
-
-  const Content = React.useMemo(
-    () => ContentModuleFactory(config.pathPattern, config.dataType),
-    [config.pathPattern, config.dataType]
-  );
-
   const {
-    envVariable,
     envVariableModalOpen,
     handleEnvVariableModalOpen,
     handleEnvVariableModalClose,
     handleEnvVariableSubmit,
-  } = useEnvVariable(previewAssetId);
+  } = useEnvVariable(previewAssetId ?? null);
 
-  const userImplementedFunctions = useUserImplementedFunctions(
-    previewAssetId,
-    internalSetPreviewEpisodeId
-  );
+  const url = new URL(window.location.href);
+  url.hash = `#/preview-player`;
 
   return (
     <PivotLayout>
@@ -110,18 +81,12 @@ const InternalPreview: React.FC = React.memo(() => {
           height="calc(100vh - 115px)"
         >
           {previewAssetId ? (
-            <React.Suspense fallback={<Loading />}>
-              <Content
-                episodeId={previewAssetId}
-                initialAsset={initialAsset}
-                userImplementedFunctions={userImplementedFunctions}
-                envVariable={envVariable}
-                trustedUploaders={TRUSTED_UPLOADERS}
-                preferredUploaders={PREFERRED_UPLOADERS}
-                loadingComponent={Loading}
-                playerPropsHookDependencies={DEPENDENCIES}
-              />
-            </React.Suspense>
+            <iframe
+              title="Recative Player"
+              width="100%"
+              height="100%"
+              src={url.toString()}
+            />
           ) : (
             <Loading />
           )}
@@ -178,21 +143,6 @@ const InternalPreview: React.FC = React.memo(() => {
       />
     </PivotLayout>
   );
-});
-
-export const Preview = () => {
-  const studioSettings = useStudioSettings();
-
-  if (!studioSettings) {
-    return <Loading />;
-  }
-
-  return (
-    <PlayerSdkProvider
-      pathPattern={`${studioSettings.contentProtocol}://${studioSettings.resourceHost}/preview/$fileName`}
-      dataType="json"
-    >
-      <InternalPreview />
-    </PlayerSdkProvider>
-  );
 };
+
+export const Preview = React.memo(InternalPreview);

@@ -172,17 +172,43 @@ export const getEpisodeList = async (
 };
 
 export const getEpisodeDetail = async (
-  episodeId: string,
+  requestId: string,
   request: ProfileConfig,
   dbPromise: ReturnType<typeof getDb> | null = null
 ) => {
   const db = await (dbPromise || getDb());
 
-  const episode = db.episode.episodes.findOne({ id: episodeId }) as IEpisode;
-  const assets = await getClientSideAssetList(episodeId, request, dbPromise);
+  const isAssetRequest = requestId.startsWith('as:');
+  const assetId = requestId.replace('as:', '');
+
+  const episodeIdOfAsset = isAssetRequest
+    ? db.episode.assets.findOne({ id: assetId })?.episodeId
+    : null;
+
+  if (episodeIdOfAsset === undefined) {
+    throw new TypeError(`Episode of asset not found: ${requestId}`);
+  }
+
+  const episode = db.episode.episodes.findOne({
+    id: episodeIdOfAsset ?? requestId,
+  });
+
+  if (!episode) {
+    throw new TypeError(`Episode not found: ${requestId}`);
+  }
+
+  const rawAssets = await getClientSideAssetList(
+    episode.id,
+    request,
+    dbPromise
+  );
+  const assets = rawAssets.filter((x) =>
+    isAssetRequest ? x.id === assetId : true
+  );
+
   try {
     const resources = await getResourceListOfEpisode(
-      episodeId,
+      episode.id,
       request,
       dbPromise
     );
@@ -192,7 +218,7 @@ export const getEpisodeDetail = async (
     return { episode, assets, resources, key };
   } catch (e) {
     if (e instanceof Error) {
-      e.message = `Failed to get resource list of ${episodeId}: ${e.message}`;
+      e.message = `Failed to get resource list of ${requestId}: ${e.message}`;
       throw e;
     } else {
       throw e;

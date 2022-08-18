@@ -24,6 +24,7 @@ import { Resource } from './pages/Resource/Resource';
 import { ActPoint } from './pages/ActPoint/ActPoint';
 import { UserInfo } from './pages/User/UserInfo';
 import { NewResource } from './pages/Welcome/NewResource';
+import { PreviewPlayer } from './pages/Preview/PreviewPlayer';
 import { ImportResource } from './pages/Welcome/ImportResource';
 import { InitializeErrorModal } from './pages/Server/components/InitializeErrorModal';
 import { MergeResourceDatabase } from './pages/Utils/MergeResourceDatabase';
@@ -142,6 +143,7 @@ export const App = () => {
         <Route path="release" element={<Release />} />
         <Route path="bundle" element={<Bundle />} />
         <Route path="preview" element={<Preview />} />
+        <Route path="preview-player" element={<PreviewPlayer />} />
         <Route path="merge-resource-db" element={<MergeResourceDatabase />} />
         <Route path="/" element={<Welcome />} />
       </Routes>

@@ -59,6 +59,7 @@ const createWindow = async () => {
     frame: false,
     webPreferences: {
       nodeIntegration: process.env.NODE_ENV === 'development',
+      nodeIntegrationInSubFrames: process.env.NODE_ENV === 'development',
       contextIsolation: process.env.NODE_ENV !== 'development',
       preload: path.join(__dirname, 'preload.js'),
     },

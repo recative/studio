@@ -215,7 +215,7 @@ export const getClientSideAssetList = async (
         )[0];
 
         return {
-          id: asset.contentId,
+          id: asset.id,
           duration: Infinity,
           order: asset.order,
           triggers: asset.triggers,
