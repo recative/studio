@@ -72,12 +72,14 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
     const imageData = this.getImageData(image);
     const { data } = imageData;
     const paddings = { top: 0, left: 0, right: width - 1, bottom: height - 1 };
+    let hasPixel = false;
 
     leftSide: for (let i = 0; i < width; i += 1) {
       for (let j = 0; j < height; j += 1) {
         const alpha = data[(j * width + i) * 4 + 3];
         if (alpha > 0) {
           paddings.left = i;
+          hasPixel = true;
           break leftSide;
         }
       }
@@ -88,6 +90,7 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
         const alpha = data[(j * width + i) * 4 + 3];
         if (alpha > 0) {
           paddings.right = i;
+          hasPixel = true;
           break rightSide;
         }
       }
@@ -98,6 +101,7 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
         const alpha = data[(j * width + i) * 4 + 3];
         if (alpha > 0) {
           paddings.top = j;
+          hasPixel = true;
           break topSide;
         }
       }
@@ -108,9 +112,15 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
         const alpha = data[(j * width + i) * 4 + 3];
         if (alpha > 0) {
           paddings.bottom = j;
+          hasPixel = true;
           break bottomSide;
         }
       }
+    }
+
+    if (!hasPixel) {
+      paddings.right = 1;
+      paddings.bottom = 1;
     }
 
     const numberArray: Array<number> = [];
