@@ -20,7 +20,7 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
 > {
   static id = '@recative/extension-rs-atlas/TextureAnalysisProcessor';
 
-  static label = 'Texture analysis';
+  static label = 'Texture Analysis';
 
   static resourceConfigUiFields = [] as const;
 

@@ -1,9 +1,10 @@
 import { join } from 'path';
 import { existsSync } from 'fs-extra';
 
+import { xxHash } from '@recative/extension-sdk';
+
 import { getDb } from '../../db';
 import { getWorkspace } from '../../workspace';
-import { getFilePathHash } from '../../../utils/getFileHash';
 
 export const getVersionName = async (
   bundleReleaseId: number,
@@ -30,19 +31,19 @@ export const getVersionName = async (
   );
 
   const containerComponentVersion = existsSync(containerComponentPath)
-    ? `s=${await getFilePathHash(containerComponentPath)}`
+    ? `s=${await xxHash(containerComponentPath)}`
     : '';
 
   const webRootTemplateFilePath = join(assetsPath, webRootTemplateFileName);
 
   const webRootTemplateVersion = existsSync(containerComponentPath)
-    ? `w=${await getFilePathHash(webRootTemplateFilePath)}`
+    ? `w=${await xxHash(webRootTemplateFilePath)}`
     : '';
 
   const appTemplateFilePath = join(assetsPath, appTemplateFileName);
 
   const appTemplateVersion = existsSync(appTemplateFilePath)
-    ? `a=${await getFilePathHash(appTemplateFilePath)}`
+    ? `a=${await xxHash(appTemplateFilePath)}`
     : '';
 
   const trueVersion = [

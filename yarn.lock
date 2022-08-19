@@ -4392,7 +4392,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/extension-ali-oss@workspace:^, @recative/extension-ali-oss@workspace:packages/extension-ali-oss":
+"@recative/extension-ali-oss@workspace:packages/extension-ali-oss":
   version: 0.0.0-use.local
   resolution: "@recative/extension-ali-oss@workspace:packages/extension-ali-oss"
   dependencies:
@@ -4419,6 +4419,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@recative/extension-av@workspace:packages/extension-av":
+  version: 0.0.0-use.local
+  resolution: "@recative/extension-av@workspace:packages/extension-av"
+  dependencies:
+    "@napi-rs/canvas": ^0.1.25
+    "@recative/atlas": ^0.0.0-dev.1
+  languageName: unknown
+  linkType: soft
+
 "@recative/extension-ios@workspace:packages/extension-ios":
   version: 0.0.0-use.local
   resolution: "@recative/extension-ios@workspace:packages/extension-ios"
@@ -4431,7 +4440,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@recative/extension-polyv-vod@workspace:^, @recative/extension-polyv-vod@workspace:packages/extension-polyv-vod":
+"@recative/extension-polyv-vod@workspace:packages/extension-polyv-vod":
   version: 0.0.0-use.local
   resolution: "@recative/extension-polyv-vod@workspace:packages/extension-polyv-vod"
   dependencies:
@@ -4452,7 +4461,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@recative/extension-s3-bucket@workspace:^, @recative/extension-s3-bucket@workspace:packages/extension-s3-bucket":
+"@recative/extension-s3-bucket@workspace:packages/extension-s3-bucket":
   version: 0.0.0-use.local
   resolution: "@recative/extension-s3-bucket@workspace:packages/extension-s3-bucket"
   dependencies:
@@ -4464,7 +4473,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@recative/extension-sdk@workspace:packages/extension-sdk":
+"@recative/extension-sdk@workspace:^, @recative/extension-sdk@workspace:packages/extension-sdk":
   version: 0.0.0-use.local
   resolution: "@recative/extension-sdk@workspace:packages/extension-sdk"
   languageName: unknown
@@ -4527,7 +4536,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/studio-definitions@workspace:packages/studio-definitions":
+"@recative/studio-definitions@workspace:^, @recative/studio-definitions@workspace:packages/studio-definitions":
   version: 0.0.0-use.local
   resolution: "@recative/studio-definitions@workspace:packages/studio-definitions"
   languageName: unknown
@@ -4537,12 +4546,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@recative/studio-src@workspace:src"
   dependencies:
-    "@recative/extension-ali-oss": "workspace:^"
-    "@recative/extension-polyv-vod": "workspace:^"
-    "@recative/extension-s3-bucket": "workspace:^"
     "@types/lokijs": ^1.5.6
     lokijs: ^1.5.12
-    p-queue: 6.6.2
   languageName: unknown
   linkType: soft
 
@@ -4590,9 +4595,10 @@ __metadata:
     "@recative/act-player": ^0.1.1
     "@recative/client-sdk": ^3.4.0
     "@recative/definitions": ^0.0.0-dev.89
+    "@recative/extension-sdk": "workspace:^"
     "@recative/smart-resource": ^0.0.0-dev.7
+    "@recative/studio-definitions": "workspace:^"
     "@recative/ugly-json": ^0.0.0
-    "@silvia-odwyer/photon-node": ^0.3.1
     "@teamsupercell/typings-for-css-modules-loader": ^2.4.0
     "@testing-library/jest-dom": ^5.11.6
     "@testing-library/react": ^11.2.2
@@ -4829,13 +4835,6 @@ __metadata:
   dependencies:
     "@daybrush/utils": ^1.4.0
   checksum: e96aeab712e5fac4a437b1c1c2f5b445e47050c8b94dac2354bbece7d298b46bab5ea0049a24b360385f4edef8010538ee8d6f0ead570fbb83fdad9fe7e7b180
-  languageName: node
-  linkType: hard
-
-"@silvia-odwyer/photon-node@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "@silvia-odwyer/photon-node@npm:0.3.1"
-  checksum: 5835cf82a6c834d71a74ee1e22065a7bfa900b611430ba9548cb62b305d9160d2c85091270b30e2463e2a7bf314c878b949eac1f41c177e9b5794214113d8e63
   languageName: node
   linkType: hard
 
@@ -11704,7 +11703,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eventemitter3@npm:^4.0.0, eventemitter3@npm:^4.0.4":
+"eventemitter3@npm:^4.0.0":
   version: 4.0.7
   resolution: "eventemitter3@npm:4.0.7"
   checksum: 1875311c42fcfe9c707b2712c32664a245629b42bb0a5a84439762dd0fd637fc54d078155ea83c2af9e0323c9ac13687e03cfba79b03af9f40c89b4960099374
@@ -17412,16 +17411,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-queue@npm:6.6.2":
-  version: 6.6.2
-  resolution: "p-queue@npm:6.6.2"
-  dependencies:
-    eventemitter3: ^4.0.4
-    p-timeout: ^3.2.0
-  checksum: 832642fcc4ab6477b43e6d7c30209ab10952969ed211c6d6f2931be8a4f9935e3578c72e8cce053dc34f2eb6941a408a2c516a54904e989851a1a209cf19761c
-  languageName: node
-  linkType: hard
-
 "p-retry@npm:^4.5.0":
   version: 4.6.1
   resolution: "p-retry@npm:4.6.1"
@@ -17432,7 +17421,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-timeout@npm:^3.1.0, p-timeout@npm:^3.2.0":
+"p-timeout@npm:^3.1.0":
   version: 3.2.0
   resolution: "p-timeout@npm:3.2.0"
   dependencies:

@@ -1,3 +1,6 @@
+import { readFile } from 'fs/promises';
+import { createCanvas, Image } from '@napi-rs/canvas';
+
 export class ImageConvertFailed extends Error {
   name = 'ImageConvertFailed';
 
@@ -6,25 +9,16 @@ export class ImageConvertFailed extends Error {
   }
 }
 
-export const loadImage = async (url: string) => {
-  const image = new Image();
-  image.src = url;
-
-  await new Promise<void>((resolve) => {
-    image.onload = () => {
-      resolve();
-    };
-  });
+export const imageThumbnail = async (img: string | Buffer) => {
+  const $img = new Image();
+  $img.src = Buffer.isBuffer(img) ? img : await readFile(img);
 
   const cw = 320;
   const ch = 240;
-  const iw = image.width;
-  const ih = image.height;
+  const iw = $img.width;
+  const ih = $img.height;
 
-  const canvas = document.createElement('CANVAS') as HTMLCanvasElement;
-  canvas.width = cw;
-  canvas.height = ch;
-
+  const canvas = createCanvas(cw, ch);
   const ctx = canvas.getContext('2d');
 
   if (!ctx) {
@@ -52,15 +46,7 @@ export const loadImage = async (url: string) => {
     y = 0;
   }
 
-  ctx.drawImage(image, x, y, pw, ph);
+  ctx.drawImage($img, x, y, pw, ph);
 
-  const imageBlob = await new Promise<Blob>((resolve) => {
-    canvas.toBlob((blob) => {
-      if (!blob) throw new ImageConvertFailed();
-
-      resolve(blob);
-    }, 'image/png');
-  });
-
-  return { imageBlob, width: cw, height: ch };
+  return canvas.encode('png');
 };

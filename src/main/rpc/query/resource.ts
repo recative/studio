@@ -1,16 +1,14 @@
 /* eslint-disable no-await-in-loop */
 import { basename, join as joinPath, parse as parsePath } from 'path';
 
-import PQueue from 'p-queue';
 import { nanoid } from 'nanoid';
+import { readFile } from 'fs/promises';
 import { uniqBy, cloneDeep } from 'lodash';
 import { copy, removeSync, existsSync } from 'fs-extra';
-import { readFile, copyFile, writeFile } from 'fs/promises';
 
 import {
   Category,
   groupTags,
-  PreloadLevel,
   categoryTags,
   imageCategoryTag,
   textureGroupResourceTag,
@@ -19,37 +17,30 @@ import {
 } from '@recative/definitions';
 
 import type {
+  IResourceItem,
   IResourceFile,
   IResourceGroup,
-  IResourceItem,
 } from '@recative/definitions';
 
-import {
+import { getMimeType, ResourceFileForImport } from '@recative/extension-sdk';
+import type {
   PostProcessedResourceItemForImport,
   IPostProcessedResourceFileForImport,
 } from '@recative/extension-sdk';
-import {
-  generateImageThumbnail,
-  generateAudioThumbnail,
-  generateBase64Thumbnail,
-} from '../ffmpeg/thumbnail';
-import { preprocessVideo } from '../ffmpeg/preprocessVideo';
+
+import { importedFileToFile } from './utils/importedFileToFile';
 
 import { getDb } from '../db';
-import { getMimeType } from '../../utils/getMimeType';
 import { getWorkspace } from '../workspace';
+
 import { getReleasedDb } from '../../utils/getReleasedDb';
-import { getThumbnailSrc } from '../../utils/getThumbnailSrc';
 import { getResourceFilePath } from '../../utils/getResourceFile';
-import { getFileHash, getFilePathHash } from '../../utils/getFileHash';
 import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
 import { injectResourceUrlForResourceManager } from '../../utils/injectResourceUrl';
 
 import { cleanupLoki } from './utils';
 
 type GroupTag = typeof groupTags[number];
-
-const ffQueue = new PQueue({ concurrency: 3 });
 
 const MEDIA_CATEGORIES = [
   {
@@ -704,21 +695,8 @@ export const mergeResources = async (itemIds: string[], tag: GroupTag) => {
   const allItems: IResourceItem[] = [postProcessedGroup];
   await Promise.all(
     postProcessedFiles.map(async (file) => {
-      let item: IResourceFile;
-
-      if ('postProcessedFile' in file) {
-        const { postProcessedFile, ...resourceDefinition } = file;
-
-        if (typeof postProcessedFile === 'string') {
-          await copyFile(postProcessedFile, getResourceFilePath(file));
-        } else {
-          await writeFile(getResourceFilePath(file), postProcessedFile);
-        }
-
-        item = resourceDefinition;
-      } else {
-        item = file;
-      }
+      const item =
+        'postProcessedFile' in file ? await importedFileToFile(file) : file;
 
       if (!allItems.find((x) => x.id === item.id)) {
         allItems.push(item);
@@ -780,32 +758,10 @@ export const eraseResourceUrl = async (extensionId: string) => {
   });
 };
 
-export const getAllImageResource = async () => {
-  const db = await getDb();
-
-  return db.resource.resources
-    .find({})
-    .filter((x) => x.type === 'file' && x.mimeType.startsWith('image/'));
-};
-
-export const replaceThumbnail = async (
-  resourceId: string,
-  thumbnailBase64: string
-) => {
-  const workspace = getWorkspace();
-
-  const thumbnailFileName = `${resourceId}-thumbnail.png`;
-  const thumbnailPath = joinPath(workspace.mediaPath, thumbnailFileName);
-
-  return generateBase64Thumbnail(thumbnailBase64, thumbnailPath);
-};
-
 export const importFile = async (
   filePath: string,
-  thumbnailBase64: string | null = null,
   replaceFileId?: string
 ): Promise<IResourceItem[]> => {
-  const workspace = getWorkspace();
   const mimeType = await getMimeType(filePath);
   const category = getFileCategoryTag(mimeType, filePath);
   const categoryTag = categoryTags.find((tag) => tag.id === category);
@@ -819,122 +775,67 @@ export const importFile = async (
     throw new TypeError('Resource not found');
   }
 
-  const id = nanoid();
-  const thumbnailFileName = `${id}-thumbnail.png`;
-  const hash = await getFilePathHash(filePath);
+  const importedFile = new ResourceFileForImport();
 
-  const thumbnailPath = joinPath(workspace.mediaPath, thumbnailFileName);
+  importedFile.definition.label = parsePath(filePath).name;
+  importedFile.addFile(await readFile(filePath));
 
-  let preprocessedMetadata: IResourceItem[] | null = null;
+  if (categoryTag) {
+    importedFile.definition.tags = [categoryTag.id];
+  }
 
-  const result = await ffQueue.add(async () => {
-    let generatedThumbnail = true;
+  const preprocessedMetadata: IPostProcessedResourceFileForImport[] = [
+    await importedFile.finalize(),
+  ];
 
-    try {
-      if (thumbnailBase64) {
-        await generateBase64Thumbnail(thumbnailBase64, thumbnailPath);
-      } else if (category === Category.Image) {
-        await generateImageThumbnail(filePath, thumbnailPath);
-      } else if (category === Category.Video) {
-        // await generateVideoThumbnail(filePath, thumbnailPath);
-        preprocessedMetadata = await preprocessVideo(
-          filePath,
-          workspace.mediaPath,
-          hash
-        );
-      } else if (category === Category.Audio) {
-        await generateAudioThumbnail(filePath, thumbnailPath);
-      } else {
-        generatedThumbnail = false;
-      }
-    } catch (e) {
-      if (e instanceof Error && e.message !== 'No output specified') {
-        // Nope, I just don't want to do anything ¯\_(ツ)_/¯
-        generatedThumbnail = false;
-      }
-    } finally {
-      if (!preprocessedMetadata) {
-        await copy(filePath, getResourceFilePath({ id }));
-      }
-    }
+  // This method need to be refactored into three different extensions, and
+  // for now, let's just make a simple patch to enable metadata postprocessing.
+  const resourceProcessorInstances = Object.entries(
+    await getResourceProcessorInstances('')
+  );
 
-    if (!preprocessedMetadata) {
-      preprocessedMetadata = [
-        {
-          type: 'file',
-          id,
-          label: parsePath(filePath).name,
-          episodeIds: [],
-          mimeType,
-          originalHash: hash,
-          convertedHash: await getFileHash({ id }),
-          url: {},
-          managedBy: null,
-          cacheToHardDisk: false,
-          preloadLevel: PreloadLevel.None,
-          preloadTriggers: [],
-          tags: categoryTag ? [categoryTag.id] : [],
-          thumbnailSrc: generatedThumbnail
-            ? getThumbnailSrc(thumbnailFileName)
-            : null,
-          duration: null,
-          resourceGroupId: '',
-          importTime: Date.now(),
-          removed: false,
-          removedTime: -1,
-          extensionConfigurations: {},
-        },
-      ];
-    }
-
-    // This method need to be refactored into three different extensions, and
-    // for now, let's just make a simple patch to enable metadata postprocessing.
-    const resourceProcessorInstances = Object.entries(
-      await getResourceProcessorInstances('')
-    );
-
-    let preprocessedFiles: PostProcessedResourceItemForImport[] =
-      await Promise.all(
-        preprocessedMetadata.map(async (resource) => {
-          if (resource.type !== 'file') {
-            return resource;
-          }
-
-          const buffer = await readFile(getResourceFilePath(resource));
-
-          return { ...resource, postProcessedFile: buffer };
-        })
-      );
-
-    for (let i = 0; i < resourceProcessorInstances.length; i += 1) {
-      const [, processor] = resourceProcessorInstances[i];
-
-      const processedFiles = await processor.beforeFileImported(
-        preprocessedFiles
-      );
-
-      if (processedFiles) {
-        preprocessedFiles = processedFiles;
-      }
-    }
-
-    const metadataForImport = await Promise.all(
-      preprocessedFiles.map(async (resource) => {
+  let preprocessedFiles: PostProcessedResourceItemForImport[] =
+    await Promise.all(
+      preprocessedMetadata.map(async (resource) => {
         if (resource.type !== 'file') {
           return resource;
         }
 
-        const { postProcessedFile, ...metadata } = resource;
+        const buffer = await readFile(getResourceFilePath(resource));
 
-        await writeFile(getResourceFilePath(metadata), postProcessedFile);
-
-        return metadata;
+        return {
+          ...resource,
+          postProcessedFile: buffer,
+          postProcessedThumbnail: null,
+        };
       })
     );
 
-    updateOrInsertResources(metadataForImport, replaceFileId);
-    return preprocessedMetadata;
-  });
+  for (let i = 0; i < resourceProcessorInstances.length; i += 1) {
+    const [, processor] = resourceProcessorInstances[i];
 
-  return result;
+    const processedFiles = await processor.beforeFileImported(
+      preprocessedFiles
+    );
+
+    if (processedFiles) {
+      preprocessedFiles = processedFiles;
+    }
+  }
+
+  const metadataForImport = await Promise.all(
+    preprocessedFiles.map(async (resource) => {
+      if (resource.type !== 'file') {
+        return resource;
+      }
+
+      const metadata = importedFileToFile(resource);
+
+      return metadata;
+    })
+  );
+
+  updateOrInsertResources(metadataForImport, replaceFileId);
+
+  return metadataForImport;
 };
