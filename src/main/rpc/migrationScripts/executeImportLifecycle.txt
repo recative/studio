@@ -1,0 +1,56 @@
+import { readFile } from 'fs/promises';
+
+import { PostProcessedResourceItemForImport } from '@recative/extension-sdk';
+
+import { getDb } from '../db';
+import { getResourceFilePath } from '../../utils/getResourceFile';
+import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
+
+export const migration = async () => {
+  const db = await getDb();
+
+  const resourceProcessorInstances = Object.entries(
+    await getResourceProcessorInstances('')
+  );
+
+  const resources = db.resource.resources.find({
+    type: 'file',
+    mimeType: 'image/png',
+  });
+
+  console.log('::: Migrating resources', resources.length);
+
+  let preprocessedFiles: PostProcessedResourceItemForImport[] =
+    await Promise.all(
+      resources.map(async (x) => ({
+        ...x,
+        postProcessedFile: await readFile(getResourceFilePath(x)),
+      }))
+    );
+
+  for (let i = 0; i < resourceProcessorInstances.length; i += 1) {
+    const [, processor] = resourceProcessorInstances[i];
+
+    const processedFiles = await processor.beforeFileImported(
+      preprocessedFiles
+    );
+
+    if (processedFiles) {
+      preprocessedFiles = processedFiles;
+    }
+  }
+
+  const metadataForImport = await Promise.all(
+    preprocessedFiles.map(async (resource) => {
+      if (resource.type !== 'file') {
+        return resource;
+      }
+
+      const { postProcessedFile, ...metadata } = resource;
+
+      return metadata;
+    })
+  );
+
+  db.resource.resources.update(metadataForImport);
+};
