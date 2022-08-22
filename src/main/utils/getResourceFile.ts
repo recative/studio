@@ -42,7 +42,7 @@ export const getResourceFilePath = (
     return join(
       config.mediaPath,
       'post-processed',
-      getResourceFileName(resource)
+      getResourceFileName(resource, thumbnail)
     );
   }
 

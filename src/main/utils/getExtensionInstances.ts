@@ -28,6 +28,7 @@ import {
   ffprobe,
   waveform,
   screenshot,
+  imageThumbnail,
 } from '@recative/extension-sdk';
 import { Category, IResourceFile } from '@recative/definitions';
 
@@ -167,6 +168,7 @@ const resourceProcessorDependencies: IResourceExtensionDependency = {
   ffprobe,
   screenshot,
   waveform,
+  imageThumbnail,
 };
 
 const getExtensionConfig = async () => {
@@ -316,6 +318,7 @@ const bundlerDependencies: IBundlerExtensionDependency = {
   ffprobe,
   waveform,
   screenshot,
+  imageThumbnail,
 };
 
 export const getBundlerInstances = async (terminalId: string) => {

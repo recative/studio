@@ -56,17 +56,24 @@ export const ffprobe = async (x: string | Buffer) => {
 
 export const screenshot = async (x: string | Buffer) => {
   const inputPath = await getFilePath(x);
-  const outputPath = fileSync().name;
+  const outputPath = fileSync({ postfix: '.png' }).name;
+
+  log.log(`:: screenshot: ${inputPath} -> ${outputPath}`);
 
   return new Promise<string>((resolve, reject) => {
     try {
-      rawFfmpeg(inputPath).screenshot({
-        count: 1,
-        size: '320x240',
-        folder: dirname(outputPath),
-        filename: basename(outputPath),
-      });
-      resolve(outputPath);
+      rawFfmpeg(inputPath)
+        .screenshot({
+          count: 1,
+          size: '320x240',
+          folder: dirname(outputPath),
+          filename: basename(outputPath),
+        })
+        .on('error', reject)
+        .on('end', () => resolve(outputPath))
+        .on('start', (commandLine) =>
+          log.log(`:: Executing ffmpeg command: ${commandLine}`)
+        );
     } catch (e) {
       reject(e);
     }
@@ -75,7 +82,7 @@ export const screenshot = async (x: string | Buffer) => {
 
 export const waveform = async (x: string | Buffer) => {
   const inputPath = await getFilePath(x);
-  const outputPath = fileSync().name;
+  const outputPath = fileSync({ postfix: '.png' }).name;
 
   return new Promise<string>((resolve, reject) => {
     rawFfmpeg(inputPath)

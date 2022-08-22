@@ -1,8 +1,8 @@
 /* eslint-disable no-await-in-loop */
+import log from 'electron-log';
 import { basename, join as joinPath, parse as parsePath } from 'path';
 
 import { nanoid } from 'nanoid';
-import { readFile } from 'fs/promises';
 import { uniqBy, cloneDeep } from 'lodash';
 import { copy, removeSync, existsSync } from 'fs-extra';
 
@@ -778,38 +778,19 @@ export const importFile = async (
   const importedFile = new ResourceFileForImport();
 
   importedFile.definition.label = parsePath(filePath).name;
-  importedFile.addFile(await readFile(filePath));
+  await importedFile.addFile(filePath);
 
   if (categoryTag) {
     importedFile.definition.tags = [categoryTag.id];
   }
 
-  const preprocessedMetadata: IPostProcessedResourceFileForImport[] = [
+  let preprocessedFiles: PostProcessedResourceItemForImport[] = [
     await importedFile.finalize(),
   ];
 
-  // This method need to be refactored into three different extensions, and
-  // for now, let's just make a simple patch to enable metadata postprocessing.
   const resourceProcessorInstances = Object.entries(
     await getResourceProcessorInstances('')
   );
-
-  let preprocessedFiles: PostProcessedResourceItemForImport[] =
-    await Promise.all(
-      preprocessedMetadata.map(async (resource) => {
-        if (resource.type !== 'file') {
-          return resource;
-        }
-
-        const buffer = await readFile(getResourceFilePath(resource));
-
-        return {
-          ...resource,
-          postProcessedFile: buffer,
-          postProcessedThumbnail: null,
-        };
-      })
-    );
 
   for (let i = 0; i < resourceProcessorInstances.length; i += 1) {
     const [, processor] = resourceProcessorInstances[i];
@@ -834,6 +815,8 @@ export const importFile = async (
       return metadata;
     })
   );
+
+  log.log(JSON.stringify(metadataForImport, null, 2));
 
   updateOrInsertResources(metadataForImport, replaceFileId);
 

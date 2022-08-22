@@ -84,10 +84,13 @@ export class VideoSplitProcessor extends ResourceProcessor<
       if (hasVideoStream) {
         const videoFile = new ResourceFileForImport();
 
-        videoFile.definition.postProcessedFile = await ffmpeg(
-          videoResource.postProcessedFile,
-          (x) => x.noAudio().videoCodec('copy').outputFormat(resultFormat)
+        await videoFile.addFile(
+          await ffmpeg(videoResource.postProcessedFile, (x) =>
+            x.noAudio().videoCodec('copy').outputFormat(resultFormat)
+          )
         );
+
+        videoFile.definition.label = `${videoResource.label} - Video Channel`;
 
         videoFile.definition.managedBy = videoResource.id;
         videoFile.definition.originalHash = videoResource.originalHash;
@@ -100,8 +103,10 @@ export class VideoSplitProcessor extends ResourceProcessor<
           await this.dependency.screenshot(
             videoFile.definition.postProcessedFile
           );
+
         videoResource.postProcessedThumbnail =
           videoFile.definition.postProcessedThumbnail;
+
         videoFile.addToGroup(resourceGroup);
 
         resources.push(await videoFile.finalize());
@@ -110,10 +115,13 @@ export class VideoSplitProcessor extends ResourceProcessor<
       if (hasAudioStream) {
         const audioFile = new ResourceFileForImport();
 
-        audioFile.definition.postProcessedFile = await ffmpeg(
-          videoResource.postProcessedFile,
-          (x) => x.noVideo().audioCodec('copy').outputFormat(resultFormat)
+        await audioFile.addFile(
+          await ffmpeg(videoResource.postProcessedFile, (x) =>
+            x.noVideo().audioCodec('copy').outputFormat(resultFormat)
+          )
         );
+
+        audioFile.definition.label = `${videoResource.label} - Audio Channel`;
 
         audioFile.definition.managedBy = videoResource.id;
         audioFile.definition.originalHash = videoResource.originalHash;

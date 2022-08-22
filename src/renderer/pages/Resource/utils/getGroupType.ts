@@ -37,7 +37,9 @@ export const getGroupType = (
 
     let valid = false;
     for (let j = 0; j < file.tags.length; j += 1) {
-      const tag = file.tags[j];
+      const tag = file.tags[j].endsWith('!')
+        ? file.tags[j].slice(0, -1)
+        : file.tags[j];
 
       if (tag === videoCategoryTag.id) {
         videoCount += 1;

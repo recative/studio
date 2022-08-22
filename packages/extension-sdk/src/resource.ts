@@ -14,9 +14,7 @@ import type { Writable } from './types';
 import type { IPostProcessedResourceFileForImport } from './resourceExtension';
 
 export const getFileHash = async (x: string | Buffer) => {
-  const buffer = typeof x === 'string' ? await readFile(x) : x;
-
-  const binary = await readFile(buffer);
+  const binary = typeof x === 'string' ? await readFile(x) : x;
 
   const md5Hash = crypto.createHash('md5');
 
@@ -169,7 +167,6 @@ export class ResourceFileForImport {
   ) => {
     const {
       id,
-      tags,
       mimeType,
       originalHash,
       convertedHash,
@@ -178,16 +175,15 @@ export class ResourceFileForImport {
       ...definition
     } = x instanceof ResourceFileForImport ? x.definition : x;
 
-    this.definition = { ...this.definition, ...definition };
+    this.definition = {
+      ...this.definition,
+      ...JSON.parse(JSON.stringify(definition)),
+    };
   };
 
   finalize = async () => {
     if (this.definition.label === '') {
       throw new TypeError('Label is empty');
-    }
-
-    if (this.definition.originalHash === '') {
-      throw new TypeError('OriginalHash is empty');
     }
 
     if (this.definition.convertedHash.xxHash === '') {
@@ -198,16 +194,16 @@ export class ResourceFileForImport {
       throw new TypeError('ConvertedHash.md5 is empty');
     }
 
+    if (this.definition.originalHash === '') {
+      this.definition.originalHash = this.definition.convertedHash.xxHash;
+    }
+
     if (this.definition.postProcessedFile === '') {
       throw new TypeError('PostProcessedFile is empty');
     }
 
     if (this.definition.mimeType === '') {
       await this.updateMimeType();
-    }
-
-    if (this.definition.postProcessedThumbnail !== '') {
-      this.definition.postProcessedThumbnail = `jb-media:///${this.definition.id}`;
     }
 
     return this.definition as IPostProcessedResourceFileForImport;

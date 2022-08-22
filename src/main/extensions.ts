@@ -4,6 +4,7 @@ import aliOssExtension from '@recative/extension-ali-oss';
 import s3BucketExtension from '@recative/extension-s3-bucket';
 import polyVVodExtension from '@recative/extension-polyv-vod';
 
+import avExtension from '@recative/extension-av';
 import atlasExtension from '@recative/extension-atlas';
 import offlineBundleExtension from '@recative/extension-offline-bundle';
 
@@ -16,6 +17,7 @@ export const extensions = [
   aliOssExtension,
   s3BucketExtension,
   polyVVodExtension,
+  avExtension,
   atlasExtension,
   offlineBundleExtension,
   iosIpaBundlerExtension,

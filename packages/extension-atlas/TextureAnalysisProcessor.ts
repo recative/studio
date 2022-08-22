@@ -2,9 +2,10 @@
 /* eslint-disable no-labels */
 /* eslint-disable no-await-in-loop */
 import { Image, createCanvas } from '@napi-rs/canvas';
+
 import { ResourceProcessor } from '@recative/extension-sdk';
 
-import { IResourceItem } from '@recative/definitions';
+import type { IResourceItem } from '@recative/definitions';
 import type {
   PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForUpload,
@@ -151,6 +152,10 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
   beforeFileImported(resources: IPostProcessedResourceFileForImport[]) {
     for (let i = 0; i < resources.length; i += 1) {
       const resource = resources[i];
+
+      if (resource.type !== 'file') {
+        continue;
+      }
 
       const isImage = resource.mimeType.startsWith('image');
 

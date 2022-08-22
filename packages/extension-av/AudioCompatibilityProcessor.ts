@@ -6,7 +6,7 @@ import {
   ResourceProcessor,
 } from '@recative/extension-sdk';
 
-import { IResourceItem } from '@recative/definitions';
+import { IResourceItem, audioCategoryTag } from '@recative/definitions';
 import type {
   PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForUpload,
@@ -64,17 +64,14 @@ export class AudioCompatibilityProcessor extends ResourceProcessor<
   beforeFileImported = async (
     resources: IPostProcessedResourceFileForImport[]
   ) => {
-    const audioResources = resources
-      .filter(
-        (resource) =>
-          resource.type === 'file' && resource.mimeType.startsWith('audio/')
-      )
-      .map(
-        (resource) => [resource, new ResourceFileForImport(resource)] as const
-      );
+    const audioResources = resources.filter(
+      (resource) =>
+        resource.type === 'file' && resource.mimeType.startsWith('audio/')
+    );
 
     for (let i = 0; i < audioResources.length; i += 1) {
-      const [rawResource, resource] = audioResources[i];
+      const rawResource = audioResources[i];
+      const resource = new ResourceFileForImport(rawResource);
 
       const compatible = await this.checkAudioFileCompatibility(
         await resource.getFileBuffer()
@@ -83,32 +80,45 @@ export class AudioCompatibilityProcessor extends ResourceProcessor<
       const inspectedMimeType = await resource.inspectMimeType();
 
       const isCompatible =
-        resource.definition.mimeType.startsWith('audio') &&
+        resource.definition.mimeType.startsWith('audio/') &&
         compatible &&
         inspectedMimeType === resource.definition.mimeType &&
         resource.definition.mimeType !== 'audio/unknown';
 
       if (isCompatible) continue;
 
-      const convertedFile = await this.dependency.ffmpeg(
-        resource.definition.postProcessedFile,
-        (x) => {
-          return x
-            .audioCodec('libmp3lame')
-            .audioBitrate(192)
-            .outputFormat('mp3');
-        }
-      );
-
       const convertedResource = new ResourceFileForImport();
       await convertedResource.cloneFrom(resource);
+      convertedResource.definition.tags = [...rawResource.tags];
+      convertedResource.definition.label = `${convertedResource.definition.label} - Fixed`;
       convertedResource.definition.mimeType = '';
+
+      if (
+        !convertedResource.definition.tags.includes(audioCategoryTag.id) &&
+        !`${!convertedResource.definition.tags.includes(audioCategoryTag.id)}!`
+      ) {
+        convertedResource.definition.tags.push(audioCategoryTag.id);
+      }
+
+      await convertedResource.addFile(
+        await this.dependency.ffmpeg(
+          resource.definition.postProcessedFile,
+          (x) => {
+            return x
+              .audioCodec('libmp3lame')
+              .audioBitrate(192)
+              .outputFormat('mp3');
+          }
+        )
+      );
+
       await convertedResource.updateMimeType();
       convertedResource.definition.managedBy = resource.definition.id;
 
-      convertedResource.definition.postProcessedFile = convertedFile;
-
       rawResource.tags.push(`custom:raw!`);
+
+      convertedResource.definition.postProcessedThumbnail =
+        rawResource.postProcessedThumbnail;
       resources.push(await convertedResource.finalize());
     }
 
