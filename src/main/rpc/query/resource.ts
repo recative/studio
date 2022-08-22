@@ -816,8 +816,6 @@ export const importFile = async (
     })
   );
 
-  log.log(JSON.stringify(metadataForImport, null, 2));
-
   updateOrInsertResources(metadataForImport, replaceFileId);
 
   return metadataForImport;
