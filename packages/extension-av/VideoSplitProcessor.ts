@@ -144,6 +144,14 @@ export class VideoSplitProcessor extends ResourceProcessor<
 
         resources.push(await audioFile.finalize());
       }
+
+      if (hasVideoStream || hasAudioStream) {
+        videoResource.tags = videoResource.tags.filter(
+          (x) => x !== videoCategoryTag.id
+        );
+
+        videoResource.tags.push(`${videoCategoryTag.id}!`);
+      }
     }
 
     return resources;
