@@ -299,6 +299,8 @@ const updateManagedResources = async (item: IResourceItem) => {
             ...item[key].filter((x) => !x.endsWith('!')),
           ];
         } else {
+          // TypeScript can't detect the type of item[key] here.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (managedItem as any)[key] = item[key];
         }
       });

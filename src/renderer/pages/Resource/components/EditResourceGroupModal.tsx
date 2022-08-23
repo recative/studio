@@ -2,12 +2,11 @@ import * as React from 'react';
 import cn from 'classnames';
 
 import { nanoid } from 'nanoid';
-import { styled } from 'baseui';
+import { styled, useStyletron } from 'baseui';
 import { cloneDeep } from 'lodash';
 
 import { useImmer } from 'use-immer';
 import { useAsync } from '@react-hookz/web';
-import { useStyletron } from 'styletron-react';
 
 import type { Updater } from 'use-immer';
 import type { StyleObject } from 'styletron-react';
@@ -357,7 +356,7 @@ const useListItemContextMenu = (
   onRemoveResourceFile: IEditResourceGroupModalProps['onRemoveResourceFile'],
   onReplaceFile: (fileId: string) => void
 ) => {
-  const [css] = useStyletron();
+  const [css, theme] = useStyletron();
 
   const contextConfig = React.useMemo(() => {
     return Object.fromEntries(files.map((item) => [item.id, item] as const));
@@ -373,10 +372,14 @@ const useListItemContextMenu = (
       hideContextMenu();
       switch (event.item.label.props.id) {
         case 'delete':
-          if (selectedValue) onRemoveResourceFile(selectedValue);
+          if (selectedValue && !selectedValue.managedBy) {
+            onRemoveResourceFile(selectedValue);
+          }
           break;
         case 'replace':
-          if (selectedValue) onReplaceFile(selectedValue.id);
+          if (selectedValue && !selectedValue.managedBy) {
+            onReplaceFile(selectedValue.id);
+          }
           break;
         default:
       }
@@ -384,25 +387,49 @@ const useListItemContextMenu = (
     [hideContextMenu, onRemoveResourceFile, onReplaceFile, selectedValue]
   );
 
-  const contextMenuItem = React.useMemo(
-    () => [
+  const contextMenuItem = React.useMemo(() => {
+    return [
       {
         label: (
-          <RecativeBlock id="replace" className={css(menuItemStyles)}>
+          <RecativeBlock
+            id="replace"
+            className={css(menuItemStyles)}
+            fontWeight={500}
+            color={
+              selectedValue?.managedBy
+                ? theme.colors.buttonDisabledText
+                : theme.colors.buttonPrimaryText
+            }
+            cursor={selectedValue?.managedBy ? 'not-allowed' : 'pointer'}
+          >
             <ReplaceIconOutline width={18} /> <span>Replace</span>
           </RecativeBlock>
         ),
       },
       {
         label: (
-          <RecativeBlock id="delete" className={css(menuItemStyles)}>
+          <RecativeBlock
+            id="delete"
+            className={css(menuItemStyles)}
+            fontWeight={500}
+            color={
+              selectedValue?.managedBy
+                ? theme.colors.buttonDisabledText
+                : theme.colors.buttonPrimaryText
+            }
+            cursor={selectedValue?.managedBy ? 'not-allowed' : 'pointer'}
+          >
             <TrashIconOutline width={18} /> <span>Delete</span>
           </RecativeBlock>
         ),
       },
-    ],
-    [css]
-  );
+    ];
+  }, [
+    css,
+    theme.colors.buttonDisabledText,
+    theme.colors.buttonPrimaryText,
+    selectedValue,
+  ]);
 
   return { triggers, contextMenuItem, handleItemClick };
 };
@@ -484,7 +511,11 @@ const useModalEditMenu = (
           {
             id: 'add',
             label: (
-              <RecativeBlock id="add" className={css(menuItemStyles)}>
+              <RecativeBlock
+                id="add"
+                className={css(menuItemStyles)}
+                fontWeight={500}
+              >
                 <AddIconOutline width={18} /> <span>Add Resource</span>
               </RecativeBlock>
             ),
@@ -492,7 +523,11 @@ const useModalEditMenu = (
           {
             id: 'labelToTag',
             label: (
-              <RecativeBlock id="labelToTag" className={css(menuItemStyles)}>
+              <RecativeBlock
+                id="labelToTag"
+                className={css(menuItemStyles)}
+                fontWeight={500}
+              >
                 <MigrateTagIconOutline width={18} /> <span>Label To Tag</span>
               </RecativeBlock>
             ),
