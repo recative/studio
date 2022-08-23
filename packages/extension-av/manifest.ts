@@ -1,5 +1,6 @@
 import { AudioProcessor } from './AudioProcessor';
 import { VideoSplitProcessor } from './VideoSplitProcessor';
+import { RawFileRemovalProcessor } from './RawFileRemovalProcessor';
 import { AudioCompatibilityProcessor } from './AudioCompatibilityProcessor';
 
 export default {
@@ -7,5 +8,6 @@ export default {
     VideoSplitProcessor,
     AudioProcessor,
     AudioCompatibilityProcessor,
+    RawFileRemovalProcessor,
   ],
 };
