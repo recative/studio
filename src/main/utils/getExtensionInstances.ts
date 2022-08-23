@@ -9,6 +9,16 @@ import { createHash } from 'crypto';
 import { ensureDirSync, remove } from 'fs-extra';
 import { readFile, writeFile } from 'fs/promises';
 
+import {
+  Zip,
+  ffmpeg,
+  ffprobe,
+  waveform,
+  screenshot,
+  getFilePath,
+  getFileBuffer,
+  imageThumbnail,
+} from '@recative/extension-sdk';
 import type {
   TOOLS,
   Bundler,
@@ -22,14 +32,6 @@ import type {
 } from '@recative/extension-sdk';
 import type { TerminalMessageLevel } from '@recative/studio-definitions';
 
-import {
-  Zip,
-  ffmpeg,
-  ffprobe,
-  waveform,
-  screenshot,
-  imageThumbnail,
-} from '@recative/extension-sdk';
 import { Category, IResourceFile } from '@recative/definitions';
 
 import { getDb } from '../rpc/db';
@@ -166,8 +168,10 @@ const resourceProcessorDependencies: IResourceExtensionDependency = {
   xxHash: (x: Buffer) => h32(x, 0x1bf52).toString(16),
   ffmpeg,
   ffprobe,
-  screenshot,
   waveform,
+  screenshot,
+  getFilePath,
+  getFileBuffer,
   imageThumbnail,
 };
 

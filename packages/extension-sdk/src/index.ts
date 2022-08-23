@@ -9,6 +9,8 @@ export * from './terminal';
 export * from './settings';
 export * from './extension';
 export * from './getMimeType';
+export * from './getFilePath';
+export * from './getFileBuffer';
 export * from './bundlerExtension';
 export * from './uploaderExtension';
 export * from './resourceExtension';

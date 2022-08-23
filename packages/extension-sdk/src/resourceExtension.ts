@@ -10,6 +10,8 @@ import type {
 } from '@recative/definitions';
 
 import { Zip } from './zip';
+import { getFilePath } from './getFilePath';
+import { getFileBuffer } from './getFileBuffer';
 import type { imageThumbnail } from './canvas';
 import type { IConfigUiField } from './settings';
 import type { ffmpeg, ffprobe, waveform, screenshot } from './ffmpeg';
@@ -89,6 +91,8 @@ export interface IResourceExtensionDependency {
   ffprobe: typeof ffprobe;
   waveform: typeof waveform;
   screenshot: typeof screenshot;
+  getFilePath: typeof getFilePath;
+  getFileBuffer: typeof getFileBuffer;
   imageThumbnail: typeof imageThumbnail;
 }
 
