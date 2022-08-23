@@ -302,7 +302,10 @@ const updateManagedResources = async (item: IResourceItem) => {
     .forEach((managedItem) => {
       MANAGED_RESOURCE_FILE_KEYS.forEach((key) => {
         if (key === 'tags') {
-          managedItem[key] = item[key].filter((x) => !x.endsWith('!'));
+          managedItem[key] = [
+            ...managedItem[key].filter((x) => x.endsWith('!')),
+            ...item[key].filter((x) => !x.endsWith('!')),
+          ];
         } else {
           (managedItem as any)[key] = item[key];
         }
