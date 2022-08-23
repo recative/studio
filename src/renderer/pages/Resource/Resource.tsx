@@ -472,6 +472,7 @@ const InternalResource: React.FC = () => {
     parsingGroupTypeError,
     candidateGroupTypes,
     promptGroupType,
+    handleFileUploadFinished,
     groupFiles,
   } = useMergeResourcesCallback();
 
@@ -680,14 +681,7 @@ const InternalResource: React.FC = () => {
           <Uploader
             disabled={databaseLocked}
             onProgressChange={updateResources}
-            onFinished={(files) => {
-              if (files.length < 2) return;
-
-              promptGroupType(
-                files.map((x) => x.id),
-                false
-              );
-            }}
+            onFinished={handleFileUploadFinished}
           />
         </RecativeBlock>
         <div
