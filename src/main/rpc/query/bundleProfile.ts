@@ -197,11 +197,11 @@ export const createBundles = async (
       );
       await zip.appendFile(
         join(workspace.assetsPath, profile.constantFileName),
-        `${appTemplatePublicPath}/bundle/ap/dist/.constants`
+        `${appTemplatePublicPath}/bundle/ap/dist/constants.json`
       );
       await zip.appendFile(
         join(workspace.assetsPath, profile.constantFileName),
-        `${appTemplatePublicPath}/.constants`
+        `${appTemplatePublicPath}/constants.json`
       );
       await bundleAdditionalModules(zip, appTemplatePublicPath, terminalId);
 
