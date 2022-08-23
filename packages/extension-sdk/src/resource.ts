@@ -108,7 +108,10 @@ export class ResourceFileForImport {
 
   constructor(x?: IPostProcessedResourceFileForImport | IResourceFile) {
     if (x) {
-      this.definition = { ...this.definition, ...x };
+      this.definition = {
+        ...this.definition,
+        ...JSON.parse(JSON.stringify(x)),
+      };
     }
   }
 
@@ -169,17 +172,26 @@ export class ResourceFileForImport {
   };
 
   cloneFrom = async (
-    x: ResourceFileForImport | IPostProcessedResourceFileForImport
+    x:
+      | ResourceFileForImport
+      | IPostProcessedResourceFileForImport
+      | IResourceFile
   ) => {
     const {
       id,
+      url,
       mimeType,
+      duration,
+      importTime,
       originalHash,
       convertedHash,
       postProcessedFile,
       postProcessedThumbnail,
       ...definition
-    } = x instanceof ResourceFileForImport ? x.definition : x;
+    } =
+      x instanceof ResourceFileForImport
+        ? x.definition
+        : (x as IPostProcessedResourceFileForImport);
 
     this.definition = {
       ...this.definition,

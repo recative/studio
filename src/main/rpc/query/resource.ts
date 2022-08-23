@@ -1,9 +1,7 @@
-/* eslint-disable no-await-in-loop */
-import log from 'electron-log';
 import { basename, join as joinPath, parse as parsePath } from 'path';
 
 import { nanoid } from 'nanoid';
-import { uniqBy, cloneDeep } from 'lodash';
+import { uniqBy } from 'lodash';
 import { copy, removeSync, existsSync } from 'fs-extra';
 
 import {
@@ -37,8 +35,6 @@ import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../utils/getResourceFile';
 import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
 import { injectResourceUrlForResourceManager } from '../../utils/injectResourceUrl';
-
-import { cleanupLoki } from './utils';
 
 type GroupTag = typeof groupTags[number];
 
@@ -283,10 +279,6 @@ export const getResource = async (
   return resource;
 };
 
-type Mutable<Type> = {
-  -readonly [Key in keyof Type]: Type[Key];
-};
-
 const updateManagedResources = async (item: IResourceItem) => {
   if (item.type !== 'file') {
     return;
@@ -320,63 +312,11 @@ const updateManagedResources = async (item: IResourceItem) => {
  * already available not by checking the id of it, if existed, an update will be
  * executed.
  * @param items The items to be updated or inserted.
- * @param replaceFileId If you want to replace a file instead of insert or
- *                      update it, you can specify the file id here.
  */
-export const updateOrInsertResources = async (
-  items: IResourceItem[],
-  replaceFileId?: string
-) => {
-  let trueItems: IResourceItem[] = items;
-
+export const updateOrInsertResources = async (items: IResourceItem[]) => {
   const db = await getDb();
 
-  let replacedFile: IResourceItem | null = null;
-
-  if (replaceFileId) {
-    replacedFile = await getResource(replaceFileId);
-
-    if (!replacedFile) {
-      throw new TypeError(`Resource with id "${replaceFileId}" not found`);
-    }
-
-    if (replacedFile.type !== 'file') {
-      throw new TypeError(`Resource with id "${replaceFileId}" is not a file`);
-    }
-
-    // This is a weak way to make sure replaced file and new file are in the same type
-    const matchedNewItem = items.find(
-      (item) =>
-        item.type === 'file' &&
-        item.mimeType.split('/')[0] ===
-          (replacedFile as IResourceFile).mimeType.split('/')[0]
-    ) as IResourceFile;
-
-    if (!matchedNewItem) {
-      throw new TypeError(
-        `Resource with id "${replaceFileId}" is not a file with the same mimeType`
-      );
-    }
-
-    const clonedOldResource = cleanupLoki(cloneDeep(replacedFile)) as Mutable<
-      typeof replacedFile
-    >;
-
-    clonedOldResource.id = matchedNewItem.id;
-    clonedOldResource.url = {};
-    clonedOldResource.duration = matchedNewItem.duration;
-    clonedOldResource.mimeType = matchedNewItem.mimeType;
-    clonedOldResource.thumbnailSrc = matchedNewItem.thumbnailSrc;
-    clonedOldResource.importTime = matchedNewItem.importTime;
-    clonedOldResource.originalHash = matchedNewItem.originalHash;
-    clonedOldResource.convertedHash = matchedNewItem.convertedHash;
-
-    removeResource(replaceFileId, false);
-    removeFileFromGroup(replacedFile);
-    trueItems = [clonedOldResource];
-  }
-
-  trueItems.forEach((item) => {
+  items.forEach((item) => {
     const itemInDb = db.resource.resources.findOne({ id: item.id });
 
     if (itemInDb) {
@@ -389,20 +329,6 @@ export const updateOrInsertResources = async (
       db.resource.resources.insert(item);
     }
   });
-
-  if (replaceFileId && replacedFile && replacedFile.resourceGroupId) {
-    const nextResource = await getResource(trueItems[0].id);
-
-    if (!nextResource) {
-      throw new TypeError('File was not inserted successfully');
-    }
-
-    if (nextResource.type !== 'file') {
-      throw new TypeError('Resource is not a file');
-    }
-
-    addFileToGroup(nextResource, replacedFile.resourceGroupId);
-  }
 };
 
 export const listAllResources = async (
@@ -770,18 +696,36 @@ export const importFile = async (
   const categoryTag = categoryTags.find((tag) => tag.id === category);
 
   const replacedFile = replaceFileId ? await getResource(replaceFileId) : null;
+
   if (replacedFile && replacedFile.type !== 'file') {
-    throw new TypeError('Resource is not a file');
+    throw new TypeError(
+      `Unable to replace the file, Resource with id "${replaceFileId}" is not a file`
+    );
   }
 
   if (replaceFileId && !replacedFile) {
-    throw new TypeError('Resource not found');
+    throw new TypeError(
+      `Unable to replace the file, resource with id "${replaceFileId}" not found`
+    );
   }
 
   const importedFile = new ResourceFileForImport();
 
   importedFile.definition.label = parsePath(filePath).name;
   await importedFile.addFile(filePath);
+
+  if (replacedFile) {
+    // This is a weak way to make sure replaced file and new file are in the same type
+    const newFileMimePrefix = importedFile.definition.mimeType.split('/')[0];
+    const replacedFileMimePrefix = replacedFile.mimeType.split('/')[0];
+    const itemIsMatched = replacedFileMimePrefix === newFileMimePrefix;
+
+    if (!itemIsMatched) {
+      throw new TypeError(
+        `Resource with id "${replaceFileId}" is not a file with the same mimeType`
+      );
+    }
+  }
 
   if (categoryTag) {
     importedFile.definition.tags = [categoryTag.id];
@@ -807,7 +751,7 @@ export const importFile = async (
     }
   }
 
-  const metadataForImport = await Promise.all(
+  let metadataForImport = await Promise.all(
     preprocessedFiles.map(async (resource) => {
       if (resource.type !== 'file') {
         return resource;
@@ -819,7 +763,22 @@ export const importFile = async (
     })
   );
 
-  updateOrInsertResources(metadataForImport, replaceFileId);
+  if (replacedFile && replaceFileId) {
+    await removeResource(replaceFileId, false);
+    await removeFileFromGroup(replacedFile);
+
+    if (replacedFile.resourceGroupId) {
+      metadataForImport = metadataForImport.filter((x) => x.type === 'file');
+
+      for (let i = 0; i < metadataForImport.length; i += 1) {
+        const resource = metadataForImport[i];
+
+        resource.resourceGroupId = replacedFile.resourceGroupId;
+      }
+    }
+  }
+
+  await updateOrInsertResources(metadataForImport);
 
   return metadataForImport;
 };
