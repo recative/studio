@@ -2,6 +2,7 @@
 /* eslint-disable no-labels */
 /* eslint-disable no-await-in-loop */
 import {
+  PostProcessedResourceItemForImport,
   ResourceFileForImport,
   ResourceProcessor,
 } from '@recative/extension-sdk';
@@ -62,12 +63,12 @@ export class AudioCompatibilityProcessor extends ResourceProcessor<
   }
 
   beforeFileImported = async (
-    resources: IPostProcessedResourceFileForImport[]
+    resources: PostProcessedResourceItemForImport[]
   ) => {
     const audioResources = resources.filter(
       (resource) =>
         resource.type === 'file' && resource.mimeType.startsWith('audio/')
-    );
+    ) as IPostProcessedResourceFileForImport[];
 
     for (let i = 0; i < audioResources.length; i += 1) {
       const rawResource = audioResources[i];
@@ -92,6 +93,22 @@ export class AudioCompatibilityProcessor extends ResourceProcessor<
       convertedResource.definition.tags = [...rawResource.tags];
       convertedResource.definition.label = `${convertedResource.definition.label} - Fixed`;
       convertedResource.definition.mimeType = '';
+
+      if (convertedResource.definition.resourceGroupId) {
+        const resourceGroup = resources.find(
+          (x) => x.id === resource.definition.resourceGroupId
+        );
+
+        if (!resourceGroup) {
+          throw new TypeError(`Resource group not found`);
+        }
+
+        if (resourceGroup.type !== 'group') {
+          throw new TypeError(`Resource group is not a group`);
+        }
+
+        resourceGroup.files.push(convertedResource.definition.id);
+      }
 
       if (
         !convertedResource.definition.tags.includes(audioCategoryTag.id) &&

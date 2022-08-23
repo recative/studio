@@ -39,14 +39,18 @@ export class ResourceGroup {
     files: [],
   };
 
-  addFile = (file: ResourceFileForImport) => {
-    if (file.definition.resourceGroupId) {
+  addFile = (
+    file: ResourceFileForImport | IPostProcessedResourceFileForImport
+  ) => {
+    const definition = 'definition' in file ? file.definition : file;
+
+    if (definition.resourceGroupId) {
       throw new TypeError('File already belongs to a group');
     }
 
     if (!this.definition.thumbnailSrc) {
-      file.definition.resourceGroupId = this.definition.id;
-      this.definition.files.push(file.definition.id);
+      definition.resourceGroupId = this.definition.id;
+      this.definition.files.push(definition.id);
     }
   };
 
@@ -69,6 +73,8 @@ export class ResourceGroup {
     if (this.definition.files.length === 0) {
       throw new TypeError('Group has no files');
     }
+
+    return this.definition as IResourceGroup;
   };
 }
 

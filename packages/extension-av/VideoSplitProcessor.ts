@@ -17,6 +17,7 @@ import {
 import type {
   PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForUpload,
+  PostProcessedResourceItemForImport,
   IPostProcessedResourceFileForImport,
 } from '@recative/extension-sdk';
 
@@ -52,12 +53,12 @@ export class VideoSplitProcessor extends ResourceProcessor<
   };
 
   beforeFileImported = async (
-    resources: IPostProcessedResourceFileForImport[]
+    resources: PostProcessedResourceItemForImport[]
   ) => {
     const videoResources = resources.filter(
       (resource) =>
         resource.type === 'file' && resource.mimeType.startsWith('video/')
-    );
+    ) as IPostProcessedResourceFileForImport[];
 
     for (let i = 0; i < videoResources.length; i += 1) {
       const videoResource = videoResources[i];
@@ -146,11 +147,15 @@ export class VideoSplitProcessor extends ResourceProcessor<
       }
 
       if (hasVideoStream || hasAudioStream) {
+        resourceGroup.addFile(videoResource);
+        resourceGroup.definition.label = videoResource.label;
         videoResource.tags = videoResource.tags.filter(
           (x) => x !== videoCategoryTag.id
         );
 
         videoResource.tags.push(`${videoCategoryTag.id}!`);
+
+        resources.push(resourceGroup.finalize());
       }
     }
 
