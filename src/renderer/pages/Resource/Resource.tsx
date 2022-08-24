@@ -9,6 +9,8 @@ import { useDebouncedCallback, useKeyboardEvent } from '@react-hookz/web';
 
 import type { StyleObject } from 'styletron-react';
 
+import type { IResourceItem } from '@recative/definitions';
+
 import { Tab } from 'baseui/tabs-motion';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Search } from 'baseui/icon';
@@ -29,11 +31,6 @@ import { EraserIconOutline } from 'components/Icons/EraserIconOutline';
 import { ReplaceIconOutline } from 'components/Icons/ReplaceIconOutline';
 import { MetadataIconOutline } from 'components/Icons/MetadataIconOutline';
 
-import type {
-  IEditableResourceFile,
-  IResourceItem,
-  IResourceGroup,
-} from '@recative/definitions';
 import { server } from 'utils/rpc';
 import { useKeyPressed } from 'utils/hooks/useKeyPressed';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
@@ -49,10 +46,16 @@ import { ReplaceFileModal } from './components/ReplaceFileModal';
 import { ConfirmSplitModal } from './components/ConfirmSplitModal';
 import { ConfirmRemoveModal } from './components/ConfirmRemoveModal';
 import { FixResourceLinkModal } from './components/FixResourceLinkModal';
-import { EditResourceFileModal } from './components/EditResourceFileModal';
-import { EditResourceGroupModal } from './components/EditResourceGroupModal';
 import { GroupTypeSelectionModal } from './components/GroupTypeSelectionModal';
 import { ResourceTree, SELECTED_TAGS } from './components/ResourceTree';
+import {
+  EditResourceFileModal,
+  useEditResourceFileModal,
+} from './components/EditResourceFileModal';
+import {
+  EditResourceGroupModal,
+  useEditResourceGroupModal,
+} from './components/EditResourceGroupModal';
 
 import { getSelectedId } from './utils/getSelectedId';
 import { useMergeResourcesCallback } from './hooks/useMergeResourceCallback';
@@ -93,15 +96,8 @@ const TREE_CONTAINER_STYLES: StyleObject = {
 const SELECTABLE_TARGETS = ['.explorer-item'];
 
 const useEditModalCallback = (handleOpenBatchEditModal: () => void) => {
-  const [filesInGroup, setFilesInGroup] = React.useState<
-    IEditableResourceFile[]
-  >([]);
-  const [groupOfModal, setGroupOfModal] = React.useState<IResourceGroup | null>(
-    null
-  );
-  const [mode, setMode] = React.useState<
-    'edit-group' | 'edit-file' | 'create-group' | null
-  >(null);
+  const [, , openEditResourceFileModal] = useEditResourceFileModal();
+  const [, , openEditResourceGroupModal] = useEditResourceGroupModal();
 
   const handleOpenEditModal = React.useCallback(async () => {
     const selectedResourceIds = getSelectedId();
@@ -115,37 +111,23 @@ const useEditModalCallback = (handleOpenBatchEditModal: () => void) => {
 
     if (!selectedResourceId) return;
 
-    const queryResult = await server.getResourceWithDetailedFileList(
-      selectedResourceId
-    );
+    const queryResult = await server.getResource(selectedResourceId);
 
     if (!queryResult) return;
 
-    const { group, files } = queryResult;
-
-    setFilesInGroup(
-      files.map((file) => ({
-        ...file,
-        dirty: false,
-      })) as IEditableResourceFile[]
-    );
-
-    setGroupOfModal(group);
-    setMode(group ? 'edit-group' : 'edit-file');
-  }, [handleOpenBatchEditModal]);
-
-  const handleCloseModal = React.useCallback(() => {
-    setFilesInGroup([]);
-    setGroupOfModal(null);
-    setMode(null);
-  }, []);
+    if (queryResult.type === 'group') {
+      openEditResourceGroupModal(selectedResourceId);
+    } else if (queryResult.type === 'file') {
+      openEditResourceFileModal(selectedResourceId);
+    }
+  }, [
+    handleOpenBatchEditModal,
+    openEditResourceFileModal,
+    openEditResourceGroupModal,
+  ]);
 
   return {
-    filesInGroup,
-    groupOfModal,
-    modalMode: mode,
     handleOpenEditModal,
-    handleCloseModal,
   };
 };
 
@@ -472,6 +454,7 @@ const InternalResource: React.FC = () => {
     parsingGroupTypeError,
     candidateGroupTypes,
     promptGroupType,
+    handleFileUploadFinished,
     groupFiles,
   } = useMergeResourcesCallback();
 
@@ -482,13 +465,9 @@ const InternalResource: React.FC = () => {
     handleBatchEditModalSubmit,
   } = useBatchEditModalState();
 
-  const {
-    filesInGroup,
-    groupOfModal,
-    modalMode,
-    handleOpenEditModal,
-    handleCloseModal,
-  } = useEditModalCallback(handleShowBatchEditModalClick);
+  const { handleOpenEditModal } = useEditModalCallback(
+    handleShowBatchEditModalClick
+  );
 
   const {
     isHardRemove,
@@ -518,9 +497,6 @@ const InternalResource: React.FC = () => {
 
   const selectoRef = React.useRef<Selecto>(null);
   const scrollerRef = React.useRef<HTMLDivElement>(null);
-
-  const isEditFileMode = modalMode === 'edit-file';
-  const isEditGroupMode = modalMode === 'edit-group';
 
   const { controlPressed, shiftPressed, handleSelectoSelect } =
     useKeyboardShortcut();
@@ -676,18 +652,16 @@ const InternalResource: React.FC = () => {
           </RecativeBlock>
           <ResourceTree />
         </RecativeBlock>
-        <RecativeBlock gridArea="upload" margin="16px">
+        <RecativeBlock
+          gridArea="upload"
+          marginLeft="16px"
+          marginRight="16px"
+          marginTop="16px"
+        >
           <Uploader
             disabled={databaseLocked}
             onProgressChange={updateResources}
-            onFinished={(files) => {
-              if (files.length < 2) return;
-
-              promptGroupType(
-                files.map((x) => x.id),
-                false
-              );
-            }}
+            onFinished={handleFileUploadFinished}
           />
         </RecativeBlock>
         <div
@@ -747,46 +721,8 @@ const InternalResource: React.FC = () => {
         }}
         onClose={closePromptGroupTypeModal}
       />
-      <EditResourceFileModal
-        file={isEditFileMode ? filesInGroup[0] : null}
-        isOpen={isEditFileMode}
-        onClose={handleCloseModal}
-        onSubmit={async (file, fileLabel) => {
-          handleCloseModal();
-          await server.updateOrInsertResources([file]);
-          if (isEditFileMode) {
-            await server.updateResourceLabel(file.id, fileLabel);
-            updateResources();
-          }
-        }}
-      />
-      <EditResourceGroupModal
-        files={isEditGroupMode ? filesInGroup : null}
-        group={isEditGroupMode ? groupOfModal : null}
-        isOpen={isEditGroupMode}
-        onClose={handleCloseModal}
-        onSubmit={async (files, groupLabel) => {
-          await server.updateOrInsertResources(files);
-          if (groupOfModal) {
-            await server.updateResourceLabel(groupOfModal.id, groupLabel);
-            await server.updateFilesOfGroup(
-              groupOfModal.id,
-              files.map((x) => x.id)
-            );
-            updateResources();
-          }
-        }}
-        onAddResourceFile={async (resourceFile) => {
-          if (groupOfModal) {
-            await server.addFileToGroup(resourceFile, groupOfModal.id);
-            updateResources();
-          }
-        }}
-        onRemoveResourceFile={async (resourceFile) => {
-          await server.removeFileFromGroup(resourceFile);
-          updateResources();
-        }}
-      />
+      <EditResourceFileModal onRefreshResourceListRequest={updateResources} />
+      <EditResourceGroupModal onRefreshResourceListRequest={updateResources} />
       <ConfirmRemoveModal
         isOpen={removeModalOpen}
         isHard={isHardRemove}

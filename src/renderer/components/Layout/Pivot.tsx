@@ -258,20 +258,6 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         <Button
           kind={BUTTON_KIND.tertiary}
           startEnhancer={<MergeDatabaseIconOutline width={20} />}
-          onClick={() => server.fixIncompatibleAudioFiles()}
-        >
-          Fix Audio
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<MergeDatabaseIconOutline width={20} />}
-          onClick={() => server.inspectAudioMimeType()}
-        >
-          Inspect Audio MIME
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<MergeDatabaseIconOutline width={20} />}
           onClick={() => server.purgePostProcessRecords()}
         >
           Purge Post Processing

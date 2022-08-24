@@ -1,16 +1,12 @@
-/* eslint-disable no-await-in-loop */
 import { basename, join as joinPath, parse as parsePath } from 'path';
 
-import PQueue from 'p-queue';
 import { nanoid } from 'nanoid';
-import { uniqBy, cloneDeep } from 'lodash';
+import { uniqBy } from 'lodash';
 import { copy, removeSync, existsSync } from 'fs-extra';
-import { readFile, copyFile, writeFile } from 'fs/promises';
 
 import {
   Category,
   groupTags,
-  PreloadLevel,
   categoryTags,
   imageCategoryTag,
   textureGroupResourceTag,
@@ -19,37 +15,29 @@ import {
 } from '@recative/definitions';
 
 import type {
+  IResourceItem,
   IResourceFile,
   IResourceGroup,
-  IResourceItem,
 } from '@recative/definitions';
 
-import {
+import { getMimeType, ResourceFileForImport } from '@recative/extension-sdk';
+import type {
   PostProcessedResourceItemForImport,
   IPostProcessedResourceFileForImport,
 } from '@recative/extension-sdk';
-import {
-  generateImageThumbnail,
-  generateAudioThumbnail,
-  generateBase64Thumbnail,
-} from '../ffmpeg/thumbnail';
-import { preprocessVideo } from '../ffmpeg/preprocessVideo';
+
+import { importedFileToFile } from './utils/importedFileToFile';
 
 import { getDb } from '../db';
-import { getMimeType } from '../../utils/getMimeType';
 import { getWorkspace } from '../workspace';
+
 import { getReleasedDb } from '../../utils/getReleasedDb';
-import { getThumbnailSrc } from '../../utils/getThumbnailSrc';
 import { getResourceFilePath } from '../../utils/getResourceFile';
-import { getFileHash, getFilePathHash } from '../../utils/getFileHash';
 import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
 import { injectResourceUrlForResourceManager } from '../../utils/injectResourceUrl';
-
 import { cleanupLoki } from './utils';
 
 type GroupTag = typeof groupTags[number];
-
-const ffQueue = new PQueue({ concurrency: 3 });
 
 const MEDIA_CATEGORIES = [
   {
@@ -292,10 +280,6 @@ export const getResource = async (
   return resource;
 };
 
-type Mutable<Type> = {
-  -readonly [Key in keyof Type]: Type[Key];
-};
-
 const updateManagedResources = async (item: IResourceItem) => {
   if (item.type !== 'file') {
     return;
@@ -311,8 +295,13 @@ const updateManagedResources = async (item: IResourceItem) => {
     .forEach((managedItem) => {
       MANAGED_RESOURCE_FILE_KEYS.forEach((key) => {
         if (key === 'tags') {
-          managedItem[key] = item[key].filter((x) => !x.endsWith('!'));
+          managedItem[key] = [
+            ...managedItem[key].filter((x) => x.endsWith('!')),
+            ...item[key].filter((x) => !x.endsWith('!')),
+          ];
         } else {
+          // TypeScript can't detect the type of item[key] here.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (managedItem as any)[key] = item[key];
         }
       });
@@ -326,63 +315,11 @@ const updateManagedResources = async (item: IResourceItem) => {
  * already available not by checking the id of it, if existed, an update will be
  * executed.
  * @param items The items to be updated or inserted.
- * @param replaceFileId If you want to replace a file instead of insert or
- *                      update it, you can specify the file id here.
  */
-export const updateOrInsertResources = async (
-  items: IResourceItem[],
-  replaceFileId?: string
-) => {
-  let trueItems: IResourceItem[] = items;
-
+export const updateOrInsertResources = async (items: IResourceItem[]) => {
   const db = await getDb();
 
-  let replacedFile: IResourceItem | null = null;
-
-  if (replaceFileId) {
-    replacedFile = await getResource(replaceFileId);
-
-    if (!replacedFile) {
-      throw new TypeError(`Resource with id "${replaceFileId}" not found`);
-    }
-
-    if (replacedFile.type !== 'file') {
-      throw new TypeError(`Resource with id "${replaceFileId}" is not a file`);
-    }
-
-    // This is a weak way to make sure replaced file and new file are in the same type
-    const matchedNewItem = items.find(
-      (item) =>
-        item.type === 'file' &&
-        item.mimeType.split('/')[0] ===
-          (replacedFile as IResourceFile).mimeType.split('/')[0]
-    ) as IResourceFile;
-
-    if (!matchedNewItem) {
-      throw new TypeError(
-        `Resource with id "${replaceFileId}" is not a file with the same mimeType`
-      );
-    }
-
-    const clonedOldResource = cleanupLoki(cloneDeep(replacedFile)) as Mutable<
-      typeof replacedFile
-    >;
-
-    clonedOldResource.id = matchedNewItem.id;
-    clonedOldResource.url = {};
-    clonedOldResource.duration = matchedNewItem.duration;
-    clonedOldResource.mimeType = matchedNewItem.mimeType;
-    clonedOldResource.thumbnailSrc = matchedNewItem.thumbnailSrc;
-    clonedOldResource.importTime = matchedNewItem.importTime;
-    clonedOldResource.originalHash = matchedNewItem.originalHash;
-    clonedOldResource.convertedHash = matchedNewItem.convertedHash;
-
-    removeResource(replaceFileId, false);
-    removeFileFromGroup(replacedFile);
-    trueItems = [clonedOldResource];
-  }
-
-  trueItems.forEach((item) => {
+  items.forEach((item) => {
     const itemInDb = db.resource.resources.findOne({ id: item.id });
 
     if (itemInDb) {
@@ -395,20 +332,6 @@ export const updateOrInsertResources = async (
       db.resource.resources.insert(item);
     }
   });
-
-  if (replaceFileId && replacedFile && replacedFile.resourceGroupId) {
-    const nextResource = await getResource(trueItems[0].id);
-
-    if (!nextResource) {
-      throw new TypeError('File was not inserted successfully');
-    }
-
-    if (nextResource.type !== 'file') {
-      throw new TypeError('Resource is not a file');
-    }
-
-    addFileToGroup(nextResource, replacedFile.resourceGroupId);
-  }
 };
 
 export const listAllResources = async (
@@ -704,21 +627,8 @@ export const mergeResources = async (itemIds: string[], tag: GroupTag) => {
   const allItems: IResourceItem[] = [postProcessedGroup];
   await Promise.all(
     postProcessedFiles.map(async (file) => {
-      let item: IResourceFile;
-
-      if ('postProcessedFile' in file) {
-        const { postProcessedFile, ...resourceDefinition } = file;
-
-        if (typeof postProcessedFile === 'string') {
-          await copyFile(postProcessedFile, getResourceFilePath(file));
-        } else {
-          await writeFile(getResourceFilePath(file), postProcessedFile);
-        }
-
-        item = resourceDefinition;
-      } else {
-        item = file;
-      }
+      const item =
+        'postProcessedFile' in file ? await importedFileToFile(file) : file;
 
       if (!allItems.find((x) => x.id === item.id)) {
         allItems.push(item);
@@ -780,161 +690,182 @@ export const eraseResourceUrl = async (extensionId: string) => {
   });
 };
 
-export const getAllImageResource = async () => {
-  const db = await getDb();
+interface IProgressReport {
+  text: string;
+  /**
+   * The range of this value is [0, 1].
+   */
+  progress: number;
+}
 
-  return db.resource.resources
-    .find({})
-    .filter((x) => x.type === 'file' && x.mimeType.startsWith('image/'));
+// The key is file path.
+const importProgressCache = new Map<string, IProgressReport>();
+
+export const getImportProgress = (filePath: string) => {
+  return (
+    importProgressCache.get(filePath) ?? {
+      text: 'Not running',
+      progress: 0,
+    }
+  );
 };
 
-export const replaceThumbnail = async (
-  resourceId: string,
-  thumbnailBase64: string
-) => {
-  const workspace = getWorkspace();
-
-  const thumbnailFileName = `${resourceId}-thumbnail.png`;
-  const thumbnailPath = joinPath(workspace.mediaPath, thumbnailFileName);
-
-  return generateBase64Thumbnail(thumbnailBase64, thumbnailPath);
+export const removeImportProgress = (filePath: string) => {
+  importProgressCache.delete(filePath);
 };
 
 export const importFile = async (
   filePath: string,
-  thumbnailBase64: string | null = null,
   replaceFileId?: string
 ): Promise<IResourceItem[]> => {
-  const workspace = getWorkspace();
+  importProgressCache.set(filePath, {
+    text: `Analysing ${basename(filePath)}`,
+    progress: 0,
+  });
+
   const mimeType = await getMimeType(filePath);
   const category = getFileCategoryTag(mimeType, filePath);
   const categoryTag = categoryTags.find((tag) => tag.id === category);
 
   const replacedFile = replaceFileId ? await getResource(replaceFileId) : null;
+
   if (replacedFile && replacedFile.type !== 'file') {
-    throw new TypeError('Resource is not a file');
+    throw new TypeError(
+      `Unable to replace the file, Resource with id "${replaceFileId}" is not a file`
+    );
   }
 
   if (replaceFileId && !replacedFile) {
-    throw new TypeError('Resource not found');
+    throw new TypeError(
+      `Unable to replace the file, resource with id "${replaceFileId}" not found`
+    );
   }
 
-  const id = nanoid();
-  const thumbnailFileName = `${id}-thumbnail.png`;
-  const hash = await getFilePathHash(filePath);
+  const importedFile = new ResourceFileForImport();
 
-  const thumbnailPath = joinPath(workspace.mediaPath, thumbnailFileName);
+  importedFile.definition.label = parsePath(filePath).name;
+  if (replacedFile) {
+    importedFile.cloneFrom(cleanupLoki(replacedFile));
+  }
+  await importedFile.addFile(filePath);
 
-  let preprocessedMetadata: IResourceItem[] | null = null;
+  if (replacedFile) {
+    // This is a weak way to make sure replaced file and new file are in the same type
+    const newFileMimePrefix = importedFile.definition.mimeType.split('/')[0];
+    const replacedFileMimePrefix = replacedFile.mimeType.split('/')[0];
+    const itemIsMatched = replacedFileMimePrefix === newFileMimePrefix;
 
-  const result = await ffQueue.add(async () => {
-    let generatedThumbnail = true;
-
-    try {
-      if (thumbnailBase64) {
-        await generateBase64Thumbnail(thumbnailBase64, thumbnailPath);
-      } else if (category === Category.Image) {
-        await generateImageThumbnail(filePath, thumbnailPath);
-      } else if (category === Category.Video) {
-        // await generateVideoThumbnail(filePath, thumbnailPath);
-        preprocessedMetadata = await preprocessVideo(
-          filePath,
-          workspace.mediaPath,
-          hash
-        );
-      } else if (category === Category.Audio) {
-        await generateAudioThumbnail(filePath, thumbnailPath);
-      } else {
-        generatedThumbnail = false;
-      }
-    } catch (e) {
-      if (e instanceof Error && e.message !== 'No output specified') {
-        // Nope, I just don't want to do anything ¯\_(ツ)_/¯
-        generatedThumbnail = false;
-      }
-    } finally {
-      if (!preprocessedMetadata) {
-        await copy(filePath, getResourceFilePath({ id }));
-      }
+    if (!itemIsMatched) {
+      throw new TypeError(
+        `Resource with id "${replaceFileId}" is not a file with the same mimeType, old file: ${replacedFile.mimeType}, new file: ${importedFile.definition.mimeType}, they don't have the same prefix`
+      );
     }
+  }
 
-    if (!preprocessedMetadata) {
-      preprocessedMetadata = [
-        {
-          type: 'file',
-          id,
-          label: parsePath(filePath).name,
-          episodeIds: [],
-          mimeType,
-          originalHash: hash,
-          convertedHash: await getFileHash({ id }),
-          url: {},
-          managedBy: null,
-          cacheToHardDisk: false,
-          preloadLevel: PreloadLevel.None,
-          preloadTriggers: [],
-          tags: categoryTag ? [categoryTag.id] : [],
-          thumbnailSrc: generatedThumbnail
-            ? getThumbnailSrc(thumbnailFileName)
-            : null,
-          duration: null,
-          resourceGroupId: '',
-          importTime: Date.now(),
-          removed: false,
-          removedTime: -1,
-          extensionConfigurations: {},
-        },
-      ];
-    }
+  importProgressCache.set(filePath, {
+    text: `Initializing ${basename(filePath)}`,
+    progress: 0,
+  });
 
-    // This method need to be refactored into three different extensions, and
-    // for now, let's just make a simple patch to enable metadata postprocessing.
-    const resourceProcessorInstances = Object.entries(
-      await getResourceProcessorInstances('')
+  if (categoryTag) {
+    importedFile.definition.tags = [categoryTag.id];
+  }
+
+  let preprocessedFiles: PostProcessedResourceItemForImport[] = [
+    await importedFile.finalize(),
+  ];
+
+  const resourceProcessorInstances = Object.entries(
+    await getResourceProcessorInstances('')
+  );
+
+  for (let i = 0; i < resourceProcessorInstances.length; i += 1) {
+    importProgressCache.set(filePath, {
+      text: `Processing ${basename(filePath)}`,
+      progress: i / resourceProcessorInstances.length,
+    });
+
+    const [, processor] = resourceProcessorInstances[i];
+
+    const processedFiles = await processor.beforeFileImported(
+      preprocessedFiles
     );
 
-    let preprocessedFiles: PostProcessedResourceItemForImport[] =
-      await Promise.all(
-        preprocessedMetadata.map(async (resource) => {
-          if (resource.type !== 'file') {
-            return resource;
-          }
+    if (processedFiles) {
+      preprocessedFiles = processedFiles;
+    }
+  }
 
-          const buffer = await readFile(getResourceFilePath(resource));
+  importProgressCache.set(filePath, {
+    text: `Finalizing ${basename(filePath)}`,
+    progress: 1,
+  });
 
-          return { ...resource, postProcessedFile: buffer };
-        })
+  if (replacedFile && replaceFileId) {
+    const replacedFileGroupId = replacedFile.resourceGroupId;
+
+    await removeResource(replaceFileId, false);
+    await removeFileFromGroup(replacedFile);
+
+    if (replacedFileGroupId) {
+      preprocessedFiles = preprocessedFiles.filter((x) => x.type === 'file');
+
+      for (let i = 0; i < preprocessedFiles.length; i += 1) {
+        const resource = preprocessedFiles[i];
+
+        resource.resourceGroupId = replacedFileGroupId;
+      }
+    }
+  }
+
+  const groupMap = new Map<string, IResourceGroup>();
+  const fileMap = new Map<string, IResourceFile>();
+
+  for (let i = 0; i < preprocessedFiles.length; i += 1) {
+    const resourceDefinition = preprocessedFiles[i];
+
+    if (resourceDefinition.type === 'group') {
+      groupMap.set(resourceDefinition.id, resourceDefinition);
+    } else if (resourceDefinition.type === 'file') {
+      fileMap.set(
+        resourceDefinition.id,
+        await importedFileToFile(resourceDefinition)
       );
+    }
+  }
+
+  for (const [, postProcessedGroup] of groupMap) {
+    const convertedFiles = [...fileMap.values()];
+    const postProcessedFiles = convertedFiles.filter(
+      (x) => x.type === 'file' && x.resourceGroupId === postProcessedGroup.id
+    ) as (IPostProcessedResourceFileForImport | IResourceFile)[];
 
     for (let i = 0; i < resourceProcessorInstances.length; i += 1) {
       const [, processor] = resourceProcessorInstances[i];
 
-      const processedFiles = await processor.beforeFileImported(
-        preprocessedFiles
+      const processedFiles = await processor.afterGroupCreated(
+        postProcessedFiles,
+        postProcessedGroup
       );
 
-      if (processedFiles) {
-        preprocessedFiles = processedFiles;
+      if (!processedFiles) continue;
+
+      groupMap.set(processedFiles.group.id, processedFiles.group);
+
+      for (let j = 0; j < processedFiles.files.length; j += 1) {
+        const postProcessedFile = processedFiles.files[j];
+
+        fileMap.set(
+          postProcessedFile.id,
+          await importedFileToFile(postProcessedFile)
+        );
       }
     }
+  }
 
-    const metadataForImport = await Promise.all(
-      preprocessedFiles.map(async (resource) => {
-        if (resource.type !== 'file') {
-          return resource;
-        }
+  const metadataForImport = [...groupMap.values(), ...fileMap.values()];
 
-        const { postProcessedFile, ...metadata } = resource;
+  await updateOrInsertResources(metadataForImport);
 
-        await writeFile(getResourceFilePath(metadata), postProcessedFile);
-
-        return metadata;
-      })
-    );
-
-    updateOrInsertResources(metadataForImport, replaceFileId);
-    return preprocessedMetadata;
-  });
-
-  return result;
+  return metadataForImport;
 };

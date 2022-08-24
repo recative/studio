@@ -2,12 +2,11 @@ import * as React from 'react';
 import cn from 'classnames';
 
 import { nanoid } from 'nanoid';
-import { styled } from 'baseui';
+import { styled, useStyletron } from 'baseui';
 import { cloneDeep } from 'lodash';
 
 import { useImmer } from 'use-immer';
 import { useAsync } from '@react-hookz/web';
-import { useStyletron } from 'styletron-react';
 
 import type { Updater } from 'use-immer';
 import type { StyleObject } from 'styletron-react';
@@ -21,14 +20,13 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { ListItem } from 'baseui/list';
 import { LabelSmall } from 'baseui/typography';
 import { StatefulMenu } from 'baseui/menu';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import { StatefulTooltip, TRIGGER_TYPE, PLACEMENT } from 'baseui/tooltip';
-import type { OnItemSelect } from 'baseui/menu';
+import type { StatefulContainerProps } from 'baseui/menu';
 import type { ListOverrides } from 'baseui/list';
 import type { ModalOverrides } from 'baseui/modal';
 import type { InputOverrides } from 'baseui/input';
@@ -43,6 +41,7 @@ import {
   useResourceSearchModal,
 } from 'components/ResourceSearchModal/ResourceSearchModal';
 import { ResourceItem } from 'components/Resource/ResourceItem';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
 import { TrashIconOutline } from 'components/Icons/TrashIconOutline';
 import { ReplaceIconOutline } from 'components/Icons/ReplaceIconOutline';
@@ -53,7 +52,10 @@ import { ResourceManagerIconOutline } from 'components/Icons/ResourceManagerIcon
 import { ButtonMenuOverride } from 'styles/Tooltip';
 import { IconButtonOverrides } from 'styles/Button';
 
+import { ModalManager } from 'utils/hooks/useModalManager';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
+
+import { server } from 'utils/rpc';
 
 import type {
   IActPoint,
@@ -63,13 +65,10 @@ import type {
   IEditableResourceFile,
 } from '@recative/definitions';
 
-import { server } from 'utils/rpc';
-import {
-  ResourceEditor,
-  editableResourceGroupProps,
-  IEditableResourceGroup,
-} from '../ResourceEditor';
+import { ResourceEditor, IEditableResourceGroup } from '../ResourceEditor';
+import { mergeGroupConfigurationToIndividualFile } from '../utils/mergeGroupConfigurationToIndividualFile';
 import type { IResourceEditorRef, IEditableResource } from '../ResourceEditor';
+import { useEditableResourceDefinition } from '../hooks/useEditableResourceDefinition';
 
 import { ReplaceFileModal } from './ReplaceFileModal';
 
@@ -80,13 +79,7 @@ const CONTEXT_MENU_ID = nanoid();
 const EMPTY_ARRAY = [] as IEditableResourceFile[];
 
 export interface IEditResourceGroupModalProps {
-  isOpen: boolean;
-  files: IEditableResourceFile[] | null;
-  group: IResourceGroup | null;
-  onClose: () => void;
-  onAddResourceFile: (x: IResourceFile) => void;
-  onRemoveResourceFile: (x: IEditableResourceFile) => void;
-  onSubmit: (files: IResourceFile[], groupLabel: string) => void;
+  onRefreshResourceListRequest: () => void;
 }
 
 // Actually this value is only for prevent rendering bug, the true value is
@@ -186,31 +179,7 @@ const disabledMenuItemStyles = {
   cursor: 'default',
 };
 
-const mergeGroupConfigurationToIndividualFile = <
-  T extends IEditableResource | IResourceFile
->(
-  file: T,
-  group: IEditableResource
-) => {
-  editableResourceGroupProps.forEach((key) => {
-    if (key === 'dirty') {
-      return;
-    }
-
-    if (key === 'extensionConfigurations') {
-      const configurationKeys = Object.keys(group[key]);
-
-      configurationKeys.forEach((configurationKey) => {
-        file[key][configurationKey] = group[key][configurationKey];
-      });
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (file[key] as any) = group[key];
-    }
-  });
-
-  return file;
-};
+export const useEditResourceGroupModal = ModalManager<string, null>(null);
 
 const useFileIdToFileMap = (
   files: IEditableResourceFile[] | null,
@@ -238,31 +207,50 @@ const useFileIdToFileMap = (
   }, [setFileIdToFileMap, files]);
 
   const handleAddFile = React.useCallback(
-    async (fileId: string) => {
-      const file = await server.getResource(fileId);
+    async (fileId: string | string[]) => {
+      const formattedFileIds = Array.isArray(fileId) ? fileId : [fileId];
+      const queriedFiles = await Promise.all(
+        formattedFileIds.map((x) => server.getResource(x)).filter(Boolean)
+      );
 
-      if (!file) {
+      if (!queriedFiles.length) {
         throw new Error('File not found');
       }
 
-      if (file.type !== 'file') {
-        throw new Error('Selecting a group, which is not allowed.');
+      if (queriedFiles.find((x) => x === null)) {
+        throw new TypeError(`Query contains empty result`);
+      }
+
+      if (queriedFiles.find((x) => x?.type !== 'file')) {
+        throw new TypeError(
+          'Files included items that is not a file, this is not allowed.'
+        );
       }
 
       setFileIdToFileMap((draft) => {
-        draft[fileId] = {
-          ...file,
-          dirty: false,
-        };
+        for (let i = 0; i < formattedFileIds.length; i += 1) {
+          const queriedFile = queriedFiles[i] as IResourceFile;
+
+          draft[queriedFile.id] = {
+            ...queriedFile,
+            dirty: false,
+          };
+        }
       });
     },
     [setFileIdToFileMap]
   );
 
-  const handleDeleteFile = React.useCallback(
-    (fileId: string) => {
+  const handleRemoveFile = React.useCallback(
+    (fileId: string | string[]) => {
       setFileIdToFileMap((draft) => {
-        delete draft[fileId];
+        if (Array.isArray(fileId)) {
+          for (let i = 0; i < fileId.length; i += 1) {
+            delete draft[fileId[i]];
+          }
+        } else {
+          delete draft[fileId];
+        }
       });
     },
     [setFileIdToFileMap]
@@ -290,7 +278,7 @@ const useFileIdToFileMap = (
   return {
     fileIdToFileMap,
     handleAddFile,
-    handleDeleteFile,
+    handleRemoveFile,
     handleUpdateFile,
     setFileIdToFileMap,
   };
@@ -299,11 +287,12 @@ const useFileIdToFileMap = (
 const useGroupModalSubmitCallback = (
   editorRef: React.RefObject<IResourceEditorRef>,
   fileIdToFileMap: Record<string, IEditableResourceFile>,
+  groupOfLabel: IResourceGroup | null,
   groupLabel: string,
   editableResourceGroup: IEditableResourceGroup | null,
-  onSubmit: IEditResourceGroupModalProps['onSubmit']
+  onRefreshResourceListRequest: () => void
 ) => {
-  return React.useCallback(() => {
+  return React.useCallback(async () => {
     const previousFile = editorRef.current?.value;
 
     const finalFileMap = previousFile
@@ -329,8 +318,25 @@ const useGroupModalSubmitCallback = (
       })
       .filter(((x) => x !== null) as (file: unknown) => file is IResourceFile);
 
-    onSubmit(files, groupLabel);
-  }, [editorRef, fileIdToFileMap, onSubmit, groupLabel, editableResourceGroup]);
+    await server.updateOrInsertResources(files);
+
+    if (groupOfLabel) {
+      await server.updateResourceLabel(groupOfLabel.id, groupLabel);
+      await server.updateFilesOfGroup(
+        groupOfLabel.id,
+        files.map((x) => x.id)
+      );
+
+      onRefreshResourceListRequest();
+    }
+  }, [
+    editorRef,
+    fileIdToFileMap,
+    groupOfLabel,
+    editableResourceGroup,
+    groupLabel,
+    onRefreshResourceListRequest,
+  ]);
 };
 
 export const useLabelUpdateCallback = (
@@ -354,10 +360,10 @@ export const useLabelUpdateCallback = (
 
 const useListItemContextMenu = (
   files: IEditableResourceFile[],
-  onRemoveResourceFile: IEditResourceGroupModalProps['onRemoveResourceFile'],
+  onRemoveResourceFile: (resourceFile: IEditableResourceFile) => Promise<void>,
   onReplaceFile: (fileId: string) => void
 ) => {
-  const [css] = useStyletron();
+  const [css, theme] = useStyletron();
 
   const contextConfig = React.useMemo(() => {
     return Object.fromEntries(files.map((item) => [item.id, item] as const));
@@ -368,15 +374,21 @@ const useListItemContextMenu = (
     contextConfig
   );
 
-  const handleItemClick = React.useCallback<OnItemSelect>(
+  const handleItemClick = React.useCallback<
+    StatefulContainerProps['onItemSelect']
+  >(
     (event) => {
       hideContextMenu();
       switch (event.item.label.props.id) {
         case 'delete':
-          if (selectedValue) onRemoveResourceFile(selectedValue);
+          if (selectedValue && !selectedValue.managedBy) {
+            onRemoveResourceFile(selectedValue);
+          }
           break;
         case 'replace':
-          if (selectedValue) onReplaceFile(selectedValue.id);
+          if (selectedValue && !selectedValue.managedBy) {
+            onReplaceFile(selectedValue.id);
+          }
           break;
         default:
       }
@@ -384,32 +396,56 @@ const useListItemContextMenu = (
     [hideContextMenu, onRemoveResourceFile, onReplaceFile, selectedValue]
   );
 
-  const contextMenuItem = React.useMemo(
-    () => [
+  const contextMenuItem = React.useMemo(() => {
+    return [
       {
         label: (
-          <RecativeBlock id="replace" className={css(menuItemStyles)}>
+          <RecativeBlock
+            id="replace"
+            className={css(menuItemStyles)}
+            fontWeight={500}
+            color={
+              selectedValue?.managedBy
+                ? theme.colors.buttonDisabledText
+                : theme.colors.buttonPrimaryText
+            }
+            cursor={selectedValue?.managedBy ? 'not-allowed' : 'pointer'}
+          >
             <ReplaceIconOutline width={18} /> <span>Replace</span>
           </RecativeBlock>
         ),
       },
       {
         label: (
-          <RecativeBlock id="delete" className={css(menuItemStyles)}>
+          <RecativeBlock
+            id="delete"
+            className={css(menuItemStyles)}
+            fontWeight={500}
+            color={
+              selectedValue?.managedBy
+                ? theme.colors.buttonDisabledText
+                : theme.colors.buttonPrimaryText
+            }
+            cursor={selectedValue?.managedBy ? 'not-allowed' : 'pointer'}
+          >
             <TrashIconOutline width={18} /> <span>Delete</span>
           </RecativeBlock>
         ),
       },
-    ],
-    [css]
-  );
+    ];
+  }, [
+    css,
+    theme.colors.buttonDisabledText,
+    theme.colors.buttonPrimaryText,
+    selectedValue,
+  ]);
 
   return { triggers, contextMenuItem, handleItemClick };
 };
 
 const useModalEditMenu = (
   group: IResourceGroup | null,
-  onAddResourceFile: IEditResourceGroupModalProps['onAddResourceFile'],
+  onAddResourceFile: (resourceFile: IResourceFile) => Promise<void>,
   setFileIdToFileMap: Updater<Record<string, IEditableResourceFile>>
 ) => {
   const [css] = useStyletron();
@@ -451,7 +487,9 @@ const useModalEditMenu = (
     });
   }, [setFileIdToFileMap]);
 
-  const onModalEditMenuSelected = React.useCallback<OnItemSelect>(
+  const onModalEditMenuSelected = React.useCallback<
+    StatefulContainerProps['onItemSelect']
+  >(
     (event) => {
       switch (event.item.id) {
         case 'add':
@@ -484,7 +522,11 @@ const useModalEditMenu = (
           {
             id: 'add',
             label: (
-              <RecativeBlock id="add" className={css(menuItemStyles)}>
+              <RecativeBlock
+                id="add"
+                className={css(menuItemStyles)}
+                fontWeight={500}
+              >
                 <AddIconOutline width={18} /> <span>Add Resource</span>
               </RecativeBlock>
             ),
@@ -492,7 +534,11 @@ const useModalEditMenu = (
           {
             id: 'labelToTag',
             label: (
-              <RecativeBlock id="labelToTag" className={css(menuItemStyles)}>
+              <RecativeBlock
+                id="labelToTag"
+                className={css(menuItemStyles)}
+                fontWeight={500}
+              >
                 <MigrateTagIconOutline width={18} /> <span>Label To Tag</span>
               </RecativeBlock>
             ),
@@ -508,8 +554,9 @@ const useModalEditMenu = (
 };
 
 const useReplaceFileModalState = (
-  handleAddFile: (fileId: string) => void,
-  handleRemoveFile: (fileId: string) => void
+  filesInGroup: IResourceFile[],
+  handleAddFile: (fileId: string | string[]) => void,
+  handleRemoveFile: (fileId: string | string[]) => void
 ) => {
   const [showReplaceFileModal, setShowReplaceFileModal] = React.useState(false);
 
@@ -527,19 +574,45 @@ const useReplaceFileModalState = (
     setSelectedResource(undefined);
   }, []);
 
-  const handleReplaceFile = React.useCallback(
-    (file: IResourceFile) => {
+  const handleFileReplaced = React.useCallback(
+    (oldFileId: string, newFiles: IResourceFile[]) => {
       if (!selectedResourceToReplace) return;
-      handleAddFile(file.id);
-      handleRemoveFile(selectedResourceToReplace);
+
+      const fileIdsToBeRemoved = new Set<string>();
+
+      const idsToBeLookedUp = new Set<string>();
+
+      idsToBeLookedUp.add(oldFileId);
+      fileIdsToBeRemoved.add(oldFileId);
+
+      const lookupIds = (managedFileId: string) => {
+        for (let i = 0; i < filesInGroup.length; i += 1) {
+          const file = filesInGroup[i];
+
+          if (file.managedBy === managedFileId) {
+            fileIdsToBeRemoved.add(file.id);
+            idsToBeLookedUp.add(file.id);
+          }
+        }
+
+        idsToBeLookedUp.delete(managedFileId);
+      };
+
+      while (idsToBeLookedUp.size) {
+        idsToBeLookedUp.forEach(lookupIds);
+      }
+
+      const fileIdsToBeAdded = newFiles.map((x) => x.id);
+      handleRemoveFile([...fileIdsToBeRemoved]);
+      handleAddFile(fileIdsToBeAdded);
     },
-    [handleAddFile, handleRemoveFile, selectedResourceToReplace]
+    [filesInGroup, handleAddFile, handleRemoveFile, selectedResourceToReplace]
   );
 
   return {
     showReplaceFileModal,
     selectedResourceToReplace,
-    handleReplaceFile,
+    handleFileReplaced,
     handleReplaceFileModalOpen,
     handleReplaceFileModalClose,
   };
@@ -581,7 +654,7 @@ const useEditableResourceGroup = (
     React.useState<IEditableResourceGroup | null>(null);
 
   React.useLayoutEffect(() => {
-    if (files && groupId && extensionMetadata) {
+    if (files && files.length && groupId && extensionMetadata) {
       // We want to build such a feature, some fields are treated as group-level,
       // this is possible to make a fake group level resource file, and treated
       // as a group, while this file is updated, all files will be updated at
@@ -631,18 +704,13 @@ const useExtensionMetadata = () => {
 };
 
 const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
-  ({
-    files,
-    group,
-    isOpen,
-    onClose,
-    onSubmit,
-    onAddResourceFile,
-    onRemoveResourceFile,
-  }) => {
+  ({ onRefreshResourceListRequest }) => {
     const editorRef = React.useRef<IResourceEditorRef>(null);
 
     const [css] = useStyletron();
+
+    const [isOpen, fileId, , onClose] = useEditResourceGroupModal();
+    const { group, files } = useEditableResourceDefinition(isOpen, fileId);
 
     const [groupLabel, handleGroupLabelUpdate] = useLabelUpdateCallback(group);
 
@@ -654,7 +722,7 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
     const {
       fileIdToFileMap,
       handleAddFile,
-      handleDeleteFile,
+      handleRemoveFile,
       handleUpdateFile,
       setFileIdToFileMap,
     } = useFileIdToFileMap(files, setEditableResourceGroup);
@@ -662,9 +730,10 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
     const handleGroupModalSubmit = useGroupModalSubmitCallback(
       editorRef,
       fileIdToFileMap,
+      group,
       groupLabel,
       editableResourceGroup,
-      onSubmit
+      onRefreshResourceListRequest
     );
 
     const { selectedFileId, resetSelectedFile, handleButtonClickCallbacks } =
@@ -681,28 +750,33 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
     }, [handleGroupModalSubmit, handleModalClose]);
 
     const handleAddResourceFile = React.useCallback(
-      (x: IResourceFile) => {
-        onAddResourceFile(x);
-        handleAddFile(x.id);
+      async (resourceFile: IResourceFile) => {
+        if (!group) {
+          throw new TypeError(
+            `Resource item is not a group, this is not allowed`
+          );
+        }
+        await server.addFileToGroup(resourceFile, group.id);
+        handleAddFile(resourceFile.id);
       },
-      [onAddResourceFile, handleAddFile]
+      [group, handleAddFile]
     );
 
     const handleRemoveResourceFile = React.useCallback(
-      (x: IEditableResourceFile) => {
-        onRemoveResourceFile(x);
-        handleDeleteFile(x.id);
+      async (resourceFile: IEditableResourceFile) => {
+        await server.removeFileFromGroup(resourceFile);
+        handleRemoveFile(resourceFile.id);
       },
-      [onRemoveResourceFile, handleDeleteFile]
+      [handleRemoveFile]
     );
 
     const {
       showReplaceFileModal,
       selectedResourceToReplace,
-      handleReplaceFile,
+      handleFileReplaced,
       handleReplaceFileModalOpen,
       handleReplaceFileModalClose,
-    } = useReplaceFileModalState(handleAddFile, handleDeleteFile);
+    } = useReplaceFileModalState(files, handleAddFile, handleRemoveFile);
 
     const { triggers, contextMenuItem, handleItemClick } =
       useListItemContextMenu(
@@ -833,7 +907,7 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
         <ReplaceFileModal
           isOpen={showReplaceFileModal}
           fileId={selectedResourceToReplace}
-          onReplaced={handleReplaceFile}
+          onReplaced={handleFileReplaced}
           onClose={handleReplaceFileModalClose}
         />
       </Modal>

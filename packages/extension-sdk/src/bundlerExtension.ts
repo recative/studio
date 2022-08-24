@@ -1,7 +1,14 @@
 import proto from 'protobufjs';
 import type StreamZip from 'node-stream-zip';
 
-import type { Zip } from '@recative/extension-sdk';
+import type {
+  Zip,
+  ffmpeg,
+  ffprobe,
+  waveform,
+  screenshot,
+  imageThumbnail,
+} from '@recative/extension-sdk';
 import type { TerminalMessageLevel } from '@recative/studio-definitions';
 
 import type { IBundleProfile } from './bundler';
@@ -48,6 +55,11 @@ export interface IBundlerExtensionDependency {
   ) => Promise<string>;
   getAssetFilePath: (path: string) => string;
   getLocalConfigFilePath: (path: string) => string;
+  ffmpeg: typeof ffmpeg;
+  ffprobe: typeof ffprobe;
+  waveform: typeof waveform;
+  screenshot: typeof screenshot;
+  imageThumbnail: typeof imageThumbnail;
 }
 
 export abstract class Bundler<ConfigKey extends string> {

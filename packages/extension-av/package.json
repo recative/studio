@@ -1,0 +1,9 @@
+{
+  "name": "@recative/extension-av",
+  "packageManager": "yarn@3.1.1",
+  "main": "./manifest.ts",
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.25",
+    "@recative/atlas": "^0.0.0-dev.1"
+  }
+}

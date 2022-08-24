@@ -9,20 +9,29 @@ import { createHash } from 'crypto';
 import { ensureDirSync, remove } from 'fs-extra';
 import { readFile, writeFile } from 'fs/promises';
 
+import {
+  Zip,
+  ffmpeg,
+  ffprobe,
+  waveform,
+  screenshot,
+  getFilePath,
+  getFileBuffer,
+  imageThumbnail,
+} from '@recative/extension-sdk';
 import type {
   TOOLS,
   Bundler,
   Uploader,
+  IBundleProfile,
   ResourceProcessor,
   IBundlerExtensionDependency,
   IResourceExtensionDependency,
   PostProcessedResourceItemForUpload,
   PostProcessedResourceItemForImport,
-  IBundleProfile,
 } from '@recative/extension-sdk';
 import type { TerminalMessageLevel } from '@recative/studio-definitions';
 
-import { Zip } from '@recative/extension-sdk';
 import { Category, IResourceFile } from '@recative/definitions';
 
 import { getDb } from '../rpc/db';
@@ -30,6 +39,7 @@ import { extensions } from '../extensions';
 import { cleanupLoki } from '../rpc/query/utils';
 import { getWorkspace } from '../rpc/workspace';
 import { logToTerminal } from '../rpc/query/terminal';
+import { importedFileToFile } from '../rpc/query/utils/importedFileToFile';
 import { STUDIO_BINARY_PATH } from '../constant/appPath';
 import { HOME_DIR, ANDROID_BUILD_TOOLS_PATH } from '../constant/configPath';
 
@@ -115,6 +125,8 @@ const resourceProcessorDependencies: IResourceExtensionDependency = {
           (x) => x !== eraseMediaBuildId
         );
       db.resource.postProcessed.insert(clonedResource);
+    } else if ('postProcessedThumbnail' in clonedResource) {
+      db.resource.resources.insert(await importedFileToFile(clonedResource));
     } else {
       db.resource.resources.insert(clonedResource);
     }
@@ -154,6 +166,13 @@ const resourceProcessorDependencies: IResourceExtensionDependency = {
     return createHash('md5').update(x).digest('hex');
   },
   xxHash: (x: Buffer) => h32(x, 0x1bf52).toString(16),
+  ffmpeg,
+  ffprobe,
+  waveform,
+  screenshot,
+  getFilePath,
+  getFileBuffer,
+  imageThumbnail,
 };
 
 const getExtensionConfig = async () => {
@@ -299,6 +318,11 @@ const bundlerDependencies: IBundlerExtensionDependency = {
   getLocalConfigFilePath: (path: string) => {
     return join(HOME_DIR, path);
   },
+  ffmpeg,
+  ffprobe,
+  waveform,
+  screenshot,
+  imageThumbnail,
 };
 
 export const getBundlerInstances = async (terminalId: string) => {

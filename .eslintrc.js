@@ -7,6 +7,7 @@ module.exports = {
     'new-cap': 'off',
     'no-continue': 'off',
     'no-await-in-loop': 'off',
+    'no-restricted-syntax': 'off',
     'max-classes-per-file': 'off',
     'import/prefer-default-export': 'off',
     'react/prop-types': 'off',

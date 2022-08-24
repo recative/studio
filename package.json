@@ -255,9 +255,10 @@
     "@recative/act-player": "^0.1.1",
     "@recative/client-sdk": "^3.4.0",
     "@recative/definitions": "^0.0.0-dev.89",
+    "@recative/extension-sdk": "workspace:^",
     "@recative/smart-resource": "^0.0.0-dev.7",
+    "@recative/studio-definitions": "workspace:^",
     "@recative/ugly-json": "^0.0.0",
-    "@silvia-odwyer/photon-node": "^0.3.1",
     "@uiw/react-codemirror": "4.7.0",
     "adm-zip": "^0.5.9",
     "archiver": "5.3.1",
@@ -385,6 +386,7 @@
     "packages/extension-ios",
     "packages/extension-web",
     "packages/extension-raw",
+    "packages/extension-av",
     "packages/studio-definitions"
   ],
   "resolutions": {

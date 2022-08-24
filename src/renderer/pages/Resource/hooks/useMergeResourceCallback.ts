@@ -1,6 +1,9 @@
 import * as React from 'react';
 
-import type { IGroupTypeResourceTag } from '@recative/definitions';
+import type {
+  IGroupTypeResourceTag,
+  IResourceItem,
+} from '@recative/definitions';
 import { server } from 'utils/rpc';
 
 import { getGroupType } from '../utils/getGroupType';
@@ -43,6 +46,20 @@ export const useMergeResourcesCallback = () => {
     []
   );
 
+  const handleFileUploadFinished = React.useCallback(
+    (files: IResourceItem[]) => {
+      if (files.length < 2) return;
+
+      if (files.every((x) => x.type === 'group' || x.resourceGroupId)) return;
+
+      promptGroupType(
+        files.map((x) => x.id),
+        false
+      );
+    },
+    [promptGroupType]
+  );
+
   const groupFiles = async (x: IGroupTypeResourceTag) => {
     if (x) {
       server.mergeResources(itemsInGroup, x);
@@ -64,6 +81,7 @@ export const useMergeResourcesCallback = () => {
     parsingGroupTypeFailed,
     candidateGroupTypes,
     promptGroupType,
+    handleFileUploadFinished,
     groupFiles,
   };
 };

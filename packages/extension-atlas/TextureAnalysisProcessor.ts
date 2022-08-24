@@ -2,9 +2,10 @@
 /* eslint-disable no-labels */
 /* eslint-disable no-await-in-loop */
 import { Image, createCanvas } from '@napi-rs/canvas';
+
 import { ResourceProcessor } from '@recative/extension-sdk';
 
-import { IResourceItem } from '@recative/definitions';
+import type { IResourceItem } from '@recative/definitions';
 import type {
   PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForUpload,
@@ -20,7 +21,7 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
 > {
   static id = '@recative/extension-rs-atlas/TextureAnalysisProcessor';
 
-  static label = 'Texture analysis';
+  static label = 'Texture Analysis';
 
   static resourceConfigUiFields = [] as const;
 
@@ -158,9 +159,15 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
     return result;
   };
 
-  beforeFileImported(resources: IPostProcessedResourceFileForImport[]) {
+  beforeFileImported = async (
+    resources: IPostProcessedResourceFileForImport[]
+  ) => {
     for (let i = 0; i < resources.length; i += 1) {
       const resource = resources[i];
+
+      if (resource.type !== 'file') {
+        continue;
+      }
 
       const isImage = resource.mimeType.startsWith('image');
 
@@ -168,19 +175,19 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
         continue;
       }
 
-      if (!(resource.postProcessedFile instanceof Buffer)) {
-        throw new TypeError(
-          `Expected Buffer, got ${typeof resource.postProcessedFile}`
-        );
-      }
-
       const image = new Image();
-      image.src = resource.postProcessedFile;
+      image.src = await this.dependency.getFileBuffer(
+        resource.postProcessedFile
+      );
+
+      resource.postProcessedThumbnail = await this.dependency.imageThumbnail(
+        resource.postProcessedFile
+      );
 
       this.calculateImageEnvelope(resource, image);
     }
     return resources;
-  }
+  };
 
   beforePreviewResourceBinaryDelivered() {
     return null;

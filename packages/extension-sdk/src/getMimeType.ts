@@ -1,7 +1,10 @@
 import FileType from 'file-type';
 import mime from 'mime-types';
 
-export const getMimeType = async (filePath: string) => {
+import { getFilePath } from './getFilePath';
+
+export const getMimeType = async (x: string | Buffer) => {
+  const filePath = await getFilePath(x);
   const fileTypeFromBinary = await FileType.fromFile(filePath);
 
   if (

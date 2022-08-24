@@ -1240,7 +1240,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     return resources;
   }
 
-  async afterGroupCreated(files: IResourceFile[], newGroup: IResourceGroup) {
+  async afterGroupCreated(
+    files: (IResourceFile | IPostProcessedResourceFileForImport)[],
+    newGroup: IResourceGroup
+  ) {
     if (!newGroup.tags.includes(frameSequenceGroupResourceTag.id)) {
       return null;
     }
@@ -1299,7 +1302,6 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       removedTime: -1,
       resourceGroupId: newGroup.id,
       tags: ['custom:frame-sequence-pointer!'],
-      thumbnailSrc: '',
       importTime: Date.now(),
       extensionConfigurations: {
         [`${AtlasResourceProcessor.id}~~frames`]: sortedFiles
@@ -1307,6 +1309,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           .join(','),
       },
       postProcessedFile: fileBuffer,
+      postProcessedThumbnail: null,
     };
 
     newGroup.files.push(pointerFile.id);
@@ -1352,6 +1355,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           `${AtlasResourceProcessor.id}~~dict`
         ]
       );
+
+      delete atlasDefinition.extensionConfigurations[
+        `${AtlasResourceProcessor.id}~~dict`
+      ];
 
       if (!dict) {
         throw new TypeError(`Atlas image has no dict, this is not allowed`);

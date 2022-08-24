@@ -1,10 +1,10 @@
-import { join } from 'path';
+import { join, basename } from 'path';
 
 import { WorkspaceNotReadyError } from '@recative/definitions';
 
 import type { IResourceFile } from '@recative/definitions';
+import type { IPostProcessedResourceFileForUpload } from '@recative/extension-sdk';
 
-import { IPostProcessedResourceFileForUpload } from '@recative/extension-sdk';
 import { getWorkspace } from '../rpc/workspace';
 
 export const getResourceFileName = (
@@ -13,8 +13,17 @@ export const getResourceFileName = (
     | Pick<
         IPostProcessedResourceFileForUpload,
         'id' | 'fileName' | 'postProcessRecord'
-      >
-) => ('fileName' in resource ? resource.fileName : `${resource.id}.resource`);
+      >,
+  thumbnail = false
+) => {
+  if (thumbnail) {
+    return 'fileName' in resource
+      ? `${basename(resource.fileName)}-thumbnail.png`
+      : `${resource.id}-thumbnail.png`;
+  }
+
+  return 'fileName' in resource ? resource.fileName : `${resource.id}.resource`;
+};
 
 export const getResourceFilePath = (
   resource:
@@ -22,7 +31,8 @@ export const getResourceFilePath = (
     | Pick<
         IPostProcessedResourceFileForUpload,
         'id' | 'fileName' | 'postProcessRecord'
-      >
+      >,
+  thumbnail = false
 ) => {
   const config = getWorkspace();
 
@@ -32,9 +42,9 @@ export const getResourceFilePath = (
     return join(
       config.mediaPath,
       'post-processed',
-      getResourceFileName(resource)
+      getResourceFileName(resource, thumbnail)
     );
   }
 
-  return join(config.mediaPath, getResourceFileName(resource));
+  return join(config.mediaPath, getResourceFileName(resource, thumbnail));
 };

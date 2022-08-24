@@ -11,17 +11,20 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import type { FileUploaderOverrides, StyleProps } from 'baseui/file-uploader';
+import type { FileUploaderOverrides } from 'baseui/file-uploader';
 
 import type { IResourceFile } from '@recative/definitions';
 
-import { uploadSingleFile } from '../utils/uploadSingleFile';
+import { useUploader } from 'utils/hooks/useUploader';
 
 export interface IReplaceFileModalProps {
   isOpen: boolean;
   fileId?: string;
   multipleFileError?: boolean;
-  onReplaced: (file: IResourceFile) => void;
+  /**
+   * The old file to be replaced and new file created by resource extensions.
+   */
+  onReplaced: (oldFileId: string, newFiles: IResourceFile[]) => void;
   onClose: () => void;
 }
 
@@ -37,8 +40,24 @@ const fileUploaderOverrides: FileUploaderOverrides = {
       justifyContent: 'center',
     },
   },
+  CancelButtonComponent: {
+    props: {
+      overrides: {
+        BaseButton: {
+          style: {
+            display: 'none',
+          },
+        },
+      },
+    },
+  },
 };
 
+/**
+ * A modal to help user replace their files, base-ui allows user to drop multiple
+ * file but we'll only use the first file here, since only one fill could be
+ * replaced.
+ */
 export const ReplaceFileModal: React.FC<IReplaceFileModalProps> = ({
   isOpen,
   onReplaced,
@@ -48,21 +67,46 @@ export const ReplaceFileModal: React.FC<IReplaceFileModalProps> = ({
 }) => {
   const [error, setError] = React.useState<string | undefined>(undefined);
 
-  const handleDrop = React.useCallback(
-    async (files: File[]) => {
-      if (files.length !== 1) {
+  const {
+    isUploading,
+    error: internalError,
+    handleDrop: internalHandleDrop,
+    progressAmount,
+    progressMessage,
+  } = useUploader(undefined, onClose, fileId);
+
+  const handleDrop = React.useCallback<
+    (
+      accepted: File[],
+      rejected: File[],
+      event: React.DragEvent<HTMLElement>
+    ) => unknown
+  >(
+    async (acceptedFiles, rejectedFiles, event) => {
+      if (acceptedFiles.length !== 1) {
         setError('Please select a single file');
+        return;
       }
 
       if (!fileId) {
         setError('Please select a file to replace');
+        return;
       }
 
-      const resource = await uploadSingleFile(files[0], fileId);
-      onReplaced(resource[0] as IResourceFile);
-      onClose();
+      const resources = await internalHandleDrop(
+        [acceptedFiles[0]],
+        rejectedFiles,
+        event
+      );
+
+      onReplaced(
+        fileId,
+        // It's safe to filter these file since on the server side, we add all
+        // files to the group of replaced file, and no new group will be created.
+        resources.filter((x) => x.type === 'file') as IResourceFile[]
+      );
     },
-    [fileId, onReplaced, onClose]
+    [fileId, internalHandleDrop, onReplaced]
   );
 
   React.useEffect(() => {
@@ -89,7 +133,7 @@ export const ReplaceFileModal: React.FC<IReplaceFileModalProps> = ({
       isOpen={isOpen}
       animate
       autoFocus
-      closeable
+      closeable={!isUploading}
       size={SIZE.default}
       role={ROLE.dialog}
     >
@@ -98,15 +142,19 @@ export const ReplaceFileModal: React.FC<IReplaceFileModalProps> = ({
         {errorElement || (
           <RecativeBlock paddingBottom="4px">
             <FileUploader
-              errorMessage={error}
+              errorMessage={internalError ?? error}
               onDrop={handleDrop}
               overrides={fileUploaderOverrides}
+              progressAmount={progressAmount}
+              progressMessage={progressMessage}
             />
           </RecativeBlock>
         )}
       </ModalBody>
       <ModalFooter>
-        <ModalButton onClick={onClose}>OK</ModalButton>
+        <ModalButton disabled={isUploading} onClick={onClose}>
+          OK
+        </ModalButton>
       </ModalFooter>
     </Modal>
   );

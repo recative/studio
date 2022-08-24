@@ -9,8 +9,12 @@ import type {
   IDetailedResourceItemForClient,
 } from '@recative/definitions';
 
-import type { IConfigUiField } from './settings';
 import { Zip } from './zip';
+import { getFilePath } from './getFilePath';
+import { getFileBuffer } from './getFileBuffer';
+import type { imageThumbnail } from './canvas';
+import type { IConfigUiField } from './settings';
+import type { ffmpeg, ffprobe, waveform, screenshot } from './ffmpeg';
 
 export interface IPostProcessOperation {
   extensionId: string;
@@ -43,8 +47,10 @@ export type PostProcessedResourceItemForUpload =
   | IPostProcessedResourceFileForUpload
   | IPostProcessedResourceGroupForUpload;
 
-export interface IPostProcessedResourceFileForImport extends IResourceFile {
+export interface IPostProcessedResourceFileForImport
+  extends Omit<IResourceFile, 'thumbnailSrc'> {
   postProcessedFile: string | Buffer;
+  postProcessedThumbnail: string | Buffer | null;
 }
 
 export type PostProcessedResourceItemForImport =
@@ -81,6 +87,13 @@ export interface IResourceExtensionDependency {
   logToTerminal: (message: string, level?: TerminalMessageLevel) => void;
   md5Hash: (x: Buffer) => Promise<string> | string;
   xxHash: (x: Buffer) => Promise<string> | string;
+  ffmpeg: typeof ffmpeg;
+  ffprobe: typeof ffprobe;
+  waveform: typeof waveform;
+  screenshot: typeof screenshot;
+  getFilePath: typeof getFilePath;
+  getFileBuffer: typeof getFileBuffer;
+  imageThumbnail: typeof imageThumbnail;
 }
 
 export interface IBundleGroup {
@@ -94,7 +107,7 @@ export interface IBundleGroup {
 
 interface IGroupCreateResult {
   group: IResourceGroup;
-  files: (IResourceFile | IPostProcessedResourceFileForUpload)[];
+  files: (IResourceFile | IPostProcessedResourceFileForImport)[];
 }
 
 export abstract class ResourceProcessor<ConfigKey extends string> {
@@ -182,7 +195,10 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
   }
 
   protected getOutputFileName(
-    file: IResourceFile | IPostProcessedResourceFileForUpload,
+    file:
+      | IResourceFile
+      | IPostProcessedResourceFileForUpload
+      | IPostProcessedResourceFileForImport,
     additionalData: Record<string, number | string | boolean>
   ): string {
     const pluginKey = Reflect.get(this.constructor, 'id');
@@ -418,7 +434,7 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
     | PostProcessedResourceItemForImport[]
     | null;
   abstract afterGroupCreated(
-    files: IResourceFile[],
+    files: (IResourceFile | IPostProcessedResourceFileForImport)[],
     newGroup: IResourceGroup
   ): Promise<IGroupCreateResult | null> | IGroupCreateResult | null;
   abstract beforePreviewResourceMetadataDelivered<
