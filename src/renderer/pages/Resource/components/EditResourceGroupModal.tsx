@@ -578,15 +578,32 @@ const useReplaceFileModalState = (
     (oldFileId: string, newFiles: IResourceFile[]) => {
       if (!selectedResourceToReplace) return;
 
-      const filesIdsToBeRemoved = [
-        oldFileId,
-        ...filesInGroup
-          .filter((x) => x.managedBy === oldFileId)
-          .map((x) => x.id),
-      ];
+      const fileIdsToBeRemoved = new Set<string>();
+
+      const idsToBeLookedUp = new Set<string>();
+
+      idsToBeLookedUp.add(oldFileId);
+      fileIdsToBeRemoved.add(oldFileId);
+
+      const lookupIds = (managedFileId: string) => {
+        for (let i = 0; i < filesInGroup.length; i += 1) {
+          const file = filesInGroup[i];
+
+          if (file.managedBy === managedFileId) {
+            fileIdsToBeRemoved.add(file.id);
+            idsToBeLookedUp.add(file.id);
+          }
+        }
+
+        idsToBeLookedUp.delete(managedFileId);
+      };
+
+      while (idsToBeLookedUp.size) {
+        idsToBeLookedUp.forEach(lookupIds);
+      }
 
       const fileIdsToBeAdded = newFiles.map((x) => x.id);
-      handleRemoveFile(filesIdsToBeRemoved);
+      handleRemoveFile([...fileIdsToBeRemoved]);
       handleAddFile(fileIdsToBeAdded);
     },
     [filesInGroup, handleAddFile, handleRemoveFile, selectedResourceToReplace]
@@ -637,7 +654,7 @@ const useEditableResourceGroup = (
     React.useState<IEditableResourceGroup | null>(null);
 
   React.useLayoutEffect(() => {
-    if (files && groupId && extensionMetadata) {
+    if (files && files.length && groupId && extensionMetadata) {
       // We want to build such a feature, some fields are treated as group-level,
       // this is possible to make a fake group level resource file, and treated
       // as a group, while this file is updated, all files will be updated at

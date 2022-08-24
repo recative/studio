@@ -125,6 +125,10 @@ export class ResourceFileForImport {
     if (this.definition.originalHash === '') {
       this.definition.originalHash = hash.xxHash;
     }
+
+    if (this.definition.mimeType === '') {
+      await this.updateMimeType();
+    }
   };
 
   addToGroup = (group: ResourceGroup) => {

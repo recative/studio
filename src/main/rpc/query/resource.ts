@@ -724,7 +724,7 @@ export const importFile = async (
 
     if (!itemIsMatched) {
       throw new TypeError(
-        `Resource with id "${replaceFileId}" is not a file with the same mimeType`
+        `Resource with id "${replaceFileId}" is not a file with the same mimeType, old file: ${replacedFile.mimeType}, new file: ${importedFile.definition.mimeType}, they don't have the same prefix`
       );
     }
   }
@@ -766,16 +766,18 @@ export const importFile = async (
   );
 
   if (replacedFile && replaceFileId) {
+    const replacedFileGroupId = replacedFile.resourceGroupId;
+
     await removeResource(replaceFileId, false);
     await removeFileFromGroup(replacedFile);
 
-    if (replacedFile.resourceGroupId) {
+    if (replacedFileGroupId) {
       metadataForImport = metadataForImport.filter((x) => x.type === 'file');
 
       for (let i = 0; i < metadataForImport.length; i += 1) {
         const resource = metadataForImport[i];
 
-        resource.resourceGroupId = replacedFile.resourceGroupId;
+        resource.resourceGroupId = replacedFileGroupId;
       }
     }
   }
