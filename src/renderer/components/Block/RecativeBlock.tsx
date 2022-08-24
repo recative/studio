@@ -46,7 +46,6 @@ const HTML_KEYS = [
   'autoCapitalize',
   'autoCorrect',
   'autoSave',
-  'color',
   'itemProp',
   'itemScope',
   'itemType',

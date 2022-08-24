@@ -43,6 +43,8 @@ import {
 import { ResourceItem } from 'components/Resource/ResourceItem';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
+import { ShowIconOutline } from 'components/Icons/ShowIconOutline';
+import { HideIconOutline } from 'components/Icons/HideIconOutline';
 import { TrashIconOutline } from 'components/Icons/TrashIconOutline';
 import { ReplaceIconOutline } from 'components/Icons/ReplaceIconOutline';
 import { EditGroupIconOutline } from 'components/Icons/EditGroupIconOutline';
@@ -65,10 +67,11 @@ import type {
   IEditableResourceFile,
 } from '@recative/definitions';
 
+import { useEditableResourceDefinition } from '../hooks/useEditableResourceDefinition';
 import { ResourceEditor, IEditableResourceGroup } from '../ResourceEditor';
 import { mergeGroupConfigurationToIndividualFile } from '../utils/mergeGroupConfigurationToIndividualFile';
+
 import type { IResourceEditorRef, IEditableResource } from '../ResourceEditor';
-import { useEditableResourceDefinition } from '../hooks/useEditableResourceDefinition';
 
 import { ReplaceFileModal } from './ReplaceFileModal';
 
@@ -444,7 +447,6 @@ const useListItemContextMenu = (
 };
 
 const useModalEditMenu = (
-  group: IResourceGroup | null,
   onAddResourceFile: (resourceFile: IResourceFile) => Promise<void>,
   setFileIdToFileMap: Updater<Record<string, IEditableResourceFile>>
 ) => {
@@ -509,17 +511,6 @@ const useModalEditMenu = (
       <StatefulMenu
         items={[
           {
-            id: 'id',
-            label: (
-              <RecativeBlock
-                id="id"
-                className={cn(css(menuItemStyles), css(disabledMenuItemStyles))}
-              >
-                <span>{group?.id}</span>
-              </RecativeBlock>
-            ),
-          },
-          {
             id: 'add',
             label: (
               <RecativeBlock
@@ -527,7 +518,8 @@ const useModalEditMenu = (
                 className={css(menuItemStyles)}
                 fontWeight={500}
               >
-                <AddIconOutline width={18} /> <span>Add Resource</span>
+                <AddIconOutline width={18} />
+                <RecativeBlock fontWeight={500}>Add Resource</RecativeBlock>
               </RecativeBlock>
             ),
           },
@@ -539,7 +531,23 @@ const useModalEditMenu = (
                 className={css(menuItemStyles)}
                 fontWeight={500}
               >
-                <MigrateTagIconOutline width={18} /> <span>Label To Tag</span>
+                <MigrateTagIconOutline width={18} />
+                <RecativeBlock fontWeight={500}>Label to Tag</RecativeBlock>
+              </RecativeBlock>
+            ),
+          },
+          {
+            id: 'toggleShowManagedFile',
+            label: (
+              <RecativeBlock
+                id="labelToTag"
+                className={css(menuItemStyles)}
+                fontWeight={500}
+              >
+                <ShowIconOutline width={18} />
+                <RecativeBlock fontWeight={500}>
+                  Show Managed Files
+                </RecativeBlock>
               </RecativeBlock>
             ),
           },
@@ -547,7 +555,7 @@ const useModalEditMenu = (
         onItemSelect={onModalEditMenuSelected}
       />
     ),
-    [css, onModalEditMenuSelected, group]
+    [css, onModalEditMenuSelected]
   );
 
   return { onModalEditMenuSelected, modalMenuItem };
@@ -707,7 +715,7 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
   ({ onRefreshResourceListRequest }) => {
     const editorRef = React.useRef<IResourceEditorRef>(null);
 
-    const [css] = useStyletron();
+    const [css, theme] = useStyletron();
 
     const [isOpen, fileId, , onClose] = useEditResourceGroupModal();
     const { group, files } = useEditableResourceDefinition(isOpen, fileId);
@@ -786,7 +794,6 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
       );
 
     const { modalMenuItem } = useModalEditMenu(
-      group,
       handleAddResourceFile,
       setFileIdToFileMap
     );
@@ -802,6 +809,8 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
     }, [fileIdToFileMap, selectedFileId, editableResourceGroup]);
 
     const databaseLocked = useDatabaseLocked();
+
+    console.log(theme.colors.buttonDisabledText);
 
     return (
       <Modal
@@ -897,12 +906,34 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
           </RecativeBlock>
         </ModalBody>
         <ModalFooter>
-          <ModalButton kind={BUTTON_KIND.tertiary} onClick={handleModalClose}>
-            Cancel
-          </ModalButton>
-          <ModalButton disabled={databaseLocked} onClick={handleSubmitClick}>
-            Confirm
-          </ModalButton>
+          <RecativeBlock
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <RecativeBlock
+              id="id"
+              fontSize="0.85em"
+              fontWeight={500}
+              color={theme.colors.buttonDisabledText}
+            >
+              {group?.id}
+            </RecativeBlock>
+            <RecativeBlock>
+              <ModalButton
+                kind={BUTTON_KIND.tertiary}
+                onClick={handleModalClose}
+              >
+                Cancel
+              </ModalButton>
+              <ModalButton
+                disabled={databaseLocked}
+                onClick={handleSubmitClick}
+              >
+                Confirm
+              </ModalButton>
+            </RecativeBlock>
+          </RecativeBlock>
         </ModalFooter>
         <ReplaceFileModal
           isOpen={showReplaceFileModal}

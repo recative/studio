@@ -1,7 +1,7 @@
 import * as React from 'react';
 import cn from 'classnames';
 
-import { useStyletron } from 'styletron-react';
+import { useStyletron } from 'baseui';
 
 import type { StyleObject } from 'styletron-react';
 
@@ -11,6 +11,7 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Tag, VARIANT } from 'baseui/tag';
 import { ListItemLabel, LabelOverrides } from 'baseui/list';
 
+import { ManagedResourceIcon } from 'components/Icons/ManagedResourceIcon';
 import { Pattern } from '../Pattern/Pattern';
 
 const listItemStyles: StyleObject = {
@@ -77,6 +78,7 @@ export interface IResourceItemProps {
   thumbnailSrc?: string | null;
   label: string;
   tags?: Set<string> | string[] | string;
+  managedBy?: string | null;
   variant?: ResourceItemVariant;
 }
 
@@ -85,9 +87,10 @@ const InternalResourceItem: React.FC<IResourceItemProps> = ({
   thumbnailSrc,
   label,
   tags,
+  managedBy,
   variant = ResourceItemVariant.Default,
 }) => {
-  const [css] = useStyletron();
+  const [css, theme] = useStyletron();
 
   const convertedTags = React.useMemo(() => {
     const tagsArr = typeof tags === 'string' ? [tags] : tags || [];
@@ -111,7 +114,21 @@ const InternalResourceItem: React.FC<IResourceItemProps> = ({
         )}
       </RecativeBlock>
       <RecativeBlock marginLeft="4px">
-        <ListItemLabel overrides={listItemOverrides}>{label}</ListItemLabel>
+        <ListItemLabel overrides={listItemOverrides}>
+          <RecativeBlock>
+            {label}
+            {managedBy && (
+              <RecativeBlock
+                marginLeft="4px"
+                transform="translateY(2px)"
+                display="inline-block"
+                color={theme.colors.buttonDisabledText}
+              >
+                <ManagedResourceIcon height={14} width={14} />
+              </RecativeBlock>
+            )}
+          </RecativeBlock>
+        </ListItemLabel>
         {variant !== ResourceItemVariant.NoTags && (
           <RecativeBlock>
             {!!convertedTags.length || (

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import cn from 'classnames';
 
-import { useStyletron } from 'styletron-react';
+import { useStyletron } from 'baseui';
 import type { StyleObject } from 'styletron-react';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
@@ -50,7 +50,7 @@ export const InternalResource: React.FC<IResourceProps> = ({
   thumbnailSrc,
   fileName,
 }) => {
-  const [css] = useStyletron();
+  const [css, theme] = useStyletron();
 
   return (
     <>
@@ -77,13 +77,17 @@ export const InternalResource: React.FC<IResourceProps> = ({
             />
           )}
           <LabelSmall className={css(labelStyles)}>
-            {isGroup && (
-              <GroupIcon
-                height={14}
-                style={{ marginRight: '4px', transform: 'translateY(1px)' }}
-              />
-            )}
             {fileName}
+            {isGroup && (
+              <RecativeBlock
+                marginLeft="4px"
+                transform="translateY(2px)"
+                display="inline-block"
+                color={theme.colors.buttonDisabledText}
+              >
+                <GroupIcon height={14} />
+              </RecativeBlock>
+            )}
           </LabelSmall>
         </RecativeBlock>
       </RecativeBlock>
