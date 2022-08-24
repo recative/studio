@@ -689,10 +689,39 @@ export const eraseResourceUrl = async (extensionId: string) => {
   });
 };
 
+interface IProgressReport {
+  text: string;
+  /**
+   * The range of this value is [0, 1].
+   */
+  progress: number;
+}
+
+// The key is file path.
+const importProgressCache = new Map<string, IProgressReport>();
+
+export const getImportProgress = (filePath: string) => {
+  return (
+    importProgressCache.get(filePath) ?? {
+      text: 'Not running',
+      progress: 0,
+    }
+  );
+};
+
+export const removeImportProgress = (filePath: string) => {
+  importProgressCache.delete(filePath);
+};
+
 export const importFile = async (
   filePath: string,
   replaceFileId?: string
 ): Promise<IResourceItem[]> => {
+  importProgressCache.set(filePath, {
+    text: `Analysing ${basename(filePath)}`,
+    progress: 0,
+  });
+
   const mimeType = await getMimeType(filePath);
   const category = getFileCategoryTag(mimeType, filePath);
   const categoryTag = categoryTags.find((tag) => tag.id === category);
@@ -729,6 +758,11 @@ export const importFile = async (
     }
   }
 
+  importProgressCache.set(filePath, {
+    text: `Initializing ${basename(filePath)}`,
+    progress: 0,
+  });
+
   if (categoryTag) {
     importedFile.definition.tags = [categoryTag.id];
   }
@@ -742,6 +776,11 @@ export const importFile = async (
   );
 
   for (let i = 0; i < resourceProcessorInstances.length; i += 1) {
+    importProgressCache.set(filePath, {
+      text: `Processing ${basename(filePath)}`,
+      progress: i / resourceProcessorInstances.length,
+    });
+
     const [, processor] = resourceProcessorInstances[i];
 
     const processedFiles = await processor.beforeFileImported(
@@ -752,6 +791,11 @@ export const importFile = async (
       preprocessedFiles = processedFiles;
     }
   }
+
+  importProgressCache.set(filePath, {
+    text: `Finalizing ${basename(filePath)}`,
+    progress: 1,
+  });
 
   let metadataForImport = await Promise.all(
     preprocessedFiles.map(async (resource) => {

@@ -56,11 +56,24 @@ const getSimpleButtonLabel = (label: string) =>
           kind={BUTTON_KIND.tertiary}
           overrides={simpleButtonLabelOverride}
         >
-          {label}
+          <RecativeBlock fontWeight={700}>{label}</RecativeBlock>
         </Button>
       </RecativeBlock>
     );
   };
+
+const labelButtonOverride: ButtonOverrides = {
+  BaseButton: {
+    style: ({ $theme }) => ({
+      width: '-webkit-fill-available',
+      paddingTop: '4px',
+      paddingBottom: '4px',
+      fontSize: $theme.typography.LabelSmall,
+      justifyContent: 'flex-start',
+      ':hover': { background: 'transparent' },
+    }),
+  },
+};
 
 const getLabelButton = (condition: IFilterLabels) =>
   function LabelButton() {
@@ -71,32 +84,19 @@ const getLabelButton = (condition: IFilterLabels) =>
       setSelectedLabel([condition]);
     }, [setSelectedLabel]);
 
-    const buttonOverride: ButtonOverrides = React.useMemo(
-      () => ({
-        BaseButton: {
-          style: ({ $theme }) => ({
-            width: '-webkit-fill-available',
-            paddingTop: '4px',
-            paddingBottom: '4px',
-            fontWeight: condition === selectedLabel?.[0] ? `bold` : `normal`,
-            fontSize: $theme.typography.LabelSmall,
-            justifyContent: 'flex-start',
-            ':hover': { background: 'transparent' },
-          }),
-        },
-      }),
-      [selectedLabel]
-    );
-
     return (
       <RecativeBlock className={css(treeLabelContentContainerStyle)}>
         <Button
           size={BUTTON_SIZE.compact}
           kind={BUTTON_KIND.tertiary}
           onClick={handleButtonClick}
-          overrides={buttonOverride}
+          overrides={labelButtonOverride}
         >
-          {condition.label}
+          <RecativeBlock
+            fontWeight={condition === selectedLabel?.[0] ? 700 : 500}
+          >
+            {condition.label}
+          </RecativeBlock>
         </Button>
       </RecativeBlock>
     );

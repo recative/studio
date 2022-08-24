@@ -1,21 +1,48 @@
 import * as React from 'react';
 import { useAtom } from 'jotai';
-import { useGetSet } from 'react-use';
-import { flatten } from 'lodash';
 
 import { FileUploader } from 'baseui/file-uploader';
+import { SIZE as BUTTON_SIZE } from 'baseui/button';
 import type { FileUploaderOverrides } from 'baseui/file-uploader';
 
 import { IResourceItem } from '@recative/definitions';
 
 import { WORKSPACE_CONFIGURATION } from 'stores/ProjectDetail';
-import { uploadSingleFile } from '../utils/uploadSingleFile';
+import { useUploader } from 'utils/hooks/useUploader';
 
 const fileUploaderOverrides: FileUploaderOverrides = {
   ContentMessage: {
     style: ({ $theme }) => ({
-      fontSize: $theme.typography.LabelSmall.fontSize,
+      maxWidth: '160px',
+      fontSize: $theme.typography.LabelXSmall.fontSize,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
     }),
+  },
+  ButtonComponent: {
+    props: {
+      size: BUTTON_SIZE.mini,
+      overrides: {
+        BaseButton: {
+          style: {
+            marginTop: '12px',
+            borderRadius: '0',
+          },
+        },
+      },
+    },
+  },
+  CancelButtonComponent: {
+    props: {
+      overrides: {
+        BaseButton: {
+          style: {
+            display: 'none',
+          },
+        },
+      },
+    },
   },
   FileDragAndDrop: {
     style: {
@@ -36,7 +63,12 @@ export const Uploader: React.FC<IUploaderProps> = ({
   onFinished,
 }) => {
   const [workspaceConfiguration] = useAtom(WORKSPACE_CONFIGURATION);
-  const [getProgress, setProgress] = useGetSet(-1);
+
+  const { error, handleDrop, progressAmount, progressMessage } = useUploader(
+    onProgressChange,
+    onFinished,
+    undefined
+  );
 
   if (!workspaceConfiguration) {
     return <>Workspace is not ready, unable to initialize uploader</>;
@@ -46,33 +78,10 @@ export const Uploader: React.FC<IUploaderProps> = ({
     <FileUploader
       disabled={disabled}
       overrides={fileUploaderOverrides}
-      progressAmount={getProgress() === -1 ? undefined : getProgress()}
-      progressMessage={getProgress() !== -1 ? `Importing Files...` : ''}
-      onDrop={async (acceptedFiles) => {
-        setProgress(0);
-        let taskFinished = 0;
-        let containGroup = false;
-        const files = await Promise.all(
-          acceptedFiles.map(async (file) => {
-            const result = await uploadSingleFile(file);
-
-            if (result.find((x) => x.type === 'group')) {
-              containGroup = true;
-            }
-
-            taskFinished += 1;
-            setProgress(
-              Math.round((taskFinished / acceptedFiles.length) * 100)
-            );
-            onProgressChange();
-
-            return result;
-          })
-        );
-
-        onFinished?.(flatten(files), containGroup);
-        setProgress(-1);
-      }}
+      errorMessage={error}
+      progressAmount={progressAmount}
+      progressMessage={progressMessage}
+      onDrop={handleDrop}
     />
   );
 };
