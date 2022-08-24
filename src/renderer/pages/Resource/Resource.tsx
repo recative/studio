@@ -652,7 +652,12 @@ const InternalResource: React.FC = () => {
           </RecativeBlock>
           <ResourceTree />
         </RecativeBlock>
-        <RecativeBlock gridArea="upload" margin="16px">
+        <RecativeBlock
+          gridArea="upload"
+          marginLeft="16px"
+          marginRight="16px"
+          marginTop="16px"
+        >
           <Uploader
             disabled={databaseLocked}
             onProgressChange={updateResources}

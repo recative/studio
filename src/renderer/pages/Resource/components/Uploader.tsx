@@ -4,11 +4,25 @@ import { useGetSet } from 'react-use';
 import { flatten } from 'lodash';
 
 import { FileUploader } from 'baseui/file-uploader';
+import type { FileUploaderOverrides } from 'baseui/file-uploader';
 
 import { IResourceItem } from '@recative/definitions';
 
 import { WORKSPACE_CONFIGURATION } from 'stores/ProjectDetail';
 import { uploadSingleFile } from '../utils/uploadSingleFile';
+
+const fileUploaderOverrides: FileUploaderOverrides = {
+  ContentMessage: {
+    style: ({ $theme }) => ({
+      fontSize: $theme.typography.LabelSmall.fontSize,
+    }),
+  },
+  FileDragAndDrop: {
+    style: {
+      padding: '36px 8px',
+    },
+  },
+};
 
 interface IUploaderProps {
   disabled?: boolean;
@@ -31,22 +45,9 @@ export const Uploader: React.FC<IUploaderProps> = ({
   return (
     <FileUploader
       disabled={disabled}
-      overrides={{
-        ContentMessage: {
-          style: ({ $theme }) => ({
-            fontSize: $theme.typography.LabelSmall.fontSize,
-          }),
-        },
-        FileDragAndDrop: {
-          style: () => ({
-            padding: '36px 8px',
-          }),
-        },
-      }}
+      overrides={fileUploaderOverrides}
       progressAmount={getProgress() === -1 ? undefined : getProgress()}
-      progressMessage={
-        getProgress() !== -1 ? `Importing... ${getProgress()}% of 100%` : ''
-      }
+      progressMessage={getProgress() !== -1 ? `Importing Files...` : ''}
       onDrop={async (acceptedFiles) => {
         setProgress(0);
         let taskFinished = 0;
