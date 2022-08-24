@@ -797,18 +797,6 @@ export const importFile = async (
     progress: 1,
   });
 
-  let metadataForImport = await Promise.all(
-    preprocessedFiles.map(async (resource) => {
-      if (resource.type !== 'file') {
-        return resource;
-      }
-
-      const metadata = importedFileToFile(resource);
-
-      return metadata;
-    })
-  );
-
   if (replacedFile && replaceFileId) {
     const replacedFileGroupId = replacedFile.resourceGroupId;
 
@@ -816,15 +804,61 @@ export const importFile = async (
     await removeFileFromGroup(replacedFile);
 
     if (replacedFileGroupId) {
-      metadataForImport = metadataForImport.filter((x) => x.type === 'file');
+      preprocessedFiles = preprocessedFiles.filter((x) => x.type === 'file');
 
-      for (let i = 0; i < metadataForImport.length; i += 1) {
-        const resource = metadataForImport[i];
+      for (let i = 0; i < preprocessedFiles.length; i += 1) {
+        const resource = preprocessedFiles[i];
 
         resource.resourceGroupId = replacedFileGroupId;
       }
     }
   }
+
+  const groupMap = new Map<string, IResourceGroup>();
+  const fileMap = new Map<string, IResourceFile>();
+
+  for (let i = 0; i < preprocessedFiles.length; i += 1) {
+    const resourceDefinition = preprocessedFiles[i];
+
+    if (resourceDefinition.type === 'group') {
+      groupMap.set(resourceDefinition.id, resourceDefinition);
+    } else if (resourceDefinition.type === 'file') {
+      fileMap.set(
+        resourceDefinition.id,
+        await importedFileToFile(resourceDefinition)
+      );
+    }
+  }
+
+  for (const [, postProcessedGroup] of groupMap) {
+    const postProcessedFiles = preprocessedFiles.filter(
+      (x) => x.type === 'file' && x.resourceGroupId === postProcessedGroup.id
+    ) as (IPostProcessedResourceFileForImport | IResourceFile)[];
+
+    for (let i = 0; i < resourceProcessorInstances.length; i += 1) {
+      const [, processor] = resourceProcessorInstances[i];
+
+      const processedFiles = await processor.afterGroupCreated(
+        postProcessedFiles,
+        postProcessedGroup
+      );
+
+      if (!processedFiles) continue;
+
+      groupMap.set(processedFiles.group.id, processedFiles.group);
+
+      for (let j = 0; j < processedFiles.files.length; j += 1) {
+        const postProcessedFile = processedFiles.files[j];
+
+        fileMap.set(
+          postProcessedFile.id,
+          await importedFileToFile(postProcessedFile)
+        );
+      }
+    }
+  }
+
+  const metadataForImport = [...groupMap.values(), ...fileMap.values()];
 
   await updateOrInsertResources(metadataForImport);
 

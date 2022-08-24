@@ -10,8 +10,12 @@ import type { IPostProcessedResourceFileForImport } from '@recative/extension-sd
 import { getResourceFilePath } from '../../../utils/getResourceFile';
 
 export const importedFileToFile = async (
-  file: IPostProcessedResourceFileForImport
+  file: IPostProcessedResourceFileForImport | IResourceFile
 ): Promise<IResourceFile> => {
+  if (!('postProcessedFile' in file || 'postProcessedThumbnail' in file)) {
+    return file;
+  }
+
   const {
     postProcessedFile,
     postProcessedThumbnail,
