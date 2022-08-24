@@ -7,6 +7,7 @@ import {
   audioCategoryTag,
   videoRoleResourceTag,
   audioRoleResourceTag,
+  videoGroupResourceTag,
 } from '@recative/definitions';
 import {
   ffmpeg,
@@ -69,6 +70,8 @@ export class VideoSplitProcessor extends ResourceProcessor<
       );
 
       const resourceGroup = new ResourceGroup();
+
+      resourceGroup.definition.tags.push(videoGroupResourceTag.id);
 
       const videoStream = metadata.streams.find(
         (x) => x.codec_type === 'video'

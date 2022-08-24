@@ -120,7 +120,14 @@ const MOCK_DATA = [
         id: 11,
         label: getLabelButton({
           label: 'Video',
-          tags: ['role:video', 'group:video', 'category:video'],
+          tags: [
+            'role:video',
+            'group:video',
+            'category:video',
+            'role:video!',
+            'group:video!',
+            'category:video!',
+          ],
           episodeIds: null,
         }),
       },
@@ -128,7 +135,12 @@ const MOCK_DATA = [
         id: 12,
         label: getLabelButton({
           label: 'Audio',
-          tags: ['role:audio', 'category:audio'],
+          tags: [
+            'role:audio',
+            'category:audio',
+            'role:audio!',
+            'category:audio!',
+          ],
           episodeIds: null,
         }),
       },
@@ -136,7 +148,12 @@ const MOCK_DATA = [
         id: 13,
         label: getLabelButton({
           label: 'Texture',
-          tags: ['group:texture', 'category:image'],
+          tags: [
+            'group:texture',
+            'category:image',
+            'group:texture!',
+            'category:image!',
+          ],
           episodeIds: null,
         }),
       },
@@ -152,7 +169,12 @@ const MOCK_DATA = [
         id: 15,
         label: getLabelButton({
           label: 'Subtitle',
-          tags: ['role:subtitle', 'category:subtitle'],
+          tags: [
+            'role:subtitle',
+            'category:subtitle',
+            'role:subtitle!',
+            'category:subtitle!',
+          ],
           episodeIds: null,
         }),
       },
