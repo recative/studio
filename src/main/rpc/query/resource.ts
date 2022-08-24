@@ -35,6 +35,7 @@ import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../utils/getResourceFile';
 import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
 import { injectResourceUrlForResourceManager } from '../../utils/injectResourceUrl';
+import { cleanupLoki } from './utils';
 
 type GroupTag = typeof groupTags[number];
 
@@ -743,6 +744,9 @@ export const importFile = async (
   const importedFile = new ResourceFileForImport();
 
   importedFile.definition.label = parsePath(filePath).name;
+  if (replacedFile) {
+    importedFile.cloneFrom(cleanupLoki(replacedFile));
+  }
   await importedFile.addFile(filePath);
 
   if (replacedFile) {

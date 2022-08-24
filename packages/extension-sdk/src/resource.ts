@@ -197,6 +197,8 @@ export class ResourceFileForImport {
         ? x.definition
         : (x as IPostProcessedResourceFileForImport);
 
+    // TODO: Implement a better strategy to merge tags and other configs.
+
     this.definition = {
       ...this.definition,
       ...JSON.parse(JSON.stringify(definition)),
