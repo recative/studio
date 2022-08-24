@@ -831,7 +831,8 @@ export const importFile = async (
   }
 
   for (const [, postProcessedGroup] of groupMap) {
-    const postProcessedFiles = preprocessedFiles.filter(
+    const convertedFiles = [...fileMap.values()];
+    const postProcessedFiles = convertedFiles.filter(
       (x) => x.type === 'file' && x.resourceGroupId === postProcessedGroup.id
     ) as (IPostProcessedResourceFileForImport | IResourceFile)[];
 
