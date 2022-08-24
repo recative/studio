@@ -11,7 +11,7 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import type { FileUploaderOverrides, StyleProps } from 'baseui/file-uploader';
+import type { FileUploaderOverrides } from 'baseui/file-uploader';
 
 import type { IResourceFile } from '@recative/definitions';
 
@@ -21,7 +21,10 @@ export interface IReplaceFileModalProps {
   isOpen: boolean;
   fileId?: string;
   multipleFileError?: boolean;
-  onReplaced: (file: IResourceFile) => void;
+  /**
+   * The old file to be replaced and new file created by resource extensions.
+   */
+  onReplaced: (oldFileId: string, newFiles: IResourceFile[]) => void;
   onClose: () => void;
 }
 
@@ -39,6 +42,11 @@ const fileUploaderOverrides: FileUploaderOverrides = {
   },
 };
 
+/**
+ * A modal to help user replace their files, base-ui allows user to drop multiple
+ * file but we'll only use the first file here, since only one fill could be
+ * replaced.
+ */
 export const ReplaceFileModal: React.FC<IReplaceFileModalProps> = ({
   isOpen,
   onReplaced,
@@ -52,14 +60,22 @@ export const ReplaceFileModal: React.FC<IReplaceFileModalProps> = ({
     async (files: File[]) => {
       if (files.length !== 1) {
         setError('Please select a single file');
+        return;
       }
 
       if (!fileId) {
         setError('Please select a file to replace');
+        return;
       }
 
-      const resource = await uploadSingleFile(files[0], fileId);
-      onReplaced(resource[0] as IResourceFile);
+      const resources = await uploadSingleFile(files[0], fileId);
+
+      onReplaced(
+        fileId,
+        // It's safe to filter these file since on the server side, we add all
+        // files to the group of replaced file, and no new group will be created.
+        resources.filter((x) => x.type === 'file') as IResourceFile[]
+      );
       onClose();
     },
     [fileId, onReplaced, onClose]
