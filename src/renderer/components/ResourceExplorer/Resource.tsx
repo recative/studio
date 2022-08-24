@@ -22,6 +22,9 @@ const thumbnailStyle: StyleObject = {
   height: '120px',
   minHeight: '120px',
   display: 'block',
+  pointerEvents: 'none',
+  backgroundColor: 'rgba(0, 0, 0, 0.1)',
+  objectFit: 'contain',
 };
 
 const resourceItemStyles: StyleObject = {
@@ -64,15 +67,13 @@ export const InternalResource: React.FC<IResourceProps> = ({
             <Pattern className={css(thumbnailStyle)} val={id} />
           )}
           {thumbnailSrc && (
-            <div
+            <img
               className={css(thumbnailStyle)}
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                backgroundImage: `url(${thumbnailSrc})`,
-                backgroundSize: 'contain',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center center',
-              }}
+              alt={`Thumbnail of ${fileName}`}
+              src={thumbnailSrc}
+              width={160}
+              height={120}
+              loading="lazy"
             />
           )}
           <LabelSmall className={css(labelStyles)}>
