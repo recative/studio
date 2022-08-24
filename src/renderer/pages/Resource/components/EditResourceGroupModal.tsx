@@ -810,8 +810,6 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
 
     const databaseLocked = useDatabaseLocked();
 
-    console.log(theme.colors.buttonDisabledText);
-
     return (
       <Modal
         onClose={handleModalClose}
