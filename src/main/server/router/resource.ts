@@ -3,13 +3,9 @@ import { createReadStream, statSync } from 'fs';
 import { existsSync } from 'fs-extra';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 
-import {
-  cleanUpResourceListForClient,
-  IResourceGroup,
-} from '@recative/definitions';
+import { cleanUpResourceListForClient } from '@recative/definitions';
 import type { IResourceFile } from '@recative/definitions';
 
-import { IPostProcessedResourceFileForUpload } from '@recative/extension-sdk';
 import { cleanupLoki } from '../../rpc/query';
 import { getDbFromRequest } from '../utils/getDbFromRequest';
 import { getResourceFilePath } from '../../utils/getResourceFile';
