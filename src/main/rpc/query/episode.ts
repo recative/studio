@@ -19,7 +19,6 @@ import { getResourceProcessorInstances } from '../../utils/getExtensionInstances
 
 import type { ProfileConfig } from '../../dataGenerationProfiles';
 
-import { getResource } from './resource';
 import { cleanupLoki } from './utils';
 
 export const getResourceAndActPoints = async (itemIds: string[]) => {
@@ -63,57 +62,70 @@ export const getResourceListOfEpisode = async (
   log.log(`:: :: :: [${episodeId}] [query] Took ${currentTime - lastTime} ms`);
   lastTime = currentTime;
 
-  const resourceFiles = await profile.injectResourceUrls(
-    await Promise.all(
-      [
-        ...db.resource.resources.find({
-          $or: [
-            { episodeIds: { $contains: episodeId }, removed: false },
-            { episodeIds: { $size: 0 }, removed: false },
-          ],
-        }),
-        ...db.resource.postProcessed
-          .find({
-            $or: [
-              { episodeIds: { $contains: episodeId }, removed: false },
-              { episodeIds: { $size: 0 }, removed: false },
-            ],
-          })
-          .filter((x) =>
-            x.postProcessRecord.mediaBundleId.includes(mediaBundleId)
-          ),
-      ].map(async (x) => {
-        if (x.type === 'group') return x;
+  const importedResourceFiles = db.resource.resources
+    .find({
+      $or: [
+        { episodeIds: { $contains: episodeId }, removed: false },
+        { episodeIds: { $size: 0 }, removed: false },
+      ],
+    })
+    .map((x) => {
+      if (x.type === 'group') return x;
 
-        const latestResource = await getResource(x.id);
+      const latestResource = db0.resource.resources.findOne({ id: x.id });
 
-        if (!latestResource) {
-          return x;
-        }
+      if (!latestResource) {
+        return x;
+      }
 
-        if (latestResource.type === 'group') {
-          throw new TypeError('Mismatch resource type');
-        }
+      if (latestResource.type === 'group') {
+        throw new TypeError('Mismatch resource type');
+      }
 
-        return {
-          ...x,
-          url: latestResource.url,
-        };
-      })
-    )
-  );
+      return {
+        ...x,
+        url: latestResource.url,
+      };
+    });
+
+  const groupIds = [
+    ...new Set(importedResourceFiles.map((x) => x.resourceGroupId)),
+  ].filter(Boolean);
+
+  const importedResourceGroups = db.resource.resources.find({
+    id: {
+      $in: groupIds,
+    },
+  });
+
+  const postProcessedResourceFiles = db.resource.postProcessed
+    .find({
+      $or: [
+        { episodeIds: { $contains: episodeId }, removed: false },
+        { episodeIds: { $size: 0 }, removed: false },
+      ],
+    })
+    .filter((x) => x.postProcessRecord.mediaBundleId.includes(mediaBundleId));
+
+  const queriedResources = [
+    ...importedResourceFiles,
+    ...importedResourceGroups,
+    ...postProcessedResourceFiles,
+  ];
+
+  const injectedResources = await profile.injectResourceUrls(queriedResources);
 
   currentTime = performance.now();
   log.log(`:: :: :: [${episodeId}] [inject] Took ${currentTime - lastTime} ms`);
   lastTime = currentTime;
 
   const resourceGroups = db.resource.resources.find({
-    files: { $containsAny: resourceFiles.map((x) => x.id) },
+    files: { $containsAny: injectedResources.map((x) => x.id) },
   });
 
   let resources: (PostProcessedResourceItemForUpload | IResourceItem)[] =
     JSON.parse(
-      JSON.stringify([...resourceFiles, ...resourceGroups].map(cleanupLoki))
+      JSON.stringify([...injectedResources, ...resourceGroups].map(cleanupLoki))
     );
 
   currentTime = performance.now();
@@ -128,12 +140,6 @@ export const getResourceListOfEpisode = async (
     const [extensionKey, extension] = extensionInstances[i];
 
     try {
-      log.log(
-        '::> ',
-        typeof resources,
-        Object.prototype.toString.call(resources),
-        Array.isArray(resources)
-      );
       const processResult = await extension.beforePublishApplicationBundle(
         resources,
         request.type
