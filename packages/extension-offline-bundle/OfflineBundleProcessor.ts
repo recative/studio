@@ -1,4 +1,4 @@
-/* eslint-disable no-await-in-loop */
+import log from 'electron-log';
 import { nanoid } from 'nanoid';
 import { ResourceProcessor } from '@recative/extension-sdk';
 
@@ -277,7 +277,7 @@ export class OfflineBundleProcessor extends ResourceProcessor<
             Level.Error
           );
 
-          console.error(error);
+          log.error(error);
         } else {
           this.dependency.logToTerminal(
             `:: :: :: :: [${id}] ${JSON.stringify(error)}`,

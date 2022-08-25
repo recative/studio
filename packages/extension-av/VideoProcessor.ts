@@ -1,17 +1,12 @@
 import { ResourceProcessor, Writable } from '@recative/extension-sdk';
 import {
-  IResourceItem,
   IResourceFile,
   IResourceGroup,
   videoCategoryTag,
   videoRoleResourceTag,
   videoGroupResourceTag,
 } from '@recative/definitions';
-import type {
-  PostProcessedResourceItemForUpload,
-  IPostProcessedResourceFileForUpload,
-  IPostProcessedResourceFileForImport,
-} from '@recative/extension-sdk';
+import type { IPostProcessedResourceFileForImport } from '@recative/extension-sdk';
 
 export interface OfflineBundleConfig {
   enable: string;
@@ -28,10 +23,8 @@ export class VideoProcessor extends ResourceProcessor<
 
   static nonMergeableResourceExtensionConfiguration = [];
 
-  async beforePublishMediaBundle(
-    resources: IPostProcessedResourceFileForUpload[]
-  ) {
-    return resources;
+  async beforePublishMediaBundle() {
+    return null;
   }
 
   afterGroupCreated(
@@ -66,10 +59,8 @@ export class VideoProcessor extends ResourceProcessor<
     return null;
   }
 
-  beforePublishApplicationBundle = async (
-    resources: (PostProcessedResourceItemForUpload | IResourceItem)[]
-  ) => {
-    return resources;
+  beforePublishApplicationBundle = async () => {
+    return null;
   };
 
   beforeFileImported = async (

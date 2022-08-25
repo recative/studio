@@ -1,13 +1,14 @@
-/* eslint-disable no-await-in-loop */
-import { cloneDeep, groupBy } from 'lodash';
+import log from 'electron-log';
+import { groupBy } from 'lodash';
 
 import { cleanUpResourceListForClient } from '@recative/definitions';
 import type {
-  IEpisode,
-  IResourceItem,
-  IActPoint,
   IAsset,
+  IEpisode,
+  IActPoint,
+  IResourceItem,
 } from '@recative/definitions';
+import type { PostProcessedResourceItemForUpload } from '@recative/extension-sdk';
 
 import { getClientSideAssetList } from './asset';
 
@@ -19,6 +20,7 @@ import { getResourceProcessorInstances } from '../../utils/getExtensionInstances
 import type { ProfileConfig } from '../../dataGenerationProfiles';
 
 import { getResource } from './resource';
+import { cleanupLoki } from './utils';
 
 export const getResourceAndActPoints = async (itemIds: string[]) => {
   const db = await getDb();
@@ -42,6 +44,9 @@ export const getResourceListOfEpisode = async (
   const db0 = await getDb();
   const db = await (dbPromise || getDb());
 
+  let lastTime = performance.now();
+  let currentTime = performance.now();
+
   const profile = getProfile(request);
 
   const mediaBundleId =
@@ -53,6 +58,10 @@ export const getResourceListOfEpisode = async (
           .limit(1)
           .find({})
           .data()[0].id;
+
+  currentTime = performance.now();
+  log.log(`:: :: :: [${episodeId}] [query] Took ${currentTime - lastTime} ms`);
+  lastTime = currentTime;
 
   const resourceFiles = await profile.injectResourceUrls(
     await Promise.all(
@@ -94,30 +103,68 @@ export const getResourceListOfEpisode = async (
     )
   );
 
+  currentTime = performance.now();
+  log.log(`:: :: :: [${episodeId}] [inject] Took ${currentTime - lastTime} ms`);
+  lastTime = currentTime;
+
   const resourceGroups = db.resource.resources.find({
     files: { $containsAny: resourceFiles.map((x) => x.id) },
   });
 
-  let resources = cloneDeep([...resourceFiles, ...resourceGroups]);
+  let resources: (PostProcessedResourceItemForUpload | IResourceItem)[] =
+    JSON.parse(
+      JSON.stringify([...resourceFiles, ...resourceGroups].map(cleanupLoki))
+    );
+
+  currentTime = performance.now();
+  log.log(`:: :: :: [${episodeId}] [clone] Took ${currentTime - lastTime} ms`);
+  lastTime = currentTime;
 
   const extensionInstances = Object.entries(
     await getResourceProcessorInstances('')
   );
 
   for (let i = 0; i < extensionInstances.length; i += 1) {
-    const [, extension] = extensionInstances[i];
+    const [extensionKey, extension] = extensionInstances[i];
 
-    const processResult = await extension.beforePublishApplicationBundle(
-      resources,
-      request.type
-    );
-
-    if (processResult) {
-      resources = processResult as typeof resources;
+    try {
+      log.log(
+        '::> ',
+        typeof resources,
+        Object.prototype.toString.call(resources),
+        Array.isArray(resources)
+      );
+      const processResult = await extension.beforePublishApplicationBundle(
+        resources,
+        request.type
+      );
+      if (processResult) {
+        resources = processResult;
+      }
+    } catch (e) {
+      log.error(e);
+      throw e;
     }
+
+    const splittedKey = extensionKey.split('/');
+
+    currentTime = performance.now();
+    log.log(
+      `:: :: :: [${episodeId}] [${
+        splittedKey[splittedKey.length - 1]
+      }] [b4PublishBundle] Took ${currentTime - lastTime} ms`
+    );
+    lastTime = currentTime;
   }
 
-  return cleanUpResourceListForClient(resources, false);
+  const cleanupResult = cleanUpResourceListForClient(resources, false);
+
+  currentTime = performance.now();
+  log.log(
+    `:: :: :: [${episodeId}] [cleanup] Took ${currentTime - lastTime} ms`
+  );
+
+  return cleanupResult;
 };
 
 export const listEpisodes = async (
@@ -174,7 +221,8 @@ export const getEpisodeList = async (
 export const getEpisodeDetail = async (
   requestId: string,
   request: ProfileConfig,
-  dbPromise: ReturnType<typeof getDb> | null = null
+  dbPromise: ReturnType<typeof getDb> | null = null,
+  skipResources = false
 ) => {
   const db = await (dbPromise || getDb());
 
@@ -207,15 +255,13 @@ export const getEpisodeDetail = async (
   );
 
   try {
-    const resources = await getResourceListOfEpisode(
-      episode.id,
-      request,
-      dbPromise
-    );
+    const resources = skipResources
+      ? []
+      : await getResourceListOfEpisode(episode.id, request, dbPromise);
 
     const key = episode.id;
 
-    return { episode, assets, resources, key };
+    return { episode: cleanupLoki(episode), assets, resources, key };
   } catch (e) {
     if (e instanceof Error) {
       e.message = `Failed to get resource list of ${requestId}: ${e.message}`;
@@ -229,7 +275,8 @@ export const getEpisodeDetail = async (
 export const getEpisodeDetailList = async (
   episodeIds: string[] | null = null,
   request: ProfileConfig,
-  dbPromise: ReturnType<typeof getDb> | null = null
+  dbPromise: ReturnType<typeof getDb> | null = null,
+  skipResources = false
 ) => {
   const internalEpisodeIds =
     episodeIds ??
@@ -239,7 +286,7 @@ export const getEpisodeDetailList = async (
 
   return Promise.all(
     internalEpisodeIds.map((episodeId) =>
-      getEpisodeDetail(episodeId, request, dbPromise)
+      getEpisodeDetail(episodeId, request, dbPromise, skipResources)
     )
   );
 };

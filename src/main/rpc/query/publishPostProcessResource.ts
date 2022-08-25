@@ -112,11 +112,15 @@ export const postProcessResource = async (
       `:: Postprocessing with ${serviceProviderLabel}!`
     );
 
-    resourceToBePostProcessed = await processor.beforePublishMediaBundle(
+    const processResult = await processor.beforePublishMediaBundle(
       resourceToBePostProcessed,
       mediaReleaseId,
       resourceBundleGroups
     );
+
+    if (processResult) {
+      resourceToBePostProcessed = processResult;
+    }
   }
 
   // Filter out all resource that post processed for this build, add it to the

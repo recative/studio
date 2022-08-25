@@ -396,8 +396,9 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
     mediaBuildId: number,
     bundleGroups: IBundleGroup[]
   ):
-    | Promise<PostProcessedResourceItemForUpload[]>
-    | PostProcessedResourceItemForUpload[];
+    | Promise<PostProcessedResourceItemForUpload[] | null>
+    | PostProcessedResourceItemForUpload[]
+    | null;
 
   abstract beforePublishApplicationBundle(
     resources: (PostProcessedResourceItemForUpload | IResourceItem)[],

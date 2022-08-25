@@ -2,7 +2,6 @@
 /* eslint-disable no-restricted-syntax */
 
 import {
-  IResourceItem,
   videoCategoryTag,
   audioCategoryTag,
   videoRoleResourceTag,
@@ -16,7 +15,6 @@ import {
   ResourceFileForImport,
 } from '@recative/extension-sdk';
 import type {
-  PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForUpload,
   PostProcessedResourceItemForImport,
   IPostProcessedResourceFileForImport,
@@ -47,10 +45,8 @@ export class VideoSplitProcessor extends ResourceProcessor<
     return null;
   }
 
-  beforePublishApplicationBundle = async (
-    resources: (PostProcessedResourceItemForUpload | IResourceItem)[]
-  ) => {
-    return resources;
+  beforePublishApplicationBundle = async () => {
+    return null;
   };
 
   beforeFileImported = async (
