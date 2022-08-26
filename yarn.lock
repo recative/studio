@@ -4691,6 +4691,7 @@ __metadata:
     eslint-plugin-react: ^7.29.4
     eslint-plugin-react-hooks: ^4.4.0
     faker: ^5.5.3
+    fast-copy: ^2.1.3
     fastify: 4.4.0
     file-loader: ^6.0.0
     file-type: ^16.5.3
@@ -11922,6 +11923,13 @@ __metadata:
   version: 5.5.3
   resolution: "faker@npm:5.5.3"
   checksum: 684fd64c8d3897e54248f95b4f6319f75d97691b8500cd13adf4af2c28f9204f766c1d1aaa6b41338f0beaaa87256c3132f8708a1a8f189d122b92f6b98081c3
+  languageName: node
+  linkType: hard
+
+"fast-copy@npm:^2.1.3":
+  version: 2.1.3
+  resolution: "fast-copy@npm:2.1.3"
+  checksum: 5d1a4a218304893ed0c4593b5d21b282202f9e74ed33fee261c0c574e81003863e0c6fd0d857451dfe15f3e1919acd8084ce52c2457c9410e61e1aea9b388029
   languageName: node
   linkType: hard
 

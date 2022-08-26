@@ -1,3 +1,4 @@
+import { produce } from 'immer';
 import { IBundleProfile } from '@recative/extension-sdk';
 import type {
   ClientProfile,
@@ -26,16 +27,16 @@ export class BundlerProfile implements ClientProfile {
   };
 
   injectResourceUrls: InjectResourceUrlsFunction = (x) => {
-    const result = x.map((resource) => {
-      if (
-        ifResourceIncludedInBundle(resource, this.mediaReleaseId, this.profile)
-      ) {
-        return injectResourceUrlForPlayerShells([resource])[0];
-      }
+    return produce(x, (resources) => {
+      const filteredResources = resources.filter((resource) => {
+        return ifResourceIncludedInBundle(
+          resource,
+          this.mediaReleaseId,
+          this.profile
+        );
+      });
 
-      return resource;
+      injectResourceUrlForPlayerShells(filteredResources);
     });
-
-    return result;
   };
 }

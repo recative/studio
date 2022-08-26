@@ -1,12 +1,12 @@
 /* eslint-disable no-await-in-loop */
 import log from 'electron-log';
-import { cloneDeep } from 'lodash';
 import { copyFile, writeFile } from 'fs/promises';
 
 import { Writable } from '@recative/extension-sdk';
 import type { IResourceFile } from '@recative/definitions';
 import type { IPostProcessedResourceFileForImport } from '@recative/extension-sdk';
 
+import { cloneDeep } from '../../../utils/cloneDeep';
 import { getResourceFilePath } from '../../../utils/getResourceFile';
 
 export const importedFileToFile = async (

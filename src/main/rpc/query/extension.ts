@@ -1,9 +1,10 @@
+import { pick } from 'lodash';
 import { join } from 'path';
 import { emptyDir } from 'fs-extra';
-import { pick, cloneDeep } from 'lodash';
 
 import type { IConfigUiField } from '@recative/extension-sdk';
 
+import { cloneDeep } from '../../utils/cloneDeep';
 import { extensions } from '../../extensions';
 
 import { getDb } from '../db';

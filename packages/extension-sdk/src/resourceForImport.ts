@@ -26,7 +26,7 @@ export const getFileHash = async (x: string | Buffer) => {
   };
 };
 
-export class ResourceGroup {
+export class ResourceGroupForImport {
   public definition: Writable<IResourceGroup> = {
     type: 'group',
     id: nanoid(),
@@ -131,11 +131,11 @@ export class ResourceFileForImport {
     }
   };
 
-  addToGroup = (group: ResourceGroup) => {
+  addToGroup = (group: ResourceGroupForImport) => {
     group.addFile(this);
   };
 
-  removeFromGroup = (group: ResourceGroup) => {
+  removeFromGroup = (group: ResourceGroupForImport) => {
     group.removeFile(this);
   };
 

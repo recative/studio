@@ -1,4 +1,5 @@
 import log from 'electron-log';
+import { produce } from 'immer';
 import { groupBy } from 'lodash';
 
 import { cleanUpResourceListForClient } from '@recative/definitions';
@@ -7,6 +8,7 @@ import type {
   IEpisode,
   IActPoint,
   IResourceItem,
+  IResourceItemForClient,
 } from '@recative/definitions';
 import type { PostProcessedResourceItemForUpload } from '@recative/extension-sdk';
 
@@ -15,6 +17,7 @@ import { getClientSideAssetList } from './asset';
 import { getDb } from '../db';
 
 import { getProfile } from '../../dataGenerationProfiles';
+import { PerformanceLog } from '../../utils/performanceLog';
 import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
 
 import type { ProfileConfig } from '../../dataGenerationProfiles';
@@ -43,8 +46,7 @@ export const getResourceListOfEpisode = async (
   const db0 = await getDb();
   const db = await (dbPromise || getDb());
 
-  let lastTime = performance.now();
-  let currentTime = performance.now();
+  const logPerformance = PerformanceLog(episodeId);
 
   const profile = getProfile(request);
 
@@ -58,9 +60,7 @@ export const getResourceListOfEpisode = async (
           .find({})
           .data()[0].id;
 
-  currentTime = performance.now();
-  log.log(`:: :: :: [${episodeId}] [query] Took ${currentTime - lastTime} ms`);
-  lastTime = currentTime;
+  logPerformance('init');
 
   const importedResourceFiles = db.resource.resources
     .find({
@@ -113,62 +113,58 @@ export const getResourceListOfEpisode = async (
     ...postProcessedResourceFiles,
   ];
 
-  const injectedResources = await profile.injectResourceUrls(queriedResources);
+  logPerformance('query');
 
-  currentTime = performance.now();
-  log.log(`:: :: :: [${episodeId}] [inject] Took ${currentTime - lastTime} ms`);
-  lastTime = currentTime;
+  const cleanedResources = queriedResources.map(cleanupLoki) as (
+    | PostProcessedResourceItemForUpload
+    | IResourceItemForClient
+  )[];
 
-  const resourceGroups = db.resource.resources.find({
-    files: { $containsAny: injectedResources.map((x) => x.id) },
+  logPerformance('clear');
+
+  const injectedResources = await produce(cleanedResources, async (x) => {
+    return profile.injectResourceUrls(x);
   });
 
-  let resources: (PostProcessedResourceItemForUpload | IResourceItem)[] =
-    JSON.parse(
-      JSON.stringify([...injectedResources, ...resourceGroups].map(cleanupLoki))
-    );
-
-  currentTime = performance.now();
-  log.log(`:: :: :: [${episodeId}] [clone] Took ${currentTime - lastTime} ms`);
-  lastTime = currentTime;
+  logPerformance('inject');
 
   const extensionInstances = Object.entries(
     await getResourceProcessorInstances('')
   );
 
+  let postProcessedResources: (
+    | PostProcessedResourceItemForUpload
+    | IResourceItemForClient
+  )[] = injectedResources;
+
   for (let i = 0; i < extensionInstances.length; i += 1) {
     const [extensionKey, extension] = extensionInstances[i];
 
     try {
-      const processResult = await extension.beforePublishApplicationBundle(
-        resources,
-        request.type
+      postProcessedResources = await produce(
+        postProcessedResources,
+        async (draft) => {
+          const result = await extension.beforePublishApplicationBundle(
+            draft,
+            request.type
+          );
+
+          return result ?? draft;
+        }
       );
-      if (processResult) {
-        resources = processResult;
-      }
     } catch (e) {
       log.error(e);
       throw e;
     }
 
     const splittedKey = extensionKey.split('/');
-
-    currentTime = performance.now();
-    log.log(
-      `:: :: :: [${episodeId}] [${
-        splittedKey[splittedKey.length - 1]
-      }] [b4PublishBundle] Took ${currentTime - lastTime} ms`
-    );
-    lastTime = currentTime;
+    logPerformance(`b4PublishBundle - ${splittedKey[splittedKey.length - 1]}`);
   }
 
-  const cleanupResult = cleanUpResourceListForClient(resources, false);
-
-  currentTime = performance.now();
-  log.log(
-    `:: :: :: [${episodeId}] [cleanup] Took ${currentTime - lastTime} ms`
+  const cleanupResult = produce(postProcessedResources, (resource) =>
+    cleanUpResourceListForClient(resource, false)
   );
+  logPerformance(`cleanup`);
 
   return cleanupResult;
 };

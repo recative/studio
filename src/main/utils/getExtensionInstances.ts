@@ -4,7 +4,6 @@ import StreamZip from 'node-stream-zip';
 import { h32 } from 'xxhashjs';
 import { join } from 'path';
 import { fileSync } from 'tmp';
-import { cloneDeep } from 'lodash';
 import { createHash } from 'crypto';
 import { ensureDirSync, remove } from 'fs-extra';
 import { readFile, writeFile } from 'fs/promises';
@@ -35,6 +34,7 @@ import type { TerminalMessageLevel } from '@recative/studio-definitions';
 import { Category, IResourceFile } from '@recative/definitions';
 
 import { getDb } from '../rpc/db';
+import { cloneDeep } from './cloneDeep';
 import { extensions } from '../extensions';
 import { cleanupLoki } from '../rpc/query/utils';
 import { getWorkspace } from '../rpc/workspace';

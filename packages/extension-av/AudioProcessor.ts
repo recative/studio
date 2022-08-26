@@ -24,10 +24,8 @@ export class AudioProcessor extends ResourceProcessor<
 
   static nonMergeableResourceExtensionConfiguration = [];
 
-  async beforePublishMediaBundle(
-    resources: IPostProcessedResourceFileForUpload[]
-  ) {
-    return resources;
+  async beforePublishMediaBundle() {
+    return null;
   }
 
   afterGroupCreated() {

@@ -1,10 +1,4 @@
-/* eslint-disable no-await-in-loop */
-import { cloneDeep } from 'lodash';
-
-import {
-  languageResourceTags,
-  TerminalMessageLevel,
-} from '@recative/definitions';
+import { languageResourceTags } from '@recative/definitions';
 import type {
   IBundleGroup,
   PostProcessedResourceItemForUpload,
@@ -17,6 +11,7 @@ import { logToTerminal } from './terminal';
 
 import { getDb } from '../db';
 
+import { cloneDeep } from '../../utils/cloneDeep';
 import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
 import { getLokiCollectionFromMediaRelease } from '../../utils/getLokiCollectionFromMediaRelease';
 

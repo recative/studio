@@ -10,7 +10,7 @@ import {
 } from '@recative/definitions';
 import {
   ffmpeg,
-  ResourceGroup,
+  ResourceGroupForImport,
   ResourceProcessor,
   ResourceFileForImport,
 } from '@recative/extension-sdk';
@@ -35,10 +35,8 @@ export class VideoSplitProcessor extends ResourceProcessor<
 
   static nonMergeableResourceExtensionConfiguration = [];
 
-  async beforePublishMediaBundle(
-    resources: IPostProcessedResourceFileForUpload[]
-  ) {
-    return resources;
+  async beforePublishMediaBundle() {
+    return null;
   }
 
   afterGroupCreated() {
@@ -65,7 +63,7 @@ export class VideoSplitProcessor extends ResourceProcessor<
         videoResource.postProcessedFile
       );
 
-      const resourceGroup = new ResourceGroup();
+      const resourceGroup = new ResourceGroupForImport();
 
       resourceGroup.definition.tags.push(videoGroupResourceTag.id);
 

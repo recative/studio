@@ -1,8 +1,5 @@
-import {
-  IResourceItemForClient,
-  IDetailedResourceItemForClient,
-} from '@recative/definitions';
 import { IBundleProfile } from '@recative/extension-sdk';
+import { IResourceItemForClient } from '@recative/definitions';
 
 import {
   DESKTOP_SHELL_KEY,
@@ -21,58 +18,28 @@ const constructResourceManagerUrlPattern = (
   return `${resourceProtocol}://${resourceHostName}/resource/$resourceId/binary`;
 };
 
-export const injectResourceUrl = <
-  T extends IDetailedResourceItemForClient | IResourceItemForClient
->(
+export const injectResourceUrl = <T extends IResourceItemForClient>(
   resources: T[],
   pattern = constructResourceManagerUrlPattern('localhost:9999', 'http'),
   key = RESOURCE_MANAGER_KEY,
   filter: (x: T) => boolean = () => true
 ): T[] => {
-  return resources.map((resource) => {
+  for (let i = 0; i < resources.length; i += 1) {
+    const resource = resources[i];
+
     const filterResult = filter(resource);
+
     if (resource.type === 'file' && filterResult) {
       const url = pattern.replaceAll('$resourceId', resource.id);
-
-      return {
-        ...resource,
-        url: {
-          ...resource.url,
-          [key]: url,
-        },
-      };
+      resource.url[key] = url;
     }
-    if (resource.type === 'group') {
-      return {
-        ...resource,
-        files: resource.files.map((file) => {
-          if (typeof file === 'string') {
-            return file;
-          }
+  }
 
-          const internalFilterResult = filter(resource);
-
-          if (!internalFilterResult) {
-            return file;
-          }
-
-          const url = pattern.replaceAll('$resourceId', file.id);
-          return {
-            ...file,
-            url: {
-              ...file.url,
-              [key]: url,
-            },
-          };
-        }),
-      };
-    }
-    return resource;
-  }) as T[];
+  return resources;
 };
 
 export const injectResourceUrlForResourceManager = <
-  T extends IDetailedResourceItemForClient | IResourceItemForClient
+  T extends IResourceItemForClient
 >(
   resources: T[],
   resourceHost: string,
@@ -92,7 +59,7 @@ export const injectResourceUrlForResourceManager = <
 };
 
 export const injectResourceUrlForBundleProfile = <
-  T extends IDetailedResourceItemForClient | IResourceItemForClient
+  T extends IResourceItemForClient
 >(
   resources: T[],
   resourceHost: string,
@@ -113,7 +80,7 @@ export const injectResourceUrlForBundleProfile = <
 };
 
 export const injectResourceUrlForPlayerShells = <
-  T extends IDetailedResourceItemForClient | IResourceItemForClient
+  T extends IResourceItemForClient
 >(
   resources: T[]
 ): T[] => {

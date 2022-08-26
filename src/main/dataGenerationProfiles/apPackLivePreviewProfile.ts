@@ -1,9 +1,10 @@
 import type {
   ClientProfile,
-  InjectApEntryPointsFunction,
   InjectResourceUrlsFunction,
+  InjectApEntryPointsFunction,
 } from './types';
 
+import { PerformanceLog } from '../utils/performanceLog';
 import { injectByResourceProcessor } from './utils/postProcessPreviewResource';
 import { injectResourceUrlForResourceManager } from '../utils/injectResourceUrl';
 import { injectEntryPointUrlForApPackLivePreview } from '../utils/injectActPointUrl';
@@ -30,12 +31,17 @@ export class ApPackLivePreviewProfile implements ClientProfile {
   };
 
   injectResourceUrls: InjectResourceUrlsFunction = (x) => {
-    return injectByResourceProcessor(
-      injectResourceUrlForResourceManager(
-        x,
-        this.resourceHostName,
-        this.apProtocol
-      )
+    const logPerformance = PerformanceLog('inject-ru');
+    const step0 = injectResourceUrlForResourceManager(
+      x,
+      this.resourceHostName,
+      this.apProtocol
     );
+    logPerformance('0');
+
+    const step1 = injectByResourceProcessor(step0);
+    logPerformance('1');
+
+    return step1;
   };
 }
