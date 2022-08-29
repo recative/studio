@@ -10,6 +10,7 @@ import {
   KIND as BUTTON_KIND,
 } from 'baseui/button';
 import { Tabs, Tab } from 'baseui/tabs-motion';
+import { ErrorBoundary } from 'react-error-boundary';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
@@ -36,10 +37,6 @@ const PlayerContainerStyles = {
   flexGrow: 1,
 } as const;
 
-const iFrameStyles = {
-  border: 0,
-};
-
 const ENV_VARIABLE_EDITOR_BUTTON_OVERRIDES = {
   BaseButton: {
     style: {
@@ -49,6 +46,66 @@ const ENV_VARIABLE_EDITOR_BUTTON_OVERRIDES = {
     },
   },
 };
+
+const ErrorFallback = () => <>Oops</>;
+
+const InternalPlayerContainer: React.FC = () => {
+  const [previewAssetId] = useLocalStorageValue<string | undefined>(
+    SELECTED_ASSET_ID,
+    undefined
+  );
+
+  const iframeRef = React.useRef<HTMLIFrameElement>(
+    document.createElement('iframe')
+  );
+
+  React.useEffect(() => {
+    const $iframe = iframeRef.current;
+    $iframe.width = '100%';
+    $iframe.height = '100%';
+    $iframe.style.border = 'none';
+
+    if (!previewAssetId) {
+      $iframe.src = 'about:blank';
+    } else {
+      const $container = document.querySelector('#iframeContainer');
+      const url = new URL(window.location.href);
+      url.hash = `#/preview-player`;
+
+      if (!$container) {
+        throw new Error('Container not found');
+      }
+
+      $iframe.src = url.toString();
+      $container.appendChild($iframe);
+    }
+  }, [previewAssetId]);
+
+  React.useLayoutEffect(() => {
+    return () => {
+      // This is safe.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const $iframe = iframeRef.current;
+      $iframe.src = 'about:blank';
+
+      try {
+        $iframe.remove();
+      } catch (e) {
+        console.error(e);
+      }
+    };
+  }, []);
+
+  return <RecativeBlock id="iframeContainer" width="100%" height="100%" />;
+};
+
+export const PlayerContainer: React.FC = React.memo(() => {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <InternalPlayerContainer />
+    </ErrorBoundary>
+  );
+});
 
 const InternalPreview: React.FC = () => {
   const [css] = useStyletron();
@@ -69,9 +126,6 @@ const InternalPreview: React.FC = () => {
     handleEnvVariableSubmit,
   } = useEnvVariable(previewAssetId ?? null);
 
-  const url = new URL(window.location.href);
-  url.hash = `#/preview-player`;
-
   return (
     <PivotLayout>
       <RecativeBlock
@@ -85,17 +139,8 @@ const InternalPreview: React.FC = () => {
         overflow="clip"
       >
         <RecativeBlock className={playerContainerStyles}>
-          {previewAssetId ? (
-            <iframe
-              className={css(iFrameStyles)}
-              title="Recative Player"
-              width="100%"
-              height="100%"
-              src={url.toString()}
-            />
-          ) : (
-            <Loading />
-          )}
+          <PlayerContainer />
+          {!previewAssetId && <Loading />}
         </RecativeBlock>
         <RecativeBlock
           maxWidth="400px"
@@ -150,4 +195,4 @@ const InternalPreview: React.FC = () => {
   );
 };
 
-export const Preview = React.memo(InternalPreview);
+export const Preview: React.FC = React.memo(InternalPreview);
