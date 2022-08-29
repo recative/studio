@@ -4,6 +4,6 @@
   "main": "./manifest.ts",
   "dependencies": {
     "@napi-rs/canvas": "^0.1.25",
-    "@recative/atlas": "^0.0.0-dev.1"
+    "@recative/atlas": "^0.0.1"
   }
 }

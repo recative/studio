@@ -4264,9 +4264,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/act-player@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@recative/act-player@npm:0.1.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-player%2F0.1.1%2F02ff11f67af19f8c4246c567f207711ceda52b56"
+"@recative/act-player@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@recative/act-player@npm:0.2.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-player%2F0.2.0%2F4490f14fdbd68a5fbfc675c191647d4dda0adf27"
   dependencies:
     "@nanostores/react": 0.2.0
     "@react-hookz/web": ^12.3.0
@@ -4290,7 +4290,7 @@ __metadata:
     baseui: ^10.6.0
     react: ^18.1.0
     react-dom: ^18.1.0
-  checksum: ff81049375282f70e44ec5ea493d3e9099aa19adc22b769e4c7f756bc1dbd66281e6cf1855eb31f60fa8ffbb963521ec198c0ae49f397ffad59fe664d14fef6e
+  checksum: 34ad3c7dfa5f23b84bc108738bb1dcf4e1942efb926c77dccd224705bc00769f188d3abcffc2feb512427196ec20332fb85850ae91d505e6628e1c577af65960
   languageName: node
   linkType: hard
 
@@ -4305,10 +4305,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/atlas@npm:^0.0.0-dev.1":
-  version: 0.0.0-dev.1
-  resolution: "@recative/atlas@npm:0.0.0-dev.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fatlas%2F0.0.0-dev.1%2F32510aea8d787ff3cfb2364cd42a4aa3369be6a4"
-  checksum: 806153a0804a60ff6a4e6f49744291512555a149df79ad4e8dade2be7b050a18be19afdd9f3790374abb2575d3ab0b4c9a05bd74de5c66b4661158fe92a9a222
+"@recative/atlas@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "@recative/atlas@npm:0.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fatlas%2F0.0.1%2F95d05aea11e12c591df689556eca1112ed489b9a"
+  checksum: 65f9670a8388c0d820be80943a390adb7f0cf548cfb7a1faa1128e1038906ae7ad7672aac88fed46226a78ab5852eb09248ca8ebaac50c891a78187815d5eba2
   languageName: node
   linkType: hard
 
@@ -4321,9 +4321,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/client-sdk@npm:^3.4.0":
-  version: 3.4.0
-  resolution: "@recative/client-sdk@npm:3.4.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fclient-sdk%2F3.4.0%2F714410b533f1bb76720094e57cd57d31e19f2e38"
+"@recative/client-sdk@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "@recative/client-sdk@npm:4.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fclient-sdk%2F4.0.0%2Fba1f816b319d2faf486496bd8f294c6e0d524108"
   dependencies:
     "@msgpack/msgpack": ^2.7.2
     "@react-hookz/web": ^13.0.0
@@ -4348,7 +4348,7 @@ __metadata:
     react-slider: "*"
     react-use: "*"
     use-constant: "*"
-  checksum: 359b2060704520c9d10ea8ffa7dcf1790607b18529a4f863c9baefb40ada1d80894b99d1ef1f38cda4b240ab8db74db19019de17fed38e248b4468157ebf2540
+  checksum: 4c34dc8c505a9f0ed9564167c6028b7e1bd000203b42d257a31b08905fabbb191da559ccf726b3eed634d80c3abb7630b85f7c3ed2e32f39b2b39278efcbd74d
   languageName: node
   linkType: hard
 
@@ -4374,16 +4374,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/definitions@npm:^0.0.0-dev.89":
-  version: 0.0.0-dev.89
-  resolution: "@recative/definitions@npm:0.0.0-dev.89::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.0.0-dev.89%2F228e5d0ffb0fb77e3155de7be9dbd441866db38e"
-  dependencies:
-    xxhashjs: ^0.2.2
-  checksum: 4043dde93447bc87e371567906a3f28461ed3f6e3d6fc265d9719e28c5d250ab1f02f2f900ba761782445b6bc7a91ae733649b48b723880c4ca0ad764252f81c
-  languageName: node
-  linkType: hard
-
-"@recative/definitions@npm:^0.4.0":
+"@recative/definitions@npm:^0.4.0, @recative/definitions@npm:^0.4.1":
   version: 0.4.1
   resolution: "@recative/definitions@npm:0.4.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.4.1%2F0de5f6189a944de094da371a3e7e0866b4381a3a"
   dependencies:
@@ -4415,7 +4406,7 @@ __metadata:
   resolution: "@recative/extension-atlas@workspace:packages/extension-atlas"
   dependencies:
     "@napi-rs/canvas": ^0.1.25
-    "@recative/atlas": ^0.0.0-dev.1
+    "@recative/atlas": ^0.0.1
   languageName: unknown
   linkType: soft
 
@@ -4424,7 +4415,7 @@ __metadata:
   resolution: "@recative/extension-av@workspace:packages/extension-av"
   dependencies:
     "@napi-rs/canvas": ^0.1.25
-    "@recative/atlas": ^0.0.0-dev.1
+    "@recative/atlas": ^0.0.1
   languageName: unknown
   linkType: soft
 
@@ -4518,15 +4509,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/smart-resource@npm:^0.0.0-dev.7":
-  version: 0.0.0-dev.7
-  resolution: "@recative/smart-resource@npm:0.0.0-dev.7::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fsmart-resource%2F0.0.0-dev.7%2F2b65bdbc27b06d11c739831d6126875798c5a729"
-  dependencies:
-    debug: ^4.3.4
-  checksum: 10ceb549f45bcb4127377c5c3c6cb651ab1d9f691a5c2473bff0c589bf1608d9a1f927eb1816512678bf93500c8f049571d97f5d2348bc6b2cf9f641751a4a0e
-  languageName: node
-  linkType: hard
-
 "@recative/smart-resource@npm:^0.2.0":
   version: 0.2.0
   resolution: "@recative/smart-resource@npm:0.2.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fsmart-resource%2F0.2.0%2F4c5061583bfabade5df58c5f61f8179cbceb0b28"
@@ -4592,11 +4574,11 @@ __metadata:
     "@pmmmwh/react-refresh-webpack-plugin": 0.5.6
     "@reach/portal": ^0.16.2
     "@react-hookz/web": ^14.2.2
-    "@recative/act-player": ^0.1.1
-    "@recative/client-sdk": ^3.4.0
-    "@recative/definitions": ^0.0.0-dev.89
+    "@recative/act-player": ^0.2.0
+    "@recative/client-sdk": ^4.0.0
+    "@recative/definitions": ^0.4.1
     "@recative/extension-sdk": "workspace:^"
-    "@recative/smart-resource": ^0.0.0-dev.7
+    "@recative/smart-resource": ^0.2.0
     "@recative/studio-definitions": "workspace:^"
     "@recative/ugly-json": ^0.0.0
     "@teamsupercell/typings-for-css-modules-loader": ^2.4.0
