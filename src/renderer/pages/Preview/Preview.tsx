@@ -61,23 +61,28 @@ const InternalPlayerContainer: React.FC = () => {
 
   React.useEffect(() => {
     const $iframe = iframeRef.current;
-    $iframe.width = '100%';
-    $iframe.height = '100%';
-    $iframe.style.border = 'none';
 
-    if (!previewAssetId) {
-      $iframe.src = 'about:blank';
-    } else {
-      const $container = document.querySelector('#iframeContainer');
-      const url = new URL(window.location.href);
-      url.hash = `#/preview-player`;
+    try {
+      if (!previewAssetId) {
+        $iframe.src = 'about:blank';
+      } else {
+        $iframe.width = '100%';
+        $iframe.height = '100%';
+        $iframe.style.border = 'none';
 
-      if (!$container) {
-        throw new Error('Container not found');
+        const $container = document.querySelector('#iframeContainer');
+        const url = new URL(window.location.href);
+        url.hash = `#/preview-player`;
+
+        if (!$container) {
+          throw new Error('Container not found');
+        }
+
+        $iframe.src = url.toString();
+        $container.appendChild($iframe);
       }
-
-      $iframe.src = url.toString();
-      $container.appendChild($iframe);
+    } catch (e) {
+      console.error(e);
     }
   }, [previewAssetId]);
 

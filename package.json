@@ -392,6 +392,7 @@
     "packages/studio-definitions"
   ],
   "resolutions": {
-    "@codemirror/state": "0.20.0"
+    "@codemirror/state": "0.20.0",
+    "lottie-web": "patch:lottie-web@npm:5.7.3#.yarn/patches/lottie-web-npm-5.7.3-6621bfff6b.patch"
   }
 }

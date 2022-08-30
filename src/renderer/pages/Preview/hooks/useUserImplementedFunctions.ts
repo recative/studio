@@ -58,7 +58,7 @@ export const useUserImplementedFunctions = (
           setInitialAssetStatus(undefined);
         }
 
-        const nextUrl = `/episode/${episode.id}`;
+        const nextUrl = episode.id;
         if (!forceReload) {
           setEpisodeId(nextUrl);
         } else {
