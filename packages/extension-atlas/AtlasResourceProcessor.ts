@@ -21,11 +21,13 @@ import {
   BidirectionalMap,
   getHighestPreloadLevel,
   REDIRECT_URL_EXTENSION_ID,
-  TerminalMessageLevel as Level,
   frameSequenceGroupResourceTag,
   IDetailedResourceItemForClient,
 } from '@recative/definitions';
-import { ResourceProcessor } from '@recative/extension-sdk';
+import {
+  ResourceProcessor,
+  TerminalMessageLevel as Level,
+} from '@recative/extension-sdk';
 
 import type {
   IResourceFile,

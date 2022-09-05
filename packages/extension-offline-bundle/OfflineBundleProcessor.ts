@@ -1,13 +1,15 @@
 import log from 'electron-log';
 import { nanoid } from 'nanoid';
-import { ResourceProcessor } from '@recative/extension-sdk';
+import {
+  ResourceProcessor,
+  TerminalMessageLevel as Level,
+} from '@recative/extension-sdk';
 
 import {
   Category,
   hashObject,
   PreloadLevel,
   IResourceItem,
-  TerminalMessageLevel as Level,
 } from '@recative/definitions';
 import type {
   IBundleGroup,
