@@ -15,7 +15,7 @@ import {
 import { getResourceFile } from './router/actPoint';
 import { getResourceBinary } from './router/resource';
 import { getEnvVariableHandler } from './router/preview';
-import { getContainerComponents } from './router/player';
+import { getContainerComponents, getPreviewConstants } from './router/player';
 
 import { HOME_DIR } from '../constant/configPath';
 
@@ -77,9 +77,10 @@ export const startResourceServer = async () => {
   fastify.get('/envVariable', getEnvVariableHandler);
   fastify.get('/preview/containerComponents.js', getContainerComponents);
   fastify.get('/preview/containerComponents.js.map', getContainerComponents);
-  fastify.get('/preview/:id(.+?).:serializer', getAssetListForSdk);
   fastify.get('/preview/episodes.:serializer', getEpisodeListForSdk);
+  fastify.get('/preview/constants.json', getPreviewConstants);
   fastify.get('/preview/resources.:serializer', getResourceListForSdk);
+  fastify.get('/preview/:id(.+?).:serializer', getAssetListForSdk);
   fastify.get('*', getResourceFile);
 
   fastify.listen({

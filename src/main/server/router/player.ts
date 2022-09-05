@@ -21,9 +21,25 @@ export const GetComponentFile =
     reply.status(200).send(file);
   };
 
+export const GetAssetFile =
+  (...fileName: string[]) =>
+  async (_: FastifyRequest, reply: FastifyReply) => {
+    const workspace = getWorkspace();
+    const componentFilePath = join(workspace.assetsPath, ...fileName);
+
+    if (!existsSync(componentFilePath)) {
+      reply.status(404).send({ code: 'NOT_FOUND' });
+      return;
+    }
+    const file = await readFile(componentFilePath);
+
+    reply.status(200).send(file);
+  };
+
 export const getContainerComponents = GetComponentFile(
   'containerComponents.js'
 );
 export const getContainerComponentsMap = GetComponentFile(
   'containerComponents.js.map'
 );
+export const getPreviewConstants = GetAssetFile('constant-preview.json');
