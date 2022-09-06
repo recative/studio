@@ -3,7 +3,8 @@
 import { join } from 'path';
 import { readFile } from 'fs/promises';
 
-import { Category, TerminalMessageLevel as Level } from '@recative/definitions';
+import { Category } from '@recative/definitions';
+import { TerminalMessageLevel as Level } from '@recative/extension-sdk';
 import type { IResourceFile, IResourceItem } from '@recative/definitions';
 import type { IPostProcessedResourceFileForUpload } from '@recative/extension-sdk';
 

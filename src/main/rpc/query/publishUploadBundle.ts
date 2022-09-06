@@ -1,4 +1,4 @@
-import { TerminalStepStatus as Status } from '@recative/definitions';
+import { TerminalStepStatus as Status } from '@recative/studio-definitions';
 
 import {
   newTerminalSession,
