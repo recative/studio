@@ -9,7 +9,7 @@ import { Buffer } from 'buffer';
 import { promisify } from 'util';
 import { join, basename } from 'path';
 import { readFile, lstat } from 'fs/promises';
-import { createWriteStream } from 'fs';
+import { createWriteStream, createReadStream } from 'fs';
 import { Transform, Stream } from 'stream';
 
 import type { WriteStream } from 'fs';
@@ -148,8 +148,8 @@ export class Zip {
       return writeEntry(from);
     }
 
-    const buffer = await readFile(from);
-    return writeEntry(buffer);
+    const readStream = createReadStream(from);
+    return writeEntry(readStream);
   };
 
   appendFileList = async (pathListItem: IPathListItem[]) => {
