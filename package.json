@@ -9,7 +9,7 @@
     "package": "yarn run del-cli src/dist/**/* && yarn build && electron-builder build --publish never",
     "_postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps",
     "start": "dotenv -e .env -- cross-env DEBUG=\"studio:*\" node -r @babel/register ./.erb/scripts/CheckPortInUse.js && yarn start:renderer",
-    "start:main": "cross-env NODE_ENV=development DEBUG=\"studio:*\" electron -r ./.erb/scripts/BabelRegister ./src/main.dev.ts",
+    "start:main": "cross-env NODE_ENV=development DEBUG=\"studio:*\" electron --js-flags='--max-old-space-size=4096' -r ./.erb/scripts/BabelRegister ./src/main.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development webpack serve --config ./.erb/configs/webpack.config.renderer.dev.babel.js",
     "test": "jest",
     "test:type": "tsc --project tsconfig.json",
