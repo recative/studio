@@ -2,7 +2,7 @@ import { dirname, basename } from 'path';
 
 import tempfile from 'tempfile';
 import { readJsonSync } from 'fs-extra';
-import { merge, isEqual, omit } from 'lodash';
+import { merge, isEqual } from 'lodash';
 
 import type {
   LokiDbFile,
@@ -12,14 +12,10 @@ import type {
 
 import { getTable } from '../db';
 
-export const cleanupLoki = <T extends object>(x: T) => {
-  return omit(x, ['$loki', 'meta']) as Omit<T, '$loki' | 'meta'>;
-};
-
-const cleanupRecord = (x: IResourceItem & ILokiObject): IResourceItem => {
-  const result = omit(x, ['$loki', 'meta']) as IResourceItem;
-
-  return result;
+export const cleanupLoki = <T extends object>(x: T): T => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { $loki, meta, ...result } = x as any;
+  return result as T;
 };
 
 export const mergeResourceList = async (
@@ -52,7 +48,7 @@ export const mergeResourceList = async (
     const itemB = itemIndexB.get(id);
 
     if (itemA && isEqual(itemA, itemB)) {
-      resourceCollection.insert(cleanupRecord(itemA));
+      resourceCollection.insert(cleanupLoki(itemA));
       return;
     }
 
@@ -62,11 +58,11 @@ export const mergeResourceList = async (
           ? merge({}, itemB, itemA)
           : merge({}, itemA, itemB);
 
-      resourceCollection.insert(cleanupRecord(mergedItem));
+      resourceCollection.insert(cleanupLoki(mergedItem));
     } else if (itemA) {
-      resourceCollection.insert(cleanupRecord(itemA));
+      resourceCollection.insert(cleanupLoki(itemA));
     } else if (itemB) {
-      resourceCollection.insert(cleanupRecord(itemB));
+      resourceCollection.insert(cleanupLoki(itemB));
     }
   });
 
