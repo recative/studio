@@ -124,6 +124,13 @@ const resourceProcessorDependencies: IResourceExtensionDependency = {
         clonedResource.postProcessRecord.mediaBundleId.filter(
           (x) => x !== eraseMediaBuildId
         );
+
+      // Here're two extra cleanup to prevent some extension blow up the database.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (clonedResource as any).postProcessedThumbnail;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (clonedResource as any).postProcessedFile;
+
       db.resource.postProcessed.insert(clonedResource);
     } else if ('postProcessedThumbnail' in clonedResource) {
       db.resource.resources.insert(await importedFileToFile(clonedResource));
