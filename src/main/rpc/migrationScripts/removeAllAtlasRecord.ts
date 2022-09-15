@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import log from 'electron-log';
 
 import { getDb } from '../db';

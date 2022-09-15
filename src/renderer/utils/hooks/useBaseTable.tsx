@@ -16,18 +16,21 @@ export const TABLE_BUILDER_OVERRIDES = {
   },
 };
 
-interface TableItem {
+interface TableItemCommonHeader {
   id: string;
-  [key: string]: any;
 }
 
-interface SelectableTableItem extends TableItem {
+type TableItem<R> = TableItemCommonHeader & R;
+
+type SelectableTableItem<R> = TableItem<R> & {
   selected: boolean;
-}
+};
 
-export const useTableState = <U extends TableItem, T extends U[]>(data: T) => {
+export const useTableState = <R, U extends TableItem<R>, T extends U[]>(
+  data: T
+) => {
   const [internalState, setInternalState] = React.useState<
-    SelectableTableItem[] | null
+    SelectableTableItem<R>[] | null
   >(null);
 
   React.useEffect(() => {
@@ -35,12 +38,13 @@ export const useTableState = <U extends TableItem, T extends U[]>(data: T) => {
   }, [data]);
 
   return [internalState, setInternalState] as ReactState<
-    SelectableTableItem[] | null
+    SelectableTableItem<R>[] | null
   >;
 };
 
 export const useSortableTableProps = <
-  U extends SelectableTableItem,
+  R,
+  U extends SelectableTableItem<R>,
   T extends U[]
 >(
   dataState: ReactState<T | null>
@@ -54,8 +58,10 @@ export const useSortableTableProps = <
       data?.slice().sort((a, b) => {
         const left = sortAsc ? a : b;
         const right = sortAsc ? b : a;
-        const leftValue = String(left[sortColumn]);
-        const rightValue = String(right[sortColumn]);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const leftValue = String((left as any)[sortColumn]);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rightValue = String((right as any)[sortColumn]);
         return leftValue.localeCompare(rightValue, 'en', {
           numeric: true,
           sensitivity: 'base',
@@ -89,7 +95,8 @@ export const useSortableTableProps = <
 };
 
 export const useSelectableTableProps = <
-  U extends SelectableTableItem,
+  R,
+  U extends SelectableTableItem<R>,
   T extends U[]
 >(
   dataState: ReactState<T | null>
@@ -111,7 +118,7 @@ export const useSelectableTableProps = <
 
   const handleToggle = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, checked } = event.currentTarget;
+      const { name, checked } = event.currentTarget as HTMLInputElement;
 
       setData((prevData) => {
         return (prevData?.map((x) => {

@@ -65,10 +65,12 @@ export class PolyVUploader extends Uploader<keyof PolyVUploaderPluginConfig> {
     const file = await polyV.upload(buffer, config.label, config.mimeType);
 
     const promiseExecutor = (resolve: () => void) => {
+      // eslint-disable-next-line no-console
       console.info('Transcode info not ready');
       globalThis.setTimeout(resolve, 300);
     };
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const requestTime = Date.now();
 
@@ -113,11 +115,13 @@ export class PolyVUploader extends Uploader<keyof PolyVUploaderPluginConfig> {
   };
 
   remove = (config: IResourceFile | string) => {
+    // eslint-disable-next-line no-console
     console.log(config);
     throw new Error('Not Implemented!');
   };
 
   get = (config: IResourceFile | string) => {
+    // eslint-disable-next-line no-console
     console.log(config);
     throw new Error('Not Implemented!');
   };

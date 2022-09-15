@@ -138,8 +138,12 @@ export const EditAssetModal: React.VFC<IEditAssetModalProps> = ({
     setAssetData,
     'earlyDestroyOnSwitch',
     React.useCallback(
-      (_: unknown, event: React.FormEvent<HTMLInputElement> | undefined) =>
-        event?.currentTarget.checked,
+      (
+        _: unknown,
+        event:
+          | React.FormEvent<HTMLInputElement | HTMLTextAreaElement>
+          | undefined
+      ) => (event?.currentTarget as HTMLInputElement).checked,
       []
     )
   );
@@ -148,8 +152,12 @@ export const EditAssetModal: React.VFC<IEditAssetModalProps> = ({
     setAssetData,
     'preloadDisabled',
     React.useCallback(
-      (_: unknown, event: React.FormEvent<HTMLInputElement> | undefined) =>
-        !event?.currentTarget.checked,
+      (
+        _: unknown,
+        event:
+          | React.FormEvent<HTMLInputElement | HTMLTextAreaElement>
+          | undefined
+      ) => !(event?.currentTarget as HTMLInputElement).checked,
       []
     )
   );

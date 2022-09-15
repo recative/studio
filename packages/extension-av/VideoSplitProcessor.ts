@@ -15,7 +15,6 @@ import {
   ResourceFileForImport,
 } from '@recative/extension-sdk';
 import type {
-  IPostProcessedResourceFileForUpload,
   PostProcessedResourceItemForImport,
   IPostProcessedResourceFileForImport,
 } from '@recative/extension-sdk';

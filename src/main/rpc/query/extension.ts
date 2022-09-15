@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import { pick } from 'lodash';
 import { join } from 'path';
 import { emptyDir } from 'fs-extra';
@@ -95,8 +96,8 @@ export const purgePostProcessRecords = async () => {
   const workspace = getWorkspace();
   const postProcessedPath = join(workspace.mediaPath, 'post-processed');
   const db = await getDb();
-  console.log(`:: Purging post-processed records from ${postProcessedPath}`);
+  log.log(`:: Purging post-processed records from ${postProcessedPath}`);
   db.resource.postProcessed.removeWhere((x) => !!x);
   await emptyDir(postProcessedPath);
-  console.log(`:: Done ${postProcessedPath}`);
+  log.log(`:: Done ${postProcessedPath}`);
 };

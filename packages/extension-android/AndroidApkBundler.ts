@@ -125,6 +125,7 @@ export class AndroidApkBundler extends Bundler<''> {
   };
 
   afterBundleCreated = async (
+    // @ts-ignore: This is intended to align with the API design
     zip: Zip,
     profile: IBundleProfile,
     bundleReleaseId: number

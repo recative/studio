@@ -64,6 +64,8 @@ export const injectResourceUrlForBundleProfile = <
   resources: T[],
   resourceHost: string,
   resourceProtocol: string,
+  // @ts-ignore this is intended since we want to make the api in align with other functions.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   profile: IBundleProfile
 ): T[] => {
   const step0 = injectResourceUrl(

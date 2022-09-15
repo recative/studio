@@ -1,10 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import { join } from 'path';
-import { rmdir } from 'fs/promises';
 import { cloneDeep } from 'lodash';
-
-import StreamZip from 'node-stream-zip';
-import { rename, copy, existsSync } from 'fs-extra';
 
 import { Zip } from '@recative/extension-sdk';
 import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
@@ -15,7 +11,6 @@ import type {
 } from '@recative/extension-sdk';
 
 import { cleanupLoki } from './utils';
-import { getBuildPath } from './setting';
 import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
 
@@ -85,7 +80,7 @@ export const dumpPlayerConfigs = async (
   episodes.forEach((x) => {
     x.episode = cleanupLoki(x.episode);
     x.assets = x.assets.map((asset) => {
-      asset.spec = cleanupLoki(asset.spec) as any;
+      asset.spec = cleanupLoki(asset.spec);
 
       return cleanupLoki(asset);
     });

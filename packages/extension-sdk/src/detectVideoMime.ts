@@ -45,6 +45,7 @@ class DetectMIME extends Transform {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _transform(chunk: any, _: BufferEncoding, next: TransformCallback) {
     // No need to process if we already have the MIME
     if (this.mime) {

@@ -10,11 +10,5 @@ export const getEnvVariableHandler = async (
 
   reply
     .status(200)
-    .send(
-      await getEnvVariable(
-        query.apHost || request.hostname,
-        request.protocol,
-        query.episodeId
-      )
-    );
+    .send(await getEnvVariable(query.apHost || request.hostname));
 };

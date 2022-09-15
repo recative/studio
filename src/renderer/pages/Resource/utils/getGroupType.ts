@@ -30,7 +30,6 @@ export const getGroupType = (
   let audioCount = 0;
   let subtitleCount = 0;
   let imageCount = 0;
-  let invalidCount = 0;
 
   for (let i = 0; i < files.length; i += 1) {
     const file = files[i];
@@ -54,10 +53,6 @@ export const getGroupType = (
         imageCount += 1;
         valid = true;
       }
-    }
-
-    if (!valid) {
-      invalidCount += 1;
     }
   }
 

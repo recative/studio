@@ -5,7 +5,6 @@ import { ResourceProcessor } from '@recative/extension-sdk';
 import { IResourceItem, audioCategoryTag } from '@recative/definitions';
 import type {
   PostProcessedResourceItemForUpload,
-  IPostProcessedResourceFileForUpload,
   IPostProcessedResourceFileForImport,
 } from '@recative/extension-sdk';
 

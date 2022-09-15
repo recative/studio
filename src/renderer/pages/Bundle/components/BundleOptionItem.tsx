@@ -54,7 +54,7 @@ export const BundleOptionItem: React.FC<IBundleOptionItem> = ({
 
   const handleChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      onChange(event.target.checked, id);
+      onChange((event.target as HTMLInputElement).checked, id);
     },
     [id, onChange]
   );

@@ -12,7 +12,10 @@ export const useInputUpdateImmerCallback = <
   Key extends string,
   ObjectValue extends Record<Key, KeyValue>,
   ConvertFunction extends
-    | ((value: string, event?: React.FormEvent<HTMLInputElement>) => KeyValue)
+    | ((
+        value: string,
+        event?: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>
+      ) => KeyValue)
     | null,
   KeyValue extends ConvertFunction extends null ? string : ObjectValue[Key]
 >(
@@ -21,7 +24,7 @@ export const useInputUpdateImmerCallback = <
   convertValueFn: ConvertFunction
 ) => {
   const handleChange = React.useCallback(
-    (event: React.FormEvent<HTMLInputElement>) => {
+    (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setValue((draft: ObjectValue) => {
         if (!(targetKey in draft)) return;
 

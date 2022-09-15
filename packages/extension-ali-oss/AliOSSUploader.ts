@@ -109,11 +109,13 @@ export class AliOSSUploader extends Uploader<keyof AliOSSUploaderPluginConfig> {
   };
 
   remove = (config: IResourceFile | string) => {
+    // eslint-disable-next-line no-console
     console.log(config);
     throw new Error('Not Implemented!');
   };
 
   get = (config: IResourceFile | string) => {
+    // eslint-disable-next-line no-console
     console.log(config);
     throw new Error('Not Implemented!');
   };

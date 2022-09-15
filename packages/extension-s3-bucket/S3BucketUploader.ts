@@ -1,4 +1,3 @@
-import md5 from 'md5';
 import { homedir } from 'os';
 import { join, normalize } from 'path';
 
@@ -168,9 +167,6 @@ export class S3Uploader extends Uploader<keyof S3BucketPluginConfig> {
   ) => {
     const buffer = Buffer.from(binary);
 
-    const fileHash =
-      typeof config === 'string' ? md5(buffer) : config.convertedHash.md5;
-
     const filePath = join(
       ...([
         this.config.dirBase || undefined,
@@ -195,11 +191,13 @@ export class S3Uploader extends Uploader<keyof S3BucketPluginConfig> {
   };
 
   remove = (config: IResourceFile | string) => {
+    // eslint-disable-next-line no-console
     console.log(config);
     throw new Error('Not Implemented!');
   };
 
   get = (config: IResourceFile | string) => {
+    // eslint-disable-next-line no-console
     console.log(config);
     throw new Error('Not Implemented!');
   };

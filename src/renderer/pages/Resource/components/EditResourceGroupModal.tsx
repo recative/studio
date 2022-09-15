@@ -1,5 +1,4 @@
 import * as React from 'react';
-import cn from 'classnames';
 
 import { nanoid } from 'nanoid';
 import { styled, useStyletron } from 'baseui';
@@ -44,7 +43,6 @@ import { ResourceItem } from 'components/Resource/ResourceItem';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
 import { ShowIconOutline } from 'components/Icons/ShowIconOutline';
-import { HideIconOutline } from 'components/Icons/HideIconOutline';
 import { TrashIconOutline } from 'components/Icons/TrashIconOutline';
 import { ReplaceIconOutline } from 'components/Icons/ReplaceIconOutline';
 import { EditGroupIconOutline } from 'components/Icons/EditGroupIconOutline';
@@ -175,11 +173,6 @@ const menuItemStyles = {
   display: 'flex',
   alignItems: 'center',
   gap: '10px',
-};
-
-const disabledMenuItemStyles = {
-  opacity: 0.5,
-  cursor: 'default',
 };
 
 export const useEditResourceGroupModal = ModalManager<string, null>(null);
