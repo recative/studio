@@ -2,7 +2,7 @@
 # Manual changes might be lost - proceed with caution!
 
 __metadata:
-  version: 5
+  version: 6
   cacheKey: 8
 
 "7zip-bin@npm:~5.1.1":
@@ -6492,21 +6492,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"acorn@npm:^8.5.0, acorn@npm:^8.7.1, acorn@npm:^8.8.0":
+  version: 8.8.0
+  resolution: "acorn@npm:8.8.0"
+  bin:
+    acorn: bin/acorn
+  checksum: 7270ca82b242eafe5687a11fea6e088c960af712683756abf0791b68855ea9cace3057bd5e998ffcef50c944810c1e0ca1da526d02b32110e13c722aa959afdc
+  languageName: node
+  linkType: hard
+
 "acorn@npm:^8.7.0":
   version: 8.7.0
   resolution: "acorn@npm:8.7.0"
   bin:
     acorn: bin/acorn
   checksum: e0f79409d68923fbf1aa6d4166f3eedc47955320d25c89a20cc822e6ba7c48c5963d5bc657bc242d68f7a4ac9faf96eef033e8f73656da6c640d4219935fdfd0
-  languageName: node
-  linkType: hard
-
-"acorn@npm:^8.7.1, acorn@npm:^8.8.0":
-  version: 8.8.0
-  resolution: "acorn@npm:8.8.0"
-  bin:
-    acorn: bin/acorn
-  checksum: 7270ca82b242eafe5687a11fea6e088c960af712683756abf0791b68855ea9cace3057bd5e998ffcef50c944810c1e0ca1da526d02b32110e13c722aa959afdc
   languageName: node
   linkType: hard
 
@@ -15674,10 +15674,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lokijs@npm:^1.5.12":
+"lokijs@npm:1.5.12":
   version: 1.5.12
   resolution: "lokijs@npm:1.5.12"
   checksum: 5cd45facb890048e83977de1451a7b70e1f9e4cfe41c40d2212dfc160df7919b821072f95b10d692f6932c1080193e0715e8fe18dee332f04da4fda0f08984b6
+  languageName: node
+  linkType: hard
+
+"lokijs@patch:lokijs@npm%3A1.5.12#./.yarn/patches/lokijs-npm-1.5.12-739e26e476.patch::locator=%40recative%2Fstudio%40workspace%3A.":
+  version: 1.5.12
+  resolution: "lokijs@patch:lokijs@npm%3A1.5.12#./.yarn/patches/lokijs-npm-1.5.12-739e26e476.patch::version=1.5.12&hash=50d1db&locator=%40recative%2Fstudio%40workspace%3A."
+  checksum: 753076bafb8613598844f31dcffad8e6dfefc1840cb8200a453bdbe566224e6796d1ddccd70132b873214200a460eb262ebab716ee7ead5e49fb4f79be1fba8e
   languageName: node
   linkType: hard
 
@@ -22139,11 +22146,11 @@ resolve@^2.0.0-next.3:
 
 "typescript@patch:typescript@4.7.4#~builtin<compat/typescript>":
   version: 4.7.4
-  resolution: "typescript@patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=493e53"
+  resolution: "typescript@patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=a1c5e5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 96d3030cb01143570567cb4f3a616b10df65f658f0e74e853e77a089a6a954e35c800be7db8b9bfe9a1ae05d9c2897e281359f65e4caa1caf266368e1c4febd3
+  checksum: 9096d8f6c16cb80ef3bf96fcbbd055bf1c4a43bd14f3b7be45a9fbe7ada46ec977f604d5feed3263b4f2aa7d4c7477ce5f9cd87de0d6feedec69a983f3a4f93e
   languageName: node
   linkType: hard
 
