@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { existsSync } from 'fs-extra';
+import { pathExists } from 'fs-extra';
 
 import { xxHash } from '@recative/extension-sdk';
 
@@ -30,19 +30,19 @@ export const getVersionName = async (
     'containerComponents.js'
   );
 
-  const containerComponentVersion = existsSync(containerComponentPath)
+  const containerComponentVersion = (await pathExists(containerComponentPath))
     ? `s=${await xxHash(containerComponentPath)}`
     : '';
 
   const webRootTemplateFilePath = join(assetsPath, webRootTemplateFileName);
 
-  const webRootTemplateVersion = existsSync(containerComponentPath)
+  const webRootTemplateVersion = (await pathExists(containerComponentPath))
     ? `w=${await xxHash(webRootTemplateFilePath)}`
     : '';
 
   const appTemplateFilePath = join(assetsPath, appTemplateFileName);
 
-  const appTemplateVersion = existsSync(appTemplateFilePath)
+  const appTemplateVersion = (await pathExists(appTemplateFilePath))
     ? `a=${await xxHash(appTemplateFilePath)}`
     : '';
 

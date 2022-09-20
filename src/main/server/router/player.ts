@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { readFile } from 'fs/promises';
-import { existsSync } from 'fs-extra';
+import { pathExists } from 'fs-extra';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 
 import { getWorkspace } from '../../rpc/workspace';
@@ -12,7 +12,7 @@ export const GetComponentFile =
       ? join(process.env.COMPONENT_FILE_PATH, `${fileName}`)
       : join(workspace.assetsPath, 'components', `${fileName}`);
 
-    if (!existsSync(componentFilePath)) {
+    if (!(await pathExists(componentFilePath))) {
       reply.status(404).send({ code: 'NOT_FOUND' });
       return;
     }
@@ -27,7 +27,7 @@ export const GetAssetFile =
     const workspace = getWorkspace();
     const componentFilePath = join(workspace.assetsPath, ...fileName);
 
-    if (!existsSync(componentFilePath)) {
+    if (!(await pathExists(componentFilePath))) {
       reply.status(404).send({ code: 'NOT_FOUND' });
       return;
     }

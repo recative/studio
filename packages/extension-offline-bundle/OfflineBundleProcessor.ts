@@ -17,7 +17,7 @@ import type {
   IPostProcessedResourceFileForUpload,
   IPostProcessedResourceFileForImport,
 } from '@recative/extension-sdk';
-import { existsSync } from 'fs';
+import { pathExists } from 'fs-extra';
 
 export interface OfflineBundleConfig {
   enable: string;
@@ -195,22 +195,24 @@ export class OfflineBundleProcessor extends ResourceProcessor<
 
         const zip = this.dependency.createTemporaryZip();
 
-        const fileList = files.map((x) => {
-          const from = this.dependency.getResourceFilePath(x);
+        const fileList = await Promise.all(
+          files.map(async (x) => {
+            const from = this.dependency.getResourceFilePath(x);
 
-          if (!existsSync(from)) {
-            this.dependency.logToTerminal(
-              `:: :: :: :: Error: File not found: ${x.label} (${x.id})`,
-              Level.Error
-            );
-            throw new Error(`File not found: ${from}`);
-          }
+            if (!(await pathExists(from))) {
+              this.dependency.logToTerminal(
+                `:: :: :: :: Error: File not found: ${x.label} (${x.id})`,
+                Level.Error
+              );
+              throw new Error(`File not found: ${from}`);
+            }
 
-          return {
-            from,
-            to: `${x.id}.resource`,
-          };
-        });
+            return {
+              from,
+              to: `${x.id}.resource`,
+            };
+          })
+        );
 
         await zip.appendFileList(fileList);
 

@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import { createReadStream, statSync } from 'fs';
-import { existsSync } from 'fs-extra';
+import { pathExists } from 'fs-extra';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 
 import { cleanUpResourceListForClient } from '@recative/definitions';
@@ -112,7 +112,7 @@ export const getResourceBinary = async (
 
   const filePath = getResourceFilePath(resource);
 
-  if (!existsSync(filePath)) {
+  if (!(await pathExists(filePath))) {
     reply.statusCode = 404;
     return ErrorResourceFileNotExists;
   }
@@ -131,7 +131,7 @@ export const getResourceBinary = async (
   const stats = statSync(filePath);
 
   if (request.method === 'HEAD') {
-    return reply.code(existsSync(filePath) ? 204 : 404).send('');
+    return reply.code((await pathExists(filePath)) ? 204 : 404).send('');
   }
 
   const { start, end, inRange } = parseRangeHeader(range, stats.size);

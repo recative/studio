@@ -4,7 +4,7 @@ import { parse } from 'url';
 import mime from 'mime-types';
 import StreamZip from 'node-stream-zip';
 
-import { readFile, pathExists, existsSync, lstatSync } from 'fs-extra';
+import { readFile, pathExists, lstatSync } from 'fs-extra';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 
 import { getWorkspace } from '../../rpc/workspace';
@@ -20,7 +20,7 @@ export const getResourceFile = async (
     workspace.assetsPath,
     'preview-web-root.zip'
   );
-  if (existsSync(previewWebRootBundle)) {
+  if (await pathExists(previewWebRootBundle)) {
     const previewBundle = new StreamZip.async({ file: previewWebRootBundle });
     const entries = await previewBundle.entries();
 

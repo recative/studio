@@ -2,7 +2,7 @@ import { join } from 'path';
 import { nanoid } from 'nanoid';
 
 import { check, lock, unlock } from 'proper-lockfile';
-import { readJsonSync, writeJsonSync, removeSync, existsSync } from 'fs-extra';
+import { readJsonSync, writeJsonSync, removeSync, pathExists } from 'fs-extra';
 
 import { getWorkspace } from '../workspace';
 
@@ -16,7 +16,7 @@ export const ifDbLocked = async () => {
   const lockFilePath = join(workspace.dbPath, '.lock');
   const processIdFilePath = join(workspace.dbPath, '.lock-process');
 
-  if (!existsSync(processIdFilePath)) return false;
+  if (!(await pathExists(processIdFilePath))) return false;
   try {
     const locked = await check(workspace.dbPath, {
       lockfilePath: lockFilePath,

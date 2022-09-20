@@ -1,5 +1,5 @@
 import path from 'path';
-import { existsSync } from 'fs-extra';
+import { pathExists } from 'fs-extra';
 
 import { getWorkspace } from '../rpc/workspace';
 
@@ -15,7 +15,7 @@ export const jbMediaProtocolHandler = async (
 
   const fullUrl = path.join(mediaPath, filename);
 
-  const fileExists = existsSync(fullUrl);
+  const fileExists = await pathExists(fullUrl);
 
   if (fileExists) {
     return callback({

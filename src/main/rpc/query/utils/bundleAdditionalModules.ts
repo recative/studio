@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { existsSync } from 'fs-extra';
+import { pathExists } from 'fs-extra';
 
 import { Zip, IPathListItem } from '@recative/extension-sdk';
 import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
@@ -8,7 +8,7 @@ import { logToTerminal } from '../terminal';
 
 import { getWorkspace } from '../../workspace';
 
-export const bundleAdditionalModules = (
+export const bundleAdditionalModules = async (
   zip: Zip,
   rootDir: string,
   terminalId: string
@@ -27,7 +27,7 @@ export const bundleAdditionalModules = (
 
   logToTerminal(terminalId, `Bundle additional modules`, Level.Info);
 
-  if (existsSync(containerComponentsPath)) {
+  if (await pathExists(containerComponentsPath)) {
     paths.push({
       from: containerComponentsPath,
       to: `${rootDir}/bundle/data/containerComponents.js`,
