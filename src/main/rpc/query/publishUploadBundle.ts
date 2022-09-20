@@ -4,13 +4,14 @@ import {
   newTerminalSession,
   wrapTaskFunction,
   updateTerminalStepStatus,
+  logToTerminal,
 } from './terminal';
 import { uploadDatabase } from './publishActServer';
 import { uploadCodeBundle } from './publishUploadBundleCode';
 import { uploadMediaBundle } from './publishUploadBundleMedia';
 import { postProcessResource } from './publishPostProcessResource';
 
-import { getDb } from '../db';
+import { getDb, saveAllDatabase } from '../db';
 
 import { ReleaseNotFoundError } from '../../utils/errors/ReleaseNotFoundError';
 import { UploadingTaskLockedError } from '../../utils/errors/UploadingTaskLockedError';
@@ -128,6 +129,9 @@ export const uploadBundle = async (
       );
     }
   })();
+
+  logToTerminal(terminalId, 'Syncing the database');
+  saveAllDatabase(await getDb());
 
   setUploadLock(false);
 };

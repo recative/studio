@@ -38,8 +38,18 @@ export interface IZipOption {
   zlib: ZlibOptions;
 }
 
+export class DuplicatedEntryError extends TypeError {
+  name = 'DuplicatedEntryError';
+
+  constructor(public entryId: string) {
+    super(`${entryId} is already in the zip file.`);
+  }
+}
+
 export class Zip {
   protected outputStream: WriteStream;
+
+  readonly entries = new Set<string>();
 
   // We use an internal member here.
   protected archive: {
@@ -111,7 +121,15 @@ export class Zip {
     });
   }
 
-  appendText = async (text: string, to: string) => {
+  private appendToEntrySet = (path: string) => {
+    if (this.entries.has(path)) {
+      throw new DuplicatedEntryError(path);
+    }
+
+    this.entries.add(path);
+  };
+
+  appendText = async (text: string, to: string, skipDuplicated: boolean) => {
     if (this.writing) {
       throw new Error('Cannot write new content to zip while writing');
     }
@@ -120,14 +138,27 @@ export class Zip {
       throw new Error('Cannot write new content to zip after close');
     }
 
-    this.writing = true;
-    const result = await this.entry(text, { name: to });
-    this.writing = false;
+    try {
+      this.appendToEntrySet(to);
 
-    return result;
+      this.writing = true;
+      const result = await this.entry(text, { name: to });
+      this.writing = false;
+
+      return result;
+    } catch (error) {
+      if (error instanceof DuplicatedEntryError && skipDuplicated) {
+        return Promise.resolve(null);
+      }
+      throw error;
+    }
   };
 
-  appendFile = async (from: string | Buffer | Stream, to: string) => {
+  appendFile = async (
+    from: string | Buffer | Stream,
+    to: string,
+    skipDuplicated?: boolean
+  ) => {
     if (this.writing) {
       throw new Error('Cannot write new content to zip while writing');
     }
@@ -144,15 +175,27 @@ export class Zip {
       return result;
     };
 
-    if (from instanceof Buffer || from instanceof Stream) {
-      return writeEntry(from);
-    }
+    try {
+      this.appendToEntrySet(to);
 
-    const readStream = createReadStream(from);
-    return writeEntry(readStream);
+      if (from instanceof Buffer || from instanceof Stream) {
+        return await writeEntry(from);
+      }
+
+      const readStream = createReadStream(from);
+      return await writeEntry(readStream);
+    } catch (error) {
+      if (error instanceof DuplicatedEntryError && skipDuplicated) {
+        return Promise.resolve(null);
+      }
+      throw error;
+    }
   };
 
-  appendFileList = async (pathListItem: IPathListItem[]) => {
+  appendFileList = async (
+    pathListItem: IPathListItem[],
+    skipDuplicated?: boolean
+  ) => {
     const resolvedPathListItem = await Promise.all(
       pathListItem.map(async (item) => {
         const from = await item.from;
@@ -160,24 +203,20 @@ export class Zip {
       })
     );
 
-    // let i = 0;
     for (const { from, to } of resolvedPathListItem) {
-      // log.log(
-      //   `:: [${basename(this.filePath)}] [${i + 1} / ${
-      //     resolvedPathListItem.length
-      //   }]`
-      // );
-
       const resolvedFrom = from;
-      // eslint-disable-next-line no-await-in-loop
-      await this.appendFile(resolvedFrom, to);
-      // i += 1;
+      await this.appendFile(resolvedFrom, to, skipDuplicated);
     }
 
     return pathListItem.length;
   };
 
-  appendGlob = async (pattern: string, cwd?: string, to?: string) => {
+  appendGlob = async (
+    pattern: string,
+    cwd?: string,
+    to?: string,
+    skipDuplicated?: boolean
+  ) => {
     const match = glob.sync(pattern, {
       cwd,
       dot: true,
@@ -195,17 +234,10 @@ export class Zip {
       )
     ).filter((item) => item.stat.isFile());
 
-    // let i = 0;
     for (const { fullPath, relativePath } of statedMatch) {
-      // log.log(
-      //   `:: [${basename(this.filePath)}] [${i + 1} / ${
-      //     match.length
-      //   }] ${relativePath}`
-      // );
-
       const targetPath = join(to || '/', relativePath);
       // eslint-disable-next-line no-await-in-loop
-      await this.appendFile(fullPath, targetPath);
+      await this.appendFile(fullPath, targetPath, skipDuplicated);
       // i += 1;
     }
 
@@ -271,7 +303,7 @@ export class Zip {
       throw new Error('Writing is not finished, unable to close the file');
     }
 
-    await this.appendText('yay', '.recative');
+    await this.appendText('yay', '.recative', true);
 
     this.closed = true;
 

@@ -82,5 +82,5 @@ export const bundleMediaResources = async (
     to: `${resourcePath}/${resource.id}.resource`,
   }));
 
-  await zip.appendFileList(resourceFilePathList);
+  await zip.appendFileList(resourceFilePathList, true);
 };
