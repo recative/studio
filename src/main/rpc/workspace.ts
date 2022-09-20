@@ -1,3 +1,4 @@
+import console from 'electron-log';
 import { join as joinPath, normalize as normalizePath } from 'path';
 import { ensureDir } from 'fs-extra';
 

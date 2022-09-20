@@ -91,6 +91,7 @@ export const uploadBundle = async (
       const mediaReleaseId = targetRelease.mediaBuildId;
       const mediaTaskQueue = await uploadMediaBundle(
         mediaReleaseId,
+        targetRelease.id,
         terminalId
       );
       if (mediaTaskQueue.size === 0) {
@@ -120,7 +121,11 @@ export const uploadBundle = async (
 
   await wrapTaskFunction(terminalId, 'Post Processing Test', async () => {
     if (postProcessTest) {
-      await postProcessResource(targetRelease.mediaBuildId, terminalId);
+      await postProcessResource(
+        targetRelease.mediaBuildId,
+        targetRelease.id,
+        terminalId
+      );
     }
   })();
 

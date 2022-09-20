@@ -1,4 +1,4 @@
-import log from 'electron-log';
+import console from 'electron-log';
 import { produce } from 'immer';
 import { groupBy } from 'lodash';
 
@@ -153,7 +153,7 @@ export const getResourceListOfEpisode = async (
         }
       );
     } catch (e) {
-      log.error(e);
+      console.error(e);
       throw e;
     }
 

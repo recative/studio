@@ -5,7 +5,7 @@ import { readFile } from 'fs/promises';
 
 import { Category } from '@recative/definitions';
 import { TerminalMessageLevel as Level } from '@recative/extension-sdk';
-import type { IResourceFile, IResourceItem } from '@recative/definitions';
+import type { IResourceFile } from '@recative/definitions';
 import type { IPostProcessedResourceFileForUpload } from '@recative/extension-sdk';
 
 import { getSeriesId } from './series';
@@ -14,8 +14,8 @@ import { logToTerminal } from './terminal';
 import { getDb } from '../db';
 
 import { TaskQueue } from '../../utils/uploadTaskQueue';
+import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../utils/getResourceFile';
-import { getLokiCollectionFromMediaRelease } from '../../utils/getLokiCollectionFromMediaRelease';
 import { getUploaderInstances } from '../../utils/getExtensionInstances';
 
 /**
@@ -25,40 +25,36 @@ import { getUploaderInstances } from '../../utils/getExtensionInstances';
  */
 export const uploadMediaBundle = async (
   mediaReleaseId: number,
+  bundleReleaseId: number | undefined,
   terminalId: string
 ) => {
-  const db = await getDb();
+  const db0 = await getDb();
+  const db = await getReleasedDb(bundleReleaseId);
   const seriesId = await getSeriesId();
 
-  const resourceCollection =
-    await getLokiCollectionFromMediaRelease<IResourceItem>(
-      mediaReleaseId,
-      'resource',
-      'resources'
-    );
+  logToTerminal(terminalId, 'Preparing the uploading task');
 
-  const postProcessedCollection =
-    await getLokiCollectionFromMediaRelease<IPostProcessedResourceFileForUpload>(
-      mediaReleaseId,
-      'resource',
-      'postProcessedResources'
-    );
+  const resourceToBeUploaded = db.resource.resources.find({
+    type: 'file',
+    removed: false,
+  }) as IResourceFile[];
 
-  const resourceToBeUploaded = resourceCollection.data.filter(
-    (x) => x.type === 'file' && !x.removed
-  ) as IResourceFile[];
+  logToTerminal(terminalId, `:: Resources: ${resourceToBeUploaded.length}`);
 
-  const postProcessedResourceToBeUploaded = postProcessedCollection.data.filter(
-    (x) =>
-      x.type === 'file' &&
-      !x.removed &&
-      x.postProcessRecord.mediaBundleId.includes(mediaReleaseId)
+  const postProcessedResourceToBeUploaded = db.resource.postProcessed
+    .find({ type: 'file', removed: false })
+    .filter((x) => x.postProcessRecord.mediaBundleId.includes(mediaReleaseId));
+
+  logToTerminal(
+    terminalId,
+    `:: Post processed: ${postProcessedResourceToBeUploaded.length}`
   );
-
   const allResources = [
     ...resourceToBeUploaded,
     ...postProcessedResourceToBeUploaded,
   ];
+
+  logToTerminal(terminalId, `:: Total: ${allResources.length}`);
 
   // Count categories count and decide initialize which uploader.
   // The key is category name, value is the count of the category.
@@ -70,6 +66,12 @@ export const uploadMediaBundle = async (
       if (!taskCountByCategory[tag]) taskCountByCategory[tag] = 0;
       taskCountByCategory[tag] += 1;
     });
+  });
+
+  logToTerminal(terminalId, `:: Categories:`);
+
+  Object.entries(taskCountByCategory).forEach(([key, value]) => {
+    logToTerminal(terminalId, `:: :: ${key}: ${value}`);
   });
 
   const uploaderInstances = Object.entries(
@@ -102,10 +104,10 @@ export const uploadMediaBundle = async (
         const resourceRecord:
           | IResourceFile
           | IPostProcessedResourceFileForUpload =
-          (db.resource.resources.findOne({
+          (db0.resource.resources.findOne({
             id: resourceFile.id,
           }) as IResourceFile) ??
-          (db.resource.postProcessed.findOne({
+          (db0.resource.postProcessed.findOne({
             id: resourceFile.id,
           }) as IPostProcessedResourceFileForUpload);
 
@@ -181,9 +183,9 @@ export const uploadMediaBundle = async (
             finishedFiles += 1;
 
             if ('fileName' in resourceRecord) {
-              db.resource.postProcessed.update(resourceRecord);
+              db0.resource.postProcessed.update(resourceRecord);
             } else {
-              db.resource.resources.update(resourceRecord);
+              db0.resource.resources.update(resourceRecord);
             }
           } catch (error) {
             console.error(error);

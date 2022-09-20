@@ -324,7 +324,7 @@ export const createMediaRelease = async (
     'Postprocessing Resource',
     async () => {
       logToTerminal(terminalId, `Postprocessing media`);
-      await postProcessResource(mediaReleaseId, terminalId, -1);
+      await postProcessResource(mediaReleaseId, undefined, terminalId);
     },
     abortController
   )();

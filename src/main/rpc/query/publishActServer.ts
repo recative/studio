@@ -5,27 +5,21 @@ import StreamZip from 'node-stream-zip';
 
 import { PreloadLevel, ResolutionMode } from '@recative/definitions';
 import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
-import type {
-  IAsset,
-  IEpisode,
-  IActPoint,
-  IResourceItem,
-} from '@recative/definitions';
 
-import { getBuildPath, getUserData } from './setting';
 import { logToTerminal } from './terminal';
+import { getBuildPath, getUserData } from './setting';
 
 import { getDb } from '../db';
 
-import { ReleaseNotFoundError } from '../../utils/errors/ReleaseNotFoundError';
+import { getReleasedDb } from '../../utils/getReleasedDb';
 import { BUNDLE_TYPE_MAP } from '../../constant/publish';
-import { getLokiCollectionFromMediaRelease } from '../../utils/getLokiCollectionFromMediaRelease';
+import { ReleaseNotFoundError } from '../../utils/errors/ReleaseNotFoundError';
 
 import {
   OpenAPI,
-  AddReleaseRequestBody,
-  ReleaseService,
   SeriesService,
+  ReleaseService,
+  AddReleaseRequestBody,
 } from '../../../api';
 
 /**
@@ -37,11 +31,12 @@ export const uploadDatabase = async (
   bundleReleaseId: number,
   terminalId: string
 ) => {
-  const db = await getDb();
+  const db0 = await getDb();
+  const db = await getReleasedDb(bundleReleaseId);
 
   const releaseList: AddReleaseRequestBody[] = [];
 
-  const targetRelease = db.release.bundleReleases.findOne({
+  const targetRelease = db0.release.bundleReleases.findOne({
     id: bundleReleaseId,
   });
 
@@ -55,7 +50,7 @@ export const uploadDatabase = async (
 
   // == series ==
   logToTerminal(terminalId, `Find series information`);
-  const series = db.series.metadata.data[0];
+  const series = db0.series.metadata.data[0];
   try {
     await SeriesService.getSeriesSeriesId(series.id);
   } catch (error) {
@@ -75,7 +70,7 @@ export const uploadDatabase = async (
   logToTerminal(terminalId, `Uploading release information`);
 
   logToTerminal(terminalId, `Uploading media release`);
-  const mediaRelease = db.release.mediaReleases.findOne({
+  const mediaRelease = db0.release.mediaReleases.findOne({
     id: targetRelease.mediaBuildId,
   });
   if (!mediaRelease) throw new ReleaseNotFoundError();
@@ -88,7 +83,7 @@ export const uploadDatabase = async (
   });
 
   logToTerminal(terminalId, `Uploading code release`);
-  const codeRelease = db.release.codeReleases.findOne({
+  const codeRelease = db0.release.codeReleases.findOne({
     id: targetRelease.codeBuildId,
   });
   if (!codeRelease) throw new ReleaseNotFoundError();
@@ -127,17 +122,12 @@ export const uploadDatabase = async (
 
   // == episode ==
   logToTerminal(terminalId, `Uploading episode data`);
-  const episodeCollection = await getLokiCollectionFromMediaRelease<IEpisode>(
-    mediaRelease.id,
-    'episode',
-    'episodes'
-  );
 
   try {
     await ReleaseService.postReleaseReleaseIdEpisode(
       bundleReleaseId.toString(),
       series.id,
-      episodeCollection.data.map((item) => {
+      db.episode.episodes.find({}).map((item) => {
         return {
           id: item.id,
           label: item.label,
@@ -168,13 +158,7 @@ export const uploadDatabase = async (
     .map((x) => x.name)
     .filter((x) => x.endsWith('index.html'));
 
-  const actPointCollection = await getLokiCollectionFromMediaRelease<IActPoint>(
-    mediaRelease.id,
-    'act-point',
-    'actPoints'
-  );
-
-  const apData = actPointCollection.data.map((item) => {
+  const apData = db.actPoint.actPoints.find({}).map((item) => {
     return {
       ...item,
       resolutionMode: item.resolutionMode || ResolutionMode.FollowPlayerSetting,
@@ -204,14 +188,8 @@ export const uploadDatabase = async (
 
   // == resource ==
   logToTerminal(terminalId, `Uploading resource data`);
-  const resourceCollection =
-    await getLokiCollectionFromMediaRelease<IResourceItem>(
-      mediaRelease.id,
-      'resource',
-      'resources'
-    );
 
-  const resources = resourceCollection.data.map((item) => {
+  const resources = db.resource.resources.find({}).map((item) => {
     const tags = item.tags
       ? item.tags.map((tag) => {
           const tagSplit = tag.split(':');
@@ -279,17 +257,11 @@ export const uploadDatabase = async (
 
   // == asset ==
   logToTerminal(terminalId, `Uploading asset data`);
-  const assetCollection = await getLokiCollectionFromMediaRelease<IAsset>(
-    mediaRelease.id,
-    'episode',
-    'assets'
-  );
-
   try {
     await ReleaseService.postReleaseReleaseIdAsset(
       bundleReleaseId.toString(),
       series.id,
-      assetCollection.data.map((asset) => {
+      db.episode.assets.find({}).map((asset) => {
         return {
           id: asset.id,
           releaseId: Number(terminalId),

@@ -1,10 +1,12 @@
+import console from 'electron-log';
+
 import { languageResourceTags } from '@recative/definitions';
 import type {
   IBundleGroup,
   PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForUpload,
 } from '@recative/extension-sdk';
-import type { IResourceFile, IResourceItem } from '@recative/definitions';
+import type { IResourceFile } from '@recative/definitions';
 
 import { cleanupLoki } from './utils';
 import { logToTerminal } from './terminal';
@@ -12,31 +14,27 @@ import { logToTerminal } from './terminal';
 import { getDb } from '../db';
 
 import { cloneDeep } from '../../utils/cloneDeep';
+import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
-import { getLokiCollectionFromMediaRelease } from '../../utils/getLokiCollectionFromMediaRelease';
 
 export const postProcessResource = async (
   mediaReleaseId: number,
-  terminalId: string,
-  mediaDbReleaseId = mediaReleaseId
+  bundleReleaseId: number | undefined,
+  terminalId: string
 ) => {
-  const db = await getDb();
+  const db0 = await getDb();
+  const db = await getReleasedDb(bundleReleaseId);
 
   logToTerminal(terminalId, `:: Initializing the post process pipeline`);
-  const resourceCollection =
-    await getLokiCollectionFromMediaRelease<IResourceItem>(
-      mediaDbReleaseId,
-      'resource',
-      'resources'
-    );
 
   // We need to extract both original resource files and post processed
   // files here.
   let resourceToBePostProcessed: PostProcessedResourceItemForUpload[] = [
     ...(
-      resourceCollection.data.filter(
-        (x) => x.type === 'file' && !x.removed
-      ) as IResourceFile[]
+      db.resource.resources.find({
+        type: 'file',
+        removed: false,
+      }) as IResourceFile[]
     ).map((x) => {
       const clonedFile = cloneDeep(x) as IPostProcessedResourceFileForUpload;
       clonedFile.postProcessRecord = {
@@ -45,7 +43,7 @@ export const postProcessResource = async (
       };
       return clonedFile;
     }),
-    ...db.resource.postProcessed.find({}),
+    ...db0.resource.postProcessed.find({}),
   ];
 
   const resourceProcessorInstances = Object.entries(
@@ -133,20 +131,22 @@ export const postProcessResource = async (
 
   postProcessedFiles.forEach((resource) => {
     const cleanResource = cleanupLoki(resource);
-    const queriedResource = db.resource.postProcessed.findOne({
+    const queriedResource = db0.resource.postProcessed.findOne({
       id: cleanResource.id,
     });
 
     if (queriedResource) {
       // Update the record
-      db.resource.postProcessed.update({
+      const mergedResource = {
         ...queriedResource,
         ...cleanResource,
-      });
+      };
+
+      db0.resource.postProcessed.update(mergedResource);
 
       updatedRecords += 1;
     } else {
-      db.resource.postProcessed.insert(cleanResource);
+      db0.resource.postProcessed.insert(cleanResource);
       insertedRecord += 1;
     }
   });

@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-labels */
 /* eslint-disable no-await-in-loop */
-import log from 'electron-log';
+import console from 'electron-log';
 import { nanoid } from 'nanoid';
 import { Image, createCanvas, Canvas } from '@napi-rs/canvas';
 
@@ -1230,10 +1230,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       );
 
       if (task.reason instanceof Error) {
-        log.error(':: Failed task');
-        log.error(':: :: Stack');
-        log.error(task.reason.stack);
-        log.error(':: :: End');
+        console.error(':: Failed task');
+        console.error(':: :: Stack');
+        console.error(task.reason.stack);
+        console.error(':: :: End');
       }
     }
   }
@@ -1331,6 +1331,8 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     const atlasDefinitions = resources.filter(
       (x) => x.type === 'file' && x.tags.includes('custom:merged-atlas!')
     );
+
+    console.log(`:: [Atlas] Found ${atlasDefinitions.length} atlas images`);
 
     for (let i = 0; i < atlasDefinitions.length; i += 1) {
       const atlasDefinition = atlasDefinitions[i];
