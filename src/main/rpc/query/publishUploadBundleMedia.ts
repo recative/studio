@@ -29,7 +29,10 @@ export const uploadMediaBundle = async (
   terminalId: string
 ) => {
   const db0 = await getDb();
-  const db = await getReleasedDb(bundleReleaseId);
+
+  logToTerminal(terminalId, 'Initializing the archived database');
+
+  const db = await getReleasedDb(bundleReleaseId, terminalId);
   const seriesId = await getSeriesId();
 
   logToTerminal(terminalId, 'Preparing the uploading task');

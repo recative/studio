@@ -89,12 +89,23 @@ export const uploadBundle = async (
 
   await wrapTaskFunction(terminalId, 'Uploading Media Files', async () => {
     if (mediaBundle) {
+      logToTerminal(
+        terminalId,
+        `Preparing the uploading task for m.${targetRelease.mediaBuildId}`
+      );
+
       const mediaReleaseId = targetRelease.mediaBuildId;
       const mediaTaskQueue = await uploadMediaBundle(
         mediaReleaseId,
         targetRelease.id,
         terminalId
       );
+
+      logToTerminal(
+        terminalId,
+        `Media task queue length ${mediaTaskQueue.size}`
+      );
+
       if (mediaTaskQueue.size === 0) {
         return;
       }

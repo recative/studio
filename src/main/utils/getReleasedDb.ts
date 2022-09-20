@@ -18,7 +18,9 @@ export const getReleasedDb = async (
   }
 
   const mediaBundleId = release.mediaBuildId;
-  const dbPath = await extractDbBackupToTempPath(mediaBundleId);
+  logToTerminal(terminalId, `:: Extracting the database`);
+  const dbPath = await extractDbBackupToTempPath(mediaBundleId, terminalId);
+  logToTerminal(terminalId, `:: :: Reading the extracted database`);
   const db1 = getDb(dbPath, true, { mediaBundleId });
 
   if (terminalId) {
