@@ -87,7 +87,7 @@ export const ReleaseList: React.FC<IReleaseList> = ({ Actions }) => {
         <StyledHeadCell>Notes</StyledHeadCell>
         {Actions && <StyledHeadCell />}
       </RecativeBlock>
-      {releaseData.bundle.map((release) => (
+      {releaseData.bundle.filter(Boolean).map((release) => (
         <RecativeBlock key={release.id} className={css(bodyStyle)} role="row">
           <StyledBodyCell className={css(cellStyle)}>
             <RecativeBlock fontWeight={500}>{release.id}</RecativeBlock>

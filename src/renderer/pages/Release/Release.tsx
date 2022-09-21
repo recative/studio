@@ -228,7 +228,7 @@ export const Release: React.FC = () => {
                 <LabelLarge>Bundle</LabelLarge>
               </RecativeBlock>
               <ReleaseList className={css(cardBodyStyles)}>
-                {releaseData?.bundle.map((item) => (
+                {releaseData?.bundle.filter(Boolean).map((item) => (
                   <ReleaseItem
                     key={item.id}
                     {...item}
