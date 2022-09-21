@@ -32,8 +32,14 @@ export const extractDbBackupToTempPath = async (
   logToTerminal(terminalId, `:: Bundle path: ${dbBundlePath}`);
 
   const zip = new StreamZip.async({ file: dbBundlePath });
-
   logToTerminal(terminalId, `:: Extracting Database`);
+
+  const entries = await zip.entries();
+  logToTerminal(
+    terminalId,
+    `:: :: Total entries: ${Object.keys(entries).length}`
+  );
+
   await zip.extract(null, dir);
   logToTerminal(terminalId, `:: Closing the zip file`);
   await zip.close();
