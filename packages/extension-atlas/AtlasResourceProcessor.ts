@@ -989,7 +989,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           // We test if the resource is already generated on previous builds, if
           // generated, we simply copy the config but don't run the file
           // generation task, or we have to build the media.
-          const matchedProcessRecord = ResourceProcessor.findPostprocessRecord(
+          const matchedProcessRecord = await this.findPostprocessRecord(
             resources,
             resourceDescription.postProcessRecord
           );

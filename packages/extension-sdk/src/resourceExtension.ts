@@ -1,3 +1,4 @@
+import { pathExists } from 'fs-extra';
 import { hashObject } from '@recative/definitions';
 import { TerminalMessageLevel } from '@recative/studio-definitions';
 
@@ -284,14 +285,24 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
     return resource;
   }
 
-  protected static findPostprocessRecord(
+  protected async findPostprocessRecord(
     resources: PostProcessedResourceItemForUpload[],
     compareWith: IPostProcessRecord
   ) {
     const compareWithHash = hashObject(compareWith.operations);
-    return resources.find(
-      (x) => hashObject(x.postProcessRecord.operations) === compareWithHash
-    );
+
+    for (let i = 0; i < resources.length; i += 1) {
+      const x = resources[i];
+      const valid =
+        hashObject(x.postProcessRecord.operations) === compareWithHash &&
+        (await pathExists(this.dependency.getResourceFilePath(x)));
+
+      if (valid) {
+        return x;
+      }
+    }
+
+    return undefined;
   }
 
   protected static mapBundleGroup<

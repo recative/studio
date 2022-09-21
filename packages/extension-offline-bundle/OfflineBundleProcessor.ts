@@ -122,7 +122,7 @@ export class OfflineBundleProcessor extends ResourceProcessor<
             mediaBuildId
           );
 
-          const matchedProcessRecord = ResourceProcessor.findPostprocessRecord(
+          const matchedProcessRecord = await this.findPostprocessRecord(
             resources,
             resourceDescription.postProcessRecord
           );
