@@ -214,7 +214,7 @@ export class OfflineBundleProcessor extends ResourceProcessor<
           })
         );
 
-        await zip.appendFileList(fileList);
+        await zip.appendFileList(fileList, true);
 
         const buffer = await zip.done();
 

@@ -129,7 +129,7 @@ export class Zip {
     this.entries.add(path);
   };
 
-  appendText = async (text: string, to: string, skipDuplicated: boolean) => {
+  appendText = async (text: string, to: string, skipDuplicated?: boolean) => {
     if (this.writing) {
       throw new Error('Cannot write new content to zip while writing');
     }
