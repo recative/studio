@@ -80,6 +80,7 @@
     "lokijs",
     "Mergeable",
     "msgpack",
+    "nanostores",
     "napi",
     "nkeyin",
     "nsis",
