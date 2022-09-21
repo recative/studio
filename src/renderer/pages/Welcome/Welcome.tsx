@@ -232,13 +232,12 @@ const useRecentProjectClickCallback = (
 
   const handleSubmitProject = React.useCallback(
     async (project: IRecentProject) => {
-      const result = await server.setupWorkspace(
+      const result = await server.setupStudio(
         project.workspacePath,
         project.repositoryPath,
         readonly
       );
 
-      await server.setupDb(result.dbPath);
       if (!(await server.ifDbLocked())) {
         await server.lockDb();
         await server.migration();

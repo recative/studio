@@ -36,12 +36,10 @@ export const ImportResource: React.FC = () => {
   const handleSubmit = React.useCallback(async () => {
     if (!mediaWorkspacePath?.[0]) return;
 
-    const result = await server.setupWorkspace(
+    const result = await server.setupStudio(
       mediaWorkspacePath[0],
       codeRepositoryPath?.[0]
     );
-
-    await server.setupDb(result.dbPath);
 
     addRecentProject(mediaWorkspacePath[0], codeRepositoryPath?.[0]);
 

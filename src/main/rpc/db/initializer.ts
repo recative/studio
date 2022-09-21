@@ -4,6 +4,15 @@ import Loki, { LokiFsAdapter } from 'lokijs';
 
 import { IDbInstance, DB_CONFIG } from './config';
 
+let dbLoadingProgress = 0;
+let dbLoadingStatus = 'Not initialized';
+
+export const getDbProgress = () => ({
+  totalDatabases: Object.keys(DB_CONFIG).length,
+  dbLoadingProgress,
+  dbLoadingStatus,
+});
+
 export const initializeDb = async <T>(
   dbPath: string,
   adapter: LokiFsAdapter,
@@ -15,6 +24,11 @@ export const initializeDb = async <T>(
   } as IDbInstance<T>;
 
   for (const [internalDbId, dbDefinition] of Object.entries(DB_CONFIG)) {
+    dbLoadingProgress += 1;
+
+    const logDbId = internalDbId[0].toUpperCase() + internalDbId.substring(1);
+    dbLoadingStatus = `${logDbId} Database`;
+
     const dbId = internalDbId as keyof IDbInstance<T>;
     if (dbId === 'path' || dbId === 'additionalData') {
       continue;

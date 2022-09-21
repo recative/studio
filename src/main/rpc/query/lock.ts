@@ -2,7 +2,7 @@ import { join } from 'path';
 import { nanoid } from 'nanoid';
 
 import { check, lock, unlock } from 'proper-lockfile';
-import { readJsonSync, writeJsonSync, removeSync, pathExists } from 'fs-extra';
+import { readJSON, writeJSON, remove, pathExists } from 'fs-extra';
 
 import { getWorkspace } from '../workspace';
 
@@ -22,7 +22,7 @@ export const ifDbLocked = async () => {
       lockfilePath: lockFilePath,
     });
 
-    const isThisProcess = (await readJsonSync(processIdFilePath)) === processId;
+    const isThisProcess = (await readJSON(processIdFilePath)) === processId;
 
     return locked && !isThisProcess;
   } catch (error) {
@@ -47,7 +47,7 @@ export const lockDb = async () => {
   const lockFilePath = join(workspace.dbPath, '.lock');
   const processIdFilePath = join(workspace.dbPath, '.lock-process');
 
-  await writeJsonSync(processIdFilePath, processId);
+  await writeJSON(processIdFilePath, processId);
 
   try {
     await lock(workspace.dbPath, {
@@ -73,7 +73,7 @@ export const unlockDb = async () => {
   const lockFilePath = join(workspace.dbPath, '.lock');
   const processIdFilePath = join(workspace.dbPath, '.lock-process');
 
-  removeSync(processIdFilePath);
+  await remove(processIdFilePath);
   return unlock(workspace.dbPath, {
     lockfilePath: lockFilePath,
   });
