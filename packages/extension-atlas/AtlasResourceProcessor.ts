@@ -1375,24 +1375,32 @@ export class AtlasResourceProcessor extends ResourceProcessor<
         );
       }
 
-      const includeIds = includes.split(',');
+      const definedIds = new Set(includes.split(','));
 
       const includedFiles = resources.filter(
-        (x) => includeIds.includes(x.id) && x.type === 'file'
+        (x) => definedIds.has(x.id) && x.type === 'file'
       );
 
-      if (includedFiles.length !== includeIds.length) {
+      const includedIds = new Set(includedFiles.map((x) => x.id));
+
+      if (includedIds.size !== definedIds.size) {
         if (profile === 'apPackLivePreview') {
           continue;
         }
 
-        const missingIds = includeIds.filter(
-          (x) => !includedFiles.some((y) => y.id === x)
+        const missingFiles = includedFiles.filter(
+          (x) => !includedFiles.some((y) => y.id === x.id)
         );
+
+        const missingLabels = missingFiles.map((x) => x.label);
+        console.log('-->', missingFiles);
+
         throw new TypeError(
-          `Some included files are missing, this is a bug. Missing file: ${missingIds.join(
-            `, `
-          )}`
+          `Some included files are missing, this is a bug. Expected resource count: ${
+            definedIds.size
+          }, actually existed: ${includedIds.size} / ${
+            resources.length
+          }, Missing file: ${missingLabels.join(`, `)}`
         );
       }
 

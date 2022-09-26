@@ -196,7 +196,9 @@ export class OfflineBundleProcessor extends ResourceProcessor<
         );
 
         this.dependency.logToTerminal(
-          `:: :: :: :: :: ${files.map((x) => x.label).join(', ')}`,
+          `:: :: :: :: :: ${[...new Set(files.map((x) => x.label))]
+            .sort()
+            .join(', ')}`,
           Level.Info
         );
 
