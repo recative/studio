@@ -197,7 +197,7 @@ export class OfflineBundleProcessor extends ResourceProcessor<
 
         const fileList = await Promise.all(
           files.map(async (x) => {
-            const from = this.dependency.getResourceFilePath(x);
+            const from = await this.dependency.getResourceFilePath(x);
 
             if (!(await pathExists(from))) {
               this.dependency.logToTerminal(

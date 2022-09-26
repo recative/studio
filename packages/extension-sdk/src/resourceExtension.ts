@@ -59,7 +59,7 @@ export type PostProcessedResourceItemForImport =
   | IResourceGroup;
 
 export interface IResourceExtensionDependency {
-  getResourceFilePath: (resource: Pick<IResourceFile, 'id'>) => string;
+  getResourceFilePath: (resource: Pick<IResourceFile, 'id'>) => Promise<string>;
   writeBufferToPostprocessCache: (
     buffer: Buffer,
     fileName: string
@@ -191,7 +191,7 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
       return resource.postProcessedFile;
     }
     return this.dependency.readPathAsBuffer(
-      this.dependency.getResourceFilePath(resource)
+      await this.dependency.getResourceFilePath(resource)
     );
   }
 
@@ -295,7 +295,7 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
       const x = resources[i];
       const valid =
         hashObject(x.postProcessRecord.operations) === compareWithHash &&
-        (await pathExists(this.dependency.getResourceFilePath(x)));
+        (await pathExists(await this.dependency.getResourceFilePath(x)));
 
       if (valid) {
         return x;

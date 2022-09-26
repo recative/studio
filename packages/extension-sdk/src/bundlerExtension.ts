@@ -107,8 +107,9 @@ export abstract class Bundler<ConfigKey extends string> {
   }
 
   protected configValidator(
-    x: Record<string, string>
-  ): x is Record<ConfigKey, string> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _x: Record<string, string>
+  ): _x is Record<ConfigKey, string> {
     return true;
   }
 
