@@ -54,11 +54,13 @@ export class OfflineBundleProcessor extends ResourceProcessor<
             (x) =>
               x.type === 'file' &&
               // We should not include the bundle file since it will cause
-              // circular 0bundling.
+              // circular bundling.
               !(
                 `${OfflineBundleProcessor.id}~~includes` in
                 x.extensionConfigurations
-              )
+              ) &&
+              // We should exclude resource not included in the media release.
+              x.postProcessRecord.mediaBundleId.includes(mediaBuildId)
           );
 
           if (!files.length) {
@@ -190,6 +192,11 @@ export class OfflineBundleProcessor extends ResourceProcessor<
         );
         this.dependency.logToTerminal(
           `:: :: :: :: Included: ${files.length} files`,
+          Level.Info
+        );
+
+        this.dependency.logToTerminal(
+          `:: :: :: :: :: ${files.map((x) => x.label).join(', ')}`,
           Level.Info
         );
 

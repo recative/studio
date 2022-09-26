@@ -298,7 +298,8 @@ export class AtlasResourceProcessor extends ResourceProcessor<
         x.extensionConfigurations[`${AtlasResourceProcessor.id}~~enabled`] ===
           'yes' &&
         x.mimeType.startsWith('image') &&
-        !x.tags.includes('custom:frame-sequence-pointer!')
+        !x.tags.includes('custom:frame-sequence-pointer!') &&
+        !x.tags.includes('custom:merged-atlas!')
       );
     });
 

@@ -360,7 +360,7 @@ export const createMediaRelease = async (
           notes,
         },
       ]);
-      logToTerminal(terminalId, `:: Done`);
+      logToTerminal(terminalId, `:: Done!`);
     },
     abortController
   )();
