@@ -42,6 +42,19 @@ export const postProcessResource = async (
     {}
   );
 
+  const postProcessedFileMap = new Map<
+    string,
+    PostProcessedResourceItemForUpload[]
+  >();
+
+  postProcessedResourceToBePostProcessed.forEach((x) => {
+    if (!postProcessedFileMap.has(x.id)) {
+      postProcessedFileMap.set(x.id, []);
+    }
+
+    postProcessedFileMap.get(x.id)?.push(x);
+  });
+
   let resourceToBePostProcessed: PostProcessedResourceItemForUpload[] = [
     ...normalResourceToBePostProcessed,
     ...postProcessedResourceToBePostProcessed,
@@ -128,17 +141,15 @@ export const postProcessResource = async (
 
   postProcessedFiles.forEach((resource) => {
     const newRecord = cleanupLoki(resource);
-    const oldRecord = db.resource.postProcessed.findOne({
-      id: newRecord.id,
-    });
 
-    if (
-      oldRecord &&
-      // There maybe a bug of Loki.js I think, it is queried from findOne but
-      // can not be queried from get
-      db.resource.postProcessed.get(oldRecord.$loki, true) !== null
-    ) {
-      db.resource.postProcessed.update({ ...oldRecord, ...newRecord });
+    if (postProcessedFileMap.has(resource.id)) {
+      const updated =
+        postProcessedFileMap.get(resource.id)?.map((x) => {
+          return Object.assign(x, newRecord);
+        }) ?? [];
+
+      db.resource.postProcessed.update(updated);
+
       updateCount += 1;
     } else {
       db.resource.postProcessed.insert(newRecord);
