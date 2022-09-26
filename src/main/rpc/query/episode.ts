@@ -1,4 +1,4 @@
-import console from 'electron-log';
+import log from 'electron-log';
 import { produce } from 'immer';
 import { groupBy } from 'lodash';
 
@@ -98,7 +98,7 @@ export const getResourceListOfEpisode = async (
     },
   });
 
-  const postProcessedResourceFiles = db.resource.postProcessed
+  const postProcessedResourceFiles = db0.resource.postProcessed
     .find({
       $or: [
         { episodeIds: { $contains: episodeId }, removed: false },
@@ -153,7 +153,7 @@ export const getResourceListOfEpisode = async (
         }
       );
     } catch (e) {
-      console.error(e);
+      log.error(e);
       throw e;
     }
 
