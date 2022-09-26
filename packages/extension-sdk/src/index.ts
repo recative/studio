@@ -14,3 +14,4 @@ export * from './bundlerExtension';
 export * from './uploaderExtension';
 export * from './resourceExtension';
 export * from './resourceForImport';
+export * from './scriptletExtension';
