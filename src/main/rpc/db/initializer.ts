@@ -2,7 +2,7 @@ import { join } from 'path';
 
 import Loki, { LokiFsAdapter } from 'lokijs';
 
-import { IDbInstance, DB_CONFIG } from './config';
+import { IDbInstance, DB_CONFIG } from '@recative/studio-definitions';
 
 let dbLoadingProgress = 0;
 let dbLoadingStatus = 'Not initialized';
