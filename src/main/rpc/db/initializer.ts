@@ -1,3 +1,4 @@
+import console from 'electron-log';
 import { join } from 'path';
 
 import Loki, { LokiFsAdapter } from 'lokijs';
@@ -57,14 +58,36 @@ export const initializeDb = async <T>(
     for (const [collectionId, collectionDefinition] of Object.entries(
       dbDefinition.config
     )) {
+      console.log(`:: :: Initializing ${collectionId}`);
       if (collectionDefinition.type === 'collection') {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (dbInstance[dbId] as any)[collectionId] = dbInstance[
-          dbId
-        ].$db.addCollection(collectionId, {
+        const collection = dbInstance[dbId].$db.addCollection(collectionId, {
           autoupdate: collectionDefinition.autoupdate,
           indices: collectionDefinition.indices,
         });
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (dbInstance[dbId] as any)[collectionId] = collection;
+
+        const deduplicateSet = new Set();
+        const data = collection.data
+          .filter((x) => {
+            const duplicated = deduplicateSet.has(x.$loki);
+            deduplicateSet.add(x.$loki);
+
+            if (duplicated) {
+              console.warn('Detected duplicated key, will remove it');
+            }
+            return !duplicated;
+          })
+          .sort((a, b) => a.$loki - b.$loki);
+
+        const index = new Array(data.length);
+        for (let i = 0; i < data.length; i += 1) {
+          index[i] = data[i].$loki;
+        }
+
+        collection.idIndex = index;
       }
 
       if (collectionDefinition.type === 'view') {
