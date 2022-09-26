@@ -75,7 +75,7 @@ export class OfflineBundleProcessor extends ResourceProcessor<
 
           const resourceId = nanoid();
 
-          const entryIds = files.map((x) => x.id).sort();
+          const entryIds = [...new Set()].sort();
           const groupHash = hashObject({
             files: entryIds,
           });

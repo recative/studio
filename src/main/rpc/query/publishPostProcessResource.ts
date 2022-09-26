@@ -24,21 +24,27 @@ export const postProcessResource = async (
 
   // We need to extract both original resource files and post processed
   // files here.
+  const normalResourceToBePostProcessed = (
+    db.resource.resources.find({
+      type: 'file',
+      removed: false,
+    }) as IResourceFile[]
+  ).map((x) => {
+    const clonedFile = cloneDeep(x) as IPostProcessedResourceFileForUpload;
+    clonedFile.postProcessRecord = {
+      mediaBundleId: [],
+      operations: [],
+    };
+    return clonedFile;
+  });
+
+  const postProcessedResourceToBePostProcessed = db.resource.postProcessed.find(
+    {}
+  );
+
   let resourceToBePostProcessed: PostProcessedResourceItemForUpload[] = [
-    ...(
-      db.resource.resources.find({
-        type: 'file',
-        removed: false,
-      }) as IResourceFile[]
-    ).map((x) => {
-      const clonedFile = cloneDeep(x) as IPostProcessedResourceFileForUpload;
-      clonedFile.postProcessRecord = {
-        mediaBundleId: [],
-        operations: [],
-      };
-      return clonedFile;
-    }),
-    ...db.resource.postProcessed.find({}),
+    ...normalResourceToBePostProcessed,
+    ...postProcessedResourceToBePostProcessed,
   ];
 
   const resourceProcessorInstances = Object.entries(
@@ -53,9 +59,9 @@ export const postProcessResource = async (
   // Build bundle groups
   const episodeIdCombinations = new Set<string>();
 
-  resourceToBePostProcessed.forEach((resource) => {
+  normalResourceToBePostProcessed.forEach((resource) => {
     if (!resource.episodeIds.length) return;
-    episodeIdCombinations.add(resource.episodeIds.join(','));
+    episodeIdCombinations.add(resource.episodeIds.sort().join(','));
   });
 
   const resourceBundleGroups: IBundleGroup[] = [];
@@ -114,11 +120,7 @@ export const postProcessResource = async (
   // Filter out all resource that post processed for this build, add it to the
   // post processed cache table, for clients to read.
   const postProcessedFiles = resourceToBePostProcessed.filter((resource) => {
-    const postProcessed = !!resource.postProcessRecord.mediaBundleId.find(
-      (x) => x === mediaReleaseId
-    );
-
-    return postProcessed;
+    return resource.postProcessRecord.mediaBundleId.includes(mediaReleaseId);
   });
 
   let updateCount = 0;

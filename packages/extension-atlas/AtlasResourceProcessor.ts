@@ -943,7 +943,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               operations: [
                 {
                   extensionId: AtlasResourceProcessor.id,
-                  // The hash of the atlas task is based on  the resource id of
+                  // The hash of the atlas task is based on the resource id of
                   // images to be packed. We hope this value is stable enough.
                   postProcessHash: hashObject({
                     textures: textureRecords,
