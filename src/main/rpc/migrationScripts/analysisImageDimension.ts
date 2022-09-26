@@ -25,7 +25,7 @@ export const migration = async () => {
     await Promise.all(
       resources.map(async (x) => ({
         ...x,
-        postProcessedFile: await readFile(getResourceFilePath(x)),
+        postProcessedFile: await readFile(await getResourceFilePath(x)),
         postProcessedThumbnail: null,
       }))
     );

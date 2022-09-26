@@ -110,7 +110,7 @@ export const getResourceBinary = async (
 
   const { mimeType } = resource as IResourceFile;
 
-  const filePath = getResourceFilePath(resource);
+  const filePath = await getResourceFilePath(resource);
 
   if (!(await pathExists(filePath))) {
     reply.statusCode = 404;

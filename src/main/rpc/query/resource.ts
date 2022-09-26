@@ -2,7 +2,7 @@ import { basename, join as joinPath, parse as parsePath } from 'path';
 
 import { nanoid } from 'nanoid';
 import { uniqBy } from 'lodash';
-import { copy, removeSync, existsSync } from 'fs-extra';
+import { copy, removeSync, existsSync, pathExists } from 'fs-extra';
 
 import {
   Category,
@@ -165,7 +165,7 @@ export const removeResource = async (itemId: string, hard: boolean) => {
   if (hard) {
     db.resource.resources.remove(item);
     if (item.type === 'file') {
-      const filePath = getResourceFilePath({ id: itemId });
+      const filePath = await getResourceFilePath({ id: itemId });
       removeSync(filePath);
 
       if (item.thumbnailSrc) {
@@ -662,16 +662,24 @@ export const listBrokenResource = async () => {
     removed: false,
   });
 
-  return resources.filter((resource) => {
-    return !existsSync(getResourceFilePath(resource));
-  });
+  const result: IResourceItem[] = [];
+
+  for (let i = 0; i < resources.length; i += 1) {
+    const resource = resources[i];
+
+    if (!(await pathExists(await getResourceFilePath(resource)))) {
+      result.push(resource);
+    }
+  }
+
+  return result;
 };
 
 export const replaceResourceFile = async (
   filePath: string,
   resource: IResourceFile
 ) => {
-  await copy(filePath, getResourceFilePath(resource));
+  await copy(filePath, await getResourceFilePath(resource));
 };
 
 export const eraseResourceUrl = async (extensionId: string) => {

@@ -25,7 +25,7 @@ export const migration = async () => {
       continue;
     }
 
-    const newMime = await getMimeType(getResourceFilePath(resource));
+    const newMime = await getMimeType(await getResourceFilePath(resource));
 
     log.log(`:: :: ${resource.label} ${resource.mimeType} -> ${newMime}`);
 
