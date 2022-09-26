@@ -10,7 +10,10 @@ import type {
   IResourceItem,
   IResourceItemForClient,
 } from '@recative/definitions';
-import type { PostProcessedResourceItemForUpload } from '@recative/extension-sdk';
+import type {
+  IPostProcessedResourceFileForUpload,
+  PostProcessedResourceItemForUpload,
+} from '@recative/extension-sdk';
 
 import { getClientSideAssetList } from './asset';
 
@@ -62,6 +65,16 @@ export const getResourceListOfEpisode = async (
 
   logPerformance('init');
 
+  const Deduplicate = () => {
+    const idSet = new Set<string>();
+
+    return (x: IResourceItem | IPostProcessedResourceFileForUpload) => {
+      const duplicated = idSet.has(x.id);
+      idSet.add(x.id);
+      return !duplicated;
+    };
+  };
+
   const importedResourceFiles = db.resource.resources
     .find({
       $or: [
@@ -86,17 +99,20 @@ export const getResourceListOfEpisode = async (
         ...x,
         url: latestResource.url,
       };
-    });
+    })
+    .filter(Deduplicate());
 
   const groupIds = [
     ...new Set(importedResourceFiles.map((x) => x.resourceGroupId)),
   ].filter(Boolean);
 
-  const importedResourceGroups = db.resource.resources.find({
-    id: {
-      $in: groupIds,
-    },
-  });
+  const importedResourceGroups = db.resource.resources
+    .find({
+      id: {
+        $in: groupIds,
+      },
+    })
+    .filter(Deduplicate());
 
   const postProcessedResourceFiles = db0.resource.postProcessed
     .find({
@@ -105,7 +121,10 @@ export const getResourceListOfEpisode = async (
         { episodeIds: { $size: 0 }, removed: false },
       ],
     })
-    .filter((x) => x.postProcessRecord.mediaBundleId.includes(mediaBundleId));
+    .filter((x) => {
+      return x.postProcessRecord.mediaBundleId.includes(mediaBundleId);
+    })
+    .filter(Deduplicate());
 
   const queriedResources = [
     ...importedResourceFiles,
