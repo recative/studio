@@ -38,7 +38,11 @@ export const postProcessResource = async (
       };
       return clonedFile;
     }),
-    ...db.resource.postProcessed.find({}),
+    ...db.resource.postProcessed
+      .find({})
+      .filter((x) =>
+        x.postProcessRecord.mediaBundleId.includes(mediaReleaseId)
+      ),
   ];
 
   const resourceProcessorInstances = Object.entries(
