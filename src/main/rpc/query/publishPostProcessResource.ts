@@ -34,6 +34,7 @@ export const postProcessResource = async (
     clonedFile.postProcessRecord = {
       mediaBundleId: [],
       operations: [],
+      isNormalResource: true,
     };
     return clonedFile;
   });
@@ -133,7 +134,10 @@ export const postProcessResource = async (
   // Filter out all resource that post processed for this build, add it to the
   // post processed cache table, for clients to read.
   const postProcessedFiles = resourceToBePostProcessed.filter((resource) => {
-    return resource.postProcessRecord.mediaBundleId.includes(mediaReleaseId);
+    return (
+      !resource.postProcessRecord.isNormalResource &&
+      resource.postProcessRecord.mediaBundleId.includes(mediaReleaseId)
+    );
   });
 
   let updateCount = 0;
