@@ -38,44 +38,51 @@ export class OfflineBundleProcessor extends ResourceProcessor<
     bundleGroups: IBundleGroup[]
   ) {
     let totalTasks = 0;
+    let packedFiles = 0;
     let cachedTasks = 0;
     let skippedTasks = 0;
     let successfulTasks = 0;
     let failedTasks = 0;
     const failRecords: Record<string, Error> = {};
 
+    const filteredResources = resources.filter(
+      (x) =>
+        x.type === 'file' &&
+        // We should not include the bundle file since it will cause
+        // circular bundling.
+        !(
+          `${OfflineBundleProcessor.id}~~includes` in x.extensionConfigurations
+        ) &&
+        // We should exclude resource not included in the media release.
+        (x.postProcessRecord.mediaBundleId.includes(mediaBuildId) ||
+          // All normal resource will be included, of course.
+          x.postProcessRecord.isNormalResource)
+    );
+
+    log.log(
+      ':: aa',
+      filteredResources.filter((x) =>
+        x.episodeIds.includes('mL2ntyTL12F2Q82QNhYpI')
+      )
+    );
+
     const tasks = await Promise.all(
       ResourceProcessor.mapBundleGroup(
-        resources,
+        filteredResources,
         bundleGroups,
         async (resource, group) => {
           totalTasks += 1;
-          const files: IPostProcessedResourceFileForUpload[] = resource.filter(
-            (x) =>
-              x.type === 'file' &&
-              // We should not include the bundle file since it will cause
-              // circular bundling.
-              !(
-                `${OfflineBundleProcessor.id}~~includes` in
-                x.extensionConfigurations
-              ) &&
-              // We should exclude resource not included in the media release.
-              x.postProcessRecord.mediaBundleId.includes(mediaBuildId)
-          );
 
-          if (!files.length) {
+          if (!resource.length) {
             skippedTasks += 1;
             return null;
           }
 
-          if (group.episodeIsEmpty) {
-            skippedTasks += 1;
-            return null;
-          }
+          packedFiles += resource.length;
 
           const resourceId = nanoid();
 
-          const entryIds = [...new Set()].sort();
+          const entryIds = [...new Set(resource.map((x) => x.id))].sort();
           const groupHash = hashObject({
             files: entryIds,
           });
@@ -144,7 +151,7 @@ export class OfflineBundleProcessor extends ResourceProcessor<
           }
 
           return {
-            files,
+            files: resource,
             resourceDescription,
             groupHash,
             group,
@@ -299,24 +306,34 @@ export class OfflineBundleProcessor extends ResourceProcessor<
         }
       });
     } else {
+      this.dependency.logToTerminal(`:: :: :: Files:`, Level.Info);
       this.dependency.logToTerminal(
-        `:: :: :: Total: ${totalTasks}`,
+        `:: :: :: :: Total: ${filteredResources.length}`,
         Level.Info
       );
       this.dependency.logToTerminal(
-        `:: :: :: Cached: ${cachedTasks}`,
+        `:: :: :: :: Packed: ${packedFiles}`,
+        Level.Info
+      );
+      this.dependency.logToTerminal(`:: :: :: Tasks:`, Level.Info);
+      this.dependency.logToTerminal(
+        `:: :: :: :: Total: ${totalTasks}`,
         Level.Info
       );
       this.dependency.logToTerminal(
-        `:: :: :: Skipped: ${skippedTasks}`,
+        `:: :: :: :: Cached: ${cachedTasks}`,
         Level.Info
       );
       this.dependency.logToTerminal(
-        `:: :: :: Successful: ${successfulTasks}`,
+        `:: :: :: :: Skipped: ${skippedTasks}`,
         Level.Info
       );
       this.dependency.logToTerminal(
-        `:: :: :: Failed: ${failedTasks}`,
+        `:: :: :: :: Successful: ${successfulTasks}`,
+        Level.Info
+      );
+      this.dependency.logToTerminal(
+        `:: :: :: :: Failed: ${failedTasks}`,
         Level.Info
       );
     }

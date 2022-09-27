@@ -25,6 +25,7 @@ export interface IPostProcessOperation {
 export interface IPostProcessRecord {
   mediaBundleId: number[];
   operations: IPostProcessOperation[];
+  isNormalResource?: boolean;
 }
 
 export interface IPostProcessRelatedData {
