@@ -5,8 +5,8 @@ import { readFile } from 'fs/promises';
 
 import { Category } from '@recative/definitions';
 import { TerminalMessageLevel as Level } from '@recative/extension-sdk';
-import type { IResourceFile } from '@recative/definitions';
-import type { IPostProcessedResourceFileForUpload } from '@recative/extension-sdk';
+import type { IResourceFile, IResourceItem } from '@recative/definitions';
+import type { PostProcessedResourceItemForUpload } from '@recative/extension-sdk';
 
 import { getSeriesId } from './series';
 import { logToTerminal } from './terminal';
@@ -44,7 +44,7 @@ export const uploadMediaBundle = async (
 
   logToTerminal(terminalId, `:: Resources: ${resourceToBeUploaded.length}`);
 
-  const postProcessedResourceToBeUploaded = db.resource.postProcessed
+  const postProcessedResourceToBeUploaded = db0.resource.postProcessed
     .find({ type: 'file', removed: false })
     .filter((x) => x.postProcessRecord.mediaBundleId.includes(mediaReleaseId));
 
@@ -52,9 +52,16 @@ export const uploadMediaBundle = async (
     terminalId,
     `:: Post processed: ${postProcessedResourceToBeUploaded.length}`
   );
+
   const allResources = [
-    ...resourceToBeUploaded,
-    ...postProcessedResourceToBeUploaded,
+    ...resourceToBeUploaded.map((x) => ({
+      resourceType: 'normal' as const,
+      resourceRecord: x,
+    })),
+    ...postProcessedResourceToBeUploaded.map((x) => ({
+      resourceType: 'postProcessed' as const,
+      resourceRecord: x,
+    })),
   ];
 
   logToTerminal(terminalId, `:: Total: ${allResources.length}`);
@@ -64,7 +71,7 @@ export const uploadMediaBundle = async (
   const taskCountByCategory: Record<string, number> = {};
 
   allResources.forEach((resource) => {
-    resource.tags.forEach((tag) => {
+    resource.resourceRecord.tags.forEach((tag) => {
       if (!tag.startsWith('category')) return;
       if (!taskCountByCategory[tag]) taskCountByCategory[tag] = 0;
       taskCountByCategory[tag] += 1;
@@ -103,28 +110,7 @@ export const uploadMediaBundle = async (
       const labelSegments = serviceProviderLabel.split('/');
       const shortServiceLabel = labelSegments[labelSegments.length - 1];
       // Upload resource file
-      allResources.forEach((resourceFile) => {
-        const resourceRecord:
-          | IResourceFile
-          | IPostProcessedResourceFileForUpload =
-          (db0.resource.resources.findOne({
-            id: resourceFile.id,
-          }) as IResourceFile) ??
-          (db0.resource.postProcessed.findOne({
-            id: resourceFile.id,
-          }) as IPostProcessedResourceFileForUpload);
-
-        if (!resourceRecord) {
-          logToTerminal(
-            terminalId,
-            `:: :: [${resourceFile.id.substring(0, 5)}] ${
-              resourceFile.label
-            } not found!`,
-            Level.Error
-          );
-          return;
-        }
-
+      allResources.forEach(({ resourceType, resourceRecord }) => {
         // If the file is already available on the CDN, skip uploading.
         if (resourceRecord.url[serviceProviderLabel]) {
           skippedFiles += 1;
@@ -138,7 +124,7 @@ export const uploadMediaBundle = async (
         for (let i = 0; i < fileCategory.length; i += 1) {
           const category = fileCategory[i];
 
-          if (resourceFile.tags.indexOf(category) !== -1) {
+          if (resourceRecord.tags.indexOf(category) !== -1) {
             needUpload = true;
             break;
           }
@@ -154,48 +140,64 @@ export const uploadMediaBundle = async (
         }
 
         taskQueue.enqueue(async () => {
-          if (!resourceFile.url) {
-            resourceFile.url = {};
+          if (!resourceRecord.url) {
+            resourceRecord.url = {};
           }
 
           try {
             logToTerminal(
               terminalId,
-              `:: :: [${resourceFile.id.substring(
+              `:: :: [${resourceRecord.id.substring(
                 0,
                 5
-              )}] [${shortServiceLabel}] Uploading ${resourceFile.label}`,
+              )}] [${shortServiceLabel}] Uploading ${resourceRecord.label}`,
               Level.Info
             );
 
             const path = join(seriesId, 'resource');
 
-            const file = await readFile(getResourceFilePath(resourceFile));
-            const url = await uploader.upload(file, resourceFile, path);
+            const file = await readFile(
+              await getResourceFilePath(resourceRecord)
+            );
+            const url = await uploader.upload(file, resourceRecord, path);
 
             resourceRecord.url = {
               ...resourceRecord.url,
               [serviceProviderLabel]: url,
             };
 
-            // logToTerminal(
-            //   terminalId,
-            //   `Uploaded ${resourceFile.label}, url: ${url}`,
-            //   Level.Info
-            // );
             finishedFiles += 1;
 
-            if ('fileName' in resourceRecord) {
-              db0.resource.postProcessed.update(resourceRecord);
+            const find = {
+              id: resourceRecord.id,
+            };
+
+            const update = <
+              T extends PostProcessedResourceItemForUpload | IResourceItem
+            >(
+              x: T
+            ) => {
+              if (x.type === 'group') return x;
+
+              x.url = {
+                ...x.url,
+                [serviceProviderLabel]: url,
+              };
+
+              return x;
+            };
+
+            if (resourceType === 'postProcessed') {
+              db0.resource.postProcessed.findAndUpdate(find, update);
             } else {
-              db0.resource.resources.update(resourceRecord);
+              db0.resource.resources.findAndUpdate(find, update);
             }
           } catch (error) {
             console.error(error);
             logToTerminal(
               terminalId,
-              `:: :: [${resourceFile.id.substring(0, 5)}] ${
-                resourceFile.label
+              `:: :: [${resourceRecord.id.substring(0, 5)}] ${
+                resourceRecord.label
               } failed, ${
                 error instanceof Error ? error.message : 'unknown error'
               }`,

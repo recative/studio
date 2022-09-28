@@ -3,10 +3,11 @@ import Loki from 'lokijs';
 
 import { ensureDir } from 'fs-extra';
 
+import type { IDbInstance } from '@recative/studio-definitions';
+
 import { install, uninstall } from '../utils/cleanup';
 import { LokiWorkspaceLockSafeFsAdapter } from '../utils/LokiWorkspaceLockSafeFsAdapter';
 
-import type { IDbInstance } from './db/config';
 import { initializeDb } from './db/initializer';
 
 let currentDb: IDbInstance<Record<string, unknown>> | null = null;
@@ -58,6 +59,7 @@ export const saveAllDatabase = <T>(db: IDbInstance<T>) => {
           if (err) {
             reject(err);
           } else {
+            log.info('::', key, 'saved');
             resolve();
           }
         });

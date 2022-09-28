@@ -21,7 +21,6 @@ import type { ButtonOverrides } from 'baseui/button';
 import { useTerminalModal } from 'components/Terminal/TerminalModal';
 import { ActPointIconOutline } from 'components/Icons/ActPointIconOutline';
 import { DatabaseIconOutline } from 'components/Icons/DatabaseIconOutline';
-import { PostProcessIconOutline } from 'components/Icons/PostProcessIconOutline';
 import { ResourceManagerIconOutline } from 'components/Icons/ResourceManagerIconOutline';
 
 import { server } from 'utils/rpc';
@@ -46,7 +45,6 @@ enum PublishTargetType {
   Media = 'media',
   Code = 'code',
   Database = 'database',
-  PostProcess = 'post-process',
 }
 
 interface IPublishTargetProps {
@@ -100,11 +98,6 @@ const PUBLISH_TARGET_TYPE_DESCRIPTION: Record<
     icon: <DatabaseIconOutline width={40} style={iconStyle} />,
     title: 'Database Bundle',
     subtitle: 'Publish the metadata of this release to act server.',
-  },
-  [PublishTargetType.PostProcess]: {
-    icon: <PostProcessIconOutline width={40} style={iconStyle} />,
-    title: 'Post Process Test',
-    subtitle: 'Run all post process plugins to test if it works.',
   },
 };
 
@@ -216,11 +209,6 @@ export const ConfirmPublishModal: React.FC = () => {
             publishTargetType={PublishTargetType.Database}
             selected={selectedDatabaseType}
             onClick={toggleDatabaseType}
-          />
-          <PublishTarget
-            publishTargetType={PublishTargetType.PostProcess}
-            selected={selectedPostProcessType}
-            onClick={togglePostProcessType}
           />
         </RecativeBlock>
       </ModalBody>

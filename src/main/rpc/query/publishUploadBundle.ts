@@ -9,7 +9,6 @@ import {
 import { uploadDatabase } from './publishActServer';
 import { uploadCodeBundle } from './publishUploadBundleCode';
 import { uploadMediaBundle } from './publishUploadBundleMedia';
-import { postProcessResource } from './publishPostProcessResource';
 
 import { getDb, saveAllDatabase } from '../db';
 
@@ -128,16 +127,6 @@ export const uploadBundle = async (
   await wrapTaskFunction(terminalId, 'Uploading Database Files', async () => {
     if (databaseBundle) {
       await uploadDatabase(id || 0, terminalId);
-    }
-  })();
-
-  await wrapTaskFunction(terminalId, 'Post Processing Test', async () => {
-    if (postProcessTest) {
-      await postProcessResource(
-        targetRelease.mediaBuildId,
-        targetRelease.id,
-        terminalId
-      );
     }
   })();
 

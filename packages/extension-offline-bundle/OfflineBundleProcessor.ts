@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import {
   ResourceProcessor,
   TerminalMessageLevel as Level,
+  TerminalMessageLevel,
 } from '@recative/extension-sdk';
 
 import {
@@ -38,42 +39,51 @@ export class OfflineBundleProcessor extends ResourceProcessor<
     bundleGroups: IBundleGroup[]
   ) {
     let totalTasks = 0;
+    let packedFiles = 0;
     let cachedTasks = 0;
     let skippedTasks = 0;
     let successfulTasks = 0;
     let failedTasks = 0;
     const failRecords: Record<string, Error> = {};
 
+    const filteredResources = resources.filter(
+      (x) =>
+        x.type === 'file' &&
+        // We should not include the bundle file since it will cause
+        // circular bundling.
+        !(
+          `${OfflineBundleProcessor.id}~~includes` in x.extensionConfigurations
+        ) &&
+        // We should exclude resource not included in the media release.
+        (x.postProcessRecord.mediaBundleId.includes(mediaBuildId) ||
+          // All normal resource will be included, of course.
+          x.postProcessRecord.isNormalResource)
+    );
+
+    log.log(
+      ':: aa',
+      filteredResources.filter((x) =>
+        x.episodeIds.includes('mL2ntyTL12F2Q82QNhYpI')
+      )
+    );
+
     const tasks = await Promise.all(
       ResourceProcessor.mapBundleGroup(
-        resources,
+        filteredResources,
         bundleGroups,
         async (resource, group) => {
           totalTasks += 1;
-          const files: IPostProcessedResourceFileForUpload[] = resource.filter(
-            (x) =>
-              x.type === 'file' &&
-              // We should not include the bundle file since it will cause
-              // circular 0bundling.
-              !(
-                `${OfflineBundleProcessor.id}~~includes` in
-                x.extensionConfigurations
-              )
-          );
 
-          if (!files.length) {
+          if (!resource.length) {
             skippedTasks += 1;
             return null;
           }
 
-          if (group.episodeIsEmpty) {
-            skippedTasks += 1;
-            return null;
-          }
+          packedFiles += resource.length;
 
           const resourceId = nanoid();
 
-          const entryIds = files.map((x) => x.id).sort();
+          const entryIds = [...new Set(resource.map((x) => x.id))].sort();
           const groupHash = hashObject({
             files: entryIds,
           });
@@ -142,7 +152,7 @@ export class OfflineBundleProcessor extends ResourceProcessor<
           }
 
           return {
-            files,
+            files: resource,
             resourceDescription,
             groupHash,
             group,
@@ -193,11 +203,18 @@ export class OfflineBundleProcessor extends ResourceProcessor<
           Level.Info
         );
 
+        this.dependency.logToTerminal(
+          `:: :: :: :: :: ${[...new Set(files.map((x) => x.label))]
+            .sort()
+            .join(', ')}`,
+          Level.Info
+        );
+
         const zip = this.dependency.createTemporaryZip();
 
         const fileList = await Promise.all(
           files.map(async (x) => {
-            const from = this.dependency.getResourceFilePath(x);
+            const from = await this.dependency.getResourceFilePath(x);
 
             if (!(await pathExists(from))) {
               this.dependency.logToTerminal(
@@ -290,24 +307,34 @@ export class OfflineBundleProcessor extends ResourceProcessor<
         }
       });
     } else {
+      this.dependency.logToTerminal(`:: :: :: Files:`, Level.Info);
       this.dependency.logToTerminal(
-        `:: :: :: Total: ${totalTasks}`,
+        `:: :: :: :: Total: ${filteredResources.length}`,
         Level.Info
       );
       this.dependency.logToTerminal(
-        `:: :: :: Cached: ${cachedTasks}`,
+        `:: :: :: :: Packed: ${packedFiles}`,
+        Level.Info
+      );
+      this.dependency.logToTerminal(`:: :: :: Tasks:`, Level.Info);
+      this.dependency.logToTerminal(
+        `:: :: :: :: Total: ${totalTasks}`,
         Level.Info
       );
       this.dependency.logToTerminal(
-        `:: :: :: Skipped: ${skippedTasks}`,
+        `:: :: :: :: Cached: ${cachedTasks}`,
         Level.Info
       );
       this.dependency.logToTerminal(
-        `:: :: :: Successful: ${successfulTasks}`,
+        `:: :: :: :: Skipped: ${skippedTasks}`,
         Level.Info
       );
       this.dependency.logToTerminal(
-        `:: :: :: Failed: ${failedTasks}`,
+        `:: :: :: :: Successful: ${successfulTasks}`,
+        Level.Info
+      );
+      this.dependency.logToTerminal(
+        `:: :: :: :: Failed: ${failedTasks}`,
         Level.Info
       );
     }
@@ -334,6 +361,13 @@ export class OfflineBundleProcessor extends ResourceProcessor<
       if (bundleResource.type !== 'file') {
         throw new TypeError(
           `Expected file type, got ${bundleResource.type}, this is a bug`
+        );
+      }
+
+      if (!Object.values(bundleResource.url).length) {
+        this.dependency.logToTerminal(
+          `The URL field of ${bundleResource.label} is empty, the resource is not deployed.`,
+          TerminalMessageLevel.Warning
         );
       }
 

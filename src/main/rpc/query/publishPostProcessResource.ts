@@ -1,5 +1,3 @@
-import console from 'electron-log';
-
 import { languageResourceTags } from '@recative/definitions';
 import type {
   IBundleGroup,
@@ -14,36 +12,53 @@ import { logToTerminal } from './terminal';
 import { getDb } from '../db';
 
 import { cloneDeep } from '../../utils/cloneDeep';
-import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
 
 export const postProcessResource = async (
   mediaReleaseId: number,
-  bundleReleaseId: number | undefined,
   terminalId: string
 ) => {
-  const db0 = await getDb();
-  const db = await getReleasedDb(bundleReleaseId);
+  const db = await getDb();
 
   logToTerminal(terminalId, `:: Initializing the post process pipeline`);
 
   // We need to extract both original resource files and post processed
   // files here.
+  const normalResourceToBePostProcessed = (
+    db.resource.resources.find({
+      type: 'file',
+      removed: false,
+    }) as IResourceFile[]
+  ).map((x) => {
+    const clonedFile = cloneDeep(x) as IPostProcessedResourceFileForUpload;
+    clonedFile.postProcessRecord = {
+      mediaBundleId: [],
+      operations: [],
+      isNormalResource: true,
+    };
+    return clonedFile;
+  });
+
+  const postProcessedResourceToBePostProcessed = db.resource.postProcessed.find(
+    {}
+  );
+
+  const postProcessedFileMap = new Map<
+    string,
+    PostProcessedResourceItemForUpload[]
+  >();
+
+  postProcessedResourceToBePostProcessed.forEach((x) => {
+    if (!postProcessedFileMap.has(x.id)) {
+      postProcessedFileMap.set(x.id, []);
+    }
+
+    postProcessedFileMap.get(x.id)?.push(x);
+  });
+
   let resourceToBePostProcessed: PostProcessedResourceItemForUpload[] = [
-    ...(
-      db.resource.resources.find({
-        type: 'file',
-        removed: false,
-      }) as IResourceFile[]
-    ).map((x) => {
-      const clonedFile = cloneDeep(x) as IPostProcessedResourceFileForUpload;
-      clonedFile.postProcessRecord = {
-        mediaBundleId: [],
-        operations: [],
-      };
-      return clonedFile;
-    }),
-    ...db0.resource.postProcessed.find({}),
+    ...normalResourceToBePostProcessed,
+    ...postProcessedResourceToBePostProcessed,
   ];
 
   const resourceProcessorInstances = Object.entries(
@@ -58,9 +73,9 @@ export const postProcessResource = async (
   // Build bundle groups
   const episodeIdCombinations = new Set<string>();
 
-  resourceToBePostProcessed.forEach((resource) => {
+  normalResourceToBePostProcessed.forEach((resource) => {
     if (!resource.episodeIds.length) return;
-    episodeIdCombinations.add(resource.episodeIds.join(','));
+    episodeIdCombinations.add(resource.episodeIds.sort().join(','));
   });
 
   const resourceBundleGroups: IBundleGroup[] = [];
@@ -96,7 +111,7 @@ export const postProcessResource = async (
     `:: ${resourceBundleGroups.length} group of files will be packed`
   );
 
-  // Preprocessing the resources
+  // Postprocessing the resources
   for (let i = 0; i < resourceProcessorInstances.length; i += 1) {
     const [serviceProviderLabel, processor] = resourceProcessorInstances[i];
 
@@ -118,44 +133,59 @@ export const postProcessResource = async (
 
   // Filter out all resource that post processed for this build, add it to the
   // post processed cache table, for clients to read.
-  let updatedRecords = 0;
-  let insertedRecord = 0;
-
   const postProcessedFiles = resourceToBePostProcessed.filter((resource) => {
-    const postProcessed = !!resource.postProcessRecord.mediaBundleId.find(
-      (x) => x === mediaReleaseId
+    return (
+      !resource.postProcessRecord.isNormalResource &&
+      resource.postProcessRecord.mediaBundleId.includes(mediaReleaseId)
     );
-
-    return postProcessed;
   });
 
+  let updateCount = 0;
+  let insertCount = 0;
+
   postProcessedFiles.forEach((resource) => {
-    const cleanResource = cleanupLoki(resource);
-    const queriedResource = db0.resource.postProcessed.findOne({
-      id: cleanResource.id,
-    });
+    const newRecord = cleanupLoki(resource);
 
-    if (queriedResource) {
-      // Update the record
-      const mergedResource = {
-        ...queriedResource,
-        ...cleanResource,
-      };
+    if (postProcessedFileMap.has(resource.id)) {
+      const updated =
+        postProcessedFileMap.get(resource.id)?.map((x) => {
+          return Object.assign(x, newRecord);
+        }) ?? [];
 
-      db0.resource.postProcessed.update(mergedResource);
+      db.resource.postProcessed.update(updated);
 
-      updatedRecords += 1;
+      updateCount += 1;
     } else {
-      db0.resource.postProcessed.insert(cleanResource);
-      insertedRecord += 1;
+      db.resource.postProcessed.insert(newRecord);
+      insertCount += 1;
     }
+  });
+
+  db.resource.$db.collections.forEach((x) => {
+    x.dirty = true;
+  });
+
+  logToTerminal(terminalId, `:: Finalizing resource database`);
+  logToTerminal(
+    terminalId,
+    `:: :: Dirty tables ${
+      db.resource.$db.collections.filter((x) => x.dirty).length
+    }`
+  );
+
+  await new Promise<void>((resolve, reject) => {
+    db.resource.$db.saveDatabase((error) => {
+      if (error) return reject(error);
+      logToTerminal(terminalId, `:: :: Saved to ${db.resource.$db.filename}`);
+      return resolve();
+    });
   });
 
   logToTerminal(terminalId, `:: Final Report`);
   logToTerminal(terminalId, `:: :: Post processed:`);
   logToTerminal(terminalId, `:: :: :: Files: ${postProcessedFiles.length}`);
-  logToTerminal(terminalId, `:: :: :: Updated: ${updatedRecords}`);
-  logToTerminal(terminalId, `:: :: :: Inserted: ${insertedRecord}`);
+  logToTerminal(terminalId, `:: :: :: Updated: ${updateCount}`);
+  logToTerminal(terminalId, `:: :: :: Inserted: ${insertCount}`);
 
   return resourceToBePostProcessed;
 };

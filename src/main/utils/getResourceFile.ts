@@ -5,6 +5,7 @@ import { WorkspaceNotReadyError } from '@recative/definitions';
 import type { IResourceFile } from '@recative/definitions';
 import type { IPostProcessedResourceFileForUpload } from '@recative/extension-sdk';
 
+import { getDb } from '../rpc/db';
 import { getWorkspace } from '../rpc/workspace';
 
 export const getResourceFileName = (
@@ -14,37 +15,64 @@ export const getResourceFileName = (
         IPostProcessedResourceFileForUpload,
         'id' | 'fileName' | 'postProcessRecord'
       >,
+  isPostProcessed: boolean,
   thumbnail = false
 ) => {
   if (thumbnail) {
-    return 'fileName' in resource
+    return isPostProcessed && 'fileName' in resource
       ? `${basename(resource.fileName)}-thumbnail.png`
       : `${resource.id}-thumbnail.png`;
   }
 
-  return 'fileName' in resource ? resource.fileName : `${resource.id}.resource`;
+  return isPostProcessed && 'fileName' in resource
+    ? resource.fileName
+    : `${resource.id}.resource`;
 };
 
-export const getResourceFilePath = (
+export const getResourceFilePath = async (
   resource:
     | Pick<IResourceFile, 'id'>
     | Pick<
         IPostProcessedResourceFileForUpload,
         'id' | 'fileName' | 'postProcessRecord'
       >,
-  thumbnail = false
+  thumbnail = false,
+  validate = false
 ) => {
+  const db = await getDb();
   const config = getWorkspace();
 
   if (!config) throw new WorkspaceNotReadyError();
 
-  if ('fileName' in resource) {
+  if (!validate) {
+    return 'fileName' in resource
+      ? join(
+          config.mediaPath,
+          'post-processed',
+          getResourceFileName(resource, true, thumbnail)
+        )
+      : join(config.mediaPath, getResourceFileName(resource, false, thumbnail));
+  }
+
+  const isPostProcessed = !!db.resource.postProcessed.findOne({
+    id: resource.id,
+  });
+  const isNormal = !!db.resource.resources.findOne({ id: resource.id });
+
+  if (isPostProcessed) {
     return join(
       config.mediaPath,
       'post-processed',
-      getResourceFileName(resource, thumbnail)
+      getResourceFileName(resource, isPostProcessed, thumbnail)
     );
   }
 
-  return join(config.mediaPath, getResourceFileName(resource, thumbnail));
+  if (isNormal) {
+    return join(
+      config.mediaPath,
+      getResourceFileName(resource, isPostProcessed, thumbnail)
+    );
+  }
+
+  throw new TypeError(`Invalid record`);
 };
