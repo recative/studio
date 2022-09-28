@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import {
   ResourceProcessor,
   TerminalMessageLevel as Level,
+  TerminalMessageLevel,
 } from '@recative/extension-sdk';
 
 import {
@@ -360,6 +361,13 @@ export class OfflineBundleProcessor extends ResourceProcessor<
       if (bundleResource.type !== 'file') {
         throw new TypeError(
           `Expected file type, got ${bundleResource.type}, this is a bug`
+        );
+      }
+
+      if (!Object.values(bundleResource.url).length) {
+        this.dependency.logToTerminal(
+          `The URL field of ${bundleResource.label} is empty, the resource is not deployed.`,
+          TerminalMessageLevel.Warning
         );
       }
 
