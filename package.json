@@ -389,6 +389,7 @@
     "packages/extension-web",
     "packages/extension-raw",
     "packages/extension-av",
+    "packages/extension-i18n-utils",
     "packages/studio-definitions"
   ],
   "resolutions": {

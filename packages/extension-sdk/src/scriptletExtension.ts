@@ -1,5 +1,7 @@
 import { IDbInstance } from '@recative/studio-definitions';
+import { IResourceFile, IResourceItem } from '@recative/definitions';
 
+import { getFilePath } from './getFilePath';
 import type { IConfigUiField } from './settings';
 
 export enum ScriptExecutionMode {
@@ -24,6 +26,17 @@ export interface IResourceScript {
 
 export interface IScriptletDependency {
   db: IDbInstance<never>;
+  (filePath: string, replaceFileId?: string): Promise<IResourceItem[]>;
+  getFilePath: typeof getFilePath;
+  getResourceFilePath: (resource: Pick<IResourceFile, 'id'>) => Promise<string>;
+  getXxHashOfResourceFile: (
+    fileId: Pick<IResourceFile, 'id'>
+  ) => Promise<string>;
+  getXxHashOfFile: (path: string) => Promise<string>;
+  importFile: (
+    filePath: string,
+    replaceFileId?: string
+  ) => Promise<IResourceItem[]>;
 }
 
 export type IScript = IResourceScript;

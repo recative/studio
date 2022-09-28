@@ -2,7 +2,7 @@ import { basename, join as joinPath, parse as parsePath } from 'path';
 
 import { nanoid } from 'nanoid';
 import { uniqBy } from 'lodash';
-import { copy, removeSync, existsSync, pathExists } from 'fs-extra';
+import { copy, removeSync, pathExists } from 'fs-extra';
 
 import {
   Category,
