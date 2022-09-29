@@ -258,12 +258,14 @@ export const getEpisodeDetail = async (
     throw new TypeError(`Episode of asset not found: ${requestId}`);
   }
 
+  const queryId = episodeIdOfAsset ?? requestId;
+
   const episode = db.episode.episodes.findOne({
-    id: episodeIdOfAsset ?? requestId,
+    id: queryId,
   });
 
   if (!episode) {
-    throw new TypeError(`Episode not found: ${requestId}`);
+    throw new TypeError(`Episode not found: ${queryId}`);
   }
 
   const rawAssets = await getClientSideAssetList(
