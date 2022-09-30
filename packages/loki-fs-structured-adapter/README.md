@@ -1,0 +1,1 @@
+# loki-fs-structured-adapter
