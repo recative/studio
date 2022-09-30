@@ -28,7 +28,6 @@ export const createTestEnvironment = async (
   const collection = db.addCollection(collectionName);
 
   const fillData = () => {
-    console.log('== Writing data');
     for (let id = 0; id < DATA_SIZE; id += 1) {
       const data = Math.random();
       randomData.push(data);
