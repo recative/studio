@@ -152,22 +152,18 @@ export class LokiFsStructuredAdapter {
       // when that is done, examine its collection array to sequence loading
       // each
       lineReader.on('close', () => {
-        globalThis.setTimeout(() => {
-          if (jsonError) {
-            // a json error was encountered reading the container file.
-            callback(jsonError);
-          } else if (!this.dbref || !this.dbref.collections.length) {
+        if (jsonError) {
+          // a json error was encountered reading the container file.
+          callback(jsonError);
+        } else if (!this.dbref || !this.dbref.collections.length) {
+          callback(this.dbref);
+        } else if (this.dbref.collections.length > 0) {
+          this.loadNextCollection(databaseName, 0, () => {
             callback(this.dbref);
-          } else if (this.dbref.collections.length > 0) {
-            this.loadNextCollection(databaseName, 0, () => {
-              callback(this.dbref);
-            });
-          } else {
-            callback(
-              new Error('Unexpected lineReader finish condition branch')
-            );
-          }
-        }, 1000);
+          });
+        } else {
+          callback(new Error('Unexpected lineReader finish condition branch'));
+        }
       });
     });
   };
@@ -277,7 +273,6 @@ export class LokiFsStructuredAdapter {
 
     // yield list of dirty partitions for iteration
     for (let idx = 0; idx < collectionCount; idx += 1) {
-      console.log('DIRTY DETECTING', idx, this.dbref.collections[idx]?.dirty);
       if (this.dbref.collections[idx]?.dirty) {
         yield idx;
       }

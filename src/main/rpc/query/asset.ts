@@ -22,6 +22,7 @@ import type { ProfileConfig } from '../../dataGenerationProfiles';
 
 import { noNulls } from '../../../utils/noNulls';
 import { getActPoint } from './actPoint';
+import { cleanupLoki } from './utils';
 
 export const searchAssetResources = async (query = '', limit = 40) => {
   const db = await getDb();
@@ -74,7 +75,7 @@ export const updateOrInsertAssets = async (items: IAsset[]) => {
       db.episode.assets.update(itemInDb);
     } else {
       // Insert
-      db.episode.assets.insert(item);
+      db.episode.assets.insert(cleanupLoki(item));
     }
   });
 };
