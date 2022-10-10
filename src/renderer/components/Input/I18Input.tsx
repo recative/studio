@@ -19,7 +19,7 @@ export const getDisplayValue = (x: Record<string, string> | string) => {
   if (typeof x === 'string') return x;
   for (let i = 0; i < LANGUAGES.length; i += 1) {
     const language = LANGUAGES[i];
-    if (language in x) return x[language];
+    if (x && language in x) return x[language];
   }
   return '';
 };

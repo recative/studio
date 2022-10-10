@@ -210,7 +210,7 @@ export const InternalResourceTree: React.FC = () => {
           ...(episodes.result?.map((episode, index) => ({
             id: 20 + index + 1,
             label: getLabelButton({
-              label: episode.label.en,
+              label: episode.label?.en ?? 'Unknown Episode',
               tags: null,
               episodeIds: [episode.id],
             }),

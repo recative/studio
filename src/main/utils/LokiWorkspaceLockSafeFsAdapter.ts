@@ -10,24 +10,16 @@ const LokiFsStructuredAdapter =
   InternalLokiFsStructuredAdapter as typeof LokiFsAdapter;
 
 export class LokiWorkspaceLockSafeFsAdapter extends LokiFsStructuredAdapter {
-  async saveDatabase(
-    dbName: string,
-    dbString: string | Uint8Array,
-    callback: (error?: Error | null) => void
-  ) {
+  exportDatabase = async (
+    databaseName: string,
+    dbref: Loki,
+    callback: (x: null) => void
+  ) => {
     if (await ifDbLocked()) {
       throw new WorkspaceLockedError();
     }
-    super.saveDatabase(dbName, dbString, callback);
-  }
 
-  async deleteDatabase(
-    dbName: string,
-    callback: (error?: Error | null) => void
-  ) {
-    if (await ifDbLocked()) {
-      throw new WorkspaceLockedError();
-    }
-    super.deleteDatabase(dbName, callback);
-  }
+    // @ts-ignore
+    super.exportDatabase(databaseName, dbref, callback);
+  };
 }

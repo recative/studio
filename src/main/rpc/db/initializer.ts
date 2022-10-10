@@ -2,6 +2,7 @@ import console from 'electron-log';
 import { join } from 'path';
 
 import Loki, { LokiFsAdapter } from 'lokijs';
+import type { LokiFsStructuredAdapter } from 'loki-fs-structured-adapter';
 
 import { IDbInstance, DB_CONFIG } from '@recative/studio-definitions';
 
@@ -16,7 +17,7 @@ export const getDbProgress = () => ({
 
 export const initializeDb = async <T>(
   dbPath: string,
-  adapter: LokiFsAdapter,
+  adapter: LokiFsAdapter | LokiFsStructuredAdapter,
   additionalData: T
 ) => {
   const dbInstance = {
@@ -70,13 +71,17 @@ export const initializeDb = async <T>(
         (dbInstance[dbId] as any)[collectionId] = collection;
 
         const deduplicateSet = new Set();
+
         const data = collection.data
+          .sort((a, b) => a.meta.created - b.meta.created)
           .filter((x) => {
             const duplicated = deduplicateSet.has(x.$loki);
             deduplicateSet.add(x.$loki);
 
             if (duplicated) {
-              console.warn('Detected duplicated key, will remove it');
+              console.warn(
+                `collection=${collection.name}&$loki=${x.$loki} duplicated, will remove it`
+              );
             }
             return !duplicated;
           })
@@ -88,6 +93,11 @@ export const initializeDb = async <T>(
         }
 
         collection.idIndex = index;
+        collection.maxId = Math.max(...collection.data.map((x) => x.$loki));
+        collection.checkAllIndexes({
+          randomSampling: true,
+          repair: true,
+        });
       }
 
       if (collectionDefinition.type === 'view') {
