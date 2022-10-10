@@ -3,7 +3,12 @@ import { glob } from 'glob';
 import { extension } from 'mime-types';
 import { ensureDir, copy, writeJSON, readJSON } from 'fs-extra';
 import { IResourceFile, IResourceGroup } from '@recative/definitions';
-import { ResourceGroupForImport, Scriptlet } from '@recative/extension-sdk';
+import {
+  ResourceGroupForImport,
+  ScriptExecutionMode,
+  Scriptlet,
+  ScriptType,
+} from '@recative/extension-sdk';
 
 const REFERENCE_FILE_NAME = 'reference.json';
 
@@ -47,8 +52,6 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
     },
   ] as const;
 
-  protected readonly scripts = [];
-
   scriptWrapResourceToGroup = async (selectedResources: string[]) => {
     const resources = this.dependency.db.resource.resources
       .find({
@@ -72,9 +75,14 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       this.dependency.db.resource.resources.update(resource);
       this.dependency.db.resource.resources.insert(newGroup.finalize());
     }
+
+    return {
+      ok: true,
+      message: 'Converted',
+    };
   };
 
-  scriptCreateI18NWorkSpace = async () => {
+  scriptCreateI18NWorkspace = async () => {
     const groups = this.dependency.db.resource.resources.find({
       type: 'group',
     }) as IResourceGroup[];
@@ -180,7 +188,7 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
     };
   };
 
-  scriptSyncI18NWorkSpace = async () => {
+  scriptSyncI18NWorkspace = async () => {
     const dirs = glob.sync(
       join(this.config.i18nMediaWorkspacePath, '*', REFERENCE_FILE_NAME)
     );
@@ -285,4 +293,25 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       message: `Workspace ${latestWorkspace} synced successfully`,
     };
   };
+
+  protected readonly scripts = [
+    {
+      id: 'scriptWrapResourceToGroup',
+      label: 'Wrap Resource to Group',
+      type: ScriptType.Resource,
+      executeMode: ScriptExecutionMode.Background,
+    },
+    {
+      id: 'scriptCreateI18NWorkspace',
+      label: 'Create i18n workspace',
+      type: ScriptType.Resource,
+      executeMode: ScriptExecutionMode.Terminal,
+    },
+    {
+      id: 'scriptSyncI18NWorkspace',
+      label: 'Sync i18n workspace',
+      type: ScriptType.Resource,
+      executeMode: ScriptExecutionMode.Terminal,
+    },
+  ];
 }

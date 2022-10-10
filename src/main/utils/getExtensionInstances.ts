@@ -17,6 +17,9 @@ import {
   getFilePath,
   getFileBuffer,
   imageThumbnail,
+  Scriptlet,
+  IScriptletDependency,
+  xxHash,
 } from '@recative/extension-sdk';
 import type {
   TOOLS,
@@ -35,6 +38,8 @@ import { Category, IResourceFile } from '@recative/definitions';
 
 import { getDb } from '../rpc/db';
 import { cloneDeep } from './cloneDeep';
+// eslint-disable-next-line import/no-cycle
+import { importFile } from '../rpc/query/resource';
 import { extensions } from '../extensions';
 import { cleanupLoki } from '../rpc/query/utils';
 import { getWorkspace } from '../rpc/workspace';
@@ -451,4 +456,50 @@ export const getBundlerInstances = async (terminalId: string) => {
   });
 
   return bundlers;
+};
+
+const scriptletDependency: IScriptletDependency = {
+  getFilePath,
+  getResourceFilePath,
+  getXxHashOfResourceFile: async (resource) => {
+    const resourceFilePath = await getResourceFilePath(resource);
+    return xxHash(await readFile(resourceFilePath));
+  },
+  getXxHashOfFile: async (path) => {
+    return xxHash(await readFile(path));
+  },
+  importFile,
+  // This will be replaced later
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  db: null as any,
+  // This will be replaced later
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  logToTerminal: logToTerminal as any,
+};
+
+export const getScriptletInstances = async (terminalId: string) => {
+  const db = await getDb();
+  const scriptlets: Record<string, Scriptlet<string>> = {};
+
+  extensions.forEach((extension) => {
+    const extensionScriptlet = extension.scriptlet;
+
+    extensionScriptlet?.forEach((ScriptletClass) => {
+      const scriptlet: Scriptlet<string> =
+        // @ts-ignore
+        new ScriptletClass({}, { ...scriptletDependency });
+
+      scriptlet.dependency.logToTerminal = (
+        message: string | [string, string],
+        logLevel?: TerminalMessageLevel
+      ) => {
+        logToTerminal(terminalId, message, logLevel);
+      };
+      scriptlet.dependency.db = db;
+
+      scriptlets[ScriptletClass.id] = scriptlet;
+    });
+  });
+
+  return scriptlets;
 };

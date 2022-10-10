@@ -3,7 +3,7 @@ import { pick } from 'lodash';
 import { join } from 'path';
 import { emptyDir } from 'fs-extra';
 
-import type { IConfigUiField } from '@recative/extension-sdk';
+import type { IConfigUiField, IScript } from '@recative/extension-sdk';
 
 import { cloneDeep } from '../../utils/cloneDeep';
 import { extensions } from '../../extensions';
@@ -14,17 +14,19 @@ import { getWorkspace } from '../workspace';
 interface IExtensionDescription {
   id: string;
   label: string;
-  iconId: string;
+  iconId?: string;
   pluginConfigUiFields?: IConfigUiField[];
   profileConfigUiFields?: IConfigUiField[];
   resourceConfigUiFields?: IConfigUiField[];
   nonMergeableResourceExtensionConfiguration?: string[];
+  scripts?: IScript[];
 }
 
 const extensionMetadata = {
   uploader: [] as IExtensionDescription[],
   resourceProcessor: [] as IExtensionDescription[],
   bundler: [] as IExtensionDescription[],
+  scriptlet: [] as IExtensionDescription[],
 } as const;
 
 extensions.forEach((extension) => {
@@ -83,6 +85,19 @@ extensions.forEach((extension) => {
       return description;
     });
     extensionMetadata.bundler.push(
+      ...(extensionList as IExtensionDescription[])
+    );
+  }
+
+  if ('scriptlet' in extension && extension.scriptlet) {
+    const extensionList = extension.scriptlet.map((item) => {
+      const description = cloneDeep(
+        pick(item, ['id', 'label', 'configUiFields', 'scripts'])
+      );
+
+      return description;
+    });
+    extensionMetadata.scriptlet.push(
       ...(extensionList as IExtensionDescription[])
     );
   }
