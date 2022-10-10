@@ -3,6 +3,10 @@ import { createTestEnvironment } from './utils/createTestEnvironment';
 describe('data io', () => {
   const environment = createTestEnvironment();
 
+  afterAll(async () => {
+    (await environment).db.close();
+  });
+
   test('data could be added', async () => {
     const { collection, randomData, fillData } = await environment;
 
@@ -19,7 +23,7 @@ describe('data io', () => {
     const saveResult = save();
 
     saveResult.catch((e) => {
-      console.error('saveResultErr', e);
+      throw e;
     });
 
     await expect(saveResult).resolves.not.toThrow();
@@ -35,7 +39,7 @@ describe('data io', () => {
 
   test('data could be read again from another collection correctly', async () => {
     const { collectionName, path, randomData } = await environment;
-    const { collection: shadowCollection } = await createTestEnvironment(
+    const { collection: shadowCollection, db } = await createTestEnvironment(
       path,
       collectionName
     );
@@ -44,6 +48,7 @@ describe('data io', () => {
 
     expect(output.length).toBe(randomData.length);
     expect(randomData.join(',')).toBe(output.map((x) => x.data).join(','));
+    db.close();
   });
 
   test('Async insert test', async () => {
@@ -61,7 +66,7 @@ describe('data io', () => {
 
     expect(totalRecords.length).toBe(randomData.length);
 
-    const { collection: shadowCollection } = await createTestEnvironment(
+    const { collection: shadowCollection, db } = await createTestEnvironment(
       path,
       collectionName
     );
@@ -70,5 +75,23 @@ describe('data io', () => {
 
     expect(output.length).toBe(randomData.length);
     expect(randomData.join(',')).toBe(output.map((x) => x.data).join(','));
+
+    db.close();
+  });
+
+  test('no duplicated keys for the collection', async () => {
+    const { collectionName, path } = await environment;
+
+    const { collection: shadowCollection, db } = await createTestEnvironment(
+      path,
+      collectionName
+    );
+
+    const allData = shadowCollection.find({});
+    expect(allData.length).toEqual(
+      [...new Set(allData.map((x) => x.$loki))].length
+    );
+
+    db.close();
   });
 });
