@@ -21,7 +21,7 @@ export interface IReplaceFileModalProps {
   onRefreshResourceListRequest: () => void;
 }
 
-const fileUploaderOverrides: FileUploaderOverrides = {
+export const fileUploaderOverrides: FileUploaderOverrides = {
   Root: {
     style: {
       width: '--webkit-fill-available',
@@ -114,9 +114,11 @@ export const ReplaceFileModal: React.FC<IReplaceFileModalProps> = ({
     [fileId, internalHandleDrop, onRefreshResourceListRequest]
   );
 
-  React.useEffect(() => {
-    setError(undefined);
-  }, [error]);
+  React.useLayoutEffect(() => {
+    if (isOpen) {
+      setError(undefined);
+    }
+  }, [isOpen]);
 
   let errorElement: React.ReactNode = null;
 
