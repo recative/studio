@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import { useStyletron } from 'styletron-react';
-import { atom, useAtom } from 'jotai';
 
 import type { StyleObject } from 'styletron-standard';
 import type { ButtonOverrides } from 'baseui/button';
@@ -14,12 +13,6 @@ import {
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 
-export interface IFilterLabels {
-  label: string;
-  tags: string[] | null;
-  episodeIds: string[] | null;
-}
-
 export const treeLabelContentContainerStyle: StyleObject = {
   whiteSpace: 'nowrap',
   overflow: 'clip',
@@ -30,8 +23,8 @@ const labelButtonOverride: ButtonOverrides = {
   BaseButton: {
     style: ({ $theme }) => ({
       width: '-webkit-fill-available',
-      paddingTop: '4px',
-      paddingBottom: '4px',
+      paddingTop: '8px',
+      paddingBottom: '8px',
       paddingLeft: '0px !important',
       paddingRight: '0px !important',
       fontSize: $theme.typography.LabelSmall,
@@ -41,16 +34,18 @@ const labelButtonOverride: ButtonOverrides = {
   },
 };
 
-export const SELECTED_TAGS = atom<IFilterLabels[] | null>(null);
-
-export const getLabelButton = (condition: IFilterLabels) =>
+export const getLabelButton = <Payload,>(
+  getHighlight: () => boolean,
+  label: string,
+  payload: Payload,
+  onClick: (x: Payload) => void
+) =>
   function LabelButton() {
     const [css] = useStyletron();
-    const [selectedLabel, setSelectedLabel] = useAtom(SELECTED_TAGS);
 
     const handleButtonClick = React.useCallback(() => {
-      setSelectedLabel([condition]);
-    }, [setSelectedLabel]);
+      onClick(payload);
+    }, []);
 
     return (
       <RecativeBlock className={css(treeLabelContentContainerStyle)}>
@@ -60,10 +55,8 @@ export const getLabelButton = (condition: IFilterLabels) =>
           onClick={handleButtonClick}
           overrides={labelButtonOverride}
         >
-          <RecativeBlock
-            fontWeight={condition === selectedLabel?.[0] ? 700 : 500}
-          >
-            {condition.label}
+          <RecativeBlock fontWeight={getHighlight() ? 700 : 500}>
+            {label}
           </RecativeBlock>
         </Button>
       </RecativeBlock>
@@ -74,8 +67,8 @@ const simpleButtonLabelOverride: ButtonOverrides = {
   BaseButton: {
     style: ({ $theme }) => ({
       width: '-webkit-fill-available',
-      paddingTop: '4px',
-      paddingBottom: '4px',
+      paddingTop: '8px',
+      paddingBottom: '8px',
       paddingLeft: '4px !important',
       paddingRight: '4px !important',
       justifyContent: 'flex-start',

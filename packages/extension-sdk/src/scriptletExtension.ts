@@ -56,7 +56,7 @@ export abstract class Scriptlet<ConfigKey extends string> {
 
   protected config: Record<ConfigKey, string>;
 
-  protected abstract readonly scripts: IScript[];
+  static readonly scripts: IScript[];
 
   constructor(
     config: Record<string, string>,

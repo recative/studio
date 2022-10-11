@@ -264,7 +264,7 @@
     "archiver": "5.3.1",
     "async-call-rpc": "^5.1.0",
     "base64-js": "^1.5.1",
-    "baseui": "12.0.0",
+    "baseui": "12.2.0",
     "bcryptjs": "^2.4.3",
     "boring-avatars": "^1.5.8",
     "classnames": "^2.3.1",

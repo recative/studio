@@ -52,6 +52,27 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
     },
   ] as const;
 
+  static readonly scripts = [
+    {
+      id: 'scriptWrapResourceToGroup',
+      label: 'Wrap Resource to Group',
+      type: ScriptType.Resource,
+      executeMode: ScriptExecutionMode.Background,
+    },
+    {
+      id: 'scriptCreateI18NWorkspace',
+      label: 'Create i18n workspace',
+      type: ScriptType.Resource,
+      executeMode: ScriptExecutionMode.Terminal,
+    },
+    {
+      id: 'scriptSyncI18NWorkspace',
+      label: 'Sync i18n workspace',
+      type: ScriptType.Resource,
+      executeMode: ScriptExecutionMode.Terminal,
+    },
+  ];
+
   scriptWrapResourceToGroup = async (selectedResources: string[]) => {
     const resources = this.dependency.db.resource.resources
       .find({
@@ -293,25 +314,4 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       message: `Workspace ${latestWorkspace} synced successfully`,
     };
   };
-
-  protected readonly scripts = [
-    {
-      id: 'scriptWrapResourceToGroup',
-      label: 'Wrap Resource to Group',
-      type: ScriptType.Resource,
-      executeMode: ScriptExecutionMode.Background,
-    },
-    {
-      id: 'scriptCreateI18NWorkspace',
-      label: 'Create i18n workspace',
-      type: ScriptType.Resource,
-      executeMode: ScriptExecutionMode.Terminal,
-    },
-    {
-      id: 'scriptSyncI18NWorkspace',
-      label: 'Sync i18n workspace',
-      type: ScriptType.Resource,
-      executeMode: ScriptExecutionMode.Terminal,
-    },
-  ];
 }

@@ -27,7 +27,7 @@ import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 
 import { Uploader } from './components/Uploader';
 import { SidePanel } from './components/SidePanel';
-import { SELECTED_TAGS } from './utils/getLabelButton';
+import { SELECTED_TAGS } from './components/ResourceTree';
 import { ErrorMergeModal } from './components/ErrorMergeModal';
 import { ReplaceFileModal } from './components/ReplaceFileModal';
 import { ConfirmSplitModal } from './components/ConfirmSplitModal';

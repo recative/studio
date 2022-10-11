@@ -13,6 +13,8 @@ import androidApkBundlerExtension from '@recative/extension-android';
 import webBundlerExtension from '@recative/extension-web';
 import rawBundlerExtension from '@recative/extension-raw';
 
+import i18nUtils from '@recative/extension-i18n-utils';
+
 export const extensions = [
   aliOssExtension,
   s3BucketExtension,
@@ -24,4 +26,5 @@ export const extensions = [
   androidApkBundlerExtension,
   webBundlerExtension,
   rawBundlerExtension,
+  i18nUtils,
 ] as ExtensionManifest[];

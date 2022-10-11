@@ -57,6 +57,13 @@ export const Separator = styled('span', {
 const useTabsOverrides = (highlightBackground: string): TabsOverrides => {
   return React.useMemo(
     () => ({
+      Root: {
+        style: {
+          boxShadow: `0 0 8px rgba(0, 0, 0, 0.2)`,
+          position: 'relative',
+          zIndex: 2,
+        },
+      },
       TabHighlight: {
         style: {
           height: '4px',
