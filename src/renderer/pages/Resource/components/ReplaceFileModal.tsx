@@ -13,19 +13,12 @@ import {
 } from 'baseui/modal';
 import type { FileUploaderOverrides } from 'baseui/file-uploader';
 
-import type { IResourceFile } from '@recative/definitions';
-
 import { useUploader } from 'utils/hooks/useUploader';
+import { ModalManager } from 'utils/hooks/useModalManager';
+import { getSelectedId } from '../utils/getSelectedId';
 
 export interface IReplaceFileModalProps {
-  isOpen: boolean;
-  fileId?: string;
-  multipleFileError?: boolean;
-  /**
-   * The old file to be replaced and new file created by resource extensions.
-   */
-  onReplaced: (oldFileId: string, newFiles: IResourceFile[]) => void;
-  onClose: () => void;
+  onRefreshResourceListRequest: () => void;
 }
 
 const fileUploaderOverrides: FileUploaderOverrides = {
@@ -53,19 +46,40 @@ const fileUploaderOverrides: FileUploaderOverrides = {
   },
 };
 
+export const useReplaceFileModal = ModalManager<unknown, null>(null);
+
 /**
  * A modal to help user replace their files, base-ui allows user to drop multiple
  * file but we'll only use the first file here, since only one fill could be
  * replaced.
  */
 export const ReplaceFileModal: React.FC<IReplaceFileModalProps> = ({
-  isOpen,
-  onReplaced,
-  onClose,
-  fileId,
-  multipleFileError,
+  onRefreshResourceListRequest,
 }) => {
   const [error, setError] = React.useState<string | undefined>(undefined);
+
+  const [isOpen, , , internalOnClose] = useReplaceFileModal();
+
+  const [fileId, setSelectedResource] = React.useState<string | undefined>(
+    undefined
+  );
+  const [multipleFileError, setMultipleFileError] =
+    React.useState<boolean>(false);
+
+  React.useLayoutEffect(() => {
+    if (isOpen) {
+      const files = getSelectedId();
+
+      setMultipleFileError(files.length > 1);
+      setSelectedResource(files[0]);
+    }
+  }, [isOpen]);
+
+  const onClose = React.useCallback(() => {
+    internalOnClose();
+    setSelectedResource(undefined);
+    setMultipleFileError(false);
+  }, [internalOnClose]);
 
   const {
     isUploading,
@@ -93,20 +107,11 @@ export const ReplaceFileModal: React.FC<IReplaceFileModalProps> = ({
         return;
       }
 
-      const resources = await internalHandleDrop(
-        [acceptedFiles[0]],
-        rejectedFiles,
-        event
-      );
+      await internalHandleDrop([acceptedFiles[0]], rejectedFiles, event);
 
-      onReplaced(
-        fileId,
-        // It's safe to filter these file since on the server side, we add all
-        // files to the group of replaced file, and no new group will be created.
-        resources.filter((x) => x.type === 'file') as IResourceFile[]
-      );
+      onRefreshResourceListRequest();
     },
-    [fileId, internalHandleDrop, onReplaced]
+    [fileId, internalHandleDrop, onRefreshResourceListRequest]
   );
 
   React.useEffect(() => {

@@ -18,6 +18,7 @@ import {
 } from 'baseui/modal';
 
 import { server } from 'utils/rpc';
+import { ModalManager } from 'utils/hooks/useModalManager';
 
 export interface IEraseURLModalProps {
   isOpen: boolean;
@@ -65,10 +66,10 @@ const useExtensionList = (isOpen: boolean) => {
   };
 };
 
-export const EraseURLModal: React.FC<IEraseURLModalProps> = ({
-  isOpen,
-  onClose,
-}) => {
+export const useEraseURLModal = ModalManager<unknown, null>(null);
+
+export const InternalEraseModal: React.FC = () => {
+  const [isOpen, , , onClose] = useEraseURLModal();
   const { erasedUploaders, selectedUploaderId, extensionList, clearURLs } =
     useExtensionList(isOpen);
 
@@ -92,7 +93,7 @@ export const EraseURLModal: React.FC<IEraseURLModalProps> = ({
         {extensionList?.uploader.map((uploader) => (
           <ListItem
             key={uploader.id}
-            endEnhancer={
+            endEnhancer={() => (
               <Button
                 kind={BUTTON_KIND.tertiary}
                 onClick={clearURLs[uploader.id]}
@@ -118,7 +119,7 @@ export const EraseURLModal: React.FC<IEraseURLModalProps> = ({
                 {!erasedUploaders.has(uploader.id) &&
                   (selectedUploaderId === uploader.id ? 'Sure?' : 'Erase')}
               </Button>
-            }
+            )}
           >
             <ListItemLabel
               description={<LabelXSmall>{uploader.id}</LabelXSmall>}
@@ -136,3 +137,5 @@ export const EraseURLModal: React.FC<IEraseURLModalProps> = ({
     </Modal>
   );
 };
+
+export const EraseURLModal = React.memo(InternalEraseModal);

@@ -1,4 +1,7 @@
 import * as React from 'react';
+import { useAtom } from 'jotai';
+
+import { useKeyboardEvent } from '@react-hookz/web';
 
 import {
   Modal,
@@ -9,22 +12,59 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 
+import { RecativeBlock } from 'components/Block/RecativeBlock';
+
+import { ModalManager } from 'utils/hooks/useModalManager';
+import { useKeyPressed } from 'utils/hooks/useKeyPressed';
+
+import { server } from 'utils/rpc';
+
+import { WORKSPACE_CONFIGURATION } from 'stores/ProjectDetail';
+import { getSelectedId } from '../utils/getSelectedId';
+
 export interface IConfirmRemoveModalProps {
-  isOpen: boolean;
-  isHard: boolean;
-  onClose: () => void;
-  onSubmit: () => void;
+  onRefreshResourceListRequest: () => void;
 }
 
+export const useConfirmRemoveModal = ModalManager<unknown, null>(null);
+
 export const ConfirmRemoveModal: React.FC<IConfirmRemoveModalProps> = ({
-  isOpen,
-  isHard,
-  onClose,
-  onSubmit,
+  onRefreshResourceListRequest,
 }) => {
+  const [isOpen, , onOpen, onClose] = useConfirmRemoveModal();
+
+  const [resourceIds, setResourceIds] = React.useState<string[]>([]);
+  const [isHard, setIsHardRemove] = React.useState<boolean>(false);
+  const [workspaceConfiguration] = useAtom(WORKSPACE_CONFIGURATION);
+
+  const shiftPressed = useKeyPressed('Shift');
+
+  const handleRemoveResourceModalOpen = React.useCallback(() => {
+    const selectedResourceIds = getSelectedId();
+    setResourceIds(selectedResourceIds);
+    setIsHardRemove(shiftPressed);
+    onOpen(0);
+  }, [onOpen, shiftPressed]);
+
+  const handleRemoveResourceConfirmed = React.useCallback(async () => {
+    if (!workspaceConfiguration) return;
+    await server.removeResources(resourceIds, isHard);
+    setResourceIds([]);
+    setIsHardRemove(false);
+    onClose();
+    onRefreshResourceListRequest();
+  }, [
+    workspaceConfiguration,
+    resourceIds,
+    isHard,
+    onClose,
+    onRefreshResourceListRequest,
+  ]);
+
+  useKeyboardEvent('Delete', handleRemoveResourceModalOpen);
+
   return (
     <Modal
       onClose={onClose}
@@ -53,7 +93,9 @@ export const ConfirmRemoveModal: React.FC<IConfirmRemoveModalProps> = ({
       </ModalBody>
       <ModalFooter>
         <ModalButton kind={BUTTON_KIND.tertiary}>Cancel</ModalButton>
-        <ModalButton onClick={onSubmit}>Remove</ModalButton>
+        <ModalButton onClick={handleRemoveResourceConfirmed}>
+          Remove
+        </ModalButton>
       </ModalFooter>
     </Modal>
   );

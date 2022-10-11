@@ -4,21 +4,28 @@ import type {
   IGroupTypeResourceTag,
   IResourceItem,
 } from '@recative/definitions';
+
+import { ModalManager } from 'utils/hooks/useModalManager';
 import { server } from 'utils/rpc';
 
+import { atom, useAtom } from 'jotai';
 import { getGroupType } from '../utils/getGroupType';
 import { getSelectedId } from '../utils/getSelectedId';
+import { useErrorMergeModal } from '../components/ErrorMergeModal';
+
+export const useGroupTypeSelectionModal = ModalManager<
+  IGroupTypeResourceTag[],
+  null
+>(null);
+
+const itemsInGroupAtom = atom<string[]>([]);
 
 export const useMergeResourcesCallback = () => {
-  const [openPromptGroupTypeModal, setOpenGroupTypeModal] =
-    React.useState(false);
-  const [parsingGroupTypeFailed, setParsingGroupTypeFailed] =
-    React.useState(false);
-  const [candidateGroupTypes, setCandidateGroupTypes] = React.useState<
-    IGroupTypeResourceTag[]
-  >([]);
-  const [parsingGroupTypeError, setParsingGroupTypeError] = React.useState('');
-  const [itemsInGroup, setItemsInGroup] = React.useState<string[]>([]);
+  const [, , openErrorMergeModal, closeErrorMergeModal] = useErrorMergeModal();
+  const [, , openGroupTypeModal, closeGroupTypeModal] =
+    useGroupTypeSelectionModal();
+
+  const [itemsInGroup, setItemsInGroup] = useAtom(itemsInGroupAtom);
 
   const promptGroupType = React.useCallback(
     async (itemIds = getSelectedId(), promptIfFailed = true) => {
@@ -27,23 +34,26 @@ export const useMergeResourcesCallback = () => {
       const groupTypeParsingResult = getGroupType(flatten);
 
       if (groupTypeParsingResult.error) {
-        setParsingGroupTypeFailed(true);
         setItemsInGroup([]);
         if (promptIfFailed) {
-          setOpenGroupTypeModal(true);
-          setParsingGroupTypeError(groupTypeParsingResult.error);
+          closeGroupTypeModal();
+          openErrorMergeModal(groupTypeParsingResult.error);
         }
       } else {
         setItemsInGroup(itemIds);
-        setParsingGroupTypeFailed(false);
-        setOpenGroupTypeModal(true);
-        setParsingGroupTypeError('');
-        setCandidateGroupTypes(
+        openGroupTypeModal(
           groupTypeParsingResult.types as IGroupTypeResourceTag[]
         );
+        closeErrorMergeModal();
       }
     },
-    []
+    [
+      closeErrorMergeModal,
+      closeGroupTypeModal,
+      openErrorMergeModal,
+      openGroupTypeModal,
+      setItemsInGroup,
+    ]
   );
 
   const handleFileUploadFinished = React.useCallback(
@@ -63,25 +73,13 @@ export const useMergeResourcesCallback = () => {
   const groupFiles = async (x: IGroupTypeResourceTag) => {
     if (x) {
       server.mergeResources(itemsInGroup, x);
-      setOpenGroupTypeModal(false);
+      closeGroupTypeModal();
     }
   };
 
-  const closePromptGroupTypeModal = React.useCallback(() => {
-    setOpenGroupTypeModal(false);
-    setCandidateGroupTypes([]);
-    setParsingGroupTypeError('');
-    setParsingGroupTypeFailed(false);
-  }, []);
-
   return {
-    openPromptGroupTypeModal,
-    closePromptGroupTypeModal,
-    parsingGroupTypeError,
-    parsingGroupTypeFailed,
-    candidateGroupTypes,
-    promptGroupType,
     handleFileUploadFinished,
+    promptGroupType,
     groupFiles,
   };
 };

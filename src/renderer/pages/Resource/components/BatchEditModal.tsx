@@ -12,16 +12,24 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { ListItem } from 'baseui/list';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 
 import { Add } from 'components/Illustrations/Add';
 import { IconButton } from 'components/Button/IconButton';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
 
-import { IEditOperation } from '../../../../utils/BatchEditTypes';
+import { server } from 'utils/rpc';
+import { ModalManager } from 'utils/hooks/useModalManager';
+
 import { BatchEditOperation } from './BatchEditOperation';
+import { IEditOperation } from '../../../../utils/BatchEditTypes';
+import { getSelectedId } from '../utils/getSelectedId';
+
+export interface IBatchEditModalProps {
+  onRefreshResourceListRequest: () => void;
+}
 
 const UL_STYLE = {
   width: '100%',
@@ -33,17 +41,33 @@ const LI_OVERRIDES = {
   Root: { style: { width: '100%' } },
 };
 
-export interface IBatchEditModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (operations: IEditOperation[]) => void;
-}
+export const useBatchEditModal = ModalManager<void, null>(null);
 
 export const BatchEditModal: React.FC<IBatchEditModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
+  onRefreshResourceListRequest,
 }) => {
+  const [isOpen, , , onClose] = useBatchEditModal();
+  const [showBatchEditModal, setShowBatchEditModal] = React.useState(false);
+
+  const [selectedResources, setSelectedResources] = React.useState<string[]>(
+    []
+  );
+
+  React.useLayoutEffect(() => {
+    if (showBatchEditModal) {
+      setSelectedResources(getSelectedId());
+    }
+  }, [showBatchEditModal]);
+
+  const handleBatchEditModalSubmit = React.useCallback(
+    async (x: IEditOperation[]) => {
+      await server.batchUpdateResource(selectedResources, x);
+      setShowBatchEditModal(false);
+      onRefreshResourceListRequest();
+    },
+    [onRefreshResourceListRequest, selectedResources]
+  );
+
   const [css] = useStyletron();
   // const databaseLocked = useDatabaseLocked();
   const databaseLocked = false;
@@ -94,8 +118,8 @@ export const BatchEditModal: React.FC<IBatchEditModalProps> = ({
   );
 
   const handleSubmit = React.useCallback(() => {
-    onSubmit(operations);
-  }, [onSubmit, operations]);
+    handleBatchEditModalSubmit(operations);
+  }, [handleBatchEditModalSubmit, operations]);
 
   return (
     <Modal

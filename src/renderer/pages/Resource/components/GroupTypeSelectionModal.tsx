@@ -21,6 +21,11 @@ import { GeneralResourceGroupIconOutline } from 'components/Icons/GeneralResourc
 import { GroupType } from '@recative/definitions';
 import type { IGroupTypeResourceTag } from '@recative/definitions';
 
+import {
+  useGroupTypeSelectionModal,
+  useMergeResourcesCallback,
+} from '../hooks/useMergeResourceCallback';
+
 interface IGroupTypeDescription {
   icon: React.ReactChild;
   title: string;
@@ -55,10 +60,7 @@ const GROUP_TYPE_DESCRIPTION: Record<GroupType, IGroupTypeDescription> = {
 };
 
 export interface IGroupTypeSelectionModal {
-  isOpen: boolean;
-  candidates: IGroupTypeResourceTag[];
-  onClose: () => void;
-  onSubmit: (x: IGroupTypeResourceTag) => void;
+  onRefreshResourceListRequest: () => void;
 }
 
 interface IGroupTypeSelectionItemProps {
@@ -99,50 +101,63 @@ export const GroupTypeSelectionItem: React.FC<IGroupTypeSelectionItemProps> = ({
   );
 };
 
-export const GroupTypeSelectionModal: React.FC<IGroupTypeSelectionModal> = ({
-  isOpen,
-  candidates,
-  onClose,
-  onSubmit,
-}) => {
-  const [selectedGroupType, setSelectedGroupType] =
-    React.useState<IGroupTypeResourceTag | null>();
+export const InternalGroupTypeSelectionModal: React.FC<IGroupTypeSelectionModal> =
+  ({ onRefreshResourceListRequest }) => {
+    const [isOpen, candidates, , onClose] = useGroupTypeSelectionModal();
+    const { groupFiles } = useMergeResourcesCallback();
 
-  return (
-    <Modal
-      onClose={onClose}
-      isOpen={isOpen}
-      animate
-      autoFocus
-      closeable
-      size={SIZE.default}
-      role={ROLE.dialog}
-    >
-      <ModalHeader>Create Group</ModalHeader>
-      <ModalBody>
-        <RecativeBlock>Please select a type of resource group:</RecativeBlock>
-        <RecativeBlock>
-          {candidates?.map((candidate) => (
-            <GroupTypeSelectionItem
-              key={candidate.id}
-              groupType={candidate.id}
-              selected={candidate.id === selectedGroupType?.id}
-              onClick={() => setSelectedGroupType(candidate)}
-            />
-          ))}
-        </RecativeBlock>
-      </ModalBody>
-      <ModalFooter>
-        <ModalButton kind={BUTTON_KIND.tertiary} onClick={onClose}>
-          Cancel
-        </ModalButton>
-        <ModalButton
-          disabled={!selectedGroupType}
-          onClick={() => selectedGroupType && onSubmit(selectedGroupType)}
-        >
-          Create Group
-        </ModalButton>
-      </ModalFooter>
-    </Modal>
-  );
-};
+    const onSubmit = React.useCallback(
+      async (x: IGroupTypeResourceTag) => {
+        if (candidates) {
+          await groupFiles(x);
+          onRefreshResourceListRequest();
+        }
+      },
+      [candidates, groupFiles, onRefreshResourceListRequest]
+    );
+
+    const [selectedGroupType, setSelectedGroupType] =
+      React.useState<IGroupTypeResourceTag | null>();
+
+    return (
+      <Modal
+        onClose={onClose}
+        isOpen={isOpen}
+        animate
+        autoFocus
+        closeable
+        size={SIZE.default}
+        role={ROLE.dialog}
+      >
+        <ModalHeader>Create Group</ModalHeader>
+        <ModalBody>
+          <RecativeBlock>Please select a type of resource group:</RecativeBlock>
+          <RecativeBlock>
+            {candidates?.map((candidate) => (
+              <GroupTypeSelectionItem
+                key={candidate.id}
+                groupType={candidate.id}
+                selected={candidate.id === selectedGroupType?.id}
+                onClick={() => setSelectedGroupType(candidate)}
+              />
+            ))}
+          </RecativeBlock>
+        </ModalBody>
+        <ModalFooter>
+          <ModalButton kind={BUTTON_KIND.tertiary} onClick={onClose}>
+            Cancel
+          </ModalButton>
+          <ModalButton
+            disabled={!selectedGroupType}
+            onClick={() => selectedGroupType && onSubmit(selectedGroupType)}
+          >
+            Create Group
+          </ModalButton>
+        </ModalFooter>
+      </Modal>
+    );
+  };
+
+export const GroupTypeSelectionModal = React.memo(
+  InternalGroupTypeSelectionModal
+);
