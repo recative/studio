@@ -7,8 +7,6 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { server } from 'utils/rpc';
 
-import { ScriptType } from '@recative/extension-sdk';
-
 import { getLabelButton, getSimpleButtonLabel } from '../utils/getLabelButton';
 
 const STATEFUL_TREE_OVERRIDE = {
@@ -34,7 +32,7 @@ export const InternalScriptletTree: React.FC = () => {
         label: getSimpleButtonLabel(scriptlet.label),
         isExpanded: true,
         children: scriptlet.scripts
-          ?.filter((x) => x.type === ScriptType.Resource)
+          ?.filter((x) => x.type === 'resource')
           .map((x) => ({
             id: `${scriptlet.id}~~${x.id}`,
             label: getLabelButton(
