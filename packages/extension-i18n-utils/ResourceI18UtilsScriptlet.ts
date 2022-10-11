@@ -58,18 +58,21 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       label: 'Wrap Resource to Group',
       type: ScriptType.Resource,
       executeMode: ScriptExecutionMode.Background,
+      confirmBeforeExecute: false,
     },
     {
       id: 'scriptCreateI18NWorkspace',
       label: 'Create i18n workspace',
       type: ScriptType.Resource,
       executeMode: ScriptExecutionMode.Terminal,
+      confirmBeforeExecute: true,
     },
     {
       id: 'scriptSyncI18NWorkspace',
       label: 'Sync i18n workspace',
       type: ScriptType.Resource,
       executeMode: ScriptExecutionMode.Terminal,
+      confirmBeforeExecute: true,
     },
   ];
 

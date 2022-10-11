@@ -24,6 +24,7 @@ export interface IResourceScript {
   label: string;
   type: ScriptType.Resource;
   executeMode: ScriptExecutionMode;
+  confirmBeforeExecute: boolean;
 }
 
 export interface IScriptletDependency {
