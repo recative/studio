@@ -390,7 +390,8 @@
     "packages/extension-raw",
     "packages/extension-av",
     "packages/extension-i18n-utils",
-    "packages/studio-definitions"
+    "packages/studio-definitions",
+    "packages/loki-fs-structured-adapter"
   ],
   "resolutions": {
     "@codemirror/state": "0.20.0",

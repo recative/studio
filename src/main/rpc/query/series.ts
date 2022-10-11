@@ -29,7 +29,7 @@ export const getSeriesMetadata = async () => {
 export const getSeriesId = async () => {
   const db = await getDb();
 
-  const seriesId = db.series.metadata.findOne({})?.id;
+  const seriesId = db.series.metadata.data[0]?.id;
   if (!seriesId) throw new Error('Series id not found!');
 
   return seriesId;

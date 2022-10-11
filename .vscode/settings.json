@@ -46,6 +46,7 @@
     "codemirror",
     "compat",
     "Contexify",
+    "dbref",
     "digestalg",
     "Dirtable",
     "downloadjs",

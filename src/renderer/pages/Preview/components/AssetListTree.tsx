@@ -90,7 +90,7 @@ const useTreeStructures = () => {
         ? episodes.map(({ episode, assets }) => ({
             id: episode.id,
             label: getLabelButton({
-              label: episode.label.en,
+              label: episode.label?.en ?? 'Unknown Episode',
               id: episode.id,
             }),
             isExpanded: false,
