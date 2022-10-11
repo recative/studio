@@ -12,10 +12,8 @@ import type { StyleObject } from 'styletron-react';
 import type { IResourceItem } from '@recative/definitions';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { Search } from 'baseui/icon';
-import { Spinner, SIZE as SPINNER_SIZE } from 'baseui/spinner';
-import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
+import { Spinner, SIZE as SPINNER_SIZE } from 'baseui/spinner';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
 import { Resource as ResourceItem } from 'components/ResourceExplorer/Resource';
@@ -28,18 +26,19 @@ import { useKeyPressed } from 'utils/hooks/useKeyPressed';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 
 import { Uploader } from './components/Uploader';
-import { EraseURLModal, useEraseURLModal } from './components/EraseURLModal';
-import { BatchEditModal, useBatchEditModal } from './components/BatchEditModal';
+import { SidePanel } from './components/SidePanel';
+import { SELECTED_TAGS } from './utils/getLabelButton';
 import { ErrorMergeModal } from './components/ErrorMergeModal';
 import { ReplaceFileModal } from './components/ReplaceFileModal';
 import { ConfirmSplitModal } from './components/ConfirmSplitModal';
 import { ConfirmRemoveModal } from './components/ConfirmRemoveModal';
-import {
-  FixResourceLinkModal,
-  useFixResourceModal,
-} from './components/FixResourceLinkModal';
 import { GroupTypeSelectionModal } from './components/GroupTypeSelectionModal';
-import { ResourceTree, SELECTED_TAGS } from './components/ResourceTree';
+import { EraseURLModal, useEraseURLModal } from './components/EraseURLModal';
+import { BatchEditModal, useBatchEditModal } from './components/BatchEditModal';
+import {
+  useFixResourceModal,
+  FixResourceLinkModal,
+} from './components/FixResourceLinkModal';
 import {
   EditResourceFileModal,
   useEditResourceFileModal,
@@ -53,6 +52,7 @@ import { getSelectedId } from './utils/getSelectedId';
 import { useMergeResourcesCallback } from './hooks/useMergeResourceCallback';
 
 import { useAdditionalTabs } from './hooks/useAdditionalTabs';
+import { SEARCH_TERM_ATOM } from './components/SearchBar';
 
 const TAB_COLORS = [{ key: 'resource', color: '#01579B' }];
 
@@ -206,19 +206,6 @@ const useKeyboardShortcut = () => {
   return { controlPressed, shiftPressed, handleSelectoSelect };
 };
 
-const useSearchCallback = () => {
-  const [searchTerm, setSearchTerm] = React.useState('');
-
-  const handleSearchInputChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setSearchTerm(event.target.value);
-    },
-    []
-  );
-
-  return { searchTerm, handleSearchInputChange };
-};
-
 const useResources = (searchTerm: string) => {
   const [showSpinner, setShowSpinner] = React.useState<boolean>(false);
   const [selectedTags] = useAtom(SELECTED_TAGS);
@@ -275,7 +262,7 @@ const InternalResource: React.FC = () => {
 
   const databaseLocked = useDatabaseLocked();
 
-  const { searchTerm, handleSearchInputChange } = useSearchCallback();
+  const [searchTerm] = useAtom(SEARCH_TERM_ATOM);
 
   const { resources, updateResources, showSpinner } = useResources(searchTerm);
 
@@ -344,21 +331,7 @@ const InternalResource: React.FC = () => {
           gridArea="tree"
           maxHeight="calc(100vh - 320px)"
         >
-          <RecativeBlock
-            paddingTop="4px"
-            paddingLeft="4px"
-            paddingRight="4px"
-            paddingBottom="4px"
-          >
-            <Input
-              size={INPUT_SIZE.compact}
-              endEnhancer={<Search size="18px" />}
-              placeholder="Search"
-              value={searchTerm}
-              onChange={handleSearchInputChange}
-            />
-          </RecativeBlock>
-          <ResourceTree />
+          <SidePanel />
         </RecativeBlock>
         <RecativeBlock
           gridArea="upload"
