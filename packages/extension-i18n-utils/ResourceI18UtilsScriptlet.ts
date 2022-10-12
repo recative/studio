@@ -103,6 +103,11 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       newGroup.definition.thumbnailSrc = resource.thumbnailSrc;
 
       resource.label = `${resource.label}.${this.config.baseLanguage}`;
+      resource.tags = [
+        ...new Set(
+          [...resource.tags, `lang:${this.config.baseLanguage}`].filter(Boolean)
+        ),
+      ];
       resource.resourceGroupId = newGroup.definition.id;
 
       this.dependency.db.resource.resources.update(resource);

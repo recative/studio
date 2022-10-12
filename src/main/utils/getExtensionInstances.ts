@@ -479,6 +479,8 @@ const scriptletDependency: IScriptletDependency = {
 
 export const getScriptletInstances = async (terminalId: string) => {
   const db = await getDb();
+  const extensionConfig = await getExtensionConfig();
+
   const scriptlets: Record<string, Scriptlet<string>> = {};
 
   extensions.forEach((extension) => {
@@ -487,7 +489,9 @@ export const getScriptletInstances = async (terminalId: string) => {
     extensionScriptlet?.forEach((ScriptletClass) => {
       const scriptlet: Scriptlet<string> =
         // @ts-ignore
-        new ScriptletClass({}, { ...scriptletDependency });
+        new ScriptletClass(extensionConfig[ScriptletClass.id], {
+          ...scriptletDependency,
+        });
 
       scriptlet.dependency.logToTerminal = (
         message: string | [string, string],
