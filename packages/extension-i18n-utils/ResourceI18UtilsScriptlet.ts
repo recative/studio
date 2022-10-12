@@ -344,7 +344,6 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
             )}.${this.config.workingLanguage}`;
 
             if (file.type === 'file') {
-              console.log(originalGroup.id);
               file.resourceGroupId = originalGroup.id;
             }
 
