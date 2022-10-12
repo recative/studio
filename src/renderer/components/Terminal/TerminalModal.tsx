@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
+
 import { styled } from 'baseui';
 import type { StyleObject } from 'styletron-react';
 
@@ -200,13 +202,13 @@ const InternalTerminalModal: React.FC = () => {
     isOpen
   );
 
-  const handleClose = React.useCallback(() => {
+  const handleClose = useEvent(() => {
     handleReset();
     onClose();
     if (id !== null) {
       server.destroyTerminalSession(id);
     }
-  }, [handleReset, id, onClose]);
+  });
 
   React.useEffect(() => {
     const scrolledToBottom =

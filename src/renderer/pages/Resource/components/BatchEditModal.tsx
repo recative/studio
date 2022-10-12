@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
+
 import { nanoid } from 'nanoid';
 
 import { useStyletron } from 'baseui';
@@ -117,9 +119,9 @@ export const BatchEditModal: React.FC<IBatchEditModalProps> = ({
     [operations]
   );
 
-  const handleSubmit = React.useCallback(() => {
+  const handleSubmit = useEvent(() => {
     handleBatchEditModalSubmit(operations);
-  }, [handleBatchEditModalSubmit, operations]);
+  });
 
   return (
     <Modal

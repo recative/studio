@@ -1,7 +1,9 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
 
 import { atom, useAtom } from 'jotai';
 import type { WritableAtom } from 'jotai';
+import { OpenPromise } from '@recative/open-promise';
 import { useToggleAtom } from './useToggleAtom';
 
 export const useInternalModalManager = <FilledState, EmptyState>(
@@ -12,22 +14,30 @@ export const useInternalModalManager = <FilledState, EmptyState>(
   >,
   emptyData: EmptyState
 ) => {
+  const promiseRef = React.useRef<OpenPromise<FilledState | EmptyState> | null>(
+    null
+  );
+
   const [isOpen, open, close] = useToggleAtom(openStateAtom);
 
   const [data, setData] = useAtom(dataStateAtom);
 
-  const openWithData = React.useCallback(
-    (x: FilledState) => {
-      setData(x);
-      open();
-    },
-    [open, setData]
-  );
+  const openWithData = useEvent((x: FilledState) => {
+    promiseRef.current?.resolve(emptyData);
+    setData(x);
+    open();
+    const nextPromise = new OpenPromise<FilledState | EmptyState>();
+    promiseRef.current = nextPromise;
 
-  const closeWithData = React.useCallback(() => {
+    return nextPromise;
+  });
+
+  const closeWithData = useEvent(() => {
+    promiseRef.current?.resolve(data);
     setData(emptyData);
     close();
-  }, [close, setData, emptyData]);
+    promiseRef.current = null;
+  });
 
   return [isOpen, data, openWithData, closeWithData] as const;
 };

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
 
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
@@ -109,14 +110,14 @@ const InternalEditResourceFileModal: React.FC<IMergeModalProps> = ({
     onRefreshResourceListRequest
   );
 
-  const handleSubmitClick = React.useCallback(() => {
+  const handleSubmitClick = useEvent(() => {
     handleFileModalSubmit();
     onClose();
-  }, [handleFileModalSubmit, onClose]);
+  });
 
-  const handleEditorInitialized = React.useCallback(() => {
+  const handleEditorInitialized = useEvent(() => {
     editorRef.current?.setValue(file);
-  }, [file]);
+  });
 
   return (
     <Modal

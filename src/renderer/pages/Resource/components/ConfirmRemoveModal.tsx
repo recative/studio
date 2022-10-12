@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
 import { useAtom } from 'jotai';
 
 import { useKeyboardEvent } from '@react-hookz/web';
@@ -41,27 +42,21 @@ export const ConfirmRemoveModal: React.FC<IConfirmRemoveModalProps> = ({
 
   const shiftPressed = useKeyPressed('Shift');
 
-  const handleRemoveResourceModalOpen = React.useCallback(() => {
+  const handleRemoveResourceModalOpen = useEvent(() => {
     const selectedResourceIds = getSelectedId();
     setResourceIds(selectedResourceIds);
     setIsHardRemove(shiftPressed);
     onOpen(0);
-  }, [onOpen, shiftPressed]);
+  });
 
-  const handleRemoveResourceConfirmed = React.useCallback(async () => {
+  const handleRemoveResourceConfirmed = useEvent(async () => {
     if (!workspaceConfiguration) return;
     await server.removeResources(resourceIds, isHard);
     setResourceIds([]);
     setIsHardRemove(false);
     onClose();
     onRefreshResourceListRequest();
-  }, [
-    workspaceConfiguration,
-    resourceIds,
-    isHard,
-    onClose,
-    onRefreshResourceListRequest,
-  ]);
+  });
 
   useKeyboardEvent('Delete', handleRemoveResourceModalOpen);
 

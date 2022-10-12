@@ -1,22 +1,34 @@
 import * as React from 'react';
 
-import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import { ButtonGroup, MODE } from 'baseui/button-group';
+import { Button, KIND as BUTTON_KIND } from 'baseui/button';
+import { ToasterContainer, PLACEMENT } from 'baseui/toast';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { ResourceFilesIconOutline } from 'components/Icons/ResourceFilesIconOutline';
-import { ScriptletIconOutline } from 'components/Icons/ScriptletIconOutline';
 import { StatIconOutline } from 'components/Icons/StatIconOutline';
+import { ScriptletIconOutline } from 'components/Icons/ScriptletIconOutline';
+import { ResourceFilesIconOutline } from 'components/Icons/ResourceFilesIconOutline';
+
 import { ResourceTree } from './ResourceTree';
 import { ScriptletTree } from './ScriptletTree';
 
 const ICON_SIZE = 20;
 
-export const InternalSidePanel = () => {
+export interface ISidePanelProps {
+  onRefreshResourceListRequest: () => void;
+}
+
+export const InternalSidePanel: React.FC<ISidePanelProps> = ({
+  onRefreshResourceListRequest,
+}) => {
   const [selected, setSelected] = React.useState<number>(0);
 
   return (
     <RecativeBlock display="flex" position="relative">
+      <ToasterContainer
+        autoHideDuration={3000}
+        placement={PLACEMENT.bottomRight}
+      />
       <RecativeBlock position="fixed">
         <ButtonGroup
           mode={MODE.radio}
@@ -45,7 +57,11 @@ export const InternalSidePanel = () => {
       </RecativeBlock>
       <RecativeBlock width="240px" marginLeft="52px">
         {selected === 0 && <ResourceTree />}
-        {selected === 1 && <ScriptletTree />}
+        {selected === 1 && (
+          <ScriptletTree
+            onRefreshResourceListRequest={onRefreshResourceListRequest}
+          />
+        )}
       </RecativeBlock>
     </RecativeBlock>
   );

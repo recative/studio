@@ -5127,6 +5127,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@recative/open-promise@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "@recative/open-promise@npm:0.2.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fopen-promise%2F0.2.3%2F085f4f7798783cc1d653ef68a2ee6f00e8b555c5"
+  dependencies:
+    "@ungap/event-target": ^0.2.3
+    debug: ^4.3.4
+  checksum: 07c437a79b52ea9b69053199d6371915b4e59fa275930afa93fc36cba09890ba4ab5815c1d03b1abc1251306f2fd688fd9ee5600a56e39ebe45a2e2c6c9b59dc
+  languageName: node
+  linkType: hard
+
 "@recative/polyv@npm:^1.2.5":
   version: 1.2.5
   resolution: "@recative/polyv@npm:1.2.5::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fpolyv%2F1.2.5%2F0d8d162bca6b6670deb04ce36b4ce73c7e910215"
@@ -5220,6 +5230,7 @@ __metadata:
     "@recative/client-sdk": ^4.0.0
     "@recative/definitions": ^0.4.1
     "@recative/extension-sdk": "workspace:^"
+    "@recative/open-promise": ^0.2.3
     "@recative/smart-resource": ^0.2.0
     "@recative/studio-definitions": "workspace:^"
     "@recative/ugly-json": ^0.0.0

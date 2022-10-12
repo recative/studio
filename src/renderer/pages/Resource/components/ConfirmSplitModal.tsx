@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
 
 import {
   Modal,
@@ -27,14 +28,14 @@ export const ConfirmSplitModal: React.FC<IConfirmSplitModalProps> = ({
 }) => {
   const [isOpen, , , onClose] = useConfirmSplitModal();
 
-  const handleSplitGroups = React.useCallback(async () => {
+  const handleSplitGroups = useEvent(async () => {
     const selectedIds = getSelectedId();
     if (selectedIds.length) {
       await server.splitGroup(getSelectedId());
       onClose();
       onRefreshResourceListRequest();
     }
-  }, [onClose, onRefreshResourceListRequest]);
+  });
 
   return (
     <Modal
