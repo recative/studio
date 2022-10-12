@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useEvent } from 'utils/hooks/useEvent';
 
 import { useAsync } from '@react-hookz/web';
 import { StatefulTreeView } from 'baseui/tree-view';
@@ -11,6 +10,7 @@ import type { ScriptExecutionMode } from '@recative/extension-sdk';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { useTerminalModal } from 'components/Terminal/TerminalModal';
 
+import { useEvent } from 'utils/hooks/useEvent';
 import { server } from 'utils/rpc';
 
 import {
@@ -41,7 +41,7 @@ export interface IScriptletTreeProps {
 export const InternalScriptletTree: React.FC<IScriptletTreeProps> = ({
   onRefreshResourceListRequest,
 }) => {
-  const [, , openTerminalModal, closeTerminalModal] = useTerminalModal();
+  const [, , openTerminalModal] = useTerminalModal();
   const [, , openConfirmExecuteScriptModal] = useConfirmExecuteScriptModal();
   const [extensions, extensionActions] = useAsync(
     server.getExtensionMetadata,
@@ -63,9 +63,8 @@ export const InternalScriptletTree: React.FC<IScriptletTreeProps> = ({
         })
       : true;
 
-    if (x.executeMode === 'terminal') {
-      openTerminalModal('scriptlet');
-    }
+    const openTerminalPromise =
+      x.executeMode === 'terminal' ? openTerminalModal('scriptlet') : null;
 
     if (confirmed) {
       const executeResult = await server.executeScriptlet(
@@ -74,7 +73,7 @@ export const InternalScriptletTree: React.FC<IScriptletTreeProps> = ({
         selectedId
       );
 
-      closeTerminalModal();
+      await openTerminalPromise;
 
       if (executeResult?.ok) {
         toaster.info(executeResult.message);

@@ -12,22 +12,19 @@ export const useInternalModalManager = <FilledState, EmptyState>(
     FilledState | EmptyState,
     React.SetStateAction<FilledState | EmptyState>
   >,
+  promiseRef: { current: OpenPromise<FilledState | EmptyState> | null },
   emptyData: EmptyState
 ) => {
-  const promiseRef = React.useRef<OpenPromise<FilledState | EmptyState> | null>(
-    null
-  );
-
   const [isOpen, open, close] = useToggleAtom(openStateAtom);
 
   const [data, setData] = useAtom(dataStateAtom);
 
   const openWithData = useEvent((x: FilledState) => {
     promiseRef.current?.resolve(emptyData);
-    setData(x);
-    open();
     const nextPromise = new OpenPromise<FilledState | EmptyState>();
     promiseRef.current = nextPromise;
+    setData(x);
+    open();
 
     return nextPromise;
   });
@@ -45,12 +42,17 @@ export const useInternalModalManager = <FilledState, EmptyState>(
 export const ModalManager = <FilledData, EmptyData>(emptyData: EmptyData) => {
   const openAtom = atom(false);
   const dataAtom = atom<FilledData | EmptyData>(emptyData);
+  const promiseRef: { current: OpenPromise<FilledData | EmptyData> | null } = {
+    current: null,
+  };
 
   const useModalManager = () =>
     useInternalModalManager<FilledData, EmptyData>(
       openAtom,
       dataAtom,
+      promiseRef,
       emptyData
     );
+
   return useModalManager;
 };
