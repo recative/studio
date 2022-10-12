@@ -93,7 +93,9 @@ export const initializeDb = async <T>(
         }
 
         collection.idIndex = index;
-        collection.maxId = Math.max(...collection.data.map((x) => x.$loki));
+        collection.maxId = collection.data?.length
+          ? Math.max(...collection.data.map((x) => x.$loki))
+          : 0;
         collection.checkAllIndexes({
           randomSampling: true,
           repair: true,
