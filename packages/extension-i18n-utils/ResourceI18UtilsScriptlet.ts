@@ -34,7 +34,7 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
 
   static label = 'I18N Utils';
 
-  static configUiFields = [
+  static extensionConfigUiFields = [
     {
       id: 'baseLanguage',
       type: 'string',

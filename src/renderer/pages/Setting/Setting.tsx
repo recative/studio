@@ -156,7 +156,15 @@ const InternalSetting: React.FC = () => {
           <HeadingSmall>Uploader</HeadingSmall>
           <ExtensionConfiguration
             domain="uploader"
-            type="plugin"
+            type="extension"
+            disabled={databaseLocked}
+            getValue={onSettingsGetValue}
+            setValue={onSettingsSetValue}
+          />
+          <HeadingSmall>Scriptlet</HeadingSmall>
+          <ExtensionConfiguration
+            domain="scriptlet"
+            type="extension"
             disabled={databaseLocked}
             getValue={onSettingsGetValue}
             setValue={onSettingsSetValue}

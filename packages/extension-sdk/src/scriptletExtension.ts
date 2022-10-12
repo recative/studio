@@ -51,7 +51,7 @@ export abstract class Scriptlet<ConfigKey extends string> {
 
   static description: string;
 
-  static configUiFields:
+  static extensionConfigUiFields:
     | IConfigUiField[]
     | Readonly<Readonly<IConfigUiField>[]>;
 

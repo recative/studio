@@ -15,7 +15,7 @@ interface IExtensionDescription {
   id: string;
   label: string;
   iconId?: string;
-  pluginConfigUiFields?: IConfigUiField[];
+  extensionConfigUiFields?: IConfigUiField[];
   profileConfigUiFields?: IConfigUiField[];
   resourceConfigUiFields?: IConfigUiField[];
   nonMergeableResourceExtensionConfiguration?: string[];
@@ -39,7 +39,7 @@ extensions.forEach((extension) => {
       const result = {
         id: clonedConfig.id,
         label: clonedConfig.label,
-        pluginConfigUiFields: [
+        extensionConfigUiFields: [
           {
             id: 'acceptedFileType',
             type: 'groupedBoolean',
@@ -63,7 +63,7 @@ extensions.forEach((extension) => {
         pick(item, [
           'id',
           'label',
-          'pluginConfigUiFields',
+          'extensionConfigUiFields',
           'resourceConfigUiFields',
           'nonMergeableResourceExtensionConfiguration',
         ])
@@ -79,7 +79,13 @@ extensions.forEach((extension) => {
   if ('bundler' in extension && extension.bundler) {
     const extensionList = extension.bundler.map((item) => {
       const description = cloneDeep(
-        pick(item, ['id', 'label', 'iconId', 'profileConfigUiFields'])
+        pick(item, [
+          'id',
+          'label',
+          'iconId',
+          'profileConfigUiFields',
+          'extensionConfigUiFields',
+        ])
       );
 
       return description;
@@ -92,7 +98,7 @@ extensions.forEach((extension) => {
   if ('scriptlet' in extension && extension.scriptlet) {
     const extensionList = extension.scriptlet.map((item) => {
       const description = cloneDeep(
-        pick(item, ['id', 'label', 'configUiFields', 'scripts'])
+        pick(item, ['id', 'label', 'extensionConfigUiFields', 'scripts'])
       );
 
       return description;

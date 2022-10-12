@@ -122,7 +122,7 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
     | Readonly<Readonly<IConfigUiField>[]>;
 
   /** Not implemented */
-  static pluginConfigUiFields:
+  static extensionConfigUiFields:
     | IConfigUiField[]
     | Readonly<Readonly<IConfigUiField>[]>;
 
