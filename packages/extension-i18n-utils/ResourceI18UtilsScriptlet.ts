@@ -1,7 +1,9 @@
-import { join, relative } from 'path';
-import { glob } from 'glob';
+import { join, relative, normalize } from 'path';
+
+import glob from 'glob';
 import { extension } from 'mime-types';
 import { ensureDir, copy, writeJSON, readJSON } from 'fs-extra';
+
 import { IResourceFile, IResourceGroup } from '@recative/definitions';
 import {
   ResourceGroupForImport,
@@ -227,17 +229,22 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
 
   scriptSyncI18NWorkspace = async () => {
     const dirs = glob.sync(
-      join(this.config.i18nMediaWorkspacePath, '*', REFERENCE_FILE_NAME)
+      normalize(
+        join(this.config.i18nMediaWorkspacePath, '*', REFERENCE_FILE_NAME)
+      ).replaceAll('\\', '/')
     );
 
     const workspaces = dirs
       .map((x) => relative(this.config.i18nMediaWorkspacePath, x))
-      .map((x) => x.split(/[\\/]s/gi)[0])
-      .map(Number.parseInt)
+      .map((x) => x.split(/[\\/]+/gi)[0])
+      .map(Number)
       .filter((x) => !Number.isNaN(x));
 
     if (!workspaces.length) {
-      throw new Error(`No valid workspace found`);
+      return {
+        ok: false,
+        message: `No valid workspace found`,
+      };
     }
 
     const latestWorkspaceId = Math.max(...workspaces).toString();
@@ -279,15 +286,17 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       }) as IResourceFile;
 
       if (!originalFile) {
-        throw new Error(
-          `The file ${resourceFileReference.id} is not available in the database, maybe you are using a wrong workspace for the task`
-        );
+        return {
+          ok: false,
+          message: `The file ${resourceFileReference.id} is not available in the database, maybe you are using a wrong workspace for the task`,
+        };
       }
 
       if (!originalFile.resourceGroupId) {
-        throw new Error(
-          `The file ${originalFile.label}(${resourceFileReference.id}) do not have a resource group definition, this is not allowed`
-        );
+        return {
+          ok: false,
+          message: `The file ${originalFile.label}(${resourceFileReference.id}) do not have a resource group definition, this is not allowed`,
+        };
       }
 
       const originalGroup = this.dependency.db.resource.resources.findOne({
@@ -295,9 +304,10 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       });
 
       if (!originalGroup) {
-        throw new Error(
-          `The group ${originalFile.resourceGroupId} is not available in the database, maybe you are using a wrong workspace for the task`
-        );
+        return {
+          ok: false,
+          message: `The group ${originalFile.resourceGroupId} is not available in the database, maybe you are using a wrong workspace for the task`,
+        };
       }
 
       const importedFiles = await this.dependency.importFile(resourceFilePath);
