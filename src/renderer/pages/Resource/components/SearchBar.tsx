@@ -2,7 +2,6 @@ import * as React from 'react';
 import { atom, useAtom } from 'jotai';
 
 import { Search } from 'baseui/icon';
-import { toaster, ToasterContainer } from 'baseui/toast';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
