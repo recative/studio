@@ -86,6 +86,13 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       })
       .filter((x) => x.type === 'file' && !x.resourceGroupId);
 
+    if (!resources.length) {
+      return {
+        ok: false,
+        message: 'No convertible resource found',
+      };
+    }
+
     for (let i = 0; i < resources.length; i += 1) {
       const resource = resources[i];
 
@@ -93,8 +100,10 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
 
       newGroup.definition.files.push(resource.id);
       newGroup.definition.label = resource.label;
+      newGroup.definition.thumbnailSrc = resource.thumbnailSrc;
 
       resource.label = `${resource.label}.${this.config.baseLanguage}`;
+      resource.resourceGroupId = newGroup.definition.id;
 
       this.dependency.db.resource.resources.update(resource);
       this.dependency.db.resource.resources.insert(newGroup.finalize());
@@ -102,7 +111,7 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
 
     return {
       ok: true,
-      message: 'Converted',
+      message: 'Resource converted',
     };
   };
 
