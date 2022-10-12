@@ -12,7 +12,6 @@ import {
 } from 'baseui/modal';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 
-import { server } from 'utils/rpc';
 import { ModalManager } from 'utils/hooks/useModalManager';
 
 export interface IModalManagerPayload {
@@ -35,7 +34,6 @@ export const ConfirmExecuteScriptModal = () => {
     }
 
     onClose();
-    await server.executeScriptlet(script.extension, script.id, script.payload);
   });
 
   return (

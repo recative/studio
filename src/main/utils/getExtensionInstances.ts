@@ -17,9 +17,6 @@ import {
   getFilePath,
   getFileBuffer,
   imageThumbnail,
-  Scriptlet,
-  IScriptletDependency,
-  xxHash,
 } from '@recative/extension-sdk';
 import type {
   TOOLS,
@@ -38,18 +35,17 @@ import { Category, IResourceFile } from '@recative/definitions';
 
 import { getDb } from '../rpc/db';
 import { cloneDeep } from './cloneDeep';
-// eslint-disable-next-line import/no-cycle
-import { importFile } from '../rpc/query/resource';
 import { extensions } from '../extensions';
 import { cleanupLoki } from '../rpc/query/utils';
+import { getBuildPath } from '../rpc/query/setting';
 import { getWorkspace } from '../rpc/workspace';
 import { logToTerminal } from '../rpc/query/terminal';
+import { getVersionName } from '../rpc/query/utils/getVersionName';
 import { importedFileToFile } from '../rpc/query/utils/importedFileToFile';
 import { STUDIO_BINARY_PATH } from '../constant/appPath';
 import { HOME_DIR, ANDROID_BUILD_TOOLS_PATH } from '../constant/configPath';
 
-import { getBuildPath } from '../rpc/query/setting';
-import { getVersionName } from '../rpc/query/utils/getVersionName';
+import { getExtensionConfig } from './getExtensionConfig';
 import { getResourceFilePath } from './getResourceFile';
 import { promisifySpawn, SpawnFailedError } from './promiseifySpawn';
 
@@ -185,25 +181,6 @@ const resourceProcessorDependencies: IResourceExtensionDependency = {
   getFilePath,
   getFileBuffer,
   imageThumbnail,
-};
-
-const getExtensionConfig = async () => {
-  const db = await getDb();
-
-  const settings = db.setting.setting.find();
-
-  const result: Record<string, Record<string, string>> = {};
-
-  settings.forEach((setting) => {
-    const [uploaderId, settingKey] = setting.key.split('~~');
-
-    if (!uploaderId || settingKey === undefined) return;
-
-    if (!result[uploaderId]) result[uploaderId] = {};
-    result[uploaderId][settingKey] = setting.value;
-  });
-
-  return result;
 };
 
 /**
@@ -456,54 +433,4 @@ export const getBundlerInstances = async (terminalId: string) => {
   });
 
   return bundlers;
-};
-
-const scriptletDependency: IScriptletDependency = {
-  getFilePath,
-  getResourceFilePath,
-  getXxHashOfResourceFile: async (resource) => {
-    const resourceFilePath = await getResourceFilePath(resource);
-    return xxHash(await readFile(resourceFilePath));
-  },
-  getXxHashOfFile: async (path) => {
-    return xxHash(await readFile(path));
-  },
-  importFile,
-  // This will be replaced later
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  db: null as any,
-  // This will be replaced later
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  logToTerminal: logToTerminal as any,
-};
-
-export const getScriptletInstances = async (terminalId: string) => {
-  const db = await getDb();
-  const extensionConfig = await getExtensionConfig();
-
-  const scriptlets: Record<string, Scriptlet<string>> = {};
-
-  extensions.forEach((extension) => {
-    const extensionScriptlet = extension.scriptlet;
-
-    extensionScriptlet?.forEach((ScriptletClass) => {
-      const scriptlet: Scriptlet<string> =
-        // @ts-ignore
-        new ScriptletClass(extensionConfig[ScriptletClass.id], {
-          ...scriptletDependency,
-        });
-
-      scriptlet.dependency.logToTerminal = (
-        message: string | [string, string],
-        logLevel?: TerminalMessageLevel
-      ) => {
-        logToTerminal(terminalId, message, logLevel);
-      };
-      scriptlet.dependency.db = db;
-
-      scriptlets[ScriptletClass.id] = scriptlet;
-    });
-  });
-
-  return scriptlets;
 };

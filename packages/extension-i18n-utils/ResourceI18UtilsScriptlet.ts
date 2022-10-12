@@ -257,6 +257,10 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       join(latestWorkspace, REFERENCE_FILE_NAME)
     );
 
+    this.dependency.logToTerminal(
+      `:: ${resourceFileReferences.length} records found`
+    );
+
     for (let i = 0; i < resourceFileReferences.length; i += 1) {
       const resourceFileReference = resourceFileReferences[i];
       const resourceFilePath = join(
@@ -269,15 +273,24 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
 
       if (fileHash === referenceHash) {
         // This file is not modified, skip.
+
+        this.dependency.logToTerminal(
+          `:: ${resourceFileReference.fileName} not modified`
+        );
+
         continue;
       }
 
       const existedFile = this.dependency.db.resource.resources.findOne({
-        originalHash: referenceHash,
+        originalHash: fileHash,
       });
 
       if (existedFile) {
         // This file is already imported, skip.
+        this.dependency.logToTerminal(
+          `:: ${resourceFileReference.fileName} already imported`
+        );
+
         continue;
       }
 
@@ -300,8 +313,9 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       }
 
       const originalGroup = this.dependency.db.resource.resources.findOne({
-        resourceGroupId: originalFile.resourceGroupId,
-      });
+        type: 'group',
+        id: originalFile.resourceGroupId,
+      }) as IResourceGroup;
 
       if (!originalGroup) {
         return {
@@ -310,10 +324,14 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
         };
       }
 
+      this.dependency.logToTerminal(
+        `:: Importing ${resourceFileReference.fileName}`
+      );
+
       const importedFiles = await this.dependency.importFile(resourceFilePath);
 
       for (let j = 0; j < importedFiles.length; j += 1) {
-        const importedFile = importedFiles[i];
+        const importedFile = importedFiles[j];
 
         this.dependency.db.resource.resources.findAndUpdate(
           {
@@ -326,8 +344,11 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
             )}.${this.config.workingLanguage}`;
 
             if (file.type === 'file') {
-              file.resourceGroupId = originalGroup?.id;
+              console.log(originalGroup.id);
+              file.resourceGroupId = originalGroup.id;
             }
+
+            originalGroup.files.push(file.id);
 
             file.tags = [
               ...new Set(
@@ -341,6 +362,10 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
           }
         );
       }
+
+      originalGroup.files = [...new Set(originalGroup.files)];
+
+      this.dependency.db.resource.resources.update(originalGroup);
     }
 
     return {

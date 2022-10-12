@@ -2,10 +2,11 @@ import { IExecuteResult } from '@recative/extension-sdk';
 
 import {
   logToTerminal,
-  newTerminalSession,
   wrapTaskFunction,
+  newTerminalSession,
 } from './terminal';
-import { getScriptletInstances } from '../../utils/getExtensionInstances';
+
+import { getScriptletInstances } from '../../utils/getScriptletInstances';
 
 export const executeScriptlet = async (
   extensionId: string,
@@ -32,7 +33,7 @@ export const executeScriptlet = async (
     logToTerminal('scriptlet', 'Executing the script');
 
     if (script && typeof script === 'function') {
-      const result = (await script(payload)) as Promise<IExecuteResult>;
+      const result = (await script(payload)) as IExecuteResult;
 
       logToTerminal('scriptlet', 'Done!');
 
