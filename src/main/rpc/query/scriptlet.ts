@@ -1,21 +1,47 @@
-import { getScriptletInstances } from 'utils/getExtensionInstances';
+import { IExecuteResult } from '@recative/extension-sdk';
+
+import {
+  logToTerminal,
+  newTerminalSession,
+  wrapTaskFunction,
+} from './terminal';
+import { getScriptletInstances } from '../../utils/getExtensionInstances';
 
 export const executeScriptlet = async (
   extensionId: string,
   scriptId: string,
   payload: unknown
 ) => {
-  const scriptletInstances = await getScriptletInstances('scriptlet');
+  newTerminalSession('scriptlet', ['Execute Scriptlet']);
 
-  const extension = scriptletInstances[extensionId];
+  return wrapTaskFunction('scriptlet', 'Execute Scriptlet', async () => {
+    logToTerminal('scriptlet', 'Initializing the scriptlet extension');
+    const scriptletInstances = await getScriptletInstances('scriptlet');
 
-  if (!extension) {
-    throw new TypeError('Extension not found');
-  }
+    const extension = scriptletInstances[extensionId];
 
-  const script = Reflect.get(extension, scriptId);
+    if (!extension) {
+      return {
+        ok: false,
+        message: 'Extension not exists',
+      };
+    }
 
-  if (script && typeof script === 'function') {
-    script(payload);
-  }
+    const script = Reflect.get(extension, scriptId);
+
+    logToTerminal('scriptlet', 'Executing the script');
+
+    if (script && typeof script === 'function') {
+      const result = (await script(payload)) as Promise<IExecuteResult>;
+
+      logToTerminal('scriptlet', 'Done!');
+
+      return result;
+    }
+
+    return {
+      ok: false,
+      message: 'Script not exists',
+    };
+  })();
 };

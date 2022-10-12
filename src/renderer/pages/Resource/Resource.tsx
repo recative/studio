@@ -331,7 +331,7 @@ const InternalResource: React.FC = () => {
           gridArea="tree"
           maxHeight="calc(100vh - 320px)"
         >
-          <SidePanel />
+          <SidePanel onRefreshResourceListRequest={updateResources} />
         </RecativeBlock>
         <RecativeBlock
           gridArea="upload"

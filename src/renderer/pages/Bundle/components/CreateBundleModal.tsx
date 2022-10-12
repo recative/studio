@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
 
 import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
@@ -78,7 +79,7 @@ export const CreateBundleModal: React.FC<ICreateBundleModalProps> = ({
     [selectedProfiles]
   );
 
-  const handleSubmit = React.useCallback(() => {
+  const handleSubmit = useEvent(() => {
     if (data === null) {
       return;
     }
@@ -87,7 +88,7 @@ export const CreateBundleModal: React.FC<ICreateBundleModalProps> = ({
       data
     );
     onClose();
-  }, [data, onClose, onSubmit, profileIds, selectedProfiles]);
+  });
 
   if (profiles.status === 'not-executed' || profiles.status === 'loading') {
     return null;

@@ -1,12 +1,24 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
 
 import { useAsync } from '@react-hookz/web';
 import { StatefulTreeView } from 'baseui/tree-view';
 
+import { toaster } from 'baseui/toast';
+
+import type { ScriptExecutionMode } from '@recative/extension-sdk';
+
 import { RecativeBlock } from 'components/Block/RecativeBlock';
+import { useTerminalModal } from 'components/Terminal/TerminalModal';
 
 import { server } from 'utils/rpc';
 
+import {
+  ConfirmExecuteScriptModal,
+  useConfirmExecuteScriptModal,
+} from './ConfirmExecuteScriptModal';
+
+import { getSelectedId } from '../utils/getSelectedId';
 import { getLabelButton, getSimpleButtonLabel } from '../utils/getLabelButton';
 
 const STATEFUL_TREE_OVERRIDE = {
@@ -15,7 +27,22 @@ const STATEFUL_TREE_OVERRIDE = {
 
 const NO_OP = () => false;
 
-export const InternalScriptletTree: React.FC = () => {
+export interface IScriptletDescription {
+  extension: string;
+  script: string;
+  executeMode: ScriptExecutionMode;
+  confirmBeforeExecute: boolean;
+}
+
+export interface IScriptletTreeProps {
+  onRefreshResourceListRequest: () => void;
+}
+
+export const InternalScriptletTree: React.FC<IScriptletTreeProps> = ({
+  onRefreshResourceListRequest,
+}) => {
+  const [, , openTerminalModal, closeTerminalModal] = useTerminalModal();
+  const [, , openConfirmExecuteScriptModal] = useConfirmExecuteScriptModal();
   const [extensions, extensionActions] = useAsync(
     server.getExtensionMetadata,
     null
@@ -24,6 +51,40 @@ export const InternalScriptletTree: React.FC = () => {
   React.useEffect(() => {
     extensionActions.execute();
   }, [extensionActions]);
+
+  const handleButtonClick = useEvent(async (x: IScriptletDescription) => {
+    const selectedId = getSelectedId();
+
+    const confirmed = x.confirmBeforeExecute
+      ? await openConfirmExecuteScriptModal({
+          extension: x.extension,
+          id: x.script,
+          payload: getSelectedId(),
+        })
+      : true;
+
+    if (x.executeMode === 'terminal') {
+      openTerminalModal('scriptlet');
+    }
+
+    if (confirmed) {
+      const executeResult = await server.executeScriptlet(
+        x.extension,
+        x.script,
+        selectedId
+      );
+
+      closeTerminalModal();
+
+      if (executeResult?.ok) {
+        toaster.info(executeResult.message);
+      } else {
+        toaster.negative(executeResult?.message ?? 'Script not executed');
+      }
+
+      onRefreshResourceListRequest();
+    }
+  });
 
   const treeData = React.useMemo(
     () =>
@@ -41,15 +102,14 @@ export const InternalScriptletTree: React.FC = () => {
               {
                 extension: scriptlet.id,
                 script: x.id,
+                ...x,
               },
-              (u) => console.log(u)
+              handleButtonClick
             ),
           })),
       })) ?? [],
-    [extensions.result]
+    [extensions.result?.scriptlet, handleButtonClick]
   );
-
-  console.log(extensions);
 
   return (
     <RecativeBlock id="recative-scriptlet-tree" paddingTop="8px">
@@ -71,6 +131,7 @@ export const InternalScriptletTree: React.FC = () => {
           data={treeData}
         />
       ) : null}
+      <ConfirmExecuteScriptModal />
     </RecativeBlock>
   );
 };
