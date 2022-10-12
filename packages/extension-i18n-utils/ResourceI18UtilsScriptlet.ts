@@ -130,14 +130,13 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
     for (let i = 0; i < groups.length; i += 1) {
       const group = groups[i];
 
-      const files = this.dependency.db.resource.resources
-        .find({
-          id: { $in: group.files },
-        })
-        .filter((x) => x.type === 'file') as IResourceFile[];
+      const files = this.dependency.db.resource.resources.find({
+        type: 'file',
+        id: { $in: group.files },
+      }) as IResourceFile[];
 
       const matchedBaseLanguageFiles = files.filter((x) =>
-        x.tags.includes(`lang:${this.config.workingLanguage}`)
+        x.tags.includes(`lang:${this.config.baseLanguage}`)
       );
 
       for (let j = 0; j < matchedBaseLanguageFiles.length; j += 1) {
@@ -319,6 +318,14 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
             if (file.type === 'file') {
               file.resourceGroupId = originalGroup?.id;
             }
+
+            file.tags = [
+              ...new Set(
+                [...file.tags, `lang:${this.config.workingLanguage}`].filter(
+                  Boolean
+                )
+              ),
+            ];
 
             return file;
           }
