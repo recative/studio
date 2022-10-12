@@ -42,6 +42,7 @@ const modalBodyStyles: StyleObject = {
   maxHeight: 'calc(100% - 212px)',
   boxSizing: 'border-box',
   overflow: 'clip',
+  flexGrow: 1,
   display: 'flex',
   alignItems: 'stretch',
 };
@@ -57,6 +58,8 @@ const modalOverrides: ModalOverrides = {
     style: {
       width: '60vw',
       height: '80vh',
+      display: 'flex',
+      flexDirection: 'column',
     },
   },
 };
