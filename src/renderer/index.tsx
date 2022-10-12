@@ -37,6 +37,13 @@ const CustomizedTheme = createTheme(
       radius400: '0px',
       radius500: '0px',
       buttonBorderRadius: '0px',
+      buttonBorderRadiusMini: '0px',
+      checkboxBorderRadius: '0px',
+      surfaceBorderRadius: '0px',
+      inputBorderRadius: '0px',
+      inputBorderRadiusMini: '0px',
+      popoverBorderRadius: '0px',
+      tagBorderRadius: '0px',
     },
     typography: {
       DisplayLarge: {
