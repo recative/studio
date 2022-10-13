@@ -55,8 +55,6 @@ const useExtensionMetadata = (
   const [extensionMetadata, extensionMetadataActions] = useAsync(async () => {
     const serverSideExtensionMetadata = await server.getExtensionMetadata();
 
-    console.log(serverSideExtensionMetadata);
-
     const result = serverSideExtensionMetadata[domain]
       .filter((uploader) =>
         onlyExtensionId ? uploader.id === onlyExtensionId : true

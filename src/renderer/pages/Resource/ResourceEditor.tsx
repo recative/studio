@@ -136,8 +136,6 @@ const InternalFormTagItem: React.FC<IFormItemProps> = ({
 
   const options = React.useMemo(() => [emptyResourceTag, ...tag], [tag]);
 
-  console.log(options);
-
   const handleChange: ISelectProps<
     IResourceTag | IGroupTypeResourceTag
   >['onChange'] = React.useCallback(
