@@ -40,7 +40,7 @@ export const injectActPointEntryPointsUrl = (
           );
         })?.[1];
 
-    const splitedEntryPoint = (entryPointHTMLFile || '')
+    const splitedEntryPoint = (entryPointHTMLFile || '404')
       .split(/[/\\]+/)
       .filter(Boolean);
 
