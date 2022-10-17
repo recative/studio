@@ -14,11 +14,12 @@ import { extensions } from '../extensions';
 import { logToTerminal } from '../rpc/query/terminal';
 
 import { getExtensionConfig } from './getExtensionConfig';
-import { getResourceFilePath } from './getResourceFile';
+import { getResourceFilePath, getResourceFileBinary } from './getResourceFile';
 
 const scriptletDependency: IScriptletDependency = {
   getFilePath,
   getResourceFilePath,
+  getResourceFileBinary,
   getXxHashOfResourceFile: async (resource) => {
     const resourceFilePath = await getResourceFilePath(resource);
     return xxHash(await readFile(resourceFilePath));

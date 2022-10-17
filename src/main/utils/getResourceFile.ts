@@ -5,6 +5,7 @@ import { WorkspaceNotReadyError } from '@recative/definitions';
 import type { IResourceFile } from '@recative/definitions';
 import type { IPostProcessedResourceFileForUpload } from '@recative/extension-sdk';
 
+import { readFile } from 'fs/promises';
 import { getDb } from '../rpc/db';
 import { getWorkspace } from '../rpc/workspace';
 
@@ -75,4 +76,15 @@ export const getResourceFilePath = async (
   }
 
   throw new TypeError(`Invalid record`);
+};
+
+export const getResourceFileBinary = async (
+  resource:
+    | Pick<IResourceFile, 'id'>
+    | Pick<
+        IPostProcessedResourceFileForUpload,
+        'id' | 'fileName' | 'postProcessRecord'
+      >
+) => {
+  return readFile(await getResourceFilePath(resource, false, true));
 };
