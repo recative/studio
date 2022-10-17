@@ -5039,6 +5039,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@recative/extension-audio-backends@workspace:packages/extension-audio-backends":
+  version: 0.0.0-use.local
+  resolution: "@recative/extension-audio-backends@workspace:packages/extension-audio-backends"
+  languageName: unknown
+  linkType: soft
+
 "@recative/extension-av@workspace:packages/extension-av":
   version: 0.0.0-use.local
   resolution: "@recative/extension-av@workspace:packages/extension-av"

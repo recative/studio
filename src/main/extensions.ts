@@ -7,6 +7,7 @@ import polyVVodExtension from '@recative/extension-polyv-vod';
 import avExtension from '@recative/extension-av';
 import atlasExtension from '@recative/extension-atlas';
 import offlineBundleExtension from '@recative/extension-offline-bundle';
+import audioBackendsExtension from '@recative/extension-audio-backends';
 
 import iosIpaBundlerExtension from '@recative/extension-ios';
 import androidApkBundlerExtension from '@recative/extension-android';
@@ -26,5 +27,6 @@ export const extensions = [
   androidApkBundlerExtension,
   webBundlerExtension,
   rawBundlerExtension,
+  audioBackendsExtension,
   i18nUtils,
 ] as ExtensionManifest[];
