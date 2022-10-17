@@ -113,14 +113,20 @@ const InternalEditResourceFileModal: React.FC<IMergeModalProps> = ({
     onRefreshResourceListRequest
   );
 
-  const handleSubmitClick = useEvent(() => {
-    handleFileModalSubmit();
+  const handleSubmitClick = useEvent(async () => {
+    await handleFileModalSubmit();
     onClose();
   });
 
-  const handleEditorInitialized = useEvent(() => {
-    editorRef.current?.setValue(file);
-  });
+  React.useEffect(() => {
+    if (isOpen && !editorRef.current?.value) {
+      editorRef.current?.setValue(file);
+    }
+
+    if (!isOpen) {
+      editorRef.current?.setValue(null);
+    }
+  }, [file, isOpen]);
 
   return (
     <Modal
@@ -144,10 +150,7 @@ const InternalEditResourceFileModal: React.FC<IMergeModalProps> = ({
       </ModalHeader>
       <ModalBody className={css(modalBodyStyles)}>
         <RecativeBlock className={css(mainContentStyles)}>
-          <ResourceEditor
-            ref={editorRef}
-            onInitialized={handleEditorInitialized}
-          />
+          <ResourceEditor ref={editorRef} />
         </RecativeBlock>
       </ModalBody>
       <ModalFooter>
