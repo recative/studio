@@ -392,6 +392,7 @@
     "packages/extension-av",
     "packages/extension-i18n-utils",
     "packages/extension-audio-backends",
+    "packages/extension-db-fixer",
     "packages/studio-definitions",
     "packages/loki-fs-structured-adapter"
   ],

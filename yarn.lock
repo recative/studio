@@ -5054,6 +5054,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@recative/extension-db-fixer@workspace:packages/extension-db-fixer":
+  version: 0.0.0-use.local
+  resolution: "@recative/extension-db-fixer@workspace:packages/extension-db-fixer"
+  languageName: unknown
+  linkType: soft
+
 "@recative/extension-i18n-utils@workspace:packages/extension-i18n-utils":
   version: 0.0.0-use.local
   resolution: "@recative/extension-i18n-utils@workspace:packages/extension-i18n-utils"
