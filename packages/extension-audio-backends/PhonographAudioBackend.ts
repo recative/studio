@@ -25,6 +25,10 @@ export class PhonographAudioBackend extends ResourceProcessor<''> {
 
   static nonMergeableResourceExtensionConfiguration = [];
 
+  protected configValidator(x: unknown): x is Record<'', string> {
+    return !!x || true;
+  }
+
   async beforePublishMediaBundle(
     resources: IPostProcessedResourceFileForUpload[]
   ) {

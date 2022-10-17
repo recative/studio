@@ -137,7 +137,9 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
     if (this.configValidator(pluginConfig)) {
       this.pluginConfig = pluginConfig;
     } else {
-      throw new Error('Invalid configuration');
+      throw new Error(
+        `Invalid configuration for ${Reflect.get(this.constructor, 'id')}`
+      );
     }
   }
 
