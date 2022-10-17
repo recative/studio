@@ -1,10 +1,11 @@
 import console from 'electron-log';
 import { join } from 'path';
 
-import Loki, { LokiFsAdapter } from 'lokijs';
-import type { LokiFsStructuredAdapter } from 'loki-fs-structured-adapter';
+import Loki from 'lokijs';
 
 import { IDbInstance, DB_CONFIG } from '@recative/studio-definitions';
+
+import { LokiWorkspaceLockSafeFsAdapter } from '../../utils/LokiWorkspaceLockSafeFsAdapter';
 
 let dbLoadingProgress = 0;
 let dbLoadingStatus = 'Not initialized';
@@ -15,11 +16,7 @@ export const getDbProgress = () => ({
   dbLoadingStatus,
 });
 
-export const initializeDb = async <T>(
-  dbPath: string,
-  adapter: LokiFsAdapter | LokiFsStructuredAdapter,
-  additionalData: T
-) => {
+export const initializeDb = async <T>(dbPath: string, additionalData: T) => {
   const dbInstance = {
     path: dbPath,
     additionalData,
@@ -45,7 +42,7 @@ export const initializeDb = async <T>(
       const fullPath = join(dbPath, dbDefinition.file);
 
       db = new Loki(fullPath, {
-        adapter,
+        adapter: new LokiWorkspaceLockSafeFsAdapter(),
         autoload: true,
         autoloadCallback: () => resolve(db as unknown as Loki),
         autosave: true,
