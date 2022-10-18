@@ -31,6 +31,9 @@ export interface IScriptletDependency {
   db: IDbInstance<unknown>;
   getFilePath: typeof getFilePath;
   getResourceFilePath: (resource: Pick<IResourceFile, 'id'>) => Promise<string>;
+  getResourceFileBinary: (
+    resource: Pick<IResourceFile, 'id'>
+  ) => Promise<Buffer>;
   getXxHashOfResourceFile: (
     fileId: Pick<IResourceFile, 'id'>
   ) => Promise<string>;

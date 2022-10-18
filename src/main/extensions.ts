@@ -14,7 +14,8 @@ import androidApkBundlerExtension from '@recative/extension-android';
 import webBundlerExtension from '@recative/extension-web';
 import rawBundlerExtension from '@recative/extension-raw';
 
-import i18nUtils from '@recative/extension-i18n-utils';
+import dbFixerExtension from '@recative/extension-db-fixer';
+import i18nUtilsExtension from '@recative/extension-i18n-utils';
 
 export const extensions = [
   aliOssExtension,
@@ -28,5 +29,6 @@ export const extensions = [
   webBundlerExtension,
   rawBundlerExtension,
   audioBackendsExtension,
-  i18nUtils,
+  i18nUtilsExtension,
+  dbFixerExtension,
 ] as ExtensionManifest[];

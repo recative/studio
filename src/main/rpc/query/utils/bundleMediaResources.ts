@@ -1,14 +1,12 @@
 import { Zip, IBundleProfile } from '@recative/extension-sdk';
 import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
 
-import { REDIRECT_URL_EXTENSION_ID } from '@recative/definitions';
-
 import { logToTerminal } from '../terminal';
 
 import { getReleasedDb } from '../../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../../utils/getResourceFile';
 import { ifResourceIncludedInBundle } from '../../../dataGenerationProfiles/utils/ifResourceIncludedInBundle';
-import { analysisPostProcessedRecords } from '../../../utils/analysisPostProcessedRecords';
+import { getResourceListOfEpisode } from '../episode';
 
 /**
  * Find all not-deleted resource files, which don't have any episode, or
@@ -16,55 +14,41 @@ import { analysisPostProcessedRecords } from '../../../utils/analysisPostProcess
  * Copy them to the `assets/public/bundle/resource` directory of the
  * apk file.
  *
- * @param zip The archiver instance.
+ * @param zip The archiver instance, this value could be null, which means
+ *            we want a dry run.
  * @param mediaReleaseId release ID of media release.
  * @param terminalId Output information to which terminal.
  */
 export const bundleMediaResources = async (
-  zip: Zip,
+  zip: Zip | null,
   bundleReleaseId: number,
   mediaReleaseId: number,
   resourcePath: string,
   profile: IBundleProfile,
   terminalId: string
 ) => {
-  const db = await getReleasedDb(bundleReleaseId);
+  const dbPromise = getReleasedDb(bundleReleaseId);
+  const db = await dbPromise;
 
-  const resourceImported = db.resource.resources
-    .find({
-      type: 'file',
-      removed: false,
-      redirectTo: {
-        $or: [{ $exists: false }, { $eq: false }],
-      },
-      url: {
-        $nkeyin: [REDIRECT_URL_EXTENSION_ID],
-      },
+  const episodes = db.episode.episodes.data;
+  const rawResources = await Promise.all(
+    episodes.map(async ({ id: episodeId }) => {
+      return getResourceListOfEpisode(
+        episodeId,
+        {
+          type: 'bundleProfile',
+          mediaReleaseId,
+          codeReleaseId: -1,
+          bundleProfile: profile,
+        },
+        dbPromise
+      );
     })
-    .filter((x) => ifResourceIncludedInBundle(x, mediaReleaseId, profile));
-  const resourceProcessed = db.resource.postProcessed
-    .find({
-      type: 'file',
-    })
-    .filter((x) => ifResourceIncludedInBundle(x, mediaReleaseId, profile));
-
-  const postProcessCombination =
-    analysisPostProcessedRecords(resourceProcessed);
-
-  logToTerminal(terminalId, `:: Build in media bundler:`);
-  logToTerminal(terminalId, `:: :: Imported: ${resourceImported.length}`);
-  logToTerminal(terminalId, `:: :: Processed: ${resourceProcessed.length}`);
-
-  postProcessCombination.forEach((value, key) => {
-    logToTerminal(terminalId, `:: :: :: ${key}: ${value}`);
-  });
-
-  logToTerminal(
-    terminalId,
-    `:: :: Total: ${resourceImported.length + resourceProcessed.length}`
   );
 
-  const resourceList = [...resourceImported, ...resourceProcessed];
+  const resourceList = rawResources
+    .reduce((x, y) => [...x, ...y], [])
+    .filter((x) => ifResourceIncludedInBundle(x, mediaReleaseId, profile));
 
   logToTerminal(
     terminalId,
@@ -73,8 +57,10 @@ export const bundleMediaResources = async (
   );
 
   logToTerminal(terminalId, `:: Total: ${resourceList.length}`);
-  logToTerminal(terminalId, `:: :: Imported: ${resourceImported.length}`);
-  logToTerminal(terminalId, `:: :: Processed: ${resourceProcessed.length}`);
+
+  if (!zip) {
+    return resourceList;
+  }
 
   // Get file path of all resource files.
   const resourceFilePathList = await Promise.all(
@@ -84,5 +70,7 @@ export const bundleMediaResources = async (
     }))
   );
 
-  await zip.appendFileList(resourceFilePathList, true);
+  await zip?.appendFileList(resourceFilePathList, true);
+
+  return resourceList;
 };

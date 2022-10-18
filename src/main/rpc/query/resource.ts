@@ -1,5 +1,6 @@
 import { basename, join as joinPath, parse as parsePath } from 'path';
 
+import console from 'electron-log';
 import { nanoid } from 'nanoid';
 import { uniqBy } from 'lodash';
 import { copy, removeSync, pathExists } from 'fs-extra';
@@ -156,7 +157,10 @@ export const removeResource = async (itemId: string, hard: boolean) => {
 
   const item = db.resource.resources.findOne({ id: itemId });
 
-  if (!item) return;
+  if (!item) {
+    console.warn(`${itemId} not found, unable to remove the resource`);
+    return;
+  }
 
   if (item.type === 'group') {
     await Promise.all(item.files.map((file) => removeResource(file, hard)));

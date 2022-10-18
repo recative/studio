@@ -1,6 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/no-loop-func */
 import { join } from 'path';
+import { stat } from 'fs/promises';
 import { remove } from 'fs-extra';
 
 import { Zip } from '@recative/extension-sdk';
@@ -9,9 +10,9 @@ import type { IBundleProfile } from '@recative/extension-sdk';
 
 import { dumpPlayerConfigs } from './publishPlayerBundle';
 import {
+  logToTerminal,
   wrapTaskFunction,
   newTerminalSession,
-  logToTerminal,
 } from './terminal';
 
 import { bundleMediaResources } from './utils/bundleMediaResources';
@@ -23,6 +24,10 @@ import { transferActPointArtifacts } from './utils/transferActPointArtifacts';
 import { getBuildPath } from './setting';
 
 import { getBundlerInstances } from '../../utils/getExtensionInstances';
+import {
+  ifIsPostProcessed,
+  getResourceFilePath,
+} from '../../utils/getResourceFile';
 
 import { getDb } from '../db';
 import { getWorkspace } from '../workspace';
@@ -68,9 +73,16 @@ export const removeBundleProfile = async (profile: IBundleProfile | string) => {
 
 const RAW_EXTENSION_ID = '@recative/extension-raw/RawBundler';
 
-export const createBundles = async (
+export type ResourceSource = 'postProcessed' | 'raw' | 'unknown';
+export interface IAnalysisReportUnit {
+  size: number;
+  count: number;
+}
+
+export const createBundles = async <Dry extends boolean>(
   profiles: string[],
   bundleReleaseId: number,
+  dryRun = false as Dry,
   terminalId = 'createBundles'
 ) => {
   const workspace = getWorkspace();
@@ -101,8 +113,12 @@ export const createBundles = async (
 
   newTerminalSession(terminalId, tasks);
 
-  const instances = await getBundlerInstances(terminalId);
   const buildPath = await getBuildPath();
+
+  const analysisResult: [
+    string,
+    Map<string, Map<string, Map<ResourceSource, IAnalysisReportUnit>>>
+  ][] = [];
 
   for (let i = 0; i < profiles.length; i += 1) {
     const profileId = profiles[i];
@@ -130,6 +146,7 @@ export const createBundles = async (
       Level.Info
     );
 
+    const instances = await getBundlerInstances(terminalId);
     const bundler = instances[profile.bundleExtensionId];
 
     const appTemplatePublicPath = Reflect.get(
@@ -147,66 +164,83 @@ export const createBundles = async (
       'outputExtensionName'
     )}`;
 
-    const outputPath = join(buildPath, outputFileName);
+    if (!dryRun) {
+      const outputPath = join(buildPath, outputFileName);
 
-    await remove(outputPath);
+      await remove(outputPath);
 
-    const zip = new Zip(outputPath, {
-      zlib: { level: 0 },
-    });
+      const zip = new Zip(outputPath, {
+        zlib: { level: 0 },
+      });
 
-    await wrapTaskFunction(terminalId, taskName, async () => {
-      if (profile.bundleExtensionId !== RAW_EXTENSION_ID) {
-        if (profile.shellTemplateFileName) {
-          await duplicateBasePackage(
-            zip,
-            profile.shellTemplateFileName,
-            Reflect.get(bundler.constructor, 'appTemplateFromPath'),
-            Reflect.get(bundler.constructor, 'outputPublicPath'),
-            Reflect.get(bundler.constructor, 'excludeTemplateFilePaths'),
-            terminalId
-          );
+      await wrapTaskFunction(terminalId, taskName, async () => {
+        if (profile.bundleExtensionId !== RAW_EXTENSION_ID) {
+          if (profile.shellTemplateFileName) {
+            await duplicateBasePackage(
+              zip,
+              profile.shellTemplateFileName,
+              Reflect.get(bundler.constructor, 'appTemplateFromPath'),
+              Reflect.get(bundler.constructor, 'outputPublicPath'),
+              Reflect.get(bundler.constructor, 'excludeTemplateFilePaths'),
+              terminalId
+            );
+          }
+
+          if (profile.webRootTemplateFileName) {
+            await duplicateWebRootPackage(
+              zip,
+              profile.webRootTemplateFileName,
+              Reflect.get(bundler.constructor, 'appTemplatePublicPath'),
+              Reflect.get(bundler.constructor, 'excludeWebRootFilePaths'),
+              terminalId
+            );
+          }
         }
 
-        if (profile.webRootTemplateFileName) {
-          await duplicateWebRootPackage(
-            zip,
-            profile.webRootTemplateFileName,
-            Reflect.get(bundler.constructor, 'appTemplatePublicPath'),
-            Reflect.get(bundler.constructor, 'excludeWebRootFilePaths'),
-            terminalId
-          );
-        }
-      }
+        await transferActPointArtifacts(
+          zip,
+          release.codeBuildId,
+          `${appTemplatePublicPath}/bundle/ap`,
+          terminalId
+        );
 
-      await transferActPointArtifacts(
-        zip,
-        release.codeBuildId,
-        `${appTemplatePublicPath}/bundle/ap`,
-        terminalId
-      );
+        await dumpPlayerConfigs(
+          zip,
+          release.mediaBuildId,
+          release.codeBuildId,
+          bundleReleaseId,
+          appTemplatePublicPath,
+          profile,
+          terminalId
+        );
+        await zip.appendFile(
+          join(workspace.assetsPath, profile.constantFileName),
+          `${appTemplatePublicPath}/bundle/ap/dist/constants.json`
+        );
+        await zip.appendFile(
+          join(workspace.assetsPath, profile.constantFileName),
+          `${appTemplatePublicPath}/constants.json`
+        );
+        await bundleAdditionalModules(zip, appTemplatePublicPath, terminalId);
 
-      await dumpPlayerConfigs(
-        zip,
-        release.mediaBuildId,
-        release.codeBuildId,
-        bundleReleaseId,
-        appTemplatePublicPath,
-        profile,
-        terminalId
-      );
-      await zip.appendFile(
-        join(workspace.assetsPath, profile.constantFileName),
-        `${appTemplatePublicPath}/bundle/ap/dist/constants.json`
-      );
-      await zip.appendFile(
-        join(workspace.assetsPath, profile.constantFileName),
-        `${appTemplatePublicPath}/constants.json`
-      );
-      await bundleAdditionalModules(zip, appTemplatePublicPath, terminalId);
+        await bundleMediaResources(
+          zip,
+          bundleReleaseId,
+          release.mediaBuildId,
+          `${appTemplatePublicPath}/bundle/resource`,
+          profile,
+          terminalId
+        );
 
-      await bundleMediaResources(
-        zip,
+        await bundler.beforeBundleFinalized?.(zip, profile, bundleReleaseId);
+
+        await zip.done();
+
+        await bundler.afterBundleCreated?.(zip, profile, bundleReleaseId);
+      })();
+    } else {
+      const resources = await bundleMediaResources(
+        null,
         bundleReleaseId,
         release.mediaBuildId,
         `${appTemplatePublicPath}/bundle/resource`,
@@ -214,11 +248,53 @@ export const createBundles = async (
         terminalId
       );
 
-      await bundler.beforeBundleFinalized?.(zip, profile, bundleReleaseId);
+      // Episode ID / MIME / Post processed or original
+      const episodeIdMap = new Map<
+        string,
+        Map<string, Map<ResourceSource, IAnalysisReportUnit>>
+      >();
 
-      await zip.done();
+      for (let j = 0; j < resources.length; j += 1) {
+        const resource = resources[j];
 
-      await bundler.afterBundleCreated?.(zip, profile, bundleReleaseId);
-    })();
+        if (resource.type !== 'file') {
+          continue;
+        }
+
+        const episodeIdSign = [...new Set(resource.episodeIds)]
+          .sort()
+          .join(', ');
+        const mimeSign = resource.mimeType.split(';')[0];
+        const postProcessedSign =
+          (await ifIsPostProcessed(resource)) ?? 'unknown';
+
+        const mimeMap =
+          episodeIdMap.get(episodeIdSign) ??
+          new Map<string, Map<ResourceSource, IAnalysisReportUnit>>();
+        episodeIdMap.set(episodeIdSign, mimeMap);
+
+        const postProcessedMap =
+          mimeMap.get(mimeSign) ??
+          new Map<ResourceSource, IAnalysisReportUnit>();
+        mimeMap.set(mimeSign, postProcessedMap);
+
+        const filePath = await getResourceFilePath(resource);
+        const fileStat = await stat(filePath);
+
+        const reportElement = postProcessedMap.get(postProcessedSign) ?? {
+          size: 0,
+          count: 0,
+        };
+
+        reportElement.size += fileStat.size;
+        reportElement.count += 1;
+
+        postProcessedMap.set(postProcessedSign, reportElement);
+      }
+
+      analysisResult.push([profile.id, episodeIdMap]);
+    }
   }
+
+  return analysisResult;
 };

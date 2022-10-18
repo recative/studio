@@ -8,47 +8,44 @@ import { SmallIconButton } from 'components/Button/SmallIconButton';
 import { ContentContainer } from 'components/Layout/ContentContainer';
 import { BundleIconOutline } from 'components/Icons/BundleIconOutline';
 
-import { useTerminalModal } from 'components/Terminal/TerminalModal';
-
-import { server } from 'utils/rpc';
-
+import { useEvent } from 'utils/hooks/useEvent';
+import { StatIconOutline } from 'components/Icons/StatIconOutline';
 import { ReleaseList } from './components/ReleaseList';
 import {
   CreateBundleModal,
   useCreateBundleModal,
 } from './components/CreateBundleModal';
+import { AnalysisModal, useAnalysisModal } from './components/AnalysisModal';
 
 interface IActionsProps {
   id: number;
 }
 
 const Actions: React.FC<IActionsProps> = ({ id }) => {
-  const [, , open] = useCreateBundleModal();
+  const [, , openCreateBundleModal] = useCreateBundleModal();
+  const [, , openAnalysisModal] = useAnalysisModal();
 
-  const handleOpen = React.useCallback(() => {
-    open(id);
-  }, [id, open]);
+  const handleOpenCreateBundleModal = useEvent(() => {
+    openCreateBundleModal(id);
+  });
+
+  const handleOpenAnalysisModal = useEvent(() => {
+    openAnalysisModal(id);
+  });
 
   return (
     <RecativeBlock>
+      <SmallIconButton title="Analysis Bundle">
+        <StatIconOutline width={16} onClick={handleOpenAnalysisModal} />
+      </SmallIconButton>
       <SmallIconButton title="Create Bundle">
-        <BundleIconOutline width={16} onClick={handleOpen} />
+        <BundleIconOutline width={16} onClick={handleOpenCreateBundleModal} />
       </SmallIconButton>
     </RecativeBlock>
   );
 };
 
 const InternalBundle: React.FC = () => {
-  const [, , openTerminal] = useTerminalModal();
-
-  const handleSubmit = React.useCallback(
-    (profileIds: string[], bundleReleaseId: number) => {
-      server.createBundles(profileIds, bundleReleaseId);
-      openTerminal('createBundles');
-    },
-    [openTerminal]
-  );
-
   return (
     <PivotLayout>
       <ContentContainer width={1000} limitedHeight>
@@ -77,7 +74,8 @@ const InternalBundle: React.FC = () => {
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
-      <CreateBundleModal onSubmit={handleSubmit} />
+      <CreateBundleModal />
+      <AnalysisModal />
     </PivotLayout>
   );
 };

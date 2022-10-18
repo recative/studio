@@ -19,5 +19,5 @@ export const useEvent = <T extends (...parameter: U) => R, U extends any[], R>(
     }
 
     return ref.current(...args);
-  }, []);
+  }, []) as unknown as T;
 };
