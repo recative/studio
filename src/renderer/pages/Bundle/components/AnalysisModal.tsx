@@ -153,7 +153,7 @@ export const AnalysisModal: React.FC = () => {
             }
 
             if (dataType === 'size') {
-              dataItem.secondary += reportUnit.size;
+              dataItem.secondary += reportUnit.size / (1024 * 1024);
             }
           });
         });
@@ -233,7 +233,8 @@ export const AnalysisModal: React.FC = () => {
       )}
       {analysisReport.status === 'loading' && (
         <RecativeBlock
-          height="400px"
+          height="200px"
+          paddingBottom="48px"
           width="100%"
           justifyContent="center"
           alignItems="center"
@@ -245,8 +246,8 @@ export const AnalysisModal: React.FC = () => {
       {analysisReport.result && (
         <>
           <ModalBody>
-            <RecativeBlock display="flex">
-              <RecativeBlock marginBottom="16px" marginTop="24px">
+            <RecativeBlock display="flex" marginBottom="16px" marginTop="32px">
+              <RecativeBlock>
                 <ButtonGroup
                   mode={BUTTON_GROUP_MODE.radio}
                   size={BUTTON_SIZE.mini}
