@@ -10,7 +10,7 @@ import type {
   IAsset,
   IActPoint,
   IResourceItem,
-  AssetForClient,
+  IAssetForClient,
 } from '@recative/definitions';
 
 import { getResource, getResourceWithDetailedFileList } from './resource';
@@ -199,7 +199,7 @@ export const getClientSideAssetList = async (
           },
           preloadDisabled: asset.preloadDisabled,
           earlyDestroyOnSwitch: asset.earlyDestroyOnSwitch,
-        } as AssetForClient;
+        } as IAssetForClient;
       }
 
       if (asset.contentExtensionId === ACT_POINT_CONTENT_EXTENSION_ID) {
@@ -226,7 +226,7 @@ export const getClientSideAssetList = async (
           },
           preloadDisabled: asset.preloadDisabled,
           earlyDestroyOnSwitch: asset.earlyDestroyOnSwitch,
-        } as AssetForClient;
+        } as IAssetForClient;
       }
 
       return null;
