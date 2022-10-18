@@ -231,12 +231,22 @@ export const AnalysisModal: React.FC = () => {
           </ModalFooter>
         </>
       )}
-      {analysisReport.status === 'loading' && <Spinner />}
+      {analysisReport.status === 'loading' && (
+        <RecativeBlock
+          height="400px"
+          width="100%"
+          justifyContent="center"
+          alignItems="center"
+          display="flex"
+        >
+          <Spinner />
+        </RecativeBlock>
+      )}
       {analysisReport.result && (
         <>
           <ModalBody>
             <RecativeBlock display="flex">
-              <RecativeBlock marginBottom="24px">
+              <RecativeBlock marginBottom="16px" marginTop="24px">
                 <ButtonGroup
                   mode={BUTTON_GROUP_MODE.radio}
                   size={BUTTON_SIZE.mini}
