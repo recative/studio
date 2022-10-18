@@ -395,6 +395,21 @@ export class OfflineBundleProcessor extends ResourceProcessor<
       }
     }
 
+    for (let i = 0; i < resources.length; i += 1) {
+      const resource = resources[i];
+
+      const match =
+        resource.type === 'file' &&
+        `${OfflineBundleProcessor.id}~~includes` in
+          resource.extensionConfigurations;
+
+      if (match) {
+        this.dependency.logToTerminal(`Removed one resource from the list`);
+        resources.splice(i, 1);
+        i -= 1;
+      }
+    }
+
     return resources;
   }
 
