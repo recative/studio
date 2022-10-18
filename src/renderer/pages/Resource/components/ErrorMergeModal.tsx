@@ -10,17 +10,12 @@ import {
   SIZE,
 } from 'baseui/modal';
 
-export interface IErrorSplitModalProps {
-  isOpen: boolean;
-  message?: string | null;
-  onClose: () => void;
-}
+import { ModalManager } from 'utils/hooks/useModalManager';
 
-export const ErrorSplitModal: React.FC<IErrorSplitModalProps> = ({
-  isOpen,
-  message,
-  onClose,
-}) => {
+export const useErrorMergeModal = ModalManager<string, null>(null);
+
+export const ErrorMergeModal: React.FC = () => {
+  const [isOpen, message, , onClose] = useErrorMergeModal();
   return (
     <Modal
       onClose={onClose}

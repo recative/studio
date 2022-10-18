@@ -3,7 +3,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import type { FallbackProps } from 'react-error-boundary';
 
 import type { StyleObject } from 'styletron-react';
-import { useStyletron } from 'styletron-react';
+import { useStyletron } from 'baseui';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import {
@@ -39,13 +39,18 @@ const qrCodeStyle: StyleObject = {
   borderStyle: 'solid',
 };
 
-const pivotContainerStyles: StyleObject = {};
+const pivotContainerStyles: StyleObject = {
+  top: '32px',
+  width: '100%',
+  position: 'fixed',
+};
 
 const contentContainerStyles: StyleObject = {
   height: '-webkit-fill-available',
   maxHeight: '100%',
   overflowY: 'auto',
   position: 'relative',
+  marginTop: '85px',
 };
 
 const footerStyles: StyleObject = {
@@ -114,13 +119,10 @@ export const PivotLayout: React.FC<IPivotLayoutProps> = ({
   additionalTabs,
   tabColors,
 }) => {
-  const [css] = useStyletron();
+  const [css, theme] = useStyletron();
 
   return (
     <RecativeBlock className={css(mainContainerStyles)}>
-      <RecativeBlock className={css(pivotContainerStyles)}>
-        <Pivot additionalTabs={additionalTabs} tabColors={tabColors} />
-      </RecativeBlock>
       <RecativeBlock className={css(contentContainerStyles)}>
         <ErrorBoundary FallbackComponent={FallbackComponent}>
           {children}
@@ -129,6 +131,12 @@ export const PivotLayout: React.FC<IPivotLayoutProps> = ({
       {footer && (
         <RecativeBlock className={css(footerStyles)}>{footer}</RecativeBlock>
       )}
+      <RecativeBlock
+        className={css(pivotContainerStyles)}
+        backgroundColor={theme.colors.backgroundPrimary}
+      >
+        <Pivot additionalTabs={additionalTabs} tabColors={tabColors} />
+      </RecativeBlock>
     </RecativeBlock>
   );
 };

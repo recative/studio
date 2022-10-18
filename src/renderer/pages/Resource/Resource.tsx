@@ -5,49 +5,40 @@ import type { OnSelect, OnScroll } from 'react-selecto';
 
 import { useAtom } from 'jotai';
 import { useStyletron } from 'baseui';
-import { useDebouncedCallback, useKeyboardEvent } from '@react-hookz/web';
+import { useDebouncedCallback } from '@react-hookz/web';
 
 import type { StyleObject } from 'styletron-react';
 
 import type { IResourceItem } from '@recative/definitions';
 
-import { Tab } from 'baseui/tabs-motion';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { Search } from 'baseui/icon';
-import { Spinner, SIZE as SPINNER_SIZE } from 'baseui/spinner';
-import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
+import { Spinner, SIZE as SPINNER_SIZE } from 'baseui/spinner';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
-import { TabTitle, Separator } from 'components/Layout/Pivot';
 import { Resource as ResourceItem } from 'components/ResourceExplorer/Resource';
 
 import { FixIconOutline } from 'components/Icons/FixIconOutline';
-import { EditIconOutline } from 'components/Icons/EditIconOutline';
-import { SplitIconOutline } from 'components/Icons/SplitIconOutline';
-import { TrashIconOutline } from 'components/Icons/TrashIconOutline';
-import { MergeIconOutline } from 'components/Icons/MergeIconOutline';
 import { EraserIconOutline } from 'components/Icons/EraserIconOutline';
-import { ReplaceIconOutline } from 'components/Icons/ReplaceIconOutline';
-import { MetadataIconOutline } from 'components/Icons/MetadataIconOutline';
 
 import { server } from 'utils/rpc';
 import { useKeyPressed } from 'utils/hooks/useKeyPressed';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
-import { PIVOT_TAB_OVERRIDES } from 'utils/style/tab';
-
-import { WORKSPACE_CONFIGURATION } from 'stores/ProjectDetail';
 
 import { Uploader } from './components/Uploader';
-import { EraseURLModal } from './components/EraseURLModal';
-import { BatchEditModal } from './components/BatchEditModal';
-import { ErrorSplitModal } from './components/ErrorSplitModal';
+import { SidePanel } from './components/SidePanel';
+import { SELECTED_TAGS } from './components/ResourceTree';
+import { ErrorMergeModal } from './components/ErrorMergeModal';
 import { ReplaceFileModal } from './components/ReplaceFileModal';
 import { ConfirmSplitModal } from './components/ConfirmSplitModal';
 import { ConfirmRemoveModal } from './components/ConfirmRemoveModal';
-import { FixResourceLinkModal } from './components/FixResourceLinkModal';
 import { GroupTypeSelectionModal } from './components/GroupTypeSelectionModal';
-import { ResourceTree, SELECTED_TAGS } from './components/ResourceTree';
+import { EraseURLModal, useEraseURLModal } from './components/EraseURLModal';
+import { BatchEditModal, useBatchEditModal } from './components/BatchEditModal';
+import {
+  useFixResourceModal,
+  FixResourceLinkModal,
+} from './components/FixResourceLinkModal';
 import {
   EditResourceFileModal,
   useEditResourceFileModal,
@@ -60,7 +51,8 @@ import {
 import { getSelectedId } from './utils/getSelectedId';
 import { useMergeResourcesCallback } from './hooks/useMergeResourceCallback';
 
-import { IEditOperation } from '../../../utils/BatchEditTypes';
+import { useAdditionalTabs } from './hooks/useAdditionalTabs';
+import { SEARCH_TERM_ATOM } from './components/SearchBar';
 
 const TAB_COLORS = [{ key: 'resource', color: '#01579B' }];
 
@@ -128,175 +120,6 @@ const useEditModalCallback = (handleOpenBatchEditModal: () => void) => {
 
   return {
     handleOpenEditModal,
-  };
-};
-
-const useRemoveResourceCallback = () => {
-  const [resourceIds, setResourceIds] = React.useState<string[]>([]);
-  const [removeModalOpen, setRemoveModalOpen] = React.useState<boolean>(false);
-  const [isHardRemove, setIsHardRemove] = React.useState<boolean>(false);
-  const [workspaceConfiguration] = useAtom(WORKSPACE_CONFIGURATION);
-
-  const shiftPressed = useKeyPressed('Shift');
-
-  const handleRemoveResourceModalOpen = React.useCallback(() => {
-    const selectedResourceIds = getSelectedId();
-    setResourceIds(selectedResourceIds);
-    setIsHardRemove(shiftPressed);
-    setRemoveModalOpen(true);
-  }, [shiftPressed]);
-
-  const handleRemoveResourceModalClose = React.useCallback(() => {
-    setResourceIds([]);
-    setIsHardRemove(false);
-    setRemoveModalOpen(false);
-  }, []);
-
-  const handleRemoveResourceConfirmed = React.useCallback(async () => {
-    if (!workspaceConfiguration) return;
-    server.removeResources(resourceIds, isHardRemove);
-    handleRemoveResourceModalClose();
-  }, [
-    resourceIds,
-    isHardRemove,
-    workspaceConfiguration,
-    handleRemoveResourceModalClose,
-  ]);
-
-  useKeyboardEvent('Delete', handleRemoveResourceModalOpen);
-
-  return {
-    isHardRemove,
-    removeModalOpen,
-    handleRemoveResourceModalOpen,
-    handleRemoveResourceModalClose,
-    handleRemoveResourceConfirmed,
-  };
-};
-
-const useSplitModalCallback = () => {
-  const [splitModalOpen, setSplitModalOpen] = React.useState(false);
-
-  const handleOpenSplitModal = React.useCallback(() => {
-    setSplitModalOpen(true);
-  }, []);
-
-  const handleCloseSplitModal = React.useCallback(() => {
-    setSplitModalOpen(false);
-  }, []);
-
-  const handleSplitGroups = React.useCallback(async () => {
-    const selectedIds = getSelectedId();
-    if (selectedIds.length) {
-      await server.splitGroup(getSelectedId());
-    }
-  }, []);
-
-  return {
-    splitModalOpen,
-    handleOpenSplitModal,
-    handleCloseSplitModal,
-    handleSplitGroups,
-  };
-};
-
-const useFixLinkModalState = () => {
-  const [showFixResourceModal, setShowFixResourceModal] = React.useState(false);
-
-  const handleShowFixResourceModalButtonClick = React.useCallback(() => {
-    setShowFixResourceModal(true);
-  }, []);
-
-  const handleFixResourceModalClose = React.useCallback(() => {
-    setShowFixResourceModal(false);
-  }, []);
-
-  return {
-    showFixResourceModal,
-    handleShowFixResourceModalButtonClick,
-    handleFixResourceModalClose,
-  };
-};
-
-const useEraseURLState = () => {
-  const [showEraseURLModal, setEraseURLModal] = React.useState(false);
-
-  const handleShowEraseURLModalButtonClick = React.useCallback(() => {
-    setEraseURLModal(true);
-  }, []);
-
-  const handleEraseURLModalClose = React.useCallback(() => {
-    setEraseURLModal(false);
-  }, []);
-
-  return {
-    showEraseURLModal,
-    handleShowEraseURLModalButtonClick,
-    handleEraseURLModalClose,
-  };
-};
-
-const useBatchEditModalState = () => {
-  const [showBatchEditModal, setShowBatchEditModal] = React.useState(false);
-
-  const [selectedResources, setSelectedResources] = React.useState<string[]>(
-    []
-  );
-
-  const handleShowBatchEditModalClick = React.useCallback(() => {
-    setShowBatchEditModal(true);
-    setSelectedResources(getSelectedId());
-  }, []);
-
-  const handleBatchEditModalClose = React.useCallback(() => {
-    setShowBatchEditModal(false);
-  }, []);
-
-  const handleBatchEditModalSubmit = React.useCallback(
-    (x: IEditOperation[]) => {
-      server.batchUpdateResource(selectedResources, x);
-      setShowBatchEditModal(false);
-    },
-    [selectedResources]
-  );
-
-  return {
-    showBatchEditModal,
-    handleShowBatchEditModalClick,
-    handleBatchEditModalClose,
-    handleBatchEditModalSubmit,
-  };
-};
-
-const useReplaceFileModalState = () => {
-  const [showReplaceFileModal, setShowReplaceFileModal] = React.useState(false);
-
-  const [selectedResourceToReplace, setSelectedResource] = React.useState<
-    string | undefined
-  >(undefined);
-  const [multipleFileError, setMultipleFileError] =
-    React.useState<boolean>(false);
-
-  const handleReplaceFileModalOpen = React.useCallback(() => {
-    const files = getSelectedId();
-
-    setMultipleFileError(files.length > 1);
-    setSelectedResource(files[0]);
-    setShowReplaceFileModal(true);
-  }, []);
-
-  const handleReplaceFileModalClose = React.useCallback(() => {
-    setShowReplaceFileModal(false);
-    setSelectedResource(undefined);
-    setMultipleFileError(false);
-  }, []);
-
-  return {
-    showReplaceFileModal,
-    selectedResourceToReplace,
-    multipleFileError,
-    handleReplaceFileModalOpen,
-    handleReplaceFileModalClose,
   };
 };
 
@@ -383,19 +206,6 @@ const useKeyboardShortcut = () => {
   return { controlPressed, shiftPressed, handleSelectoSelect };
 };
 
-const useSearchCallback = () => {
-  const [searchTerm, setSearchTerm] = React.useState('');
-
-  const handleSearchInputChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setSearchTerm(event.target.value);
-    },
-    []
-  );
-
-  return { searchTerm, handleSearchInputChange };
-};
-
 const useResources = (searchTerm: string) => {
   const [showSpinner, setShowSpinner] = React.useState<boolean>(false);
   const [selectedTags] = useAtom(SELECTED_TAGS);
@@ -440,58 +250,19 @@ const useResources = (searchTerm: string) => {
 const InternalResource: React.FC = () => {
   const [css] = useStyletron();
 
-  const {
-    splitModalOpen,
-    handleOpenSplitModal,
-    handleCloseSplitModal,
-    handleSplitGroups,
-  } = useSplitModalCallback();
+  const additionalTabs = useAdditionalTabs();
 
-  const {
-    openPromptGroupTypeModal,
-    closePromptGroupTypeModal,
-    parsingGroupTypeFailed,
-    parsingGroupTypeError,
-    candidateGroupTypes,
-    promptGroupType,
-    handleFileUploadFinished,
-    groupFiles,
-  } = useMergeResourcesCallback();
+  const [, , openFixLinkModal] = useFixResourceModal();
+  const [, , openEraseURLModal] = useEraseURLModal();
+  const [, , openBatchEditModal] = useBatchEditModal();
 
-  const {
-    showBatchEditModal,
-    handleShowBatchEditModalClick,
-    handleBatchEditModalClose,
-    handleBatchEditModalSubmit,
-  } = useBatchEditModalState();
+  const { handleFileUploadFinished } = useMergeResourcesCallback();
 
-  const { handleOpenEditModal } = useEditModalCallback(
-    handleShowBatchEditModalClick
-  );
-
-  const {
-    isHardRemove,
-    removeModalOpen,
-    handleRemoveResourceModalOpen,
-    handleRemoveResourceModalClose,
-    handleRemoveResourceConfirmed,
-  } = useRemoveResourceCallback();
-
-  const {
-    showFixResourceModal,
-    handleShowFixResourceModalButtonClick,
-    handleFixResourceModalClose,
-  } = useFixLinkModalState();
-
-  const {
-    showEraseURLModal,
-    handleShowEraseURLModalButtonClick,
-    handleEraseURLModalClose,
-  } = useEraseURLState();
+  const { handleOpenEditModal } = useEditModalCallback(openBatchEditModal);
 
   const databaseLocked = useDatabaseLocked();
 
-  const { searchTerm, handleSearchInputChange } = useSearchCallback();
+  const [searchTerm] = useAtom(SEARCH_TERM_ATOM);
 
   const { resources, updateResources, showSpinner } = useResources(searchTerm);
 
@@ -500,82 +271,6 @@ const InternalResource: React.FC = () => {
 
   const { controlPressed, shiftPressed, handleSelectoSelect } =
     useKeyboardShortcut();
-
-  const {
-    showReplaceFileModal,
-    selectedResourceToReplace,
-    multipleFileError,
-    handleReplaceFileModalOpen,
-    handleReplaceFileModalClose,
-  } = useReplaceFileModalState();
-
-  const additionalTabs = React.useMemo(
-    () => (
-      <Tab
-        key="resource"
-        title={
-          <TabTitle>
-            <span style={{ color: '#01579B' }}>Resource</span>
-          </TabTitle>
-        }
-        overrides={PIVOT_TAB_OVERRIDES}
-      >
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<MergeIconOutline width={20} />}
-          onClick={() => promptGroupType()}
-          disabled={databaseLocked}
-        >
-          Merge
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<SplitIconOutline width={20} />}
-          onClick={handleOpenSplitModal}
-          disabled={databaseLocked}
-        >
-          Split
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<EditIconOutline width={20} />}
-          onClick={handleOpenEditModal}
-        >
-          Edit
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<ReplaceIconOutline width={20} />}
-          onClick={handleReplaceFileModalOpen}
-        >
-          Replace
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<TrashIconOutline width={20} />}
-          onClick={handleRemoveResourceModalOpen}
-          disabled={databaseLocked}
-        >
-          Delete
-        </Button>
-        <Separator />
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<MetadataIconOutline width={20} />}
-        >
-          Metadata
-        </Button>
-      </Tab>
-    ),
-    [
-      databaseLocked,
-      handleOpenEditModal,
-      handleOpenSplitModal,
-      handleRemoveResourceModalOpen,
-      handleReplaceFileModalOpen,
-      promptGroupType,
-    ]
-  );
 
   const onContainerScroll = React.useCallback(() => {
     selectoRef.current?.checkScroll?.();
@@ -611,7 +306,7 @@ const InternalResource: React.FC = () => {
           <Button
             kind={BUTTON_KIND.tertiary}
             startEnhancer={<EraserIconOutline width={20} />}
-            onClick={handleShowEraseURLModalButtonClick}
+            onClick={openEraseURLModal}
             disabled={databaseLocked}
           >
             Erase URL
@@ -619,7 +314,7 @@ const InternalResource: React.FC = () => {
           <Button
             kind={BUTTON_KIND.tertiary}
             startEnhancer={<FixIconOutline width={20} />}
-            onClick={handleShowFixResourceModalButtonClick}
+            onClick={openFixLinkModal}
             disabled={databaseLocked}
           >
             Fix Link
@@ -636,21 +331,7 @@ const InternalResource: React.FC = () => {
           gridArea="tree"
           maxHeight="calc(100vh - 320px)"
         >
-          <RecativeBlock
-            paddingTop="4px"
-            paddingLeft="4px"
-            paddingRight="4px"
-            paddingBottom="4px"
-          >
-            <Input
-              size={INPUT_SIZE.compact}
-              endEnhancer={<Search size="18px" />}
-              placeholder="Search"
-              value={searchTerm}
-              onChange={handleSearchInputChange}
-            />
-          </RecativeBlock>
-          <ResourceTree />
+          <SidePanel onRefreshResourceListRequest={updateResources} />
         </RecativeBlock>
         <RecativeBlock
           gridArea="upload"
@@ -698,60 +379,16 @@ const InternalResource: React.FC = () => {
           </RecativeBlock>
         </div>
       </RecativeBlock>
-      <ConfirmSplitModal
-        isOpen={splitModalOpen}
-        onClose={handleCloseSplitModal}
-        onSubmit={async () => {
-          await handleSplitGroups();
-          handleCloseSplitModal();
-          updateResources();
-        }}
-      />
-      <ErrorSplitModal
-        isOpen={openPromptGroupTypeModal && parsingGroupTypeFailed}
-        message={parsingGroupTypeError}
-        onClose={closePromptGroupTypeModal}
-      />
-      <GroupTypeSelectionModal
-        isOpen={openPromptGroupTypeModal && !parsingGroupTypeFailed}
-        candidates={candidateGroupTypes}
-        onSubmit={async (x) => {
-          await groupFiles(x);
-          updateResources();
-        }}
-        onClose={closePromptGroupTypeModal}
-      />
+      <EraseURLModal />
+      <ErrorMergeModal />
+      <FixResourceLinkModal />
+      <BatchEditModal onRefreshResourceListRequest={updateResources} />
+      <ReplaceFileModal onRefreshResourceListRequest={updateResources} />
+      <ConfirmSplitModal onRefreshResourceListRequest={updateResources} />
+      <ConfirmRemoveModal onRefreshResourceListRequest={updateResources} />
       <EditResourceFileModal onRefreshResourceListRequest={updateResources} />
       <EditResourceGroupModal onRefreshResourceListRequest={updateResources} />
-      <ConfirmRemoveModal
-        isOpen={removeModalOpen}
-        isHard={isHardRemove}
-        onClose={handleRemoveResourceModalClose}
-        onSubmit={() => {
-          handleRemoveResourceConfirmed();
-          updateResources();
-        }}
-      />
-      <FixResourceLinkModal
-        isOpen={showFixResourceModal}
-        onClose={handleFixResourceModalClose}
-      />
-      <EraseURLModal
-        isOpen={showEraseURLModal}
-        onClose={handleEraseURLModalClose}
-      />
-      <BatchEditModal
-        isOpen={showBatchEditModal}
-        onClose={handleBatchEditModalClose}
-        onSubmit={handleBatchEditModalSubmit}
-      />
-      <ReplaceFileModal
-        multipleFileError={multipleFileError}
-        fileId={selectedResourceToReplace}
-        isOpen={showReplaceFileModal}
-        onReplaced={updateResources}
-        onClose={handleReplaceFileModalClose}
-      />
+      <GroupTypeSelectionModal onRefreshResourceListRequest={updateResources} />
     </PivotLayout>
   );
 };

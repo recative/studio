@@ -3,7 +3,7 @@ import { pick } from 'lodash';
 import { join } from 'path';
 import { emptyDir } from 'fs-extra';
 
-import type { IConfigUiField } from '@recative/extension-sdk';
+import type { IConfigUiField, IScript } from '@recative/extension-sdk';
 
 import { cloneDeep } from '../../utils/cloneDeep';
 import { extensions } from '../../extensions';
@@ -14,17 +14,19 @@ import { getWorkspace } from '../workspace';
 interface IExtensionDescription {
   id: string;
   label: string;
-  iconId: string;
-  pluginConfigUiFields?: IConfigUiField[];
+  iconId?: string;
+  extensionConfigUiFields?: IConfigUiField[];
   profileConfigUiFields?: IConfigUiField[];
   resourceConfigUiFields?: IConfigUiField[];
   nonMergeableResourceExtensionConfiguration?: string[];
+  scripts?: IScript[];
 }
 
 const extensionMetadata = {
   uploader: [] as IExtensionDescription[],
   resourceProcessor: [] as IExtensionDescription[],
   bundler: [] as IExtensionDescription[],
+  scriptlet: [] as IExtensionDescription[],
 } as const;
 
 extensions.forEach((extension) => {
@@ -37,7 +39,7 @@ extensions.forEach((extension) => {
       const result = {
         id: clonedConfig.id,
         label: clonedConfig.label,
-        pluginConfigUiFields: [
+        extensionConfigUiFields: [
           {
             id: 'acceptedFileType',
             type: 'groupedBoolean',
@@ -61,7 +63,7 @@ extensions.forEach((extension) => {
         pick(item, [
           'id',
           'label',
-          'pluginConfigUiFields',
+          'extensionConfigUiFields',
           'resourceConfigUiFields',
           'nonMergeableResourceExtensionConfiguration',
         ])
@@ -77,12 +79,31 @@ extensions.forEach((extension) => {
   if ('bundler' in extension && extension.bundler) {
     const extensionList = extension.bundler.map((item) => {
       const description = cloneDeep(
-        pick(item, ['id', 'label', 'iconId', 'profileConfigUiFields'])
+        pick(item, [
+          'id',
+          'label',
+          'iconId',
+          'profileConfigUiFields',
+          'extensionConfigUiFields',
+        ])
       );
 
       return description;
     });
     extensionMetadata.bundler.push(
+      ...(extensionList as IExtensionDescription[])
+    );
+  }
+
+  if ('scriptlet' in extension && extension.scriptlet) {
+    const extensionList = extension.scriptlet.map((item) => {
+      const description = cloneDeep(
+        pick(item, ['id', 'label', 'extensionConfigUiFields', 'scripts'])
+      );
+
+      return description;
+    });
+    extensionMetadata.scriptlet.push(
       ...(extensionList as IExtensionDescription[])
     );
   }

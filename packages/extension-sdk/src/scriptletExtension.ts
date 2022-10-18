@@ -3,6 +3,7 @@ import { IResourceFile, IResourceItem } from '@recative/definitions';
 
 import { getFilePath } from './getFilePath';
 import type { IConfigUiField } from './settings';
+import { TerminalMessageLevel } from './terminal';
 
 export enum ScriptExecutionMode {
   Terminal = 'terminal',
@@ -19,14 +20,15 @@ export interface IExecuteResult {
 }
 
 export interface IResourceScript {
+  id: string;
+  label: string;
   type: ScriptType.Resource;
   executeMode: ScriptExecutionMode;
-  function: (selectedResources: string[]) => IExecuteResult;
+  confirmBeforeExecute: boolean;
 }
 
 export interface IScriptletDependency {
-  db: IDbInstance<never>;
-  (filePath: string, replaceFileId?: string): Promise<IResourceItem[]>;
+  db: IDbInstance<unknown>;
   getFilePath: typeof getFilePath;
   getResourceFilePath: (resource: Pick<IResourceFile, 'id'>) => Promise<string>;
   getXxHashOfResourceFile: (
@@ -37,6 +39,7 @@ export interface IScriptletDependency {
     filePath: string,
     replaceFileId?: string
   ) => Promise<IResourceItem[]>;
+  logToTerminal: (message: string, level?: TerminalMessageLevel) => void;
 }
 
 export type IScript = IResourceScript;
@@ -48,13 +51,13 @@ export abstract class Scriptlet<ConfigKey extends string> {
 
   static description: string;
 
-  static configUiFields:
+  static extensionConfigUiFields:
     | IConfigUiField[]
     | Readonly<Readonly<IConfigUiField>[]>;
 
   protected config: Record<ConfigKey, string>;
 
-  protected abstract readonly scripts: IScript[];
+  static readonly scripts: IScript[];
 
   constructor(
     config: Record<string, string>,

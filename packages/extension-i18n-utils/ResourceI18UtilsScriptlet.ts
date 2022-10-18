@@ -1,9 +1,16 @@
-import { join, relative } from 'path';
-import { glob } from 'glob';
+import { join, relative, normalize } from 'path';
+
+import glob from 'glob';
 import { extension } from 'mime-types';
 import { ensureDir, copy, writeJSON, readJSON } from 'fs-extra';
+
 import { IResourceFile, IResourceGroup } from '@recative/definitions';
-import { ResourceGroupForImport, Scriptlet } from '@recative/extension-sdk';
+import {
+  ResourceGroupForImport,
+  ScriptExecutionMode,
+  Scriptlet,
+  ScriptType,
+} from '@recative/extension-sdk';
 
 const REFERENCE_FILE_NAME = 'reference.json';
 
@@ -29,7 +36,7 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
 
   static label = 'I18N Utils';
 
-  static configUiFields = [
+  static extensionConfigUiFields = [
     {
       id: 'baseLanguage',
       type: 'string',
@@ -47,7 +54,29 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
     },
   ] as const;
 
-  protected readonly scripts = [];
+  static readonly scripts = [
+    {
+      id: 'scriptWrapResourceToGroup',
+      label: 'Wrap Resource to Group',
+      type: ScriptType.Resource,
+      executeMode: ScriptExecutionMode.Background,
+      confirmBeforeExecute: false,
+    },
+    {
+      id: 'scriptCreateI18NWorkspace',
+      label: 'Create i18n workspace',
+      type: ScriptType.Resource,
+      executeMode: ScriptExecutionMode.Terminal,
+      confirmBeforeExecute: true,
+    },
+    {
+      id: 'scriptSyncI18NWorkspace',
+      label: 'Sync i18n workspace',
+      type: ScriptType.Resource,
+      executeMode: ScriptExecutionMode.Terminal,
+      confirmBeforeExecute: true,
+    },
+  ];
 
   scriptWrapResourceToGroup = async (selectedResources: string[]) => {
     const resources = this.dependency.db.resource.resources
@@ -59,6 +88,13 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       })
       .filter((x) => x.type === 'file' && !x.resourceGroupId);
 
+    if (!resources.length) {
+      return {
+        ok: false,
+        message: 'No convertible resource found',
+      };
+    }
+
     for (let i = 0; i < resources.length; i += 1) {
       const resource = resources[i];
 
@@ -66,15 +102,27 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
 
       newGroup.definition.files.push(resource.id);
       newGroup.definition.label = resource.label;
+      newGroup.definition.thumbnailSrc = resource.thumbnailSrc;
 
       resource.label = `${resource.label}.${this.config.baseLanguage}`;
+      resource.tags = [
+        ...new Set(
+          [...resource.tags, `lang:${this.config.baseLanguage}`].filter(Boolean)
+        ),
+      ];
+      resource.resourceGroupId = newGroup.definition.id;
 
       this.dependency.db.resource.resources.update(resource);
       this.dependency.db.resource.resources.insert(newGroup.finalize());
     }
+
+    return {
+      ok: true,
+      message: 'Resource converted',
+    };
   };
 
-  scriptCreateI18NWorkSpace = async () => {
+  scriptCreateI18NWorkspace = async () => {
     const groups = this.dependency.db.resource.resources.find({
       type: 'group',
     }) as IResourceGroup[];
@@ -84,14 +132,13 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
     for (let i = 0; i < groups.length; i += 1) {
       const group = groups[i];
 
-      const files = this.dependency.db.resource.resources
-        .find({
-          id: { $in: group.files },
-        })
-        .filter((x) => x.type === 'file') as IResourceFile[];
+      const files = this.dependency.db.resource.resources.find({
+        type: 'file',
+        id: { $in: group.files },
+      }) as IResourceFile[];
 
       const matchedBaseLanguageFiles = files.filter((x) =>
-        x.tags.includes(`lang:${this.config.workingLanguage}`)
+        x.tags.includes(`lang:${this.config.baseLanguage}`)
       );
 
       for (let j = 0; j < matchedBaseLanguageFiles.length; j += 1) {
@@ -180,19 +227,24 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
     };
   };
 
-  scriptSyncI18NWorkSpace = async () => {
+  scriptSyncI18NWorkspace = async () => {
     const dirs = glob.sync(
-      join(this.config.i18nMediaWorkspacePath, '*', REFERENCE_FILE_NAME)
+      normalize(
+        join(this.config.i18nMediaWorkspacePath, '*', REFERENCE_FILE_NAME)
+      ).replaceAll('\\', '/')
     );
 
     const workspaces = dirs
       .map((x) => relative(this.config.i18nMediaWorkspacePath, x))
-      .map((x) => x.split(/[\\/]s/gi)[0])
-      .map(Number.parseInt)
+      .map((x) => x.split(/[\\/]+/gi)[0])
+      .map(Number)
       .filter((x) => !Number.isNaN(x));
 
     if (!workspaces.length) {
-      throw new Error(`No valid workspace found`);
+      return {
+        ok: false,
+        message: `No valid workspace found`,
+      };
     }
 
     const latestWorkspaceId = Math.max(...workspaces).toString();
@@ -203,6 +255,10 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
 
     const resourceFileReferences: IResourceFileReference[] = await readJSON(
       join(latestWorkspace, REFERENCE_FILE_NAME)
+    );
+
+    this.dependency.logToTerminal(
+      `:: ${resourceFileReferences.length} records found`
     );
 
     for (let i = 0; i < resourceFileReferences.length; i += 1) {
@@ -217,15 +273,24 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
 
       if (fileHash === referenceHash) {
         // This file is not modified, skip.
+
+        this.dependency.logToTerminal(
+          `:: ${resourceFileReference.fileName} not modified`
+        );
+
         continue;
       }
 
       const existedFile = this.dependency.db.resource.resources.findOne({
-        originalHash: referenceHash,
+        originalHash: fileHash,
       });
 
       if (existedFile) {
         // This file is already imported, skip.
+        this.dependency.logToTerminal(
+          `:: ${resourceFileReference.fileName} already imported`
+        );
+
         continue;
       }
 
@@ -234,31 +299,39 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       }) as IResourceFile;
 
       if (!originalFile) {
-        throw new Error(
-          `The file ${resourceFileReference.id} is not available in the database, maybe you are using a wrong workspace for the task`
-        );
+        return {
+          ok: false,
+          message: `The file ${resourceFileReference.id} is not available in the database, maybe you are using a wrong workspace for the task`,
+        };
       }
 
       if (!originalFile.resourceGroupId) {
-        throw new Error(
-          `The file ${originalFile.label}(${resourceFileReference.id}) do not have a resource group definition, this is not allowed`
-        );
+        return {
+          ok: false,
+          message: `The file ${originalFile.label}(${resourceFileReference.id}) do not have a resource group definition, this is not allowed`,
+        };
       }
 
       const originalGroup = this.dependency.db.resource.resources.findOne({
-        resourceGroupId: originalFile.resourceGroupId,
-      });
+        type: 'group',
+        id: originalFile.resourceGroupId,
+      }) as IResourceGroup;
 
       if (!originalGroup) {
-        throw new Error(
-          `The group ${originalFile.resourceGroupId} is not available in the database, maybe you are using a wrong workspace for the task`
-        );
+        return {
+          ok: false,
+          message: `The group ${originalFile.resourceGroupId} is not available in the database, maybe you are using a wrong workspace for the task`,
+        };
       }
+
+      this.dependency.logToTerminal(
+        `:: Importing ${resourceFileReference.fileName}`
+      );
 
       const importedFiles = await this.dependency.importFile(resourceFilePath);
 
       for (let j = 0; j < importedFiles.length; j += 1) {
-        const importedFile = importedFiles[i];
+        const importedFile = importedFiles[j];
 
         this.dependency.db.resource.resources.findAndUpdate(
           {
@@ -271,13 +344,27 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
             )}.${this.config.workingLanguage}`;
 
             if (file.type === 'file') {
-              file.resourceGroupId = originalGroup?.id;
+              file.resourceGroupId = originalGroup.id;
             }
+
+            originalGroup.files.push(file.id);
+
+            file.tags = [
+              ...new Set(
+                [...file.tags, `lang:${this.config.workingLanguage}`].filter(
+                  Boolean
+                )
+              ),
+            ];
 
             return file;
           }
         );
       }
+
+      originalGroup.files = [...new Set(originalGroup.files)];
+
+      this.dependency.db.resource.resources.update(originalGroup);
     }
 
     return {

@@ -20,8 +20,8 @@ import { ExtensionIconFilled } from 'components/Icons/ExtensionIconFilled';
 import { server } from 'utils/rpc';
 
 export interface IExtensionConfigurationProps {
-  domain: 'uploader' | 'resourceProcessor' | 'bundler';
-  type: 'plugin' | 'resource' | 'bundler';
+  domain: 'uploader' | 'resourceProcessor' | 'bundler' | 'scriptlet';
+  type: 'extension' | 'resource' | 'bundler';
   extensionId?: string;
   disabled?: boolean;
   TitleComponent?: React.FC<{ children: React.ReactNode }>;
@@ -59,21 +59,21 @@ const useExtensionMetadata = (
       .filter((uploader) =>
         onlyExtensionId ? uploader.id === onlyExtensionId : true
       )
-      .map((uploader) => {
+      .map((extension) => {
         let fields: IConfigUiField[] | undefined;
-        if (type === 'plugin') {
-          fields = uploader.pluginConfigUiFields;
+        if (type === 'extension') {
+          fields = extension.extensionConfigUiFields;
         } else if (type === 'resource') {
-          fields = uploader.resourceConfigUiFields;
+          fields = extension.resourceConfigUiFields;
         } else if (type === 'bundler') {
-          fields = uploader.profileConfigUiFields;
+          fields = extension.profileConfigUiFields;
         } else {
           throw new TypeError(`Unknown field domain: ${domain}`);
         }
 
         return {
-          id: uploader.id,
-          label: uploader.label,
+          id: extension.id,
+          label: extension.label,
           fields,
         };
       });

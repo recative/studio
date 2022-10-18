@@ -3,15 +3,15 @@ import { nanoid } from 'nanoid';
 
 import { useAsync } from '@react-hookz/web';
 
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Button } from 'baseui/button';
-import { HeadingXXLarge, LabelLarge, LabelXSmall } from 'baseui/typography';
 import { FormControl } from 'baseui/form-control';
-import { toaster, ToasterContainer } from 'baseui/toast';
+import { toaster, ToasterContainer, PLACEMENT } from 'baseui/toast';
+import { HeadingXXLarge, LabelLarge, LabelXSmall } from 'baseui/typography';
 
 import { I18Input } from 'components/Input/I18Input';
 import { I18Selector } from 'components/Input/I18Selector';
 import { PivotLayout } from 'components/Layout/PivotLayout';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { ContentContainer } from 'components/Layout/ContentContainer';
 import { I18FormControl, isFinished } from 'components/Input/I18FormControl';
 import {
@@ -107,7 +107,10 @@ export const Series: React.FC = () => {
   return (
     <PivotLayout>
       <ContentContainer width={1000}>
-        <ToasterContainer autoHideDuration={3000} />
+        <ToasterContainer
+          autoHideDuration={3000}
+          placement={PLACEMENT.bottomRight}
+        />
         <RecativeBlock
           display="flex"
           justifyContent="space-between"

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
 
 import { useToggle } from 'react-use';
 
@@ -132,13 +133,13 @@ const usePublishBundleCallback = (tasks: IPublishTasks) => {
 
   const [, selectedBundle, , onClose] = useConfirmPublishModal();
 
-  const handlePublishBundle = React.useCallback(async () => {
+  const handlePublishBundle = useEvent(async () => {
     if (selectedBundle === null) return;
 
     openTerminal('uploadBundle');
     onClose();
     await server.uploadBundle(selectedBundle, tasks);
-  }, [onClose, openTerminal, selectedBundle, tasks]);
+  });
 
   return handlePublishBundle;
 };

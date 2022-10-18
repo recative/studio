@@ -71,9 +71,11 @@ import { mergeGroupConfigurationToIndividualFile } from '../utils/mergeGroupConf
 
 import type { IResourceEditorRef, IEditableResource } from '../ResourceEditor';
 
-import { ReplaceFileModal } from './ReplaceFileModal';
-
 import 'react-contexify/dist/ReactContexify.css';
+import {
+  ReplaceFileModalForGroupModal,
+  useReplaceFileModalForGroupModal,
+} from './ReplaceFileModalForGroupModal';
 
 const CONTEXT_MENU_ID = nanoid();
 
@@ -559,22 +561,7 @@ const useReplaceFileModalState = (
   handleAddFile: (fileId: string | string[]) => void,
   handleRemoveFile: (fileId: string | string[]) => void
 ) => {
-  const [showReplaceFileModal, setShowReplaceFileModal] = React.useState(false);
-
-  const [selectedResourceToReplace, setSelectedResource] = React.useState<
-    string | undefined
-  >(undefined);
-
-  const handleReplaceFileModalOpen = React.useCallback((selectedId: string) => {
-    setSelectedResource(selectedId);
-    setShowReplaceFileModal(true);
-  }, []);
-
-  const handleReplaceFileModalClose = React.useCallback(() => {
-    setShowReplaceFileModal(false);
-    setSelectedResource(undefined);
-  }, []);
-
+  const [, selectedResourceToReplace] = useReplaceFileModalForGroupModal();
   const handleFileReplaced = React.useCallback(
     (oldFileId: string, newFiles: IResourceFile[]) => {
       if (!selectedResourceToReplace) return;
@@ -611,11 +598,7 @@ const useReplaceFileModalState = (
   );
 
   return {
-    showReplaceFileModal,
-    selectedResourceToReplace,
     handleFileReplaced,
-    handleReplaceFileModalOpen,
-    handleReplaceFileModalClose,
   };
 };
 
@@ -707,6 +690,7 @@ const useExtensionMetadata = () => {
 const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
   ({ onRefreshResourceListRequest }) => {
     const editorRef = React.useRef<IResourceEditorRef>(null);
+    const [, , handleReplaceFileModalOpen] = useReplaceFileModalForGroupModal();
 
     const [css, theme] = useStyletron();
 
@@ -771,13 +755,11 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
       [handleRemoveFile]
     );
 
-    const {
-      showReplaceFileModal,
-      selectedResourceToReplace,
-      handleFileReplaced,
-      handleReplaceFileModalOpen,
-      handleReplaceFileModalClose,
-    } = useReplaceFileModalState(files, handleAddFile, handleRemoveFile);
+    const { handleFileReplaced } = useReplaceFileModalState(
+      files,
+      handleAddFile,
+      handleRemoveFile
+    );
 
     const { triggers, contextMenuItem, handleItemClick } =
       useListItemContextMenu(
@@ -926,12 +908,7 @@ const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
             </RecativeBlock>
           </RecativeBlock>
         </ModalFooter>
-        <ReplaceFileModal
-          isOpen={showReplaceFileModal}
-          fileId={selectedResourceToReplace}
-          onReplaced={handleFileReplaced}
-          onClose={handleReplaceFileModalClose}
-        />
+        <ReplaceFileModalForGroupModal onReplaced={handleFileReplaced} />
       </Modal>
     );
   };

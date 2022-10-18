@@ -122,7 +122,7 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
     | Readonly<Readonly<IConfigUiField>[]>;
 
   /** Not implemented */
-  static pluginConfigUiFields:
+  static extensionConfigUiFields:
     | IConfigUiField[]
     | Readonly<Readonly<IConfigUiField>[]>;
 
@@ -137,7 +137,9 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
     if (this.configValidator(pluginConfig)) {
       this.pluginConfig = pluginConfig;
     } else {
-      throw new Error('Invalid configuration');
+      throw new Error(
+        `Invalid configuration for ${Reflect.get(this.constructor, 'id')}`
+      );
     }
   }
 

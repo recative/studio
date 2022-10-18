@@ -37,14 +37,15 @@ import { getDb } from '../rpc/db';
 import { cloneDeep } from './cloneDeep';
 import { extensions } from '../extensions';
 import { cleanupLoki } from '../rpc/query/utils';
+import { getBuildPath } from '../rpc/query/setting';
 import { getWorkspace } from '../rpc/workspace';
 import { logToTerminal } from '../rpc/query/terminal';
+import { getVersionName } from '../rpc/query/utils/getVersionName';
 import { importedFileToFile } from '../rpc/query/utils/importedFileToFile';
 import { STUDIO_BINARY_PATH } from '../constant/appPath';
 import { HOME_DIR, ANDROID_BUILD_TOOLS_PATH } from '../constant/configPath';
 
-import { getBuildPath } from '../rpc/query/setting';
-import { getVersionName } from '../rpc/query/utils/getVersionName';
+import { getExtensionConfig } from './getExtensionConfig';
 import { getResourceFilePath } from './getResourceFile';
 import { promisifySpawn, SpawnFailedError } from './promiseifySpawn';
 
@@ -180,25 +181,6 @@ const resourceProcessorDependencies: IResourceExtensionDependency = {
   getFilePath,
   getFileBuffer,
   imageThumbnail,
-};
-
-const getExtensionConfig = async () => {
-  const db = await getDb();
-
-  const settings = db.setting.setting.find();
-
-  const result: Record<string, Record<string, string>> = {};
-
-  settings.forEach((setting) => {
-    const [uploaderId, settingKey] = setting.key.split('~~');
-
-    if (!uploaderId || settingKey === undefined) return;
-
-    if (!result[uploaderId]) result[uploaderId] = {};
-    result[uploaderId][settingKey] = setting.value;
-  });
-
-  return result;
 };
 
 /**

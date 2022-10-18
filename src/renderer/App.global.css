@@ -42,6 +42,6 @@ body {
   outline: 2px solid #01579b;
 }
 
-div[data-baseweb="modal"] {
+div[data-baseweb='modal'] {
   padding-top: 32px;
 }

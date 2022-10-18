@@ -143,7 +143,7 @@ const InternalResourceItem: React.FC<IResourceItemProps> = ({
             )}
 
             {!!convertedTags.length &&
-              convertedTags.map((tag) => {
+              convertedTags.filter(Boolean).map((tag) => {
                 const splitedTag = tag.split(':');
                 const tagType =
                   (splitedTag[0] as LabelType) || LabelType.Custom;

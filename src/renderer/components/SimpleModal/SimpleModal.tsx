@@ -11,6 +11,7 @@ import {
 } from 'baseui/modal';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 
+import { useEvent } from 'utils/hooks/useEvent';
 import { ModalManager } from 'utils/hooks/useModalManager';
 
 export interface ISimpleModalProps<T> {
@@ -32,15 +33,15 @@ export const SimpleModalFactory = <T,>(
   }) => {
     const [isOpen, data, , close] = useModalManager();
 
-    const handleCancel = React.useCallback(() => {
+    const handleCancel = useEvent(() => {
       close();
       onCancel?.(data);
-    }, [close, onCancel, data]);
+    });
 
-    const handleSubmit = React.useCallback(() => {
+    const handleSubmit = useEvent(() => {
       close();
       onSubmit?.(data);
-    }, [close, onSubmit, data]);
+    });
 
     return (
       <Modal

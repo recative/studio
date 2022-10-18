@@ -2,12 +2,13 @@ import * as React from 'react';
 
 import { useAtom } from 'jotai';
 
-import { HeadingXXLarge } from 'baseui/typography';
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Input } from 'baseui/input';
 import { Button } from 'baseui/button';
 import { FormControl } from 'baseui/form-control';
-import { toaster, ToasterContainer } from 'baseui/toast';
+import { HeadingXXLarge } from 'baseui/typography';
+import { toaster, ToasterContainer, PLACEMENT } from 'baseui/toast';
+
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { server } from 'utils/rpc';
 
@@ -67,17 +68,14 @@ export const Login: React.FC = () => {
       bottom="0"
       backgroundColor="#FFFFFF"
     >
-      <ToasterContainer autoHideDuration={3000} />
+      <ToasterContainer
+        autoHideDuration={3000}
+        placement={PLACEMENT.bottomRight}
+      />
       <RecativeBlock
         width="50%"
-        overrides={{
-          Block: {
-            style: {
-              padding: '32px 48px 48px 48px',
-              border: '2px solid #DDD',
-            },
-          },
-        }}
+        padding="32px 48px 48px 48px"
+        border="2px solid #DDD"
       >
         <RecativeBlock>
           <HeadingXXLarge>Login</HeadingXXLarge>

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
 
 import {
   Modal,
@@ -11,17 +12,31 @@ import {
 } from 'baseui/modal';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 
+import { ModalManager } from 'utils/hooks/useModalManager';
+import { server } from 'utils/rpc';
+
+import { getSelectedId } from '../utils/getSelectedId';
+
+export const useConfirmSplitModal = ModalManager<unknown, null>(null);
+
 export interface IConfirmSplitModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: () => void;
+  onRefreshResourceListRequest: () => void;
 }
 
 export const ConfirmSplitModal: React.FC<IConfirmSplitModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
+  onRefreshResourceListRequest,
 }) => {
+  const [isOpen, , , onClose] = useConfirmSplitModal();
+
+  const handleSplitGroups = useEvent(async () => {
+    const selectedIds = getSelectedId();
+    if (selectedIds.length) {
+      await server.splitGroup(getSelectedId());
+      onClose();
+      onRefreshResourceListRequest();
+    }
+  });
+
   return (
     <Modal
       onClose={onClose}
@@ -39,7 +54,7 @@ export const ConfirmSplitModal: React.FC<IConfirmSplitModalProps> = ({
       </ModalBody>
       <ModalFooter>
         <ModalButton kind={BUTTON_KIND.tertiary}>Cancel</ModalButton>
-        <ModalButton onClick={onSubmit}>Split Groups</ModalButton>
+        <ModalButton onClick={handleSplitGroups}>Split Groups</ModalButton>
       </ModalFooter>
     </Modal>
   );

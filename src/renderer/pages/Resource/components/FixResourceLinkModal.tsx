@@ -19,11 +19,9 @@ import { FileInput } from 'components/Input/FileInput';
 import { server } from 'utils/rpc';
 
 import { IResourceFile } from '@recative/definitions';
+import { ModalManager } from 'utils/hooks/useModalManager';
 
-export interface IFixResourceLinkModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+export const useFixResourceModal = ModalManager<unknown, null>(null);
 
 const useBrokenFileList = (isOpen: boolean) => {
   const [brokenFileList, brokenFileListAction] = useAsync(
@@ -50,10 +48,8 @@ const useBrokenFileList = (isOpen: boolean) => {
   return { brokenFileList: brokenFileList.result, handleFix };
 };
 
-export const FixResourceLinkModal: React.FC<IFixResourceLinkModalProps> = ({
-  isOpen,
-  onClose,
-}) => {
+export const FixResourceLinkModal: React.FC = () => {
+  const [isOpen, , , onClose] = useFixResourceModal();
   const { brokenFileList, handleFix } = useBrokenFileList(isOpen);
 
   return (
@@ -71,7 +67,7 @@ export const FixResourceLinkModal: React.FC<IFixResourceLinkModalProps> = ({
         {brokenFileList?.map((brokenFile) => (
           <ListItem
             key={brokenFile.id}
-            endEnhancer={
+            endEnhancer={() => (
               <FileInput
                 hideIcon
                 hideInput
@@ -83,7 +79,7 @@ export const FixResourceLinkModal: React.FC<IFixResourceLinkModalProps> = ({
               >
                 Fix
               </FileInput>
-            }
+            )}
           >
             <ListItemLabel description={brokenFile.id}>
               {brokenFile.label}

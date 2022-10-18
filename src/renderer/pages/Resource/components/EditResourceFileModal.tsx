@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
 
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
@@ -41,6 +42,7 @@ const modalBodyStyles: StyleObject = {
   maxHeight: 'calc(100% - 212px)',
   boxSizing: 'border-box',
   overflow: 'clip',
+  flexGrow: 1,
   display: 'flex',
   alignItems: 'stretch',
 };
@@ -56,6 +58,8 @@ const modalOverrides: ModalOverrides = {
     style: {
       width: '60vw',
       height: '80vh',
+      display: 'flex',
+      flexDirection: 'column',
     },
   },
 };
@@ -109,14 +113,20 @@ const InternalEditResourceFileModal: React.FC<IMergeModalProps> = ({
     onRefreshResourceListRequest
   );
 
-  const handleSubmitClick = React.useCallback(() => {
-    handleFileModalSubmit();
+  const handleSubmitClick = useEvent(async () => {
+    await handleFileModalSubmit();
     onClose();
-  }, [handleFileModalSubmit, onClose]);
+  });
 
-  const handleEditorInitialized = React.useCallback(() => {
-    editorRef.current?.setValue(file);
-  }, [file]);
+  React.useEffect(() => {
+    if (isOpen && !editorRef.current?.value) {
+      editorRef.current?.setValue(file);
+    }
+
+    if (!isOpen) {
+      editorRef.current?.setValue(null);
+    }
+  }, [file, isOpen]);
 
   return (
     <Modal
@@ -140,10 +150,7 @@ const InternalEditResourceFileModal: React.FC<IMergeModalProps> = ({
       </ModalHeader>
       <ModalBody className={css(modalBodyStyles)}>
         <RecativeBlock className={css(mainContentStyles)}>
-          <ResourceEditor
-            ref={editorRef}
-            onInitialized={handleEditorInitialized}
-          />
+          <ResourceEditor ref={editorRef} />
         </RecativeBlock>
       </ModalBody>
       <ModalFooter>

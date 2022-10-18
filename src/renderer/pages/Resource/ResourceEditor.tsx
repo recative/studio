@@ -162,13 +162,13 @@ const InternalFormTagItem: React.FC<IFormItemProps> = ({
     <RecativeBlock>
       <FormControl label={typeNameMap[typeId]}>
         <Select
-          size={SELECT_SIZE.mini}
+          value={value}
+          options={options}
           creatable={custom}
           disabled={disabled}
-          options={options}
-          value={value}
-          placeholder="Select color"
+          size={SELECT_SIZE.mini}
           onChange={handleChange}
+          filterOutSelected={false}
         />
       </FormControl>
     </RecativeBlock>
@@ -178,7 +178,7 @@ const InternalFormTagItem: React.FC<IFormItemProps> = ({
 const FormTagItem = React.memo(InternalFormTagItem);
 
 const useTagTypeToReferenceMap = (file?: IEditableResource | null) => {
-  const tags = file?.tags.join(',,,');
+  const tags = file?.tags.filter(Boolean).join(',,,');
 
   return React.useMemo(() => {
     const tagTypeToReferenceMap: Partial<
@@ -186,7 +186,7 @@ const useTagTypeToReferenceMap = (file?: IEditableResource | null) => {
     > = {};
 
     tags?.split(',,,').forEach((tag) => {
-      const splitedTag = tag.split(':');
+      const splitedTag = tag?.split(':');
       const tagType = splitedTag[0] as LabelType;
       const tagValue = splitedTag[1] as LabelType;
 
@@ -216,7 +216,7 @@ const useResourceTagChangeCallback = (
     (type: LabelType, nextTagReference: IResourceTag) => {
       tagTypeToReferenceMap[type] = nextTagReference;
 
-      const nextTags = Object.values(tagTypeToReferenceMap).map((x) => x.id);
+      const nextTags = Object.values(tagTypeToReferenceMap).map((x) => x?.id);
 
       setFile?.((draft) => {
         if (draft) {
@@ -433,8 +433,7 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
         display="flex"
         justifyContent="center"
         alignItems="center"
-        maxHeight="--webkit-fill-available"
-        // @ts-ignore overflow clip is valid
+        height="100%"
         overflow="clip"
       >
         <NotFound width="320px" />

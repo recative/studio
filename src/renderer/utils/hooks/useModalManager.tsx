@@ -1,7 +1,9 @@
 import * as React from 'react';
+import { useEvent } from 'utils/hooks/useEvent';
 
 import { atom, useAtom } from 'jotai';
 import type { WritableAtom } from 'jotai';
+import { OpenPromise } from '@recative/open-promise';
 import { useToggleAtom } from './useToggleAtom';
 
 export const useInternalModalManager = <FilledState, EmptyState>(
@@ -10,24 +12,29 @@ export const useInternalModalManager = <FilledState, EmptyState>(
     FilledState | EmptyState,
     React.SetStateAction<FilledState | EmptyState>
   >,
+  promiseRef: { current: OpenPromise<FilledState | EmptyState> | null },
   emptyData: EmptyState
 ) => {
   const [isOpen, open, close] = useToggleAtom(openStateAtom);
 
   const [data, setData] = useAtom(dataStateAtom);
 
-  const openWithData = React.useCallback(
-    (x: FilledState) => {
-      setData(x);
-      open();
-    },
-    [open, setData]
-  );
+  const openWithData = useEvent((x: FilledState) => {
+    promiseRef.current?.resolve(emptyData);
+    const nextPromise = new OpenPromise<FilledState | EmptyState>();
+    promiseRef.current = nextPromise;
+    setData(x);
+    open();
 
-  const closeWithData = React.useCallback(() => {
+    return nextPromise;
+  });
+
+  const closeWithData = useEvent(() => {
+    promiseRef.current?.resolve(data);
     setData(emptyData);
     close();
-  }, [close, setData, emptyData]);
+    promiseRef.current = null;
+  });
 
   return [isOpen, data, openWithData, closeWithData] as const;
 };
@@ -35,12 +42,17 @@ export const useInternalModalManager = <FilledState, EmptyState>(
 export const ModalManager = <FilledData, EmptyData>(emptyData: EmptyData) => {
   const openAtom = atom(false);
   const dataAtom = atom<FilledData | EmptyData>(emptyData);
+  const promiseRef: { current: OpenPromise<FilledData | EmptyData> | null } = {
+    current: null,
+  };
 
   const useModalManager = () =>
     useInternalModalManager<FilledData, EmptyData>(
       openAtom,
       dataAtom,
+      promiseRef,
       emptyData
     );
+
   return useModalManager;
 };

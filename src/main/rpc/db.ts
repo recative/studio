@@ -6,7 +6,6 @@ import { ensureDir } from 'fs-extra';
 import type { IDbInstance } from '@recative/studio-definitions';
 
 import { install, uninstall } from '../utils/cleanup';
-import { LokiWorkspaceLockSafeFsAdapter } from '../utils/LokiWorkspaceLockSafeFsAdapter';
 
 import { initializeDb } from './db/initializer';
 
@@ -31,11 +30,7 @@ export const getDb = async (
 
   ensureDir(trueRootPath);
 
-  const newDb = await initializeDb(
-    trueRootPath,
-    new LokiWorkspaceLockSafeFsAdapter(),
-    additionalData
-  );
+  const newDb = await initializeDb(trueRootPath, additionalData);
 
   if (!temporary) {
     currentDb = newDb;

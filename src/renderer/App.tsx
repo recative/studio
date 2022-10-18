@@ -101,6 +101,7 @@ export const InternalStudioTitleBar = () => {
       left="0"
       width="100vw"
       position="fixed"
+      zIndex={3}
     >
       <TitleBar
         className="app-title-bar"
