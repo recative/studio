@@ -306,6 +306,7 @@
     "protobufjs": "6.11.3",
     "queue-promise": "^2.2.1",
     "react": "^18.1.0",
+    "react-charts": "beta",
     "react-click-away-listener": "^2.0.5",
     "react-contexify": "^5.0.0",
     "react-desktop": "^0.3.9",

@@ -30,6 +30,29 @@ export const getResourceFileName = (
     : `${resource.id}.resource`;
 };
 
+export const ifIsPostProcessed = async (
+  resource:
+    | Pick<IResourceFile, 'id'>
+    | Pick<
+        IPostProcessedResourceFileForUpload,
+        'id' | 'fileName' | 'postProcessRecord'
+      >
+): Promise<'postProcessed' | 'raw' | null> => {
+  const db = await getDb();
+
+  const isPostProcessed = !!db.resource.postProcessed.findOne({
+    id: resource.id,
+  });
+
+  if (isPostProcessed) return 'postProcessed';
+
+  const isNormal = !!db.resource.resources.findOne({ id: resource.id });
+
+  if (isNormal) return 'raw';
+
+  return null;
+};
+
 export const getResourceFilePath = async (
   resource:
     | Pick<IResourceFile, 'id'>
@@ -40,7 +63,6 @@ export const getResourceFilePath = async (
   thumbnail = false,
   validate = false
 ) => {
-  const db = await getDb();
   const config = getWorkspace();
 
   if (!config) throw new WorkspaceNotReadyError();
@@ -55,23 +77,20 @@ export const getResourceFilePath = async (
       : join(config.mediaPath, getResourceFileName(resource, false, thumbnail));
   }
 
-  const isPostProcessed = !!db.resource.postProcessed.findOne({
-    id: resource.id,
-  });
-  const isNormal = !!db.resource.resources.findOne({ id: resource.id });
+  const resourceType = await ifIsPostProcessed(resource);
 
-  if (isPostProcessed) {
+  if (resourceType === 'postProcessed') {
     return join(
       config.mediaPath,
       'post-processed',
-      getResourceFileName(resource, isPostProcessed, thumbnail)
+      getResourceFileName(resource, true, thumbnail)
     );
   }
 
-  if (isNormal) {
+  if (resourceType === 'raw') {
     return join(
       config.mediaPath,
-      getResourceFileName(resource, isPostProcessed, thumbnail)
+      getResourceFileName(resource, false, thumbnail)
     );
   }
 

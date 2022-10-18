@@ -17,16 +17,12 @@ import { KIND as BUTTON_KIND } from 'baseui/button';
 
 import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
+import { useTerminalModal } from 'components/Terminal/TerminalModal';
 
 import { ModalManager } from 'utils/hooks/useModalManager';
-
 import { server } from 'utils/rpc';
 
 import { BundleOptionItem } from './BundleOptionItem';
-
-export interface ICreateBundleModalProps {
-  onSubmit: (ids: string[], bundleReleaseId: number) => void;
-}
 
 const ulStyles = {
   paddingLeft: '0',
@@ -36,22 +32,7 @@ const ulStyles = {
 
 export const useCreateBundleModal = ModalManager<number, null>(null);
 
-export const CreateBundleModal: React.FC<ICreateBundleModalProps> = ({
-  onSubmit,
-}) => {
-  const [profiles, profilesActions] = useAsync(server.listBundleProfile);
-
-  const profileIds = React.useMemo(() => {
-    return profiles.result?.map((profile) => profile.id) ?? [];
-  }, [profiles.result]);
-
-  const [css] = useStyletron();
-  const [showBundleOption, data, , onClose] = useCreateBundleModal();
-
-  React.useEffect(() => {
-    profilesActions.execute();
-  }, [profilesActions, profilesActions.execute]);
-
+export const useSelectedProfile = () => {
   const [selectedProfiles, setSelectedProfiles] = React.useState(
     () =>
       new Set(
@@ -79,14 +60,36 @@ export const CreateBundleModal: React.FC<ICreateBundleModalProps> = ({
     [selectedProfiles]
   );
 
+  return [selectedProfiles, handleSelectProfile] as const;
+};
+
+export const CreateBundleModal: React.FC = () => {
+  const [, , openTerminal] = useTerminalModal();
+
+  const [profiles, profilesActions] = useAsync(server.listBundleProfile);
+
+  const profileIds = React.useMemo(() => {
+    return profiles.result?.map((profile) => profile.id) ?? [];
+  }, [profiles.result]);
+
+  const [css] = useStyletron();
+  const [showBundleOption, data, , onClose] = useCreateBundleModal();
+
+  React.useEffect(() => {
+    profilesActions.execute();
+  }, [profilesActions, profilesActions.execute]);
+
+  const [selectedProfiles, handleSelectProfile] = useSelectedProfile();
+
   const handleSubmit = useEvent(() => {
     if (data === null) {
       return;
     }
-    onSubmit(
+    server.createBundles(
       Array.from(selectedProfiles).filter((x) => profileIds.includes(x)),
       data
     );
+    openTerminal('createBundles');
     onClose();
   });
 

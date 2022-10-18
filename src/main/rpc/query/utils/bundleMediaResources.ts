@@ -16,12 +16,13 @@ import { analysisPostProcessedRecords } from '../../../utils/analysisPostProcess
  * Copy them to the `assets/public/bundle/resource` directory of the
  * apk file.
  *
- * @param zip The archiver instance.
+ * @param zip The archiver instance, this value could be null, which means
+ *            we want a dry run.
  * @param mediaReleaseId release ID of media release.
  * @param terminalId Output information to which terminal.
  */
 export const bundleMediaResources = async (
-  zip: Zip,
+  zip: Zip | null,
   bundleReleaseId: number,
   mediaReleaseId: number,
   resourcePath: string,
@@ -76,6 +77,10 @@ export const bundleMediaResources = async (
   logToTerminal(terminalId, `:: :: Imported: ${resourceImported.length}`);
   logToTerminal(terminalId, `:: :: Processed: ${resourceProcessed.length}`);
 
+  if (!zip) {
+    return resourceList;
+  }
+
   // Get file path of all resource files.
   const resourceFilePathList = await Promise.all(
     resourceList.map(async (resource) => ({
@@ -84,5 +89,7 @@ export const bundleMediaResources = async (
     }))
   );
 
-  await zip.appendFileList(resourceFilePathList, true);
+  await zip?.appendFileList(resourceFilePathList, true);
+
+  return resourceList;
 };

@@ -18,10 +18,8 @@ import type { ColorDefinition } from './Pivot';
 
 const mainContainerStyles: StyleObject = {
   width: '-webkit-fill-available',
-  height: 'calc(100vh - 30px)',
-  maxHeight: 'calc(100vh - 30px)',
-  display: 'grid',
-  gridTemplateRows: 'min-content auto min-content',
+  height: '100vh',
+  maxHeight: 'calc(100vh - 116px)',
 };
 
 const errorBoundaryStyles: StyleObject = {
@@ -46,8 +44,7 @@ const pivotContainerStyles: StyleObject = {
 };
 
 const contentContainerStyles: StyleObject = {
-  height: '-webkit-fill-available',
-  maxHeight: '100%',
+  height: 'calc(100vh - 164px)',
   overflowY: 'auto',
   position: 'relative',
   marginTop: '85px',
