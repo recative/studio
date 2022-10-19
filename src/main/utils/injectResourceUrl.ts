@@ -95,8 +95,7 @@ export const injectResourceUrlForPlayerShells = <
   result = injectResourceUrl(
     result,
     MOBILE_SHELL_BUILD_IN_URL_PATTERN,
-    MOBILE_SHELL_BUILD_IN_KEY,
-    (x) => x.type !== 'file' || x.cacheToHardDisk
+    MOBILE_SHELL_BUILD_IN_KEY
   );
 
   return result;
