@@ -50,11 +50,7 @@ export const bundleMediaResources = async (
     .reduce((x, y) => [...x, ...y], [])
     .filter((x) => ifResourceIncludedInBundle(x, mediaReleaseId, profile));
 
-  logToTerminal(
-    terminalId,
-    `Bundle media resources without episode`,
-    Level.Info
-  );
+  logToTerminal(terminalId, `Bundle media resources`, Level.Info);
 
   logToTerminal(terminalId, `:: Total: ${resourceList.length}`);
 
