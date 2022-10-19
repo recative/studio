@@ -13,6 +13,7 @@ import {
   textureGroupResourceTag,
   MANAGED_RESOURCE_FILE_KEYS,
   cleanUpResourceListForClient,
+  PreloadLevel,
 } from '@recative/definitions';
 
 import type {
@@ -437,6 +438,51 @@ export const filterResourceByTag = async (
   const result = db.resource.resources
     .chain()
     .find(q)
+    .simplesort('importTime', { desc: true })
+    .data();
+
+  return result;
+};
+
+export const filterResourcePreloadLevel = async (
+  preloadLevel: PreloadLevel,
+  searchTerm?: string
+): Promise<IResourceItem[]> => {
+  const db = await getDb();
+
+  const resourceGroups = new Set(
+    db.resource.resources
+      .chain()
+      .find({
+        removed: false,
+        preloadLevel,
+        type: { $eq: 'file' },
+      })
+      .simplesort('importTime', { desc: true })
+      .data()
+      .map((resource) => resource.resourceGroupId)
+      .filter(
+        ((x) => x !== undefined) as (x: string | undefined) => x is string
+      )
+  );
+
+  const result = db.resource.resources
+    .chain()
+    .find({
+      removed: false,
+      ...searchTermAndResourceTypeQuery(searchTerm, {
+        $or: [
+          {
+            resourceGroupId: { $eq: '' },
+            preloadLevel,
+          },
+          {
+            type: { $eq: 'group' },
+            id: { $in: Array.from(resourceGroups) },
+          },
+        ],
+      }),
+    })
     .simplesort('importTime', { desc: true })
     .data();
 

@@ -3,6 +3,8 @@ import * as React from 'react';
 import { useAsync } from '@react-hookz/web';
 import { atom, useAtom } from 'jotai';
 
+import { PreloadLevel } from '@recative/definitions';
+
 import { StatefulTreeView } from 'baseui/tree-view';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
@@ -18,7 +20,8 @@ const EMPTY_ARRAY = [] as const;
 export interface IFilterLabels {
   label: string;
   tags: string[] | null;
-  episodeIds: string[] | null;
+  episodeIds?: string[] | null;
+  preloadLevel?: PreloadLevel | null;
 }
 
 const STATEFUL_TREE_OVERRIDE = {
@@ -147,6 +150,61 @@ export const InternalResourceTree: React.FC = () => {
               episodeIds: [episode.id],
             }),
           })) ?? EMPTY_ARRAY),
+        ],
+      },
+      {
+        id: 3,
+        label: getSimpleButtonLabel('By Preload Trigger'),
+        isExpanded: true,
+        children: [
+          {
+            id: 30,
+            label: internalGetLabelButton({
+              label: 'None',
+              tags: null,
+              preloadLevel: PreloadLevel.None,
+            }),
+          },
+          {
+            id: 31,
+            label: internalGetLabelButton({
+              label: 'Before Application',
+              tags: null,
+              preloadLevel: PreloadLevel.BeforeApp,
+            }),
+          },
+          {
+            id: 32,
+            label: internalGetLabelButton({
+              label: 'Before Episode',
+              tags: null,
+              preloadLevel: PreloadLevel.BeforeEpisode,
+            }),
+          },
+          {
+            id: 33,
+            label: internalGetLabelButton({
+              label: 'Inside Act Point',
+              tags: null,
+              preloadLevel: PreloadLevel.InsideActPoint,
+            }),
+          },
+          {
+            id: 34,
+            label: internalGetLabelButton({
+              label: 'After Episode',
+              tags: null,
+              preloadLevel: PreloadLevel.AfterEpisode,
+            }),
+          },
+          {
+            id: 35,
+            label: internalGetLabelButton({
+              label: 'After Application',
+              tags: null,
+              preloadLevel: PreloadLevel.AfterApp,
+            }),
+          },
         ],
       },
     ],

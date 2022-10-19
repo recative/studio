@@ -227,6 +227,11 @@ const useResources = (searchTerm: string) => {
           selectedTags[0].episodeIds,
           searchTerm
         );
+      } else if (selectedTags?.[0].preloadLevel) {
+        currentResources = await server.filterResourcePreloadLevel(
+          selectedTags[0].preloadLevel,
+          searchTerm
+        );
       } else {
         currentResources = await server.listAllResources(true, searchTerm);
       }
