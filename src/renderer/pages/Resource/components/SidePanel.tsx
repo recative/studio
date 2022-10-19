@@ -11,6 +11,7 @@ import { ResourceFilesIconOutline } from 'components/Icons/ResourceFilesIconOutl
 
 import { ResourceTree } from './ResourceTree';
 import { ScriptletTree } from './ScriptletTree';
+import { AnalysisTree } from './AnalysisTree';
 
 const ICON_SIZE = 20;
 
@@ -62,6 +63,7 @@ export const InternalSidePanel: React.FC<ISidePanelProps> = ({
             onRefreshResourceListRequest={onRefreshResourceListRequest}
           />
         )}
+        {selected === 2 && <AnalysisTree />}
       </RecativeBlock>
     </RecativeBlock>
   );

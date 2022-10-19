@@ -1,4 +1,6 @@
 import log from 'electron-log';
+
+import { stat } from 'fs/promises';
 import { produce } from 'immer';
 import { groupBy } from 'lodash';
 
@@ -19,6 +21,7 @@ import { getClientSideAssetList } from './asset';
 
 import { getDb } from '../db';
 
+import { getResourceFilePath } from '../../utils/getResourceFile';
 import { getProfile } from '../../dataGenerationProfiles';
 import { PerformanceLog } from '../../utils/performanceLog';
 import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
@@ -43,15 +46,13 @@ export const getResourceAndActPoints = async (itemIds: string[]) => {
 
 export const getResourceListOfEpisode = async (
   episodeId: string,
-  request: ProfileConfig,
+  request: ProfileConfig | null,
   dbPromise: ReturnType<typeof getDb> | null = null
 ) => {
   const db0 = await getDb();
   const db = await (dbPromise || getDb());
 
   const logPerformance = PerformanceLog(episodeId);
-
-  const profile = getProfile(request);
 
   const mediaBundleId =
     typeof db.additionalData.mediaBundleId === 'number'
@@ -126,6 +127,10 @@ export const getResourceListOfEpisode = async (
     })
     .filter(Deduplicate());
 
+  if (!request) {
+    return [...importedResourceFiles, ...importedResourceGroups];
+  }
+
   const queriedResources = [
     ...importedResourceFiles,
     ...importedResourceGroups,
@@ -140,6 +145,8 @@ export const getResourceListOfEpisode = async (
   )[];
 
   logPerformance('clear');
+
+  const profile = getProfile(request);
 
   const injectedResources = await produce(cleanedResources, async (x) => {
     return profile.injectResourceUrls(x);
@@ -186,6 +193,29 @@ export const getResourceListOfEpisode = async (
   logPerformance(`cleanup`);
 
   return cleanupResult;
+};
+
+export const getEpisodeAnalysis = async (episodeId: string) => {
+  const resultByMime = new Map<string, number>();
+
+  const resources = await getResourceListOfEpisode(episodeId, null, getDb());
+
+  await Promise.all(
+    resources.map(async (resource) => {
+      if (resource.type !== 'file') {
+        return;
+      }
+
+      const resourcePath = await getResourceFilePath(resource);
+      const resourceStat = await stat(resourcePath);
+      const trueMime = resource.mimeType.split(';')[0];
+
+      const accumulatedSize = resultByMime.get(resource.mimeType) ?? 0;
+      resultByMime.set(trueMime, accumulatedSize + resourceStat.size);
+    })
+  );
+
+  return resultByMime;
 };
 
 export const listEpisodes = async (

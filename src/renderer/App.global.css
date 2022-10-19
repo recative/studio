@@ -45,3 +45,11 @@ body {
 div[data-baseweb='modal'] {
   padding-top: 32px;
 }
+
+.analysis_chart text {
+  font-family: Raleway, 'Noto Color Emoji' !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  fill: black !important;
+  opacity: 0.8;
+}

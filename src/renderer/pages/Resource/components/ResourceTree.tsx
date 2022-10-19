@@ -53,14 +53,6 @@ export const InternalResourceTree: React.FC = () => {
   const trueData = React.useMemo(
     () => [
       {
-        id: -1,
-        label: internalGetLabelButton({
-          label: 'All Resources',
-          tags: null,
-          episodeIds: null,
-        }),
-      },
-      {
         id: 1,
         label: getSimpleButtonLabel('By Resource Type'),
         isExpanded: true,
