@@ -13,22 +13,20 @@ import type {
   IResourceItemForClient,
 } from '@recative/definitions';
 import type {
-  IPostProcessedResourceFileForUpload,
   PostProcessedResourceItemForUpload,
+  IPostProcessedResourceFileForUpload,
 } from '@recative/extension-sdk';
 
-import { getClientSideAssetList } from './asset';
-
 import { getDb } from '../db';
-
-import { getResourceFilePath } from '../../utils/getResourceFile';
 import { getProfile } from '../../dataGenerationProfiles';
 import { PerformanceLog } from '../../utils/performanceLog';
+import { getResourceFilePath } from '../../utils/getResourceFile';
 import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
 
 import type { ProfileConfig } from '../../dataGenerationProfiles';
 
 import { cleanupLoki } from './utils';
+import { getClientSideAssetList } from './asset';
 
 export const getResourceAndActPoints = async (itemIds: string[]) => {
   const db = await getDb();
