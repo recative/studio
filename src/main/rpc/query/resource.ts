@@ -3,7 +3,7 @@ import { basename, join as joinPath, parse as parsePath } from 'path';
 import console from 'electron-log';
 import { nanoid } from 'nanoid';
 import { uniqBy } from 'lodash';
-import { copy, removeSync, pathExists } from 'fs-extra';
+import { copy, removeSync, pathExists, remove } from 'fs-extra';
 
 import {
   Category,
@@ -152,48 +152,6 @@ export const searchFileResources = async (query = '', limit = 40) => {
   return uniqBy(searchResult, 'id');
 };
 
-export const removeResource = async (itemId: string, hard: boolean) => {
-  const db = await getDb();
-  const workspaceConfiguration = getWorkspace();
-
-  const item = db.resource.resources.findOne({ id: itemId });
-
-  if (!item) {
-    console.warn(`${itemId} not found, unable to remove the resource`);
-    return;
-  }
-
-  if (item.type === 'group') {
-    await Promise.all(item.files.map((file) => removeResource(file, hard)));
-  }
-
-  if (hard) {
-    db.resource.resources.remove(item);
-    if (item.type === 'file') {
-      const filePath = await getResourceFilePath({ id: itemId });
-      removeSync(filePath);
-
-      if (item.thumbnailSrc) {
-        const thumbnailPath = joinPath(
-          workspaceConfiguration.mediaPath,
-          basename(item.thumbnailSrc)
-        );
-        removeSync(thumbnailPath);
-      }
-    }
-  } else {
-    item.removed = true;
-    item.removedTime = Date.now();
-    db.resource.resources.update(item);
-  }
-
-  await Promise.all(
-    db.resource.resources
-      .find({ managedBy: item.id })
-      .map((x) => removeResource(x.id, hard))
-  );
-};
-
 export const removeFileFromGroup = async (resource: IResourceFile) => {
   const db = await getDb();
 
@@ -226,6 +184,74 @@ export const removeFileFromGroup = async (resource: IResourceFile) => {
 
     resourceDb.update(originalGroup);
   }
+};
+
+const removeResourceRecordUpdater = (document: IResourceItem) => {
+  document.removed = true;
+  document.removedTime = Date.now();
+  return document;
+};
+
+export const markResourceRecordAsRemoved = async (itemId: string) => {
+  const db = await getDb();
+
+  const item = db.resource.resources.findOne({ id: itemId });
+
+  if (!item) {
+    console.warn(`${itemId} not found, unable to remove the resource`);
+    return;
+  }
+
+  if (item.type === 'group') {
+    db.resource.resources.findAndUpdate(
+      { resourceGroupId: itemId },
+      removeResourceRecordUpdater
+    );
+  }
+
+  db.resource.resources.findAndUpdate(
+    { id: itemId },
+    removeResourceRecordUpdater
+  );
+
+  if (item.resourceGroupId) {
+    await removeFileFromGroup(item);
+  }
+};
+
+export const forceRemoveResourceFile = async (itemId: string) => {
+  const query = { id: itemId };
+  const resourceFilePath = await getResourceFilePath(query);
+  const resourceThumbnailPath = await getResourceFilePath(query, true);
+
+  await Promise.all([remove(resourceFilePath), remove(resourceThumbnailPath)]);
+};
+
+export const forceRemoveResource = async (itemId: string) => {
+  const db = await getDb();
+
+  const item = db.resource.resources.findOne({ id: itemId });
+
+  if (!item) {
+    console.warn(`${itemId} not found, unable to remove the resource`);
+    return;
+  }
+
+  if (item.type === 'group') {
+    db.resource.resources.findAndRemove({ resourceGroupId: itemId });
+  }
+
+  db.resource.resources.findAndRemove({ id: itemId });
+
+  await forceRemoveResourceFile(itemId);
+};
+
+export const removeResources = async (itemIds: string[], hard: boolean) => {
+  return Promise.all(
+    itemIds.map((itemId) =>
+      hard ? forceRemoveResource(itemId) : markResourceRecordAsRemoved(itemId)
+    )
+  );
 };
 
 export const addFileToGroup = async (
@@ -700,10 +726,6 @@ export const updateResourceLabel = async (itemId: string, label: string) => {
   }
 };
 
-export const removeResources = async (itemIds: string[], hard: boolean) => {
-  return Promise.all(itemIds.map((itemId) => removeResource(itemId, hard)));
-};
-
 export const listBrokenResource = async () => {
   const db = await getDb();
 
@@ -862,7 +884,7 @@ export const importFile = async (
   if (replacedFile && replaceFileId) {
     const replacedFileGroupId = replacedFile.resourceGroupId;
 
-    await removeResource(replaceFileId, false);
+    await markResourceRecordAsRemoved(replaceFileId);
     await removeFileFromGroup(replacedFile);
 
     if (replacedFileGroupId) {
