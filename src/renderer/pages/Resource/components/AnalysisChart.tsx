@@ -1,15 +1,16 @@
 import * as React from 'react';
 
+import { filesize } from 'filesize';
 import { useStyletron } from 'baseui';
 import { ResponsivePie } from '@nivo/pie';
 import type { PieSvgProps } from '@nivo/pie';
 
+import { Spinner } from 'baseui/spinner';
 import { LabelXSmall } from 'baseui/typography';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { server } from 'utils/rpc';
 import { useAsync } from '@react-hookz/web';
-import { Spinner } from 'baseui/spinner';
 
 export interface IAnalysisResultItem {
   id: string;
@@ -72,8 +73,6 @@ const InternalAnalysisChart: React.FC<IAnalysisChartProps> = ({
   const [analysis, analysisActions] = useAsync(() => {
     return server.getEpisodeAnalysis(episodeId);
   });
-
-  console.log(isOpen, episodeId);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -140,7 +139,7 @@ const InternalAnalysisChart: React.FC<IAnalysisChartProps> = ({
                   <strong>{e.datum.label}</strong>:{' '}
                 </LabelXSmall>
                 <LabelXSmall color={theme.colors.primaryB}>
-                  {e.datum.value}
+                  {filesize(e.datum.value).toString()}
                 </LabelXSmall>
               </RecativeBlock>
             );

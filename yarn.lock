@@ -5521,6 +5521,7 @@ __metadata:
     fastify: 4.4.0
     file-loader: ^6.0.0
     file-type: ^16.5.3
+    filesize: ^10.0.5
     fluent-ffmpeg: ^2.1.2
     glob: ^7.1.7
     history: 5.0.0
@@ -13349,6 +13350,13 @@ __metadata:
   dependencies:
     minimatch: ^3.0.4
   checksum: 4d6953cb6f76c5345a52fc50222949e244946f485462ab6bae977176fff64fe5200cc1f44db175c27fc887f91cead401504c22eefcdcc064012ee44759947561
+  languageName: node
+  linkType: hard
+
+"filesize@npm:^10.0.5":
+  version: 10.0.5
+  resolution: "filesize@npm:10.0.5"
+  checksum: b373ebd877566a49566564709c221943741a6e264649ae1f5d6c87c31cd87e94c5e51dae8ee16abbe414fda3fdb6855d8fe4f0ed8d1e33327563d2b59176eaa1
   languageName: node
   linkType: hard
 

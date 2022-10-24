@@ -12,8 +12,8 @@ import {
 } from 'baseui/modal';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 
-import { ModalManager } from 'utils/hooks/useModalManager';
 import { server } from 'utils/rpc';
+import { ModalManager } from 'utils/hooks/useModalManager';
 
 import { getSelectedId } from '../utils/getSelectedId';
 

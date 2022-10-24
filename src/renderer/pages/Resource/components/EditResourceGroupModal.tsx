@@ -25,11 +25,11 @@ import { StatefulMenu } from 'baseui/menu';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import { StatefulTooltip, TRIGGER_TYPE, PLACEMENT } from 'baseui/tooltip';
-import type { StatefulContainerProps } from 'baseui/menu';
 import type { ListOverrides } from 'baseui/list';
 import type { ModalOverrides } from 'baseui/modal';
 import type { InputOverrides } from 'baseui/input';
 import type { ButtonOverrides } from 'baseui/button';
+import type { StatefulContainerProps } from 'baseui/menu';
 
 import {
   ContextMenu,

@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { useAsync } from '@react-hookz/web';
+import { useGetSet } from 'react-use';
 
 import { StatefulTreeView, TreeNodeData } from 'baseui/tree-view';
 
@@ -9,7 +10,6 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
 
-import { useGetSet } from 'react-use';
 import { AnalysisChart } from './AnalysisChart';
 
 const EMPTY_ARRAY = [] as const;
