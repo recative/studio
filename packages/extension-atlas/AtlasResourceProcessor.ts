@@ -1100,9 +1100,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           } else {
             // the file is already generated, just push the media build id to
             // the post process record.
-            matchedProcessRecord.postProcessRecord.mediaBundleId.push(
-              mediaBuildId
-            );
+            matchedProcessRecord.postProcessRecord.mediaBundleId = [
+              ...matchedProcessRecord.postProcessRecord.mediaBundleId,
+              mediaBuildId,
+            ];
           }
 
           currentTask.forEach((taskRect) => {
@@ -1388,11 +1389,11 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           continue;
         }
 
-        const missingFiles = includedFiles.filter(
-          (x) => !includedFiles.some((y) => y.id === x.id)
+        const missingFiles = [...definedIds].filter(
+          (x) => !includedFiles.some((y) => y.id === x)
         );
 
-        const missingLabels = missingFiles.map((x) => x.label);
+        const missingIds = missingFiles.map((x) => x);
         console.log('-->', missingFiles);
 
         throw new TypeError(
@@ -1400,7 +1401,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             definedIds.size
           }, actually existed: ${includedIds.size} / ${
             resources.length
-          }, Missing file: ${missingLabels.join(`, `)}`
+          }, Missing file: ${missingIds.join(`, `)}`
         );
       }
 
