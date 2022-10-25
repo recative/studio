@@ -1,7 +1,3 @@
-import {
-  NOT_EXISTS_KEY,
-  RESOURCE_MANAGER_KEY,
-} from 'utils/buildInResourceUploaderKeys';
 import type {
   ClientProfile,
   InjectApEntryPointsFunction,
@@ -11,6 +7,10 @@ import type {
 import { injectByResourceProcessor } from './utils/postProcessPreviewResource';
 import { createVoidEntryPointResource } from './utils/createVoidEntryPointResource';
 
+import {
+  NOT_EXISTS_KEY,
+  RESOURCE_MANAGER_KEY,
+} from '../utils/buildInResourceUploaderKeys';
 import { injectResourceUrlForResourceManager } from '../utils/injectResourceUrl';
 
 export interface IApPackDistPreviewProfileConfig {

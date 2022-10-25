@@ -32,6 +32,10 @@ export const ifResourceIncludedInBundle = (
     return false;
   }
 
+  if (resource.id.startsWith('@')) {
+    return false;
+  }
+
   const resourceHasRedirectUrl = REDIRECT_URL_EXTENSION_ID in resource.url;
   const resourceHasRedirectKey = !!resource.redirectTo;
 
