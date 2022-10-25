@@ -56,7 +56,11 @@ const createWindow = async () => {
     height: 728,
     title: 'Recative Studio',
     icon: getAssetPath('icon.png'),
-    frame: false,
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#FFFFFF',
+      symbolColor: '#000000',
+    },
     webPreferences: {
       nodeIntegration: process.env.NODE_ENV === 'development',
       nodeIntegrationInSubFrames: process.env.NODE_ENV === 'development',
