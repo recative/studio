@@ -1,3 +1,7 @@
+import {
+  NOT_EXISTS_KEY,
+  RESOURCE_MANAGER_KEY,
+} from 'utils/buildInResourceUploaderKeys';
 import type {
   ClientProfile,
   InjectApEntryPointsFunction,
@@ -5,8 +9,9 @@ import type {
 } from './types';
 
 import { injectByResourceProcessor } from './utils/postProcessPreviewResource';
+import { createVoidEntryPointResource } from './utils/createVoidEntryPointResource';
+
 import { injectResourceUrlForResourceManager } from '../utils/injectResourceUrl';
-import { injectEntryPointUrlForApPackLivePreview } from '../utils/injectActPointUrl';
 
 export interface IApPackDistPreviewProfileConfig {
   resourceHostName: string;
@@ -21,13 +26,18 @@ export interface IApPackDistPreviewProfileConfig {
 export class ApPackDistPreviewProfile implements ClientProfile {
   constructor(private resourceHostName: string, private apProtocol: string) {}
 
-  injectApEntryPoints: InjectApEntryPointsFunction = (x) => {
-    const result = injectEntryPointUrlForApPackLivePreview(
-      x,
-      this.resourceHostName,
-      this.apProtocol
-    );
-    return result;
+  injectApEntryPoints: InjectApEntryPointsFunction = async (x) => {
+    const entryPointResource = await createVoidEntryPointResource();
+
+    entryPointResource.url[
+      RESOURCE_MANAGER_KEY
+    ] = `${this.apProtocol}://${this.resourceHostName}/index.html`;
+
+    entryPointResource.url[NOT_EXISTS_KEY] = 'http://localhost:12453/notExists';
+
+    x.push(entryPointResource as any);
+
+    return x;
   };
 
   injectResourceUrls: InjectResourceUrlsFunction = (x) => {

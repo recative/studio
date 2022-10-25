@@ -1,9 +1,13 @@
-import type { IActPoint, IResourceItemForClient } from '@recative/definitions';
 import { IPostProcessedResourceFileForUpload } from '@recative/extension-sdk';
 
-export type InjectApEntryPointsFunction = (
-  x: IActPoint[]
-) => Promise<IActPoint[]> | IActPoint[];
+import type { IResourceItemForClient } from '@recative/definitions';
+
+export type InjectApEntryPointsFunction = <
+  T extends IResourceItemForClient | IPostProcessedResourceFileForUpload
+>(
+  x: T[]
+) => Promise<T[]> | T[];
+
 export type InjectResourceUrlsFunction = <
   T extends IResourceItemForClient | IPostProcessedResourceFileForUpload
 >(

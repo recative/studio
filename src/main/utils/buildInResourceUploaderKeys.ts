@@ -9,3 +9,5 @@ export const MOBILE_SHELL_BUILD_IN_KEY =
 
 export const MOBILE_SHELL_CACHED_KEY =
   '@recative/uploader-extension-mobile-shell/cached';
+
+export const NOT_EXISTS_KEY = '@recative/uploader-extension-error/not-exists';

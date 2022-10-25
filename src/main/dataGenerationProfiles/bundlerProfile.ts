@@ -2,14 +2,20 @@ import { produce } from 'immer';
 import { IBundleProfile } from '@recative/extension-sdk';
 import type {
   ClientProfile,
-  InjectApEntryPointsFunction,
   InjectResourceUrlsFunction,
+  InjectApEntryPointsFunction,
 } from './types';
 
-import { ifResourceIncludedInBundle } from './utils/ifResourceIncludedInBundle';
-
+import {
+  NOT_EXISTS_KEY,
+  DESKTOP_SHELL_KEY,
+  MOBILE_SHELL_CACHED_KEY,
+  MOBILE_SHELL_BUILD_IN_KEY,
+} from '../utils/buildInResourceUploaderKeys';
 import { injectResourceUrlForPlayerShells } from '../utils/injectResourceUrl';
-import { injectEntryPointUrlForPlayerShells } from '../utils/injectActPointUrl';
+
+import { ifResourceIncludedInBundle } from './utils/ifResourceIncludedInBundle';
+import { createVoidEntryPointResource } from './utils/createVoidEntryPointResource';
 
 export interface IBundlerProfileConfig {
   codeReleaseId: number;
@@ -17,13 +23,29 @@ export interface IBundlerProfileConfig {
 
 export class BundlerProfile implements ClientProfile {
   constructor(
-    private codeReleaseId: number,
+    public codeReleaseId: number,
     private mediaReleaseId: number,
     private profile: IBundleProfile
   ) {}
 
-  injectApEntryPoints: InjectApEntryPointsFunction = (x) => {
-    return injectEntryPointUrlForPlayerShells(x, this.codeReleaseId);
+  injectApEntryPoints: InjectApEntryPointsFunction = async (x) => {
+    const entryPointResource = await createVoidEntryPointResource();
+
+    entryPointResource.url[DESKTOP_SHELL_KEY] = `recative://ap/dist/index.html`;
+
+    entryPointResource.url[
+      MOBILE_SHELL_BUILD_IN_KEY
+    ] = `/bundle/ap/dist/index.html`;
+
+    entryPointResource.url[
+      MOBILE_SHELL_CACHED_KEY
+    ] = `http://localhost:34652/ap/dist/index.html`;
+
+    entryPointResource.url[NOT_EXISTS_KEY] = 'http://localhost:12453/notExists';
+
+    x.push(entryPointResource as any);
+
+    return x;
   };
 
   injectResourceUrls: InjectResourceUrlsFunction = (x) => {

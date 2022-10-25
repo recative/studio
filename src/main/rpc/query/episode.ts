@@ -147,7 +147,7 @@ export const getResourceListOfEpisode = async (
   const profile = getProfile(request);
 
   const injectedResources = await produce(cleanedResources, async (x) => {
-    return profile.injectResourceUrls(x);
+    return profile.injectApEntryPoints(await profile.injectResourceUrls(x));
   });
 
   logPerformance('inject');
@@ -296,11 +296,7 @@ export const getEpisodeDetail = async (
     throw new TypeError(`Episode not found: ${queryId}`);
   }
 
-  const rawAssets = await getClientSideAssetList(
-    episode.id,
-    request,
-    dbPromise
-  );
+  const rawAssets = await getClientSideAssetList(episode.id, dbPromise);
   const assets = rawAssets.filter((x) =>
     isAssetRequest ? x.id === assetId : true
   );

@@ -12,14 +12,7 @@ export const getEnvVariable = async (
   episodeId: string | null = null
 ): Promise<Record<string, unknown>> => {
   const localSettings = await getLocalSettings();
-  const assets = episodeId
-    ? await getClientSideAssetList(episodeId, {
-        type: 'apPackDistPreview',
-        resourceHostName: localSettings.resourceHost,
-        apHostName: localSettings.apHost,
-        apProtocol: localSettings.contentProtocol,
-      })
-    : [];
+  const assets = episodeId ? await getClientSideAssetList(episodeId) : [];
   const episode = episodeId ? await getEpisode(episodeId) : null;
   const base = episodeId
     ? {

@@ -141,12 +141,6 @@ export const getAssetDescription = async (assetId: string) => {
 
 export const getClientSideAssetList = async (
   episodeId: string,
-  request: ProfileConfig = {
-    type: 'apPackDistPreview',
-    resourceHostName: 'localhost:9999',
-    apHostName: 'localhost:9999',
-    apProtocol: 'http',
-  },
   dbPromise: ReturnType<typeof getDb> | null = null
 ) => {
   const db = await (dbPromise || getDb());
@@ -159,13 +153,9 @@ export const getClientSideAssetList = async (
 
   const contentIds = assets.map((asset) => asset.contentId);
 
-  const profile = getProfile(request);
-
-  const actPointsOfEpisode = profile.injectApEntryPoints(
-    db.actPoint.actPoints.find({
-      id: { $in: contentIds },
-    })
-  );
+  const actPointsOfEpisode = db.actPoint.actPoints.find({
+    id: { $in: contentIds },
+  });
 
   const resourcesOfEpisode = noNulls(
     await Promise.all(contentIds.map(getResourceWithDetailedFileList))
@@ -211,10 +201,6 @@ export const getClientSideAssetList = async (
           throw new Error('Act point not found');
         }
 
-        const injectedActPoint = (
-          await profile.injectApEntryPoints([actPoint])
-        )[0];
-
         return {
           id: asset.id,
           duration: Infinity,
@@ -222,7 +208,7 @@ export const getClientSideAssetList = async (
           triggers: asset.triggers,
           spec: {
             contentExtensionId: asset.contentExtensionId,
-            ...injectedActPoint,
+            ...actPoint,
           },
           preloadDisabled: asset.preloadDisabled,
           earlyDestroyOnSwitch: asset.earlyDestroyOnSwitch,

@@ -4,10 +4,17 @@ import type {
   InjectApEntryPointsFunction,
 } from './types';
 
+import {
+  NOT_EXISTS_KEY,
+  DESKTOP_SHELL_KEY,
+  MOBILE_SHELL_CACHED_KEY,
+  MOBILE_SHELL_BUILD_IN_KEY,
+} from '../utils/buildInResourceUploaderKeys';
 import { PerformanceLog } from '../utils/performanceLog';
-import { injectByResourceProcessor } from './utils/postProcessPreviewResource';
 import { injectResourceUrlForResourceManager } from '../utils/injectResourceUrl';
-import { injectEntryPointUrlForApPackLivePreview } from '../utils/injectActPointUrl';
+
+import { injectByResourceProcessor } from './utils/postProcessPreviewResource';
+import { createVoidEntryPointResource } from './utils/createVoidEntryPointResource';
 
 export interface IApPackLivePreviewProfileConfig {
   resourceHostName: string;
@@ -18,16 +25,28 @@ export interface IApPackLivePreviewProfileConfig {
 export class ApPackLivePreviewProfile implements ClientProfile {
   constructor(
     private resourceHostName: string,
-    private apHostName: string,
+    public apHostName: string,
     private apProtocol: string
   ) {}
 
-  injectApEntryPoints: InjectApEntryPointsFunction = (x) => {
-    return injectEntryPointUrlForApPackLivePreview(
-      x,
-      this.apHostName,
-      this.apProtocol
-    );
+  injectApEntryPoints: InjectApEntryPointsFunction = async (x) => {
+    const entryPointResource = await createVoidEntryPointResource();
+
+    entryPointResource.url[DESKTOP_SHELL_KEY] = `recative://ap/dist/index.html`;
+
+    entryPointResource.url[
+      MOBILE_SHELL_BUILD_IN_KEY
+    ] = `/bundle/ap/dist/index.html`;
+
+    entryPointResource.url[
+      MOBILE_SHELL_CACHED_KEY
+    ] = `http://localhost:34652/ap/dist/index.html`;
+
+    entryPointResource.url[NOT_EXISTS_KEY] = 'http://localhost:12453/notExists';
+
+    x.push(entryPointResource as any);
+
+    return x;
   };
 
   injectResourceUrls: InjectResourceUrlsFunction = (x) => {
