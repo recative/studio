@@ -285,7 +285,7 @@
     "file-type": "^16.5.3",
     "filesize": "^10.0.5",
     "fluent-ffmpeg": "^2.1.2",
-    "glob": "^7.1.7",
+    "glob": "7.2.0",
     "history": "5.0.0",
     "immer": "^9.0.5",
     "isbinaryfile": "^4.0.8",

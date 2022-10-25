@@ -1,15 +1,16 @@
-import { join, relative, normalize } from 'path';
+import { join } from 'path';
+import { readdir } from 'fs/promises';
 
-import glob from 'glob';
 import { extension } from 'mime-types';
-import { ensureDir, copy, writeJSON, readJSON } from 'fs-extra';
+import { ensureDir, copy, writeJSON, readJSON, pathExistsSync } from 'fs-extra';
 
 import { IResourceFile, IResourceGroup } from '@recative/definitions';
 import {
-  ResourceGroupForImport,
-  ScriptExecutionMode,
   Scriptlet,
   ScriptType,
+  ScriptExecutionMode,
+  TerminalMessageLevel,
+  ResourceGroupForImport,
 } from '@recative/extension-sdk';
 
 const REFERENCE_FILE_NAME = 'reference.json';
@@ -228,17 +229,18 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
   };
 
   scriptSyncI18NWorkspace = async () => {
-    const dirs = glob.sync(
-      normalize(
-        join(this.config.i18nMediaWorkspacePath, '*', REFERENCE_FILE_NAME)
-      ).replaceAll('\\', '/')
-    );
-
-    const workspaces = dirs
-      .map((x) => relative(this.config.i18nMediaWorkspacePath, x))
-      .map((x) => x.split(/[\\/]+/gi)[0])
-      .map(Number)
-      .filter((x) => !Number.isNaN(x));
+    const workspaces = (
+      await readdir(this.config.i18nMediaWorkspacePath, { withFileTypes: true })
+    )
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name)
+      .filter((x) => !Number.isNaN(Number(x)))
+      .map((x) => ({
+        path: join(this.config.i18nMediaWorkspacePath, x),
+        id: x,
+      }))
+      .filter((x) => pathExistsSync(join(x.path, REFERENCE_FILE_NAME)))
+      .map((x) => Number(x.id));
 
     if (!workspaces.length) {
       return {
@@ -299,10 +301,12 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       }) as IResourceFile;
 
       if (!originalFile) {
-        return {
-          ok: false,
-          message: `The file ${resourceFileReference.id} is not available in the database, maybe you are using a wrong workspace for the task`,
-        };
+        this.dependency.logToTerminal(
+          `:: The file ${resourceFileReference.id} is not available in the database, maybe you are using a wrong workspace for the task`,
+          TerminalMessageLevel.Warning
+        );
+
+        continue;
       }
 
       if (!originalFile.resourceGroupId) {
@@ -318,10 +322,12 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
       }) as IResourceGroup;
 
       if (!originalGroup) {
-        return {
-          ok: false,
-          message: `The group ${originalFile.resourceGroupId} is not available in the database, maybe you are using a wrong workspace for the task`,
-        };
+        this.dependency.logToTerminal(
+          `:: The group ${originalFile.resourceGroupId} is not available in the database, maybe you are using a wrong workspace for the task`,
+          TerminalMessageLevel.Warning
+        );
+
+        continue;
       }
 
       this.dependency.logToTerminal(
