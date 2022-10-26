@@ -7,6 +7,7 @@ import type {
 import {
   NOT_EXISTS_KEY,
   DESKTOP_SHELL_KEY,
+  RESOURCE_MANAGER_KEY,
   MOBILE_SHELL_CACHED_KEY,
   MOBILE_SHELL_BUILD_IN_KEY,
 } from '../utils/buildInResourceUploaderKeys';
@@ -41,6 +42,10 @@ export class ApPackLivePreviewProfile implements ClientProfile {
     entryPointResource.url[
       MOBILE_SHELL_CACHED_KEY
     ] = `http://localhost:34652/ap/dist/index.html`;
+
+    entryPointResource.url[
+      RESOURCE_MANAGER_KEY
+    ] = `${this.apProtocol}://${this.resourceHostName}/index.html`;
 
     entryPointResource.url[NOT_EXISTS_KEY] = 'http://localhost:12453/notExists';
 
