@@ -45,7 +45,7 @@ export class ApPackLivePreviewProfile implements ClientProfile {
 
     entryPointResource.url[
       RESOURCE_MANAGER_KEY
-    ] = `${this.apProtocol}://${this.resourceHostName}/index.html`;
+    ] = `${this.apProtocol}://${this.apHostName}/index.html`;
 
     entryPointResource.url[NOT_EXISTS_KEY] = 'http://localhost:12453/notExists';
 
