@@ -1100,9 +1100,10 @@ export class AtlasResourceProcessor extends ResourceProcessor<
           } else {
             // the file is already generated, just push the media build id to
             // the post process record.
-            matchedProcessRecord.postProcessRecord.mediaBundleId.push(
-              mediaBuildId
-            );
+            matchedProcessRecord.postProcessRecord.mediaBundleId = [
+              ...matchedProcessRecord.postProcessRecord.mediaBundleId,
+              mediaBuildId,
+            ];
           }
 
           currentTask.forEach((taskRect) => {
