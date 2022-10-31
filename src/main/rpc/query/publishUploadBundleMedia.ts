@@ -71,7 +71,7 @@ export const uploadMediaBundle = async (
   const taskCountByCategory: Record<string, number> = {};
 
   allResources.forEach((resource) => {
-    resource.resourceRecord.tags.forEach((tag) => {
+    resource.resourceRecord.tags.filter(Boolean).forEach((tag) => {
       if (!tag.startsWith('category')) return;
       if (!taskCountByCategory[tag]) taskCountByCategory[tag] = 0;
       taskCountByCategory[tag] += 1;
