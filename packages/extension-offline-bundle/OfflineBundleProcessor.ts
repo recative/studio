@@ -233,7 +233,8 @@ export class OfflineBundleProcessor extends ResourceProcessor<
 
         await zip.appendFileList(fileList, true);
 
-        const buffer = await zip.done();
+        await zip.done();
+        const buffer = await zip.getBuffer();
 
         this.dependency.logToTerminal(
           `:: :: :: :: File Size: ${buffer.byteLength} bytes`,
