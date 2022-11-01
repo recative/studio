@@ -318,6 +318,12 @@ export class Zip {
         this.filePath
       )}] Written ${this.archive.getBytesWritten()} bytes`
     );
+  };
+
+  getBuffer = () => {
+    if (!this.closed) {
+      throw new Error(`File not closed, unable to get the file`);
+    }
 
     return readFile(this.filePath);
   };
