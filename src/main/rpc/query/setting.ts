@@ -1,10 +1,6 @@
-import jwt_decode from 'jwt-decode';
-
 import { glob } from 'glob';
 import { stat } from 'fs/promises';
 import { join, basename } from 'path';
-
-import { OpenAPI, AdminService } from '../../../api';
 
 import { localStorage } from '../../utils/localStorage';
 
@@ -12,14 +8,6 @@ import { getDb } from '../db';
 import { getWorkspace } from '../workspace';
 
 import { getSeriesId } from './series';
-
-interface IToken {
-  expiresIn: number;
-  id: number;
-  name: string;
-  label: string;
-  iat: number;
-}
 
 const localSettingKeysArr = [
   'resourceHost',
@@ -117,50 +105,6 @@ export const getBuildPath = async () => {
   return buildPath;
 };
 
-OpenAPI.BASE = localStorage.getItem('openapi-base') || 'https://localhost:3000';
-OpenAPI.TOKEN =
-  localStorage.getItem('act-server-token') || 'https://localhost:3000';
-
-export const setActServerBase = (x: string) => {
-  OpenAPI.BASE = x;
-};
-
-export const localLogout = async () => {
-  localStorage.removeItem('act-server-token');
-  localStorage.removeItem('act-server-id');
-  localStorage.removeItem('act-server-name');
-  localStorage.removeItem('act-server-label');
-  localStorage.removeItem('act-server-expires');
-};
-
-export const getUserData = () => {
-  const expires = Number.parseInt(
-    localStorage.getItem('act-server-expires') || '-1',
-    10
-  );
-
-  if (Date.now() > expires) {
-    localLogout();
-    return null;
-  }
-
-  const token = localStorage.getItem('act-server-token');
-  const id = Number.parseInt(localStorage.getItem('act-server-id') || '-1', 10);
-  const name = localStorage.getItem('act-server-name') || '';
-  const label = localStorage.getItem('act-server-label') || '';
-  const host = localStorage.getItem('act-server-host') || '';
-
-  if (!token) return null;
-
-  return {
-    token,
-    id,
-    name,
-    label,
-    host,
-  };
-};
-
 export const getFileListFromAssetsPath = (globRule: string) => {
   const workspace = getWorkspace();
   const { assetsPath } = workspace;
@@ -173,50 +117,4 @@ export const getFileListFromAssetsPath = (globRule: string) => {
       fileName: basename(x),
     }))
   );
-};
-
-export const userLogin = async (
-  email: string,
-  password: string,
-  actServer: string
-) => {
-  try {
-    OpenAPI.BASE = actServer;
-    const token = await AdminService.postToken({
-      email,
-      password,
-    });
-    if (typeof token === 'string') {
-      OpenAPI.TOKEN = token;
-
-      const data: IToken = jwt_decode(token);
-
-      localStorage.setItem('act-server-host', actServer);
-      localStorage.setItem('act-server-token', token);
-      localStorage.setItem('act-server-name', data.name);
-      localStorage.setItem('act-server-id', data.id.toString());
-      localStorage.setItem('act-server-label', data.label);
-      localStorage.setItem('act-server-expires', data.expiresIn.toString());
-
-      return { token, ...data };
-    }
-    return { code: token.code || 'UNKNOWN_ERROR' };
-  } catch (error) {
-    console.error(error);
-    if (error instanceof Error) {
-      return { code: error.name || error.message };
-    }
-    return { code: 'UNKNOWN_ERROR' };
-  }
-};
-
-export const userLogout = async () => {
-  try {
-    await AdminService.deleteToken();
-    localLogout();
-    OpenAPI.TOKEN = undefined;
-    return { code: 'SUCCESS' };
-  } catch (error) {
-    return { code: 'ERROR' };
-  }
 };

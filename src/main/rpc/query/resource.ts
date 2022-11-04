@@ -351,16 +351,21 @@ export const updateOrInsertResources = async (items: IResourceItem[]) => {
   const db = await getDb();
 
   items.forEach((item) => {
+    // Here're two extra cleanup to prevent some extension blow up the database.
+    const { postProcessedThumbnail, postProcessedFile, ...clonedResource } =
+      item as unknown as IPostProcessedResourceFileForImport;
+
     const itemInDb = db.resource.resources.findOne({ id: item.id });
+    const targetResource = clonedResource as IResourceItem;
 
     if (itemInDb) {
       // Update
-      Object.assign(itemInDb, item);
+      Object.assign(itemInDb, targetResource);
       db.resource.resources.update(itemInDb);
-      updateManagedResources(item);
+      updateManagedResources(targetResource);
     } else {
       // Insert
-      db.resource.resources.insert(item);
+      db.resource.resources.insert(targetResource);
     }
   });
 };

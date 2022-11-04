@@ -17,6 +17,7 @@ export * from './terminal';
 export * from './migration';
 export * from './scriptlet';
 export * from './extension';
+export * from './authService';
 export * from './bundleProfile';
 export * from './publishActServer';
 export * from './resourceBatchEdit';
