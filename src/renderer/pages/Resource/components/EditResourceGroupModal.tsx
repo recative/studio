@@ -76,6 +76,7 @@ import {
   ReplaceFileModalForGroupModal,
   useReplaceFileModalForGroupModal,
 } from './ReplaceFileModalForGroupModal';
+import { mergeFileConfigurationToManagedFile } from '../utils/mergeFileConfigurationToManagedFile';
 
 const CONTEXT_MENU_ID = nanoid();
 
@@ -261,6 +262,23 @@ const useFileIdToFileMap = (
       setFileIdToFileMap((draft) => {
         if (clonedResource.type === 'file') {
           draft[resource.id] = clonedResource;
+
+          const managedFiles: IEditableResourceFile[] = [];
+
+          const treeSearch = (x: IEditableResource) => {
+            const managedByX = Object.values(draft).filter(
+              (f) => f.managedBy === x.id
+            );
+            managedFiles.push(...managedByX);
+
+            managedByX.forEach(treeSearch);
+          };
+
+          treeSearch(clonedResource);
+
+          if (managedFiles.length) {
+            mergeFileConfigurationToManagedFile(clonedResource, managedFiles);
+          }
         } else {
           setEditableResourceGroup(clonedResource);
 
