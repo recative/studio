@@ -8,6 +8,7 @@ import { FormControl } from 'baseui/form-control';
 import { HeadingXXLarge } from 'baseui/typography';
 import { toaster, ToasterContainer, PLACEMENT } from 'baseui/toast';
 
+import { PivotLayout } from 'components/Layout/PivotLayout';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { server } from 'utils/rpc';
@@ -58,58 +59,60 @@ export const Login: React.FC = () => {
   }, [email, password, actServer, setIsLoginModalOpen, setIsUserInfoOpen]);
 
   return (
-    <RecativeBlock
-      width="100vw"
-      height="calc(100vh - 30px)"
-      display={isLoginModalOpen ? 'flex' : 'none'}
-      justifyContent="center"
-      alignItems="center"
-      position="fixed"
-      bottom="0"
-      backgroundColor="#FFFFFF"
-    >
-      <ToasterContainer
-        autoHideDuration={3000}
-        placement={PLACEMENT.bottomRight}
-      />
+    <PivotLayout>
       <RecativeBlock
-        width="50%"
-        padding="32px 48px 48px 48px"
-        border="2px solid #DDD"
+        width="100vw"
+        height="calc(100vh - 30px)"
+        display={isLoginModalOpen ? 'flex' : 'none'}
+        justifyContent="center"
+        alignItems="center"
+        position="fixed"
+        bottom="0"
+        backgroundColor="#FFFFFF"
       >
-        <RecativeBlock>
-          <HeadingXXLarge>Login</HeadingXXLarge>
-          <FormControl label="Act Server">
-            <Input
-              value={actServer}
-              onChange={(e) => {
-                setActServer(e.currentTarget.value);
-              }}
-            />
-          </FormControl>
-          <FormControl label="Email Address">
-            <Input
-              value={email}
-              onChange={(e) => {
-                setEmail(e.currentTarget.value);
-              }}
-            />
-          </FormControl>
-          <FormControl label="Password">
-            <Input
-              value={password}
-              type="password"
-              clearOnEscape
-              onChange={(e) => {
-                setPassword(e.currentTarget.value);
-              }}
-            />
-          </FormControl>
-        </RecativeBlock>
-        <RecativeBlock display="flex" justifyContent="end" marginTop="48px">
-          <Button onClick={loginButtonClick}>Login</Button>
+        <ToasterContainer
+          autoHideDuration={3000}
+          placement={PLACEMENT.bottomRight}
+        />
+        <RecativeBlock
+          width="50%"
+          padding="32px 48px 48px 48px"
+          border="2px solid #DDD"
+        >
+          <RecativeBlock>
+            <HeadingXXLarge>Login</HeadingXXLarge>
+            <FormControl label="Act Server">
+              <Input
+                value={actServer}
+                onChange={(e) => {
+                  setActServer(e.currentTarget.value);
+                }}
+              />
+            </FormControl>
+            <FormControl label="Email Address">
+              <Input
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.currentTarget.value);
+                }}
+              />
+            </FormControl>
+            <FormControl label="Password">
+              <Input
+                value={password}
+                type="password"
+                clearOnEscape
+                onChange={(e) => {
+                  setPassword(e.currentTarget.value);
+                }}
+              />
+            </FormControl>
+          </RecativeBlock>
+          <RecativeBlock display="flex" justifyContent="end" marginTop="48px">
+            <Button onClick={loginButtonClick}>Login</Button>
+          </RecativeBlock>
         </RecativeBlock>
       </RecativeBlock>
-    </RecativeBlock>
+    </PivotLayout>
   );
 };

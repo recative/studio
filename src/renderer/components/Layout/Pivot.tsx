@@ -253,6 +253,22 @@ export const InternalPivot: React.FC<IPivotProps> = ({
           Preview
         </Button>
       </Tab>
+      <Tab title={<TabTitle>Sync</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
+        <Button
+          kind={BUTTON_KIND.tertiary}
+          startEnhancer={<MergeDatabaseIconOutline width={20} />}
+          onClick={() => navigate('/login', { replace: true })}
+        >
+          Login
+        </Button>
+        <Button
+          kind={BUTTON_KIND.tertiary}
+          startEnhancer={<MergeDatabaseIconOutline width={20} />}
+          onClick={() => {}}
+        >
+          Archives
+        </Button>
+      </Tab>
       <Tab title={<TabTitle>Utils</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
         <Button
           kind={BUTTON_KIND.tertiary}

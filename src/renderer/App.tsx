@@ -144,13 +144,12 @@ export const App = () => {
         <Route path="release" element={<Release />} />
         <Route path="bundle" element={<Bundle />} />
         <Route path="preview" element={<Preview />} />
+        <Route path="login" element={<Login />} />
         <Route path="preview-player" element={<PreviewPlayer />} />
         <Route path="merge-resource-db" element={<MergeResourceDatabase />} />
         <Route path="/" element={<Welcome />} />
       </Routes>
       <ScrollbarStyles />
-      <Login />
-      <UserInfo />
       <InitializeErrorModal />
       <ResourceSearchModal />
       <TerminalModal />
