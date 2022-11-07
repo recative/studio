@@ -3440,6 +3440,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@crowdin/crowdin-api-client@npm:^1.19.2":
+  version: 1.19.2
+  resolution: "@crowdin/crowdin-api-client@npm:1.19.2"
+  dependencies:
+    axios: 0.21.3
+  checksum: 2457311ac61a9ae6b2a1c032aa0db9e7b9527adbd6719e7723c211a33285176e2f76bef3c171a178316825ecebfbc4cfc825547d33c2dd806d88f29dbb2652ec
+  languageName: node
+  linkType: hard
+
 "@cspotcode/source-map-consumer@npm:0.8.0":
   version: 0.8.0
   resolution: "@cspotcode/source-map-consumer@npm:0.8.0"
@@ -5219,6 +5228,14 @@ __metadata:
   dependencies:
     "@napi-rs/canvas": ^0.1.25
     "@recative/atlas": ^0.0.1
+  languageName: unknown
+  linkType: soft
+
+"@recative/extension-crowdin@workspace:packages/extension-crowdin":
+  version: 0.0.0-use.local
+  resolution: "@recative/extension-crowdin@workspace:packages/extension-crowdin"
+  dependencies:
+    "@crowdin/crowdin-api-client": ^1.19.2
   languageName: unknown
   linkType: soft
 
@@ -8289,6 +8306,15 @@ __metadata:
   version: 4.4.1
   resolution: "axe-core@npm:4.4.1"
   checksum: ad14c5b71059dc3d24ef2519b8cd96e98b4a572379396201ce449d1c4262181821d6ca9550df65b22371faf06d28bbe94d391fe5675f2a08e6550f7b5da8416d
+  languageName: node
+  linkType: hard
+
+"axios@npm:0.21.3":
+  version: 0.21.3
+  resolution: "axios@npm:0.21.3"
+  dependencies:
+    follow-redirects: ^1.14.0
+  checksum: fdcac33adb0330e127ab0e58f8d9fb7470b49dbfb0aba251ff54f146f2fc7d9362e3300581b6c98d2ea3b8db958ed099c831c3c7832ae79b14f517d5947a029a
   languageName: node
   linkType: hard
 
@@ -13513,6 +13539,16 @@ __metadata:
     debug:
       optional: true
   checksum: 53195df4a2f36202177f40a2d59d497d630f3b20e2e51e2b697ee5f9c0a5261985f164b23d3744a574e117618af668d07c0d000c2c5cb0c1546851671585ac4e
+  languageName: node
+  linkType: hard
+
+"follow-redirects@npm:^1.14.0":
+  version: 1.15.2
+  resolution: "follow-redirects@npm:1.15.2"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: faa66059b66358ba65c234c2f2a37fcec029dc22775f35d9ad6abac56003268baf41e55f9ee645957b32c7d9f62baf1f0b906e68267276f54ec4b4c597c2b190
   languageName: node
   linkType: hard
 

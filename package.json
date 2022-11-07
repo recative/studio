@@ -395,6 +395,7 @@
     "packages/extension-raw",
     "packages/extension-av",
     "packages/extension-i18n-utils",
+    "packages/extension-crowdin",
     "packages/extension-audio-backends",
     "packages/extension-db-fixer",
     "packages/studio-definitions",
