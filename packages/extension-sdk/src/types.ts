@@ -64,3 +64,8 @@ export type WriteBufferToResource = (
   buffer: Buffer,
   fileName: string | Pick<IResourceFile, 'id'>
 ) => Promise<string>;
+
+export type WritePathToResource = (
+  path: string,
+  fileName: string | Pick<IResourceFile, 'id'>
+) => Promise<string>;

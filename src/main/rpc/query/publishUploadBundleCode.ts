@@ -11,7 +11,7 @@ import { logToTerminal } from './terminal';
 import { getDb } from '../db';
 
 import { TaskQueue } from '../../utils/uploadTaskQueue';
-import { getUploaderInstances } from '../../utils/getExtensionInstances';
+import { getUploaderInstances } from '../../utils/getResourceProcessorInstances';
 import { getBuildPath } from './setting';
 
 /**

@@ -21,7 +21,7 @@ import { getDb } from '../db';
 import { getProfile } from '../../dataGenerationProfiles';
 import { PerformanceLog } from '../../utils/performanceLog';
 import { getResourceFilePath } from '../../utils/getResourceFile';
-import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
+import { getResourceProcessorInstances } from '../../utils/getResourceProcessorInstances';
 
 import type { ProfileConfig } from '../../dataGenerationProfiles';
 

@@ -16,6 +16,7 @@ import { logToTerminal } from '../rpc/query/terminal';
 
 import { downloadFile } from './downloadFile';
 import { getExtensionConfig } from './getExtensionConfig';
+import { writePathToResource } from './writePathToResource';
 import { writeBufferToResource } from './writeBufferToResource';
 import { insertPostProcessedFileDefinition } from './insertPostProcessedFileDefinition';
 import { updatePostProcessedFileDefinition } from './updatePostProcessedFileDefinition';
@@ -44,6 +45,7 @@ const scriptletDependency: IScriptletDependency = {
   // This will be replaced later
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logToTerminal: logToTerminal as any,
+  writePathToResource,
   writeBufferToResource,
   insertPostProcessedFileDefinition,
   updatePostProcessedFileDefinition,

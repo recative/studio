@@ -6,7 +6,6 @@ import {
   Scriptlet,
   ScriptType,
   ScriptExecutionMode,
-  ResourceFileForImport,
   TerminalMessageLevel,
 } from '@recative/extension-sdk';
 
@@ -63,6 +62,8 @@ export class CrowdinSyncScriptlet extends Scriptlet<
   ];
 
   syncCrowdinConfig = async () => {
+    const d = this.dependency;
+
     const { projectsGroupsApi, sourceFilesApi, translationsApi } =
       new CrowdinApi({
         token: this.config.personalAccessToken,
@@ -76,10 +77,7 @@ export class CrowdinSyncScriptlet extends Scriptlet<
       );
 
       if (!project) {
-        this.dependency.logToTerminal(
-          ':: Project Not found',
-          TerminalMessageLevel.Error
-        );
+        d.logToTerminal(':: Project Not found', TerminalMessageLevel.Error);
 
         return {
           ok: false,
@@ -89,122 +87,73 @@ export class CrowdinSyncScriptlet extends Scriptlet<
 
       const projectId = project.data.id;
 
-      this.dependency.logToTerminal(`:: Project ID: ${projectId}`);
+      d.logToTerminal(`:: Project ID: ${projectId}`);
 
       const projectFileMetadata = await sourceFilesApi
         .withFetchAll()
         .listProjectFiles(projectId);
 
-      const fileIds = projectFileMetadata.data.map((x) => x.data.id);
-
-      this.dependency.logToTerminal(`:: Project Files:`);
+      d.logToTerminal(`:: Project Files:`);
 
       projectFileMetadata.data.forEach((x) => {
-        this.dependency.logToTerminal(`:: :: ${x.data.name} (${x.data.id})`);
+        d.logToTerminal(`:: :: ${x.data.name} (${x.data.id})`);
       });
 
-      this.dependency.logToTerminal(`:: Downloading:`);
+      d.logToTerminal(`:: Downloading:`);
 
       await Promise.all(
         this.config.targetLanguageIds
           .split(';')
           .map((x) => x.trim())
-          .map(async (language) => {
-            const translationUrl =
-              await translationsApi.exportProjectTranslation(projectId, {
-                fileIds,
-                targetLanguageId: languageIdMap[language] ?? language,
+          .flatMap((language) => {
+            return projectFileMetadata.data.map(async (file) => {
+              const fileId = file.data.id;
+              const fileName = file.data.name;
+
+              const translationUrl =
+                await translationsApi.exportProjectTranslation(projectId, {
+                  fileIds: [fileId],
+                  targetLanguageId: languageIdMap[language] ?? language,
+                });
+
+              d.logToTerminal(
+                `:: :: [${language}]: ${translationUrl.data.url}`
+              );
+
+              console.log(translationUrl.data.url);
+
+              const filePath = await d.downloadFile(translationUrl.data.url);
+              const fileHash = await d.getXxHashOfFile(filePath);
+
+              const crowdinId = `@@CROWDIN/${this.config.projectName}/${fileId}`;
+
+              const resource = d.db.resource.resources.findOne({
+                [`extensionConfigurations.${CrowdinSyncScriptlet.id}~~crowdinId`]:
+                  crowdinId,
               });
 
-            this.dependency.logToTerminal(
-              `:: :: [${language}]: ${translationUrl.data.url}`
-            );
+              if (resource) {
+                if (resource.type === 'group') {
+                  throw new Error(`Record not existed, this is a bug`);
+                }
 
-            console.log(translationUrl.data.url);
+                if (resource.originalHash === fileHash) return;
+              }
 
-            const translationPath = await this.dependency.downloadFile(
-              translationUrl.data.url
-            );
+              const nextResource = await d.importFile(
+                filePath,
+                resource ? resource.id : undefined
+              );
 
-            const translationZip = this.dependency.readZip(translationPath);
-            const entries = translationZip.entries();
+              nextResource.forEach((x) => {
+                const tagSet = new Set(x.tags);
+                tagSet.add(`lang:${language}`);
+                x.tags = [...tagSet];
+                x.label = `@Crowdin/${fileName}/${language}`;
+              });
 
-            const metadata = (
-              await Promise.allSettled(
-                Object.entries(entries)
-                  .filter(([, entry]) => entry.isFile)
-                  .map(async ([key, entry]) => {
-                    const hash = await this.dependency.getXxHashOfBuffer(
-                      translationZip.entryDataSync(key)
-                    );
-
-                    const resourceId = `@@CROWDIN${key}`;
-
-                    return { id: resourceId, key, entry, hash };
-                  })
-              )
-            )
-              .map(
-                (x) => (x.status === 'fulfilled' ? x.value : null) as IMetadata
-              )
-              .filter(Boolean);
-
-            const existedRecords = this.dependency.db.resource.resources.find({
-              id: {
-                $in: metadata.map((x) => x.id),
-              },
+              d.db.resource.resources.update(nextResource);
             });
-
-            const existedRecordIds = new Set(existedRecords.map((x) => x.id));
-            const existedFiles = metadata.filter((x) =>
-              existedRecordIds.has(x.id)
-            );
-
-            const notExistedFiles = metadata.filter(
-              (x) => !existedRecordIds.has(x.id)
-            );
-
-            for (let i = 0; i < notExistedFiles.length; i += 1) {
-              const { id, key } = notExistedFiles[i];
-
-              const definition = new ResourceFileForImport();
-
-              definition.dangerouslyUpdateFileId(id);
-              definition.definition.label = id;
-
-              const buffer = translationZip.entryDataSync(key);
-              definition.addFile(buffer);
-
-              const finalResource = await definition.finalize();
-
-              await this.dependency.updatePostProcessedFileDefinition(
-                finalResource
-              );
-              await this.dependency.writeBufferToResource(
-                buffer,
-                finalResource
-              );
-            }
-
-            for (let i = 0; i < existedFiles.length; i += 1) {
-              const { id, key, hash } = existedFiles[i];
-              const resource = existedRecords.find((x) => x.id === id);
-
-              if (!resource) {
-                throw new Error(`Record not existed, this is a bug`);
-              }
-
-              if (resource.type === 'group') {
-                throw new Error(`Record not existed, this is a bug`);
-              }
-
-              if (resource.originalHash === hash) {
-                continue;
-              }
-
-              const buffer = translationZip.entryDataSync(key);
-              this.dependency.writeBufferToResource(buffer, resource);
-            }
           })
       );
     } catch (error) {

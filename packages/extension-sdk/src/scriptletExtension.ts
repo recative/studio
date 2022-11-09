@@ -10,6 +10,7 @@ import type {
   WriteBufferToResource,
   InsertPostProcessedFileDefinition,
   UpdatePostProcessedFileDefinition,
+  WritePathToResource,
 } from './types';
 
 export enum ScriptExecutionMode {
@@ -46,6 +47,7 @@ export interface IScriptletDependency {
   ) => Promise<string>;
   getXxHashOfFile: (path: string) => Promise<string>;
   getXxHashOfBuffer: (buffer: Buffer) => Promise<string>;
+  writePathToResource: WritePathToResource;
   writeBufferToResource: WriteBufferToResource;
   insertPostProcessedFileDefinition: InsertPostProcessedFileDefinition;
   updatePostProcessedFileDefinition: UpdatePostProcessedFileDefinition;

@@ -5,7 +5,7 @@ import { PostProcessedResourceItemForImport } from '@recative/extension-sdk';
 
 import { getDb } from '../db';
 import { getResourceFilePath } from '../../utils/getResourceFile';
-import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
+import { getResourceProcessorInstances } from '../../utils/getResourceProcessorInstances';
 
 export const migration = async () => {
   const db = await getDb();

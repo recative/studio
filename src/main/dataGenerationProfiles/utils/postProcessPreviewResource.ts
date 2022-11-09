@@ -6,7 +6,7 @@ import type {
 import type { ResourceProcessor } from '@recative/extension-sdk';
 
 import { PerformanceLog } from '../../utils/performanceLog';
-import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
+import { getResourceProcessorInstances } from '../../utils/getResourceProcessorInstances';
 
 export const injectByResourceProcessor = async <
   T extends IResourceFileForClient | IResourceGroupForClient

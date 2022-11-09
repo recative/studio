@@ -16,7 +16,7 @@ import { getDb } from '../db';
 import { TaskQueue } from '../../utils/uploadTaskQueue';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../utils/getResourceFile';
-import { getUploaderInstances } from '../../utils/getExtensionInstances';
+import { getUploaderInstances } from '../../utils/getResourceProcessorInstances';
 
 /**
  * Deploy media bundle to remote server.

@@ -22,6 +22,7 @@ import {
   PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForImport,
   IPostProcessedResourceFileForUpload,
+  WritePathToResource,
 } from './types';
 import type { imageThumbnail } from './canvas';
 import type { IConfigUiField } from './settings';
@@ -33,6 +34,7 @@ export interface IResourceExtensionDependency {
     buffer: Buffer,
     fileName: string
   ) => Promise<string>;
+  writePathToResource: WritePathToResource;
   writeBufferToResource: WriteBufferToResource;
   writeBufferToTemporaryFile: (buffer: Buffer) => Promise<string>;
   createTemporaryZip: () => Zip;

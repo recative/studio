@@ -23,7 +23,7 @@ import { transferActPointArtifacts } from './utils/transferActPointArtifacts';
 
 import { getBuildPath } from './setting';
 
-import { getBundlerInstances } from '../../utils/getExtensionInstances';
+import { getBundlerInstances } from '../../utils/getBundlerInstance';
 import {
   ifIsPostProcessed,
   getResourceFilePath,

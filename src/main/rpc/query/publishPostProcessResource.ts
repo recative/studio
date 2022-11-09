@@ -12,7 +12,7 @@ import { logToTerminal } from './terminal';
 import { getDb } from '../db';
 
 import { cloneDeep } from '../../utils/cloneDeep';
-import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
+import { getResourceProcessorInstances } from '../../utils/getResourceProcessorInstances';
 
 export const postProcessResource = async (
   mediaReleaseId: number,
