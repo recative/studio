@@ -67,38 +67,38 @@ export const initializeDb = async <T>(dbPath: string, additionalData: T) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (dbInstance[dbId] as any)[collectionId] = collection;
 
-        const deduplicateSet = new Set();
+        //   const deduplicateSet = new Set();
 
-        const data = collection.data
-          .sort((a, b) => a.meta.created - b.meta.created)
-          .filter((x) => {
-            const duplicated = deduplicateSet.has(x.$loki);
-            deduplicateSet.add(x.$loki);
+        //   const data = collection.data
+        //     .sort((a, b) => a.meta.created - b.meta.created)
+        //     .filter((x) => {
+        //       const duplicated = deduplicateSet.has(x.$loki);
+        //       deduplicateSet.add(x.$loki);
 
-            if (duplicated) {
-              console.warn(
-                `collection=${collection.name}&$loki=${x.$loki} duplicated, will remove it`
-              );
-            }
-            return !duplicated;
-          })
-          .sort((a, b) => a.$loki - b.$loki);
+        //       if (duplicated) {
+        //         console.warn(
+        //           `collection=${collection.name}&$loki=${x.$loki} duplicated, will remove it`
+        //         );
+        //       }
+        //       return !duplicated;
+        //     })
+        //     .sort((a, b) => a.$loki - b.$loki);
 
-        const index = new Array(data.length);
-        for (let i = 0; i < data.length; i += 1) {
-          index[i] = data[i].$loki;
-        }
+        //   const index = new Array(data.length);
+        //   for (let i = 0; i < data.length; i += 1) {
+        //     index[i] = data[i].$loki;
+        //   }
 
-        collection.data = data;
-        collection.idIndex = index;
-        collection.maxId = collection.data?.length
-          ? Math.max(...collection.data.map((x) => x.$loki))
-          : 0;
-        collection.dirty = true;
-        collection.checkAllIndexes({
-          randomSampling: true,
-          repair: true,
-        });
+        //   collection.data = data;
+        //   collection.idIndex = index;
+        //   collection.maxId = collection.data?.length
+        //     ? Math.max(...collection.data.map((x) => x.$loki))
+        //     : 0;
+        //   collection.dirty = true;
+        //   collection.checkAllIndexes({
+        //     randomSampling: true,
+        //     repair: true,
+        //   });
       }
 
       if (collectionDefinition.type === 'view') {
