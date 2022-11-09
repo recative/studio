@@ -120,8 +120,6 @@ export class CrowdinSyncScriptlet extends Scriptlet<
                 `:: :: [${language}]: ${translationUrl.data.url}`
               );
 
-              console.log(translationUrl.data.url);
-
               const filePath = await d.downloadFile(translationUrl.data.url);
               const fileHash = await d.getXxHashOfFile(filePath);
 
