@@ -1,3 +1,4 @@
+import ZipReader from 'node-stream-zip';
 import { readFile } from 'fs/promises';
 
 import {
@@ -9,11 +10,15 @@ import {
 import type { TerminalMessageLevel } from '@recative/studio-definitions';
 
 import { getDb } from '../rpc/db';
-import { importFile } from '../rpc/query/resource';
 import { extensions } from '../extensions';
+import { importFile } from '../rpc/query/resource';
 import { logToTerminal } from '../rpc/query/terminal';
 
+import { downloadFile } from './downloadFile';
 import { getExtensionConfig } from './getExtensionConfig';
+import { writeBufferToResource } from './writeBufferToResource';
+import { insertPostProcessedFileDefinition } from './insertPostProcessedFileDefinition';
+import { updatePostProcessedFileDefinition } from './updatePostProcessedFileDefinition';
 import { getResourceFilePath, getResourceFileBinary } from './getResourceFile';
 
 const scriptletDependency: IScriptletDependency = {
@@ -27,13 +32,21 @@ const scriptletDependency: IScriptletDependency = {
   getXxHashOfFile: async (path) => {
     return xxHash(await readFile(path));
   },
+  getXxHashOfBuffer: (buffer) => {
+    return xxHash(buffer);
+  },
   importFile,
+  downloadFile,
+  readZip: (x: string) => new ZipReader({ file: x }),
   // This will be replaced later
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   db: null as any,
   // This will be replaced later
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logToTerminal: logToTerminal as any,
+  writeBufferToResource,
+  insertPostProcessedFileDefinition,
+  updatePostProcessedFileDefinition,
 };
 
 export const getScriptletInstances = async (terminalId: string) => {

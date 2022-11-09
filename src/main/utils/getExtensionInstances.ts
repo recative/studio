@@ -34,29 +34,25 @@ import type { TerminalMessageLevel } from '@recative/studio-definitions';
 import { Category, IResourceFile } from '@recative/definitions';
 
 import { getDb } from '../rpc/db';
-import { cloneDeep } from './cloneDeep';
 import { extensions } from '../extensions';
 import { cleanupLoki } from '../rpc/query/utils';
 import { getBuildPath } from '../rpc/query/setting';
 import { getWorkspace } from '../rpc/workspace';
 import { logToTerminal } from '../rpc/query/terminal';
 import { getVersionName } from '../rpc/query/utils/getVersionName';
-import { importedFileToFile } from '../rpc/query/utils/importedFileToFile';
 import { STUDIO_BINARY_PATH } from '../constant/appPath';
 import { HOME_DIR, ANDROID_BUILD_TOOLS_PATH } from '../constant/configPath';
 
 import { getExtensionConfig } from './getExtensionConfig';
 import { getResourceFilePath } from './getResourceFile';
+import { writeBufferToResource } from './writeBufferToResource';
 import { promisifySpawn, SpawnFailedError } from './promiseifySpawn';
+import { insertPostProcessedFileDefinition } from './insertPostProcessedFileDefinition';
+import { updatePostProcessedFileDefinition } from './updatePostProcessedFileDefinition';
 
 const resourceProcessorDependencies: IResourceExtensionDependency = {
   getResourceFilePath,
-  writeBufferToResource: async (buffer: Buffer, fileName: string) => {
-    const workspace = getWorkspace();
-    const filePath = join(workspace.mediaPath, fileName);
-    await writeFile(filePath, buffer);
-    return filePath;
-  },
+  writeBufferToResource,
   writeBufferToPostprocessCache: async (buffer: Buffer, fileName: string) => {
     const workspace = getWorkspace();
     const postProcessedPath = join(workspace.mediaPath, 'post-processed');
@@ -101,70 +97,8 @@ const resourceProcessorDependencies: IResourceExtensionDependency = {
 
     db.resource.resources.update(resourceDefinition);
   },
-  insertPostProcessedFileDefinition: async (
-    resource:
-      | PostProcessedResourceItemForUpload
-      | PostProcessedResourceItemForImport,
-    eraseMediaBuildId: number | null = null
-  ) => {
-    const db = await getDb();
-
-    const resourceId = resource.id;
-
-    const resourceDefinition = db.resource.resources.findOne({
-      id: resourceId,
-    });
-
-    if (resourceDefinition) {
-      throw new Error(`Resource ${resourceId} already existed`);
-    }
-
-    const clonedResource = cloneDeep(resource);
-    if ('postProcessRecord' in clonedResource) {
-      clonedResource.postProcessRecord.mediaBundleId =
-        clonedResource.postProcessRecord.mediaBundleId.filter(
-          (x) => x !== eraseMediaBuildId
-        );
-
-      // Here're two extra cleanup to prevent some extension blow up the database.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (clonedResource as any).postProcessedThumbnail;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (clonedResource as any).postProcessedFile;
-
-      db.resource.postProcessed.insert(clonedResource);
-    } else if ('postProcessedThumbnail' in clonedResource) {
-      db.resource.resources.insert(await importedFileToFile(clonedResource));
-    } else {
-      db.resource.resources.insert(clonedResource);
-    }
-  },
-  updatePostProcessedFileDefinition: async (
-    resource:
-      | PostProcessedResourceItemForUpload
-      | PostProcessedResourceItemForImport
-  ) => {
-    const db = await getDb();
-
-    const resourceId = resource.id;
-
-    const resourceDefinition = db.resource.postProcessed.findOne({
-      id: resourceId,
-    });
-
-    if (!resourceDefinition) {
-      throw new Error(`Resource ${resourceId} not found`);
-    }
-
-    Object.keys(cleanupLoki(resourceDefinition)).forEach((x) => {
-      if (x in resource) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (resourceDefinition as any)[x] = (resource as any)[x];
-      }
-    });
-
-    db.resource.postProcessed.update(resourceDefinition);
-  },
+  insertPostProcessedFileDefinition,
+  updatePostProcessedFileDefinition,
   readPathAsBuffer: (path: string) => readFile(path) as Promise<Buffer>,
   // This will be replaced later
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

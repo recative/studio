@@ -13,51 +13,19 @@ import type {
 import { Zip } from './zip';
 import { getFilePath } from './getFilePath';
 import { getFileBuffer } from './getFileBuffer';
+import {
+  IPostProcessRecord,
+  WriteBufferToResource,
+  InsertPostProcessedFileDefinition,
+  UpdatePostProcessedFileDefinition,
+  PostProcessedResourceItemForImport,
+  PostProcessedResourceItemForUpload,
+  IPostProcessedResourceFileForImport,
+  IPostProcessedResourceFileForUpload,
+} from './types';
 import type { imageThumbnail } from './canvas';
 import type { IConfigUiField } from './settings';
 import type { ffmpeg, ffprobe, waveform, screenshot } from './ffmpeg';
-
-export interface IPostProcessOperation {
-  extensionId: string;
-  postProcessHash: string;
-}
-
-export interface IPostProcessRecord {
-  mediaBundleId: number[];
-  operations: IPostProcessOperation[];
-  isNormalResource?: boolean;
-}
-
-export interface IPostProcessRelatedData {
-  postProcessRecord: IPostProcessRecord;
-}
-
-export interface IPostProcessedResourceFileRelatedData {
-  fileName: string;
-}
-
-export interface IPostProcessedResourceFileForUpload
-  extends IPostProcessRelatedData,
-    IResourceFile,
-    IPostProcessedResourceFileRelatedData {}
-
-export interface IPostProcessedResourceGroupForUpload
-  extends IPostProcessRelatedData,
-    IResourceFile {}
-
-export type PostProcessedResourceItemForUpload =
-  | IPostProcessedResourceFileForUpload
-  | IPostProcessedResourceGroupForUpload;
-
-export interface IPostProcessedResourceFileForImport
-  extends Omit<IResourceFile, 'thumbnailSrc'> {
-  postProcessedFile: string | Buffer;
-  postProcessedThumbnail: string | Buffer | null;
-}
-
-export type PostProcessedResourceItemForImport =
-  | IPostProcessedResourceFileForImport
-  | IResourceGroup;
 
 export interface IResourceExtensionDependency {
   getResourceFilePath: (resource: Pick<IResourceFile, 'id'>) => Promise<string>;
@@ -65,7 +33,7 @@ export interface IResourceExtensionDependency {
     buffer: Buffer,
     fileName: string
   ) => Promise<string>;
-  writeBufferToResource: (buffer: Buffer, fileName: string) => Promise<string>;
+  writeBufferToResource: WriteBufferToResource;
   writeBufferToTemporaryFile: (buffer: Buffer) => Promise<string>;
   createTemporaryZip: () => Zip;
   updateResourceDefinition: (
@@ -74,17 +42,8 @@ export interface IResourceExtensionDependency {
       | PostProcessedResourceItemForUpload
       | PostProcessedResourceItemForImport
   ) => Promise<void>;
-  insertPostProcessedFileDefinition: (
-    resource:
-      | PostProcessedResourceItemForUpload
-      | PostProcessedResourceItemForImport,
-    eraseMediaBuildId?: number | null
-  ) => Promise<void>;
-  updatePostProcessedFileDefinition: (
-    resource:
-      | PostProcessedResourceItemForUpload
-      | PostProcessedResourceItemForImport
-  ) => Promise<void>;
+  insertPostProcessedFileDefinition: InsertPostProcessedFileDefinition;
+  updatePostProcessedFileDefinition: UpdatePostProcessedFileDefinition;
   readPathAsBuffer: (path: string) => Promise<Buffer>;
   logToTerminal: (message: string, level?: TerminalMessageLevel) => void;
   md5Hash: (x: Buffer) => Promise<string> | string;

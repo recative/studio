@@ -10,8 +10,7 @@ import type { IResourceFile, IResourceGroup } from '@recative/definitions';
 import { getMimeType } from './getMimeType';
 import { getFilePath } from './getFilePath';
 
-import type { Writable } from './types';
-import type { IPostProcessedResourceFileForImport } from './resourceExtension';
+import type { Writable, IPostProcessedResourceFileForImport } from './types';
 
 export const getFileHash = async (x: string | Buffer) => {
   const binary = typeof x === 'string' ? await readFile(x) : x;
@@ -114,6 +113,10 @@ export class ResourceFileForImport {
       };
     }
   }
+
+  dangerouslyUpdateFileId = (x: string) => {
+    this.definition.id = x;
+  };
 
   addFile = async (x: string | Buffer) => {
     this.definition.postProcessedFile = x;

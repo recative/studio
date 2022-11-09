@@ -147,7 +147,10 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
 
         const tagSignature = `${group.id}::${[
           ...new Set(
-            baseLanguageFile.tags.filter((t) => !t.startsWith('lang:')).sort()
+            baseLanguageFile.tags
+              .filter(Boolean)
+              .filter((t) => !t.startsWith('lang:'))
+              .sort()
           ),
         ].join(',')}`;
 
@@ -164,6 +167,7 @@ export class ResourceI18UtilsScriptlet extends Scriptlet<
         const tagSignature = `${group.id}::${[
           ...new Set(
             workingLanguageFile.tags
+              .filter(Boolean)
               .filter((t) => !t.startsWith('lang:'))
               .sort()
           ),

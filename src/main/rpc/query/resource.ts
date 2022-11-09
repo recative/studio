@@ -1,9 +1,9 @@
-import { basename, join as joinPath, parse as parsePath } from 'path';
+import { basename, parse as parsePath } from 'path';
 
 import console from 'electron-log';
 import { nanoid } from 'nanoid';
 import { uniqBy } from 'lodash';
-import { copy, removeSync, pathExists, remove } from 'fs-extra';
+import { copy, pathExists, remove } from 'fs-extra';
 
 import {
   Category,
@@ -28,16 +28,15 @@ import type {
   IPostProcessedResourceFileForImport,
 } from '@recative/extension-sdk';
 
+import { cleanupLoki } from './utils';
 import { importedFileToFile } from './utils/importedFileToFile';
 
 import { getDb } from '../db';
-import { getWorkspace } from '../workspace';
 
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../utils/getResourceFile';
 import { getResourceProcessorInstances } from '../../utils/getExtensionInstances';
 import { injectResourceUrlForResourceManager } from '../../utils/injectResourceUrl';
-import { cleanupLoki } from './utils';
 
 type GroupTag = typeof groupTags[number];
 

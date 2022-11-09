@@ -1,9 +1,16 @@
 import { IDbInstance } from '@recative/studio-definitions';
 import { IResourceFile, IResourceItem } from '@recative/definitions';
+import ZipReader from 'node-stream-zip';
 
 import { getFilePath } from './getFilePath';
-import type { IConfigUiField } from './settings';
 import { TerminalMessageLevel } from './terminal';
+
+import type { IConfigUiField } from './settings';
+import type {
+  WriteBufferToResource,
+  InsertPostProcessedFileDefinition,
+  UpdatePostProcessedFileDefinition,
+} from './types';
 
 export enum ScriptExecutionMode {
   Terminal = 'terminal',
@@ -38,10 +45,16 @@ export interface IScriptletDependency {
     fileId: Pick<IResourceFile, 'id'>
   ) => Promise<string>;
   getXxHashOfFile: (path: string) => Promise<string>;
+  getXxHashOfBuffer: (buffer: Buffer) => Promise<string>;
+  writeBufferToResource: WriteBufferToResource;
+  insertPostProcessedFileDefinition: InsertPostProcessedFileDefinition;
+  updatePostProcessedFileDefinition: UpdatePostProcessedFileDefinition;
   importFile: (
     filePath: string,
     replaceFileId?: string
   ) => Promise<IResourceItem[]>;
+  downloadFile: (url: string, directory?: string) => Promise<string>;
+  readZip: (path: string) => ZipReader;
   logToTerminal: (message: string, level?: TerminalMessageLevel) => void;
 }
 
