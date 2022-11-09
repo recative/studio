@@ -423,7 +423,7 @@ const useListItemContextMenu = (
             color={
               selectedValue?.managedBy
                 ? theme.colors.buttonDisabledText
-                : theme.colors.buttonPrimaryText
+                : theme.colors.buttonTertiaryText
             }
             cursor={selectedValue?.managedBy ? 'not-allowed' : 'pointer'}
           >
@@ -440,7 +440,7 @@ const useListItemContextMenu = (
             color={
               selectedValue?.managedBy
                 ? theme.colors.buttonDisabledText
-                : theme.colors.buttonPrimaryText
+                : theme.colors.buttonTertiaryText
             }
             cursor={selectedValue?.managedBy ? 'not-allowed' : 'pointer'}
           >
@@ -451,9 +451,9 @@ const useListItemContextMenu = (
     ];
   }, [
     css,
+    selectedValue?.managedBy,
     theme.colors.buttonDisabledText,
-    theme.colors.buttonPrimaryText,
-    selectedValue,
+    theme.colors.buttonTertiaryText,
   ]);
 
   return { triggers, contextMenuItem, handleItemClick };
