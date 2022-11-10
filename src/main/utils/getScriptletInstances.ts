@@ -11,7 +11,7 @@ import type { TerminalMessageLevel } from '@recative/studio-definitions';
 
 import { getDb } from '../rpc/db';
 import { extensions } from '../extensions';
-import { importFile } from '../rpc/query/resource';
+import { addFileToGroup, importFile } from '../rpc/query/resource';
 import { logToTerminal } from '../rpc/query/terminal';
 
 import { downloadFile } from './downloadFile';
@@ -37,6 +37,7 @@ const scriptletDependency: IScriptletDependency = {
     return xxHash(buffer);
   },
   importFile,
+  addFileToGroup,
   downloadFile,
   readZip: (x: string) => new ZipReader({ file: x }),
   // This will be replaced later

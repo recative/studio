@@ -161,21 +161,27 @@ export const removeFileFromGroup = async (resource: IResourceFile) => {
     const targetFile = resourceDb.findOne({ id: resource.id, type: 'file' }) as
       | IResourceFile
       | undefined;
-    const originalGroup = resourceDb.findOne({
-      id: resource.resourceGroupId,
-      type: 'group',
-    }) as IResourceGroup | undefined;
 
     if (!targetFile) {
       throw new Error('File not found');
     }
 
-    if (!originalGroup) {
-      throw new Error('Group not found');
+    if (!targetFile?.resourceGroupId) {
+      return;
     }
+
+    const originalGroup = resourceDb.findOne({
+      id: resource.resourceGroupId,
+      type: 'group',
+    }) as IResourceGroup | undefined;
 
     targetFile.resourceGroupId = '';
     resourceDb.update(targetFile);
+
+    if (!originalGroup) {
+      console.warn('Group not found');
+      return;
+    }
 
     originalGroup.files = originalGroup.files.filter(
       (item) => item !== resource.id

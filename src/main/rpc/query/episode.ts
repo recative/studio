@@ -68,6 +68,7 @@ export const getResourceListOfEpisode = async (
     const idSet = new Set<string>();
 
     return (x: IResourceItem | IPostProcessedResourceFileForUpload) => {
+      if (!x) return false;
       const duplicated = idSet.has(x.id);
       idSet.add(x.id);
       return !duplicated;
@@ -165,7 +166,7 @@ export const getResourceListOfEpisode = async (
     const [extensionKey, extension] = extensionInstances[i];
 
     try {
-      postProcessedResources = await produce(
+      const internalPostProcessedResources = await produce(
         postProcessedResources,
         async (draft) => {
           const result = await extension.beforePublishApplicationBundle(
@@ -176,6 +177,10 @@ export const getResourceListOfEpisode = async (
           return result ?? draft;
         }
       );
+
+      if (internalPostProcessedResources) {
+        postProcessedResources = internalPostProcessedResources;
+      }
     } catch (e) {
       log.error(e);
       throw e;

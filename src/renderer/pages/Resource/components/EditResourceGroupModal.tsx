@@ -208,9 +208,10 @@ const useFileIdToFileMap = (
   const handleAddFile = React.useCallback(
     async (fileId: string | string[]) => {
       const formattedFileIds = Array.isArray(fileId) ? fileId : [fileId];
-      const queriedFiles = await Promise.all(
-        formattedFileIds.map((x) => server.getResource(x)).filter(Boolean)
-      );
+
+      const queriedFiles = (
+        await Promise.all(formattedFileIds.map((x) => server.getResource(x)))
+      ).filter(Boolean);
 
       if (!queriedFiles.length) {
         throw new Error('File not found');
@@ -227,7 +228,7 @@ const useFileIdToFileMap = (
       }
 
       setFileIdToFileMap((draft) => {
-        for (let i = 0; i < formattedFileIds.length; i += 1) {
+        for (let i = 0; i < queriedFiles.length; i += 1) {
           const queriedFile = queriedFiles[i] as IResourceFile;
 
           draft[queriedFile.id] = {
