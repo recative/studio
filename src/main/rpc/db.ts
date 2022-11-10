@@ -11,6 +11,8 @@ import { initializeDb } from './db/initializer';
 
 let currentDb: IDbInstance<Record<string, unknown>> | null = null;
 
+Reflect.set(globalThis, '__getDatabase__', () => currentDb);
+
 export const getDb = async (
   yamlPath: string | null = null,
   temporary = false,
