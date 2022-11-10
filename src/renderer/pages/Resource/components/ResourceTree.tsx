@@ -129,6 +129,14 @@ export const InternalResourceTree: React.FC = () => {
           {
             id: 20,
             label: internalGetLabelButton({
+              label: 'Any',
+              tags: null,
+              episodeIds: null,
+            }),
+          },
+          {
+            id: 20,
+            label: internalGetLabelButton({
               label: 'Empty',
               tags: null,
               episodeIds: ['empty'],
