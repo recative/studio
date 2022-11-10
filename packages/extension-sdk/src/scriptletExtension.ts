@@ -55,6 +55,7 @@ export interface IScriptletDependency {
     filePath: string,
     replaceFileId?: string
   ) => Promise<IResourceItem[]>;
+  addFileToGroup: (resource: IResourceFile, groupId: string) => Promise<void>;
   downloadFile: (url: string, directory?: string) => Promise<string>;
   readZip: (path: string) => ZipReader;
   logToTerminal: (message: string, level?: TerminalMessageLevel) => void;

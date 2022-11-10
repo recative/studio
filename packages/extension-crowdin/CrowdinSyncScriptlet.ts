@@ -8,6 +8,7 @@ import {
   ScriptExecutionMode,
   TerminalMessageLevel,
 } from '@recative/extension-sdk';
+import { IResourceGroup } from '@recative/definitions';
 
 export interface ICrowdinSyncScriptletConfig {
   personalAccessToken: string;
@@ -102,14 +103,38 @@ export class CrowdinSyncScriptlet extends Scriptlet<
       d.logToTerminal(`:: Downloading:`);
 
       await Promise.all(
-        this.config.targetLanguageIds
-          .split(';')
-          .map((x) => x.trim())
-          .flatMap((language) => {
-            return projectFileMetadata.data.map(async (file) => {
-              const fileId = file.data.id;
-              const fileName = file.data.name;
+        projectFileMetadata.data.flatMap((file) => {
+          const fileId = file.data.id;
+          const fileName = file.data.name;
+          const groupId = `@crowdin/${project.data.id}/${file.data.id}`;
 
+          const existedResourceGroup = d.db.resource.resources.find({
+            id: groupId,
+          });
+
+          if (!existedResourceGroup) {
+            const newGroup: IResourceGroup = {
+              type: 'group',
+              id: groupId,
+              label: `@Crowdin/${fileName}`,
+              thumbnailSrc: '',
+              tags: [],
+              importTime: Date.now(),
+              files: [],
+              removed: false,
+              removedTime: -1,
+            };
+
+            d.db.resource.resources.insert(newGroup);
+            d.logToTerminal(`:: Group "${groupId}" created`);
+          } else {
+            d.logToTerminal(`:: Group "${groupId}" existed`);
+          }
+
+          return this.config.targetLanguageIds
+            .split(';')
+            .map((x) => x.trim())
+            .map(async (language) => {
               const translationUrl =
                 await translationsApi.exportProjectTranslation(projectId, {
                   fileIds: [fileId],
@@ -126,16 +151,24 @@ export class CrowdinSyncScriptlet extends Scriptlet<
               const crowdinId = `@@CROWDIN/${this.config.projectName}/${fileId}`;
 
               const resource = d.db.resource.resources.findOne({
+                removed: false,
                 [`extensionConfigurations.${CrowdinSyncScriptlet.id}~~crowdinId`]:
                   crowdinId,
               });
 
               if (resource) {
                 if (resource.type === 'group') {
-                  throw new Error(`Record not existed, this is a bug`);
+                  throw new Error(`Record is a group, this is a bug`);
                 }
 
-                if (resource.originalHash === fileHash) return;
+                d.logToTerminal(
+                  `:: :: :: Found existed record ${resource.label} (${resource.id})`
+                );
+
+                if (resource.originalHash === fileHash) {
+                  d.logToTerminal(`:: :: :: File not modified, skip`);
+                  return;
+                }
               }
 
               const nextResource = await d.importFile(
@@ -143,19 +176,54 @@ export class CrowdinSyncScriptlet extends Scriptlet<
                 resource ? resource.id : undefined
               );
 
-              nextResource.forEach((x) => {
-                const tagSet = new Set(x.tags);
-                tagSet.add(`lang:${language}`);
-                x.tags = [...tagSet];
-                x.label = `@Crowdin/${fileName}/${language}`;
-              });
+              d.logToTerminal(
+                `:: :: [${language}]: File imported ${nextResource
+                  .map((x) => x.id)
+                  .join(', ')}`
+              );
 
-              d.db.resource.resources.update(nextResource);
+              d.db.resource.resources.findAndUpdate(
+                {
+                  id: {
+                    $in: nextResource.map((x) => x.id),
+                  },
+                },
+                (x) => {
+                  const tagSet = new Set(x.tags);
+                  tagSet.add(`lang:${language}`);
+
+                  x.tags = [...tagSet];
+                  x.label = `@Crowdin/${fileName}/${language}`;
+                  if (x.type === 'file') {
+                    x.extensionConfigurations[
+                      `${CrowdinSyncScriptlet.id}~~crowdinId`
+                    ] = crowdinId;
+
+                    x.resourceGroupId = groupId;
+                  }
+
+                  return x;
+                }
+              );
             });
-          })
+        })
       );
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const errorCode = error instanceof Error ? error.name : String(error);
+
+      // eslint-disable-next-line no-console
       console.error(error);
+
+      d.logToTerminal(
+        `:: Error(${errorCode}): ${errorMessage}`,
+        TerminalMessageLevel.Error
+      );
+      return {
+        ok: false,
+        message: errorMessage,
+      };
     }
 
     return {
