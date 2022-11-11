@@ -8,7 +8,9 @@ export const mergeFileConfigurationToManagedFile = <
   file: T,
   files: T[]
 ) => {
-  const mainFileTags = file.tags.filter((x) => !x.endsWith('!'));
+  const mainFileTags = file.tags
+    .filter(Boolean)
+    .filter((x) => !x.endsWith('!'));
 
   files.forEach((x) => {
     x.tags = [...x.tags.filter((tag) => tag.endsWith('!')), ...mainFileTags];
