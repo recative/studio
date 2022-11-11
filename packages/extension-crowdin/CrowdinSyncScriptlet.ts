@@ -106,9 +106,9 @@ export class CrowdinSyncScriptlet extends Scriptlet<
         projectFileMetadata.data.flatMap((file) => {
           const fileId = file.data.id;
           const fileName = file.data.name;
-          const groupId = `@crowdin/${project.data.id}/${file.data.id}`;
+          const groupId = `@Crowdin/${project.data.name}/${file.data.name}`;
 
-          const existedResourceGroup = d.db.resource.resources.find({
+          const existedResourceGroup = d.db.resource.resources.findOne({
             id: groupId,
           });
 
@@ -116,7 +116,7 @@ export class CrowdinSyncScriptlet extends Scriptlet<
             const newGroup: IResourceGroup = {
               type: 'group',
               id: groupId,
-              label: `@Crowdin/${fileName}`,
+              label: groupId,
               thumbnailSrc: '',
               tags: [],
               importTime: Date.now(),
@@ -128,6 +128,9 @@ export class CrowdinSyncScriptlet extends Scriptlet<
             d.db.resource.resources.insert(newGroup);
             d.logToTerminal(`:: Group "${groupId}" created`);
           } else {
+            if (existedResourceGroup.type !== 'group') {
+              throw new TypeError(`Resource is not a group, this is a bug!`);
+            }
             d.logToTerminal(`:: Group "${groupId}" existed`);
           }
 
@@ -182,11 +185,19 @@ export class CrowdinSyncScriptlet extends Scriptlet<
                   .join(', ')}`
               );
 
+              const nextResourceIds = nextResource.map((x) => x.id);
+
+              d.db.resource.resources.findAndUpdate({ id: groupId }, (x) => {
+                if (x.type !== 'group') {
+                  throw new TypeError(`Resource is not a group, this is a bug`);
+                }
+
+                x.files = [...new Set([...x.files, ...nextResourceIds])];
+              });
+
               d.db.resource.resources.findAndUpdate(
                 {
-                  id: {
-                    $in: nextResource.map((x) => x.id),
-                  },
+                  id: { $in: nextResourceIds },
                 },
                 (x) => {
                   const tagSet = new Set(x.tags);
