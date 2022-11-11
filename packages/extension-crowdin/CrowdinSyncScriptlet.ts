@@ -102,123 +102,152 @@ export class CrowdinSyncScriptlet extends Scriptlet<
 
       d.logToTerminal(`:: Downloading:`);
 
-      await Promise.all(
-        projectFileMetadata.data.flatMap((file) => {
-          const fileId = file.data.id;
-          const fileName = file.data.name;
-          const groupId = `@Crowdin/${project.data.name}/${file.data.name}`;
+      const crowdinFiles = projectFileMetadata.data;
 
-          const existedResourceGroup = d.db.resource.resources.findOne({
+      for (let h = 0; h < crowdinFiles.length; h += 1) {
+        const file = crowdinFiles[h];
+
+        const fileId = file.data.id;
+        const fileName = file.data.name;
+        const groupId = `@Crowdin/${project.data.name}/${file.data.name}`;
+
+        const existedResourceGroup = d.db.resource.resources.findOne({
+          id: groupId,
+        });
+
+        if (!existedResourceGroup) {
+          const newGroup: IResourceGroup = {
+            type: 'group',
             id: groupId,
+            label: groupId,
+            thumbnailSrc: '',
+            tags: [],
+            importTime: Date.now(),
+            files: [],
+            removed: false,
+            removedTime: -1,
+          };
+
+          d.db.resource.resources.insert(newGroup);
+          d.logToTerminal(`:: Group "${groupId}" created`);
+        } else {
+          if (existedResourceGroup.type !== 'group') {
+            throw new TypeError(`Resource is not a group, this is a bug!`);
+          }
+          d.logToTerminal(`:: Group "${groupId}" existed`);
+        }
+
+        const languages = this.config.targetLanguageIds
+          .split(';')
+          .map((x) => x.trim());
+
+        for (let i = 0; i < languages.length; i += 1) {
+          const language = languages[i];
+
+          const translationUrl = await translationsApi.exportProjectTranslation(
+            projectId,
+            {
+              fileIds: [fileId],
+              targetLanguageId: languageIdMap[language] ?? language,
+            }
+          );
+
+          d.logToTerminal(`:: :: [${language}]: ${translationUrl.data.url}`);
+
+          const filePath = await d.downloadFile(translationUrl.data.url);
+          const fileHash = await d.getXxHashOfFile(filePath);
+
+          const crowdinId = `@@CROWDIN/${this.config.projectName}/${fileId}/${language}`;
+
+          const resource = d.db.resource.resources.findOne({
+            removed: false,
+            [`extensionConfigurations.${CrowdinSyncScriptlet.id}~~crowdinId`]:
+              crowdinId,
           });
 
-          if (!existedResourceGroup) {
-            const newGroup: IResourceGroup = {
-              type: 'group',
-              id: groupId,
-              label: groupId,
-              thumbnailSrc: '',
-              tags: [],
-              importTime: Date.now(),
-              files: [],
-              removed: false,
-              removedTime: -1,
-            };
+          const nextResourceIds: string[] = [];
 
-            d.db.resource.resources.insert(newGroup);
-            d.logToTerminal(`:: Group "${groupId}" created`);
-          } else {
-            if (existedResourceGroup.type !== 'group') {
-              throw new TypeError(`Resource is not a group, this is a bug!`);
+          if (resource) {
+            if (resource.type === 'group') {
+              throw new Error(`Record is a group, this is a bug`);
             }
-            d.logToTerminal(`:: Group "${groupId}" existed`);
-          }
 
-          return this.config.targetLanguageIds
-            .split(';')
-            .map((x) => x.trim())
-            .map(async (language) => {
-              const translationUrl =
-                await translationsApi.exportProjectTranslation(projectId, {
-                  fileIds: [fileId],
-                  targetLanguageId: languageIdMap[language] ?? language,
-                });
+            d.logToTerminal(
+              `:: :: :: Found existed record ${resource.label} (${resource.id})`
+            );
 
-              d.logToTerminal(
-                `:: :: [${language}]: ${translationUrl.data.url}`
-              );
+            if (resource.originalHash === fileHash) {
+              d.logToTerminal(`:: :: :: File not modified, skip`);
 
-              const filePath = await d.downloadFile(translationUrl.data.url);
-              const fileHash = await d.getXxHashOfFile(filePath);
-
-              const crowdinId = `@@CROWDIN/${this.config.projectName}/${fileId}`;
-
-              const resource = d.db.resource.resources.findOne({
-                removed: false,
-                [`extensionConfigurations.${CrowdinSyncScriptlet.id}~~crowdinId`]:
-                  crowdinId,
-              });
-
-              if (resource) {
-                if (resource.type === 'group') {
-                  throw new Error(`Record is a group, this is a bug`);
-                }
-
-                d.logToTerminal(
-                  `:: :: :: Found existed record ${resource.label} (${resource.id})`
-                );
-
-                if (resource.originalHash === fileHash) {
-                  d.logToTerminal(`:: :: :: File not modified, skip`);
-                  return;
-                }
-              }
-
+              nextResourceIds.push(resource.id);
+            } else {
               const nextResource = await d.importFile(
                 filePath,
                 resource ? resource.id : undefined
               );
 
               d.logToTerminal(
-                `:: :: [${language}]: File imported ${nextResource
+                `:: :: :: File replaced ${nextResource
                   .map((x) => x.id)
                   .join(', ')}`
               );
 
-              const nextResourceIds = nextResource.map((x) => x.id);
+              nextResourceIds.push(...nextResource.map((x) => x.id));
+            }
+          } else {
+            const nextResource = await d.importFile(filePath);
 
-              d.db.resource.resources.findAndUpdate({ id: groupId }, (x) => {
-                if (x.type !== 'group') {
-                  throw new TypeError(`Resource is not a group, this is a bug`);
-                }
+            d.logToTerminal(
+              `:: :: :: File imported ${nextResource
+                .map((x) => x.id)
+                .join(', ')}`
+            );
 
-                x.files = [...new Set([...x.files, ...nextResourceIds])];
-              });
+            nextResourceIds.push(...nextResource.map((x) => x.id));
+          }
 
-              d.db.resource.resources.findAndUpdate(
-                {
-                  id: { $in: nextResourceIds },
-                },
-                (x) => {
-                  const tagSet = new Set(x.tags);
-                  tagSet.add(`lang:${language}`);
+          d.logToTerminal(
+            `:: :: :: Updating file ids: ${nextResourceIds.join(', ')}`
+          );
 
-                  x.tags = [...tagSet];
-                  x.label = `@Crowdin/${fileName}/${language}`;
-                  if (x.type === 'file') {
-                    x.extensionConfigurations[
-                      `${CrowdinSyncScriptlet.id}~~crowdinId`
-                    ] = crowdinId;
+          d.db.resource.resources.findAndUpdate({ id: groupId }, (x) => {
+            if (x.type !== 'group') {
+              throw new TypeError(`Resource is not a group, this is a bug`);
+            }
 
-                    x.resourceGroupId = groupId;
-                  }
+            d.logToTerminal(`:: :: :: ID Changes:`);
+            d.logToTerminal(`:: :: :: :: From: ${x.files.join(', ')}`);
+            const nextFiles = [...new Set([...x.files, ...nextResourceIds])];
 
-                  return x;
-                }
-              );
-            });
-        })
-      );
+            x.files = nextFiles;
+            d.logToTerminal(`:: :: :: :: To: ${nextFiles.join(', ')}`);
+
+            return x;
+          });
+
+          d.db.resource.resources.findAndUpdate(
+            {
+              id: { $in: nextResourceIds },
+            },
+            (x) => {
+              const tagSet = new Set(x.tags);
+              tagSet.add(`lang:${language}`);
+
+              x.tags = [...tagSet];
+              x.label = `@Crowdin/${fileName}/${language}`;
+              if (x.type === 'file') {
+                x.extensionConfigurations[
+                  `${CrowdinSyncScriptlet.id}~~crowdinId`
+                ] = crowdinId;
+
+                x.resourceGroupId = groupId;
+              }
+
+              return x;
+            }
+          );
+        }
+      }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
