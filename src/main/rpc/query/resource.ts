@@ -525,6 +525,35 @@ export const filterResourcePreloadLevel = async (
   return result;
 };
 
+export const filterGhostFiles = async (): Promise<IResourceItem[]> => {
+  const db = await getDb();
+
+  const resourceGroups = new Set(
+    db.resource.resources
+      .chain()
+      .find({
+        removed: false,
+        type: 'group',
+      })
+      .data()
+      .map((x) => x.id)
+  );
+
+  const result = db.resource.resources
+    .chain()
+    .find({
+      removed: false,
+      type: 'file',
+      resourceGroupId: {
+        $nin: [...resourceGroups],
+      },
+    })
+    .simplesort('importTime', { desc: true })
+    .data();
+
+  return result;
+};
+
 export const listGroups = async (groupId: string[]) => {
   const db = await getDb();
 

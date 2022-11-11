@@ -217,7 +217,9 @@ const useResources = (searchTerm: string) => {
     async () => {
       let currentResources: IResourceItem[];
 
-      if (selectedTags?.[0].tags) {
+      if (selectedTags?.[0].isGhost) {
+        currentResources = await server.filterGhostFiles();
+      } else if (selectedTags?.[0].tags) {
         currentResources = await server.filterResourceByTag(
           selectedTags[0].tags,
           searchTerm

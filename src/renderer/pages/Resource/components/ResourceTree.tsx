@@ -22,6 +22,7 @@ export interface IFilterLabels {
   tags: string[] | null;
   episodeIds?: string[] | null;
   preloadLevel?: PreloadLevel | null;
+  isGhost?: boolean;
 }
 
 const STATEFUL_TREE_OVERRIDE = {
@@ -203,6 +204,22 @@ export const InternalResourceTree: React.FC = () => {
               label: 'After Application',
               tags: null,
               preloadLevel: PreloadLevel.AfterApp,
+            }),
+          },
+        ],
+      },
+      {
+        id: 3,
+        label: getSimpleButtonLabel('For Developers'),
+        isExpanded: true,
+        children: [
+          {
+            id: 30,
+            label: internalGetLabelButton({
+              label: 'Ghost Files',
+              tags: null,
+              preloadLevel: null,
+              isGhost: true,
             }),
           },
         ],
