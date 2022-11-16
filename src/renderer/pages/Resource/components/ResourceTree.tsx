@@ -209,7 +209,7 @@ export const InternalResourceTree: React.FC = () => {
         ],
       },
       {
-        id: 3,
+        id: 4,
         label: getSimpleButtonLabel('For Developers'),
         isExpanded: true,
         children: [
