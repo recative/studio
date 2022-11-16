@@ -28,7 +28,6 @@ export class LokiStreamedFsAdapter {
       }
 
       const pipeline = chain([fs.createReadStream(dbName), parser()]);
-
       const assembler = Assembler.connectTo(pipeline);
 
       assembler.on('done', (asm) => {
