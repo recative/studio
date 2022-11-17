@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { fileSync } from 'tmp';
+import { tmpNameSync } from 'tmp';
 import { Readable } from 'stream';
 import { stat, move, remove } from 'fs-extra';
 
@@ -46,8 +46,7 @@ export class LokiStreamedFsAdapter {
     dbReference: object,
     callback: (x: Error | null) => void
   ) => {
-    const tmpFile = fileSync();
-    const tmpDbName = tmpFile.name;
+    const tmpDbName = `${tmpNameSync()}.recative.db`;
     try {
       await remove(tmpDbName);
       const writeStream = fs.createWriteStream(tmpDbName);
