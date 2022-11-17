@@ -5468,6 +5468,8 @@ __metadata:
     "@types/react-router-dom": 5.3.3
     "@types/react-table": ^7.7.2
     "@types/react-test-renderer": ^16.9.3
+    "@types/stream-chain": ^2.0.1
+    "@types/stream-json": ^1.7.2
     "@types/styletron-engine-atomic": ^1.1.1
     "@types/styletron-react": ^5.0.3
     "@types/styletron-standard": ^2.0.2
@@ -5597,6 +5599,8 @@ __metadata:
     sass-loader: ^12.6.0
     selfsigned: ^1.10.11
     source-map-support: 0.5.19
+    stream-chain: ^2.2.5
+    stream-json: ^1.7.4
     style-loader: ^2.0.0
     styletron-engine-atomic: ^1.4.8
     styletron-engine-monolithic: ^0.0.5
@@ -6679,6 +6683,25 @@ __metadata:
   version: 2.0.1
   resolution: "@types/stack-utils@npm:2.0.1"
   checksum: 205fdbe3326b7046d7eaf5e494d8084f2659086a266f3f9cf00bccc549c8e36e407f88168ad4383c8b07099957ad669f75f2532ed4bc70be2b037330f7bae019
+  languageName: node
+  linkType: hard
+
+"@types/stream-chain@npm:*, @types/stream-chain@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@types/stream-chain@npm:2.0.1"
+  dependencies:
+    "@types/node": "*"
+  checksum: 6a59da0374a74ad6aff48c669c72d3060d428d1015af94b00d290ede68706781a8419daf490af7935f0f9f2796da6965aead74ad1795f72c488630451241db55
+  languageName: node
+  linkType: hard
+
+"@types/stream-json@npm:^1.7.2":
+  version: 1.7.2
+  resolution: "@types/stream-json@npm:1.7.2"
+  dependencies:
+    "@types/node": "*"
+    "@types/stream-chain": "*"
+  checksum: f11e1332f2f0ec38626890d37d3091303067b5f3c5136811821070a1ce40f848a7745f179913ff20516f92c080082c4db6e3ea66d62549222d50965903030f24
   languageName: node
   linkType: hard
 
@@ -22889,6 +22912,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"stream-chain@npm:^2.2.5":
+  version: 2.2.5
+  resolution: "stream-chain@npm:2.2.5"
+  checksum: c83cbf504bd11e2bcbe761a92801295b3decac7ffa4092ceffca2eb1b5d0763bcc511fa22cd8044e8a18c21ca66794fd10c8d9cd1292a3e6c0d83a4194c6b8ed
+  languageName: node
+  linkType: hard
+
 "stream-http@npm:2.8.2":
   version: 2.8.2
   resolution: "stream-http@npm:2.8.2"
@@ -22899,6 +22929,15 @@ resolve@^2.0.0-next.3:
     to-arraybuffer: ^1.0.0
     xtend: ^4.0.0
   checksum: d72df90581ba5acb93b84d5e80fda1b40b149c3e0c893193b378dc4cc262dd737c202b0c8b0a8155a063ede8bc719c393e3ea089fd10f29a72d2f64676c990f5
+  languageName: node
+  linkType: hard
+
+"stream-json@npm:^1.7.4":
+  version: 1.7.4
+  resolution: "stream-json@npm:1.7.4"
+  dependencies:
+    stream-chain: ^2.2.5
+  checksum: 50aca250cedde7b35fcc12b3f4936d28431f351392f25f1baa7898b618d363368f8049af07c486ce7c47ee19ea15fd31642df0819e62e514c6193f1e2b05d85e
   languageName: node
   linkType: hard
 
