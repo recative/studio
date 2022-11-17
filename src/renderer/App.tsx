@@ -22,14 +22,12 @@ import { Setting } from './pages/Setting/Setting';
 import { Preview } from './pages/Preview/Preview';
 import { Resource } from './pages/Resource/Resource';
 import { ActPoint } from './pages/ActPoint/ActPoint';
-import { UserInfo } from './pages/User/UserInfo';
 import { NewResource } from './pages/Welcome/NewResource';
 import { PreviewPlayer } from './pages/Preview/PreviewPlayer';
 import { ImportResource } from './pages/Welcome/ImportResource';
 import { InitializeErrorModal } from './pages/Server/components/InitializeErrorModal';
 import { MergeResourceDatabase } from './pages/Utils/MergeResourceDatabase';
 
-import { User } from './components/ContextMenu/User';
 import { TerminalModal } from './components/Terminal/TerminalModal';
 import { ResourceSearchModal } from './components/ResourceSearchModal/ResourceSearchModal';
 
@@ -112,9 +110,7 @@ export const InternalStudioTitleBar = () => {
         onMaximizeClick={handleMaximizeClick}
         onMinimizeClick={() => server.minimizeMainWindow()}
         onRestoreDownClick={handleUnMaximizeClick}
-      >
-        <User />
-      </TitleBar>
+      />
     </RecativeBlock>
   );
 };

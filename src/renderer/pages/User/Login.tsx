@@ -13,11 +13,12 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { server } from 'utils/rpc';
 
+import { USER_INFO_MODAL_OPEN } from 'stores/ProjectDetail';
 import {
-  ACT_SERVER_BASE,
-  USER_INFO_MODAL_OPEN,
-  USER_LOGIN_MODAL_OPEN,
-} from 'stores/ProjectDetail';
+  useFormChangeCallbacks,
+  useOnChangeEventWrapperForStringType,
+} from 'utils/hooks/useFormChangeCallbacks';
+import { ContentContainer } from 'components/Layout/ContentContainer';
 
 interface IUser {
   token: string;
@@ -26,29 +27,33 @@ interface IUser {
   label: string;
 }
 
+const DEFAULT_FORM_DATA = {
+  actServer: '',
+  token: '',
+};
+
 export const Login: React.FC = () => {
   const [, setUser] = React.useState<IUser | null>(null);
-  const [email, setEmail] = React.useState<string>('');
-  const [password, setPassword] = React.useState<string>('');
 
-  const [actServer, setActServer] = useAtom(ACT_SERVER_BASE);
-
-  const [isLoginModalOpen, setIsLoginModalOpen] = useAtom(
-    USER_LOGIN_MODAL_OPEN
-  );
   const [, setIsUserInfoOpen] = useAtom(USER_INFO_MODAL_OPEN);
+
+  const [actServerValue, valueChangeCallbacks] =
+    useFormChangeCallbacks(DEFAULT_FORM_DATA);
+
+  const handleActServerChange = useOnChangeEventWrapperForStringType(
+    valueChangeCallbacks.actServer
+  );
+
+  const handleTokenChange = useOnChangeEventWrapperForStringType(
+    valueChangeCallbacks.token
+  );
 
   const loginButtonClick = React.useCallback(() => {
     (async () => {
-      const { code, ...thisUser } = await server.userLogin(
-        email,
-        password,
-        actServer
-      );
+      const { code, ...thisUser } = await server.userLogin(token, actServer);
 
       if (thisUser && 'id' in thisUser) {
         setUser(thisUser);
-        setIsLoginModalOpen(false);
         setIsUserInfoOpen(true);
       } else {
         toaster.info(`Failed to login: ${code || 'Unknown Error'}`, {
@@ -56,55 +61,35 @@ export const Login: React.FC = () => {
         });
       }
     })();
-  }, [email, password, actServer, setIsLoginModalOpen, setIsUserInfoOpen]);
+  }, [setIsUserInfoOpen]);
 
   return (
     <PivotLayout>
-      <RecativeBlock
-        width="100vw"
-        height="calc(100vh - 30px)"
-        display={isLoginModalOpen ? 'flex' : 'none'}
-        justifyContent="center"
-        alignItems="center"
-        position="fixed"
-        bottom="0"
-        backgroundColor="#FFFFFF"
-      >
+      <ContentContainer width={600}>
         <ToasterContainer
           autoHideDuration={3000}
           placement={PLACEMENT.bottomRight}
         />
-        <RecativeBlock
-          width="50%"
-          padding="32px 48px 48px 48px"
-          border="2px solid #DDD"
-        >
+        <RecativeBlock marginTop="40px">
           <RecativeBlock>
             <HeadingXXLarge>Login</HeadingXXLarge>
-            <FormControl label="Act Server">
+            <FormControl
+              label="Act Server"
+              caption="An authentication server instance deployed by your team, or a public server."
+            >
               <Input
-                value={actServer}
-                onChange={(e) => {
-                  setActServer(e.currentTarget.value);
-                }}
+                value={actServerValue.actServer}
+                onChange={handleActServerChange}
               />
             </FormControl>
-            <FormControl label="Email Address">
+            <FormControl
+              label="Token"
+              caption="A Token provided by the manager of your team, which should have content deployment permissions."
+            >
               <Input
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.currentTarget.value);
-                }}
-              />
-            </FormControl>
-            <FormControl label="Password">
-              <Input
-                value={password}
                 type="password"
-                clearOnEscape
-                onChange={(e) => {
-                  setPassword(e.currentTarget.value);
-                }}
+                value={actServerValue.token}
+                onChange={handleTokenChange}
               />
             </FormControl>
           </RecativeBlock>
@@ -112,7 +97,7 @@ export const Login: React.FC = () => {
             <Button onClick={loginButtonClick}>Login</Button>
           </RecativeBlock>
         </RecativeBlock>
-      </RecativeBlock>
+      </ContentContainer>
     </PivotLayout>
   );
 };
