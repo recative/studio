@@ -48,13 +48,9 @@ export class LokiStreamedFsAdapter {
     const tmpDbName = `${dbName}~`;
     try {
       await remove(tmpDbName);
-
       const writeStream = fs.createWriteStream(tmpDbName);
 
-      const source = new Readable({
-        objectMode: true,
-      });
-
+      const source = new Readable({ objectMode: true });
       source.push(dbReference);
       source.push(null);
 

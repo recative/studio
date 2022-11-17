@@ -3,7 +3,13 @@ import { LokiStreamedFsAdapter } from './LokiFsStreamedAdapter';
 
 import { ifDbLocked } from '../rpc/query/lock';
 
-export class LokiWorkspaceLockSafeFsAdapter extends LokiStreamedFsAdapter {
+export class LokiWorkspaceLockSafeFsAdapter {
+  mode = 'reference';
+
+  streamedAdapter = new LokiStreamedFsAdapter();
+
+  loadDatabase = this.streamedAdapter.loadDatabase;
+
   exportDatabase = async (
     databaseName: string,
     dbref: object,
@@ -13,6 +19,6 @@ export class LokiWorkspaceLockSafeFsAdapter extends LokiStreamedFsAdapter {
       throw new WorkspaceLockedError();
     }
 
-    super.exportDatabase(databaseName, dbref, callback);
+    this.streamedAdapter.exportDatabase(databaseName, dbref, callback);
   };
 }
