@@ -332,8 +332,8 @@ const updateManagedResources = async (item: IResourceItem) => {
       MANAGED_RESOURCE_FILE_KEYS.forEach((key) => {
         if (key === 'tags') {
           managedItem[key] = [
-            ...managedItem[key].filter((x) => x.endsWith('!')),
-            ...item[key].filter((x) => !x.endsWith('!')),
+            ...managedItem[key].filter((x) => x?.endsWith('!')),
+            ...item[key].filter((x) => !x?.endsWith('!')),
           ];
         } else {
           // TypeScript can't detect the type of item[key] here.
