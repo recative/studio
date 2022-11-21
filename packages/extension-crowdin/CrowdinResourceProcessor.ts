@@ -1,15 +1,10 @@
-import { IResourceItem } from '@recative/definitions';
-import {
-  IPostProcessedResourceFileForImport,
-  PostProcessedResourceItemForUpload,
-  ResourceProcessor,
-} from '@recative/extension-sdk';
+import { ResourceProcessor } from '@recative/extension-sdk';
 import { CrowdinSyncScriptlet } from './CrowdinSyncScriptlet';
 
 export class CrowdinResourceProcessor extends ResourceProcessor<string> {
-  static id = '@recative/extension-rs-atlas/AtlasResourceProcessor';
+  static id = '@recative/extension-crowdin/CrowdinResourceProcessor';
 
-  static label = 'Atlas';
+  static label = 'Crowdin';
 
   static resourceConfigUiFields = [] as const;
 
