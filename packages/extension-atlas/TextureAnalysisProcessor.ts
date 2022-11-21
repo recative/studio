@@ -5,7 +5,7 @@ import { Image, createCanvas } from '@napi-rs/canvas';
 
 import { ResourceProcessor } from '@recative/extension-sdk';
 
-import type { IResourceItem } from '@recative/definitions';
+import type { IResourceFile, IResourceItem } from '@recative/definitions';
 import type {
   PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForUpload,
@@ -50,7 +50,7 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
     return resources;
   }
 
-  private getImageData = (x: Image) => {
+  static getImageData = (x: Image) => {
     const canvas = createCanvas(x.width, x.height);
     const ctx = canvas.getContext('2d');
 
@@ -62,8 +62,9 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
     return ctx.getImageData(0, 0, x.width, x.height);
   };
 
-  private calculateImageEnvelope = (
+  static calculateImageEnvelope = (
     resource:
+      | IResourceFile
       | IPostProcessedResourceFileForImport
       | IPostProcessedResourceFileForUpload,
     image: Image
@@ -184,7 +185,7 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
         resource.postProcessedFile
       );
 
-      this.calculateImageEnvelope(resource, image);
+      TextureAnalysisProcessor.calculateImageEnvelope(resource, image);
     }
     return resources;
   };

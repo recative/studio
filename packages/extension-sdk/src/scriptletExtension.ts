@@ -12,6 +12,7 @@ import type {
   UpdatePostProcessedFileDefinition,
   WritePathToResource,
 } from './types';
+import { getFileBuffer } from './getFileBuffer';
 
 export enum ScriptExecutionMode {
   Terminal = 'terminal',
@@ -38,6 +39,7 @@ export interface IResourceScript {
 export interface IScriptletDependency {
   db: IDbInstance<unknown>;
   getFilePath: typeof getFilePath;
+  getFileBuffer: typeof getFileBuffer;
   getResourceFilePath: (resource: Pick<IResourceFile, 'id'>) => Promise<string>;
   getResourceFileBinary: (
     resource: Pick<IResourceFile, 'id'>

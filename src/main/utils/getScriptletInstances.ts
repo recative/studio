@@ -5,6 +5,7 @@ import {
   xxHash,
   Scriptlet,
   getFilePath,
+  getFileBuffer,
   IScriptletDependency,
 } from '@recative/extension-sdk';
 import type { TerminalMessageLevel } from '@recative/studio-definitions';
@@ -24,6 +25,7 @@ import { getResourceFilePath, getResourceFileBinary } from './getResourceFile';
 
 const scriptletDependency: IScriptletDependency = {
   getFilePath,
+  getFileBuffer,
   getResourceFilePath,
   getResourceFileBinary,
   getXxHashOfResourceFile: async (resource) => {
