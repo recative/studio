@@ -39,6 +39,9 @@ export class AtlasResourceScriptlet extends Scriptlet<string> {
             $eq: '0',
           },
           {
+            $eq: '1',
+          },
+          {
             $eq: undefined,
           },
         ],
@@ -67,6 +70,14 @@ export class AtlasResourceScriptlet extends Scriptlet<string> {
       image.src = await this.dependency.getResourceFileBinary(resource);
 
       TextureAnalysisProcessor.calculateImageEnvelope(resource, image);
+
+      if (resource.managedBy) {
+        delete resource.extensionConfigurations[
+          `${TextureAnalysisProcessor.id}~~frames`
+        ];
+      }
+
+      console.log(resource);
 
       d.resource.resources.update(resource);
     }
