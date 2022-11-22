@@ -58,6 +58,60 @@ const CustomizedTheme = createTheme(
       DisplayXSmall: {
         fontFamily: 'Raleway',
       },
+      MonoParagraphXSmall: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoParagraphSmall: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoParagraphMedium: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoParagraphLarge: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoLabelXSmall: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoLabelSmall: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoLabelMedium: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoLabelLarge: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoHeadingXSmall: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoHeadingSmall: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoHeadingMedium: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoHeadingLarge: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoHeadingXLarge: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoHeadingXXLarge: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoDisplayXSmall: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoDisplaySmall: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoDisplayMedium: {
+        fontFamily: 'Red Hat Mono',
+      },
+      MonoDisplayLarge: {
+        fontFamily: 'Red Hat Mono',
+      },
     },
   }
 );

@@ -11,8 +11,9 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
 
-import { ConfirmRemoveAssetModal } from './ConfirmRemoveAssetModal';
+import { Id } from './Id';
 import { AssetTableActions } from './AssetTableActions';
+import { ConfirmRemoveAssetModal } from './ConfirmRemoveAssetModal';
 
 const bodyStyle = {
   display: 'contents',
@@ -33,7 +34,7 @@ export const AssetTableUnit: React.FC<IAssetTableUnitProps> = ({
 
   const cellStyle = React.useMemo(
     () =>
-      ({
+      css({
         height: '40px',
         borderBottomColor: theme.colors.borderTransparent || 'black',
         borderBottomWidth: '1px',
@@ -44,7 +45,7 @@ export const AssetTableUnit: React.FC<IAssetTableUnitProps> = ({
         textOverflow: 'ellipsis',
         display: 'flex',
       } as const),
-    [theme]
+    [theme, css]
   );
 
   const handleRemoveAsset = useEvent(async () => {
@@ -54,14 +55,14 @@ export const AssetTableUnit: React.FC<IAssetTableUnitProps> = ({
 
   return (
     <RecativeBlock key={asset.id} className={css(bodyStyle)} role="row">
-      <StyledBodyCell className={css(cellStyle)}>
-        {asset.id.slice(0, 6)}
+      <StyledBodyCell className={cellStyle}>
+        <RecativeBlock marginRight="4px">{asset.order}</RecativeBlock>
+        <Id id={asset.id} shrink={6} />
       </StyledBodyCell>
-      <StyledBodyCell className={css(cellStyle)}>{asset.order}</StyledBodyCell>
-      <StyledBodyCell className={css(cellStyle)}>
+      <StyledBodyCell className={cellStyle}>
         <SelectOption option={resources[asset.contentId]?.[0]} />
       </StyledBodyCell>
-      <StyledBodyCell className={css(cellStyle)}>
+      <StyledBodyCell className={cellStyle}>
         <AssetTableActions asset={asset} />
       </StyledBodyCell>
 

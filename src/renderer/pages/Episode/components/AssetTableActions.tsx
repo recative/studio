@@ -9,6 +9,7 @@ import { TrashIconOutline } from 'components/Icons/TrashIconOutline';
 
 import { useEvent } from 'utils/hooks/useEvent';
 
+import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 import { useEditAssetModal } from '../hooks/useEditAssetModal';
 
 export interface IAssetTableActionsProps {
@@ -18,6 +19,7 @@ export interface IAssetTableActionsProps {
 export const AssetTableActions: React.FC<IAssetTableActionsProps> = ({
   asset,
 }) => {
+  const databaseLocked = useDatabaseLocked();
   const [, , openEditAssetModal] = useEditAssetModal();
 
   const handleOpenEditEpisodeModal = useEvent(() => {
@@ -26,10 +28,10 @@ export const AssetTableActions: React.FC<IAssetTableActionsProps> = ({
 
   return (
     <RecativeBlock width="100%" textAlign="right">
-      <SmallIconButton title="Delete Asset">
+      <SmallIconButton title="Delete Asset" disabled={databaseLocked}>
         <TrashIconOutline width={16} onClick={handleOpenEditEpisodeModal} />
       </SmallIconButton>
-      <SmallIconButton title="Edit Asset">
+      <SmallIconButton title="Edit Asset" disabled={databaseLocked}>
         <EditIconOutline width={16} onClick={handleOpenEditEpisodeModal} />
       </SmallIconButton>
     </RecativeBlock>

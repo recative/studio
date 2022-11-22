@@ -48,11 +48,10 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
     <StyledTable
       role="grid"
       className={cn(css(tableStyle), gridTemplateRowStyles)}
-      $gridTemplateColumns="200px 300px auto"
+      $gridTemplateColumns="min-content auto"
     >
       <RecativeBlock id="checker" className={css(headerStyle)} role="row">
         <StyledHeadCell>Label</StyledHeadCell>
-        <StyledHeadCell>#</StyledHeadCell>
         <StyledHeadCell />
       </RecativeBlock>
 

@@ -32,15 +32,12 @@ export const AssetTable: React.FC<IAssetsProps> = ({
   resources,
   onRefreshEpisodeListRequest,
 }) => {
-  const [css] = useStyletron();
+  const [css, theme] = useStyletron();
 
   const additionalTableStyle = React.useMemo(
     () =>
       css({
         height: 'min-content !important',
-        marginLeft: '20px',
-        marginRight: '20px',
-        marginBottom: '20px',
       }),
     [css]
   );
@@ -48,36 +45,42 @@ export const AssetTable: React.FC<IAssetsProps> = ({
   const gridTemplateRowStyles = React.useMemo(
     () =>
       css({
-        gridColumn: 'span 3',
         gridTemplateRows: `repeat(${assets?.length ?? 0 + 1}, min-content)`,
       }),
     [css, assets?.length]
   );
 
   return (
-    <StyledTable
-      role="grid"
-      className={cn(
-        css(tableStyle),
-        additionalTableStyle,
-        gridTemplateRowStyles
-      )}
-      $gridTemplateColumns="80px 100px 200px auto"
+    <RecativeBlock
+      paddingLeft="20px"
+      paddingRight="20px"
+      paddingBottom="20px"
+      gridColumn="span 2"
+      background={theme.colors.backgroundSecondary}
     >
-      <RecativeBlock id="checker" className={css(headerStyle)} role="row">
-        <StyledHeadCell $sticky={false}>#</StyledHeadCell>
-        <StyledHeadCell $sticky={false}>Order</StyledHeadCell>
-        <StyledHeadCell $sticky={false}>Asset</StyledHeadCell>
-        <StyledHeadCell $sticky={false} />
-      </RecativeBlock>
+      <StyledTable
+        role="grid"
+        className={cn(
+          css(tableStyle),
+          additionalTableStyle,
+          gridTemplateRowStyles
+        )}
+        $gridTemplateColumns="min-content 200px auto"
+      >
+        <RecativeBlock id="checker" className={css(headerStyle)} role="row">
+          <StyledHeadCell $sticky={false}>#</StyledHeadCell>
+          <StyledHeadCell $sticky={false}>Asset</StyledHeadCell>
+          <StyledHeadCell $sticky={false} />
+        </RecativeBlock>
 
-      {assets.filter(Boolean).map((asset) => (
-        <AssetTableUnit
-          asset={asset}
-          resources={resources}
-          onRefreshEpisodeListRequest={onRefreshEpisodeListRequest}
-        />
-      ))}
-    </StyledTable>
+        {assets.filter(Boolean).map((asset) => (
+          <AssetTableUnit
+            asset={asset}
+            resources={resources}
+            onRefreshEpisodeListRequest={onRefreshEpisodeListRequest}
+          />
+        ))}
+      </StyledTable>
+    </RecativeBlock>
   );
 };

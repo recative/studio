@@ -20,6 +20,7 @@ import { useEvent } from 'utils/hooks/useEvent';
 
 import { AssetTable } from './AssetTable';
 import { EpisodeListActions } from './EpisodeListActions';
+import { Id } from './Id';
 
 const bodyStyle = {
   display: 'contents',
@@ -46,35 +47,48 @@ export const EpisodeListUnit: React.FC<IEpisodeListUnitProps> = ({
 
   const cellStyle = React.useMemo(
     () =>
-      ({
+      css({
         height: '40px',
         borderTopColor: theme.colors.borderTransparent || 'black',
         borderTopWidth: '1px',
         borderTopStyle: 'solid',
+        backgroundColor: expanded
+          ? theme.colors.backgroundSecondary
+          : theme.colors.backgroundPrimary,
         lineHeight: '40px !important',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
       } as const),
-    [theme]
+    [
+      css,
+      expanded,
+      theme.colors.backgroundPrimary,
+      theme.colors.backgroundSecondary,
+      theme.colors.borderTransparent,
+    ]
   );
 
   return (
     <RecativeBlock key={episode.id} className={css(bodyStyle)} role="row">
-      <StyledBodyCell className={css(cellStyle)}>
-        {expanded ? (
-          <SmallIconButton title="Close" onClick={close}>
-            <ArrowDownIconOutline width={12} />
-          </SmallIconButton>
-        ) : (
-          <SmallIconButton title="Expand" onClick={open}>
-            <ArrowUpIconOutline width={12} />
-          </SmallIconButton>
-        )}
-        {episode.label.en ?? 'Unknown Episode'}
+      <StyledBodyCell className={cellStyle}>
+        <RecativeBlock display="flex">
+          {expanded ? (
+            <SmallIconButton title="Close" onClick={close}>
+              <ArrowDownIconOutline width={12} />
+            </SmallIconButton>
+          ) : (
+            <SmallIconButton title="Expand" onClick={open}>
+              <ArrowUpIconOutline width={12} />
+            </SmallIconButton>
+          )}
+          <RecativeBlock marginRight="4px">
+            {episode.label.en ?? 'Unknown Episode'}
+          </RecativeBlock>
+          <Id id={episode.id} shrink={6} />
+        </RecativeBlock>
       </StyledBodyCell>
-      <StyledBodyCell className={css(cellStyle)}>{episode.id}</StyledBodyCell>
-      <StyledBodyCell className={css(cellStyle)}>
+      <StyledBodyCell className={cellStyle}>
         <EpisodeListActions
           episode={episode}
           onRefreshEpisodeListRequest={onRefreshEpisodeListRequest}
