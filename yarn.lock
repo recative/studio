@@ -3107,6 +3107,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.14.5, @babel/runtime@npm:^7.17.2":
+  version: 7.20.1
+  resolution: "@babel/runtime@npm:7.20.1"
+  dependencies:
+    regenerator-runtime: ^0.13.10
+  checksum: 00567a333d3357925742a6f5e39394dcc0af6e6029103fe188158bf7ae8b0b3ee3c6c0f68fccc217f0a6cfa455f6be252298baf56b3f5ff37b34313b170cd9f6
+  languageName: node
+  linkType: hard
+
 "@babel/runtime@npm:^7.14.6, @babel/runtime@npm:^7.19.0":
   version: 7.19.4
   resolution: "@babel/runtime@npm:7.19.4"
@@ -5057,15 +5066,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/act-player@npm:^0.4.2":
-  version: 0.4.2
-  resolution: "@recative/act-player@npm:0.4.2::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-player%2F0.4.2%2F47bca5dcf143935013feb7e57a6582ae1a3b1cec"
+"@recative/act-player@npm:^0.5.4":
+  version: 0.5.4
+  resolution: "@recative/act-player@npm:0.5.4::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-player%2F0.5.4%2Fbbfb977272ba60d73595c8cabcb1cd7cc0daf24f"
   dependencies:
     "@nanostores/react": 0.2.0
     "@react-hookz/web": ^15.1.0
-    "@recative/act-protocol": ^0.2.8
-    "@recative/core-manager": ^0.8.0
-    "@recative/definitions": ^0.4.2
+    "@recative/act-protocol": ^0.2.9
+    "@recative/core-manager": ^0.11.4
+    "@recative/definitions": ^0.5.0
     "@recative/smart-resource": ^0.2.0
     classnames: ^2.3.1
     debug: ^4.3.4
@@ -5084,18 +5093,18 @@ __metadata:
     react-dom: ^18.2.0
     styletron-engine-monolithic: 1.0.0
     styletron-react: 6.1.0
-  checksum: 03475c28862b99b8d8f826c9a604aef70dc5f86575df5f661bcadf506e5e66a91072e1e4b47ac003f942c6c9941fa78dca3962c66dab441c602fc5647704409e
+  checksum: 16d3aef5d4501763ffda74450bb37d3a9133239bfa72fff7c95a9bc1d7c2fcfadd1a15aaed3a9b0a9876742bd49348da1328c3c6496e462389f4fa333944313d
   languageName: node
   linkType: hard
 
-"@recative/act-protocol@npm:^0.2.8":
-  version: 0.2.8
-  resolution: "@recative/act-protocol@npm:0.2.8::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-protocol%2F0.2.8%2F71407400c2b93676f7d09cc3c2f4cf42d8a7fa84"
+"@recative/act-protocol@npm:^0.2.9":
+  version: 0.2.9
+  resolution: "@recative/act-protocol@npm:0.2.9::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fact-protocol%2F0.2.9%2F48574675f81bfd4ee6163602e2ba19aadb27762b"
   dependencies:
-    "@recative/definitions": ^0.4.0
+    "@recative/definitions": ^0.5.0
     async-call-rpc: 6.1.2
     debug: ^4.3.3
-  checksum: f1c4f98f40ffe5d0d7379d57a3636ad67dc077af0efe5fd1cb671d39b8a49e4fd7ad1bec700378fd2b403ad2a86111898905a0c6f91ff3ad9869fae721891917
+  checksum: f698d31c7daa936ad4fa0dfb45bdcaaa07b6c6060c34731dda1079f43cac39cc320d9f1b1fd501f02a9e3d696db47b228218cdc8e9f7d5bf33d148cbeb067fef
   languageName: node
   linkType: hard
 
@@ -5116,23 +5125,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/client-sdk@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "@recative/client-sdk@npm:8.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fclient-sdk%2F8.0.0%2Fc33e4053f51623c8b1587f16db40b7e57fee4eaa"
+"@recative/client-sdk@npm:^11.0.5":
+  version: 11.0.5
+  resolution: "@recative/client-sdk@npm:11.0.5::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fclient-sdk%2F11.0.5%2Fddec12dac21fd7682f6883af496cbf92a5a71a95"
   dependencies:
     "@msgpack/msgpack": ^2.7.2
     "@react-hookz/web": ^15.1.0
-    "@recative/definitions": ^0.4.3
+    "@recative/definitions": ^0.5.1
     "@recative/open-promise": ^0.2.3
     "@recative/ugly-json": ^0.0.1
     debug: ^4.3.3
+    detect-gpu: ^4.0.43
+    i18next: ^22.0.5
     nanoid: ^3.3.3
+    react-i18next: ^12.0.0
   peerDependencies:
     "@nanostores/react": ^0.1.5
     "@paciolan/remote-module-loader": "*"
-    "@recative/act-player": 0.4.2
+    "@recative/act-player": 0.5.4
     "@recative/act-protocol": "*"
-    "@recative/core-manager": 0.8.0
+    "@recative/core-manager": 0.11.4
     "@recative/smart-resource": "*"
     baseui: ^12.1.0
     classnames: "*"
@@ -5143,49 +5155,40 @@ __metadata:
     react-slider: "*"
     react-use: "*"
     use-constant: "*"
-  checksum: bc0a5c6b2b70d75f90d477f1651c1d7884b0ba5a0bad8d73a5012ebff5241601bcdcda6b1860de559994c08aa031e67c102ad1dd4d1840e87192c5106602a2af
+  checksum: 68096b2dbaec0450e80b08f9193639415ee04291360522a19279e47eede76730d0e0ba6fd481e002e9dfdf7b8f8c97c143435ba4318fda99436783d4bd332aca
   languageName: node
   linkType: hard
 
-"@recative/core-manager@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "@recative/core-manager@npm:0.8.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fcore-manager%2F0.8.0%2F1feee53f55cf8ad4323e2332c310230b67bcbd78"
+"@recative/core-manager@npm:^0.11.4":
+  version: 0.11.4
+  resolution: "@recative/core-manager@npm:0.11.4::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fcore-manager%2F0.11.4%2F89c567a94506896b950b2b508825773b6ee72bfd"
   dependencies:
     "@nanostores/persistent": ^0.5.2
-    "@recative/act-protocol": ^0.2.8
+    "@recative/act-protocol": ^0.2.9
     "@recative/audio-station": ^0.3.0
-    "@recative/definitions": ^0.4.2
+    "@recative/definitions": ^0.5.1
     "@recative/open-promise": ^0.2.3
     "@recative/phonograph": ^2.0.0
-    "@recative/resource-loader": ^0.2.2
-    "@recative/smart-resource": ^0.2.0
-    "@recative/time-schedule": ^0.2.0
+    "@recative/resource-loader": ^0.2.3
+    "@recative/smart-resource": ^0.2.1
+    "@recative/time-schedule": ^0.2.1
     "@ungap/event-target": ^0.2.3
     debug: ^4.3.3
     nanoid: ^3.1.30
     nanostores: ^0.5.10
     object.entries: ^1.1.5
     srt-parser-2: ^1.1.7
-  checksum: 6fe66b53b62c480a6363bfb9f7ada44459dcc7925789295587255d4f19efef189efa9629b711abb16bea074a0d8042ab54335761a9d74afdc8ee5fb30ba7ccb2
+  checksum: 86d10146ffb618154fb6c2eedab2bbf2cbca3318d1485fef5a6da6dbbbdd745f4776e4bed6344998395f904ad81902588b85444933b9a0cf4681b36dd75a146f
   languageName: node
   linkType: hard
 
-"@recative/definitions@npm:^0.4.0":
-  version: 0.4.1
-  resolution: "@recative/definitions@npm:0.4.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.4.1%2F0de5f6189a944de094da371a3e7e0866b4381a3a"
-  dependencies:
-    xxhashjs: ^0.2.2
-  checksum: 24cb4fa372bb19566e0847b7ebfa20164339b46ef173906507915135db52bd2f14f93d6a57c8d9e290c02f90ac4dca0bfb8f2099b2a4aa1b91f68e14b976ed39
-  languageName: node
-  linkType: hard
-
-"@recative/definitions@npm:^0.4.2, @recative/definitions@npm:^0.4.3":
-  version: 0.4.3
-  resolution: "@recative/definitions@npm:0.4.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.4.3%2F99a678b9f039d946e581865c4412ecba4503fd61"
+"@recative/definitions@npm:^0.5.0, @recative/definitions@npm:^0.5.1, @recative/definitions@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "@recative/definitions@npm:0.5.2::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fdefinitions%2F0.5.2%2F8041afd51b5798d1ef88b1e741eea3116225c5a2"
   dependencies:
     typescript: 4.8.2
     xxhashjs: ^0.2.2
-  checksum: fd7c94bb3c39fe7b1cf56d574dde3903fecca231a467b4d160c2ef6cc0bda9d6a1eb1a7b984d9ef2eb864a2116c1483db32105d296ebbe0dec132b27b3db479c
+  checksum: c7f0c70403a63b0e66806d3120b29b6e6f28f2114b3911419bedefe2cd1829da8ef087e35a4182223ef0d346bce3f9fb40a01abd23f2bdaf03679143aff1b1f1
   languageName: node
   linkType: hard
 
@@ -5312,32 +5315,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@recative/open-promise@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "@recative/open-promise@npm:0.2.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fopen-promise%2F0.2.0%2F9e95a5727d1966c591910286a15d3f5d085bcb95"
-  dependencies:
-    debug: ^4.3.4
-  checksum: 92be31039d1d921afb0818b14f2694322e95298b2569434dbfb96cfeb8c67b3d05de1a78bed4b967321ddf8e6125083227056772c42153b9fa29ac66130f6556
-  languageName: node
-  linkType: hard
-
-"@recative/open-promise@npm:^0.2.3":
-  version: 0.2.3
-  resolution: "@recative/open-promise@npm:0.2.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fopen-promise%2F0.2.3%2F085f4f7798783cc1d653ef68a2ee6f00e8b555c5"
+"@recative/open-promise@npm:^0.2.0, @recative/open-promise@npm:^0.2.3, @recative/open-promise@npm:^0.2.4":
+  version: 0.2.4
+  resolution: "@recative/open-promise@npm:0.2.4::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fopen-promise%2F0.2.4%2F787530cd2de01d0c2e189f0ccc432acf440b3ac0"
   dependencies:
     "@ungap/event-target": ^0.2.3
     debug: ^4.3.4
-  checksum: 07c437a79b52ea9b69053199d6371915b4e59fa275930afa93fc36cba09890ba4ab5815c1d03b1abc1251306f2fd688fd9ee5600a56e39ebe45a2e2c6c9b59dc
+  checksum: 89dfcae2e5ed99c3ff41628cd4b1d3e35f5a0a07d9a477a08ace1781d6ee697384b35645f317613aabb3b546700d2629c99ebaaf10ee435048988c31cd24b375
   languageName: node
   linkType: hard
 
 "@recative/phonograph@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@recative/phonograph@npm:2.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fphonograph%2F2.0.0%2F7298dbe7427635a4876508e0dbedc3b8c4adb063"
+  version: 2.1.1
+  resolution: "@recative/phonograph@npm:2.1.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fphonograph%2F2.1.1%2F688f449df60d285574f0857c138a47cc887291fe"
   dependencies:
     "@rollup/plugin-commonjs": ^22.0.2
     standardized-audio-context: ^25.3.29
-  checksum: e32a914e41408630202a2e4924ffa56332d8ab3e182cad25a19f17f734af9e97eb388171735d9e0b72c13dc174d6b46b697f03915604479f6d7bad3603fc0609
+  checksum: ea2b0a122162d87530f2d320a2c2d7f17b5da7b97dac4eeb0a2981582a7bd6b84793b4467f5d9d7b6c962de82a4db926600a5c60f4e3672cae2941445b60cae8
   languageName: node
   linkType: hard
 
@@ -5354,23 +5348,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@recative/resource-loader@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "@recative/resource-loader@npm:0.2.2::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fresource-loader%2F0.2.2%2Ff670b987157163c087f6d0375256b9e5c8ae272f"
+"@recative/resource-loader@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "@recative/resource-loader@npm:0.2.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fresource-loader%2F0.2.3%2Fb41061791dfed7300784367e161f40d72aba02ff"
   dependencies:
-    "@recative/definitions": ^0.4.0
+    "@recative/definitions": ^0.5.0
     "@recative/open-promise": ^0.2.0
     idb-keyval: ^6.0.3
-  checksum: 7d44795863dcd0f8eb313348975d9fdb4b8499cd3374e340d6504f5532718242fe1ea39f4260870b3defa976f7665a18b1d28ac8a0f4680661038be69919d8c1
+  checksum: 0cf58b08659bf4d925733babdac1b6d19222638b0314c56e67bcf5757e38bdcbe6ab9b638f5cc231dbde2e923ee078f9c7a7c29c2505c452a551033dbeccc8d0
   languageName: node
   linkType: hard
 
-"@recative/smart-resource@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "@recative/smart-resource@npm:0.2.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fsmart-resource%2F0.2.0%2F4c5061583bfabade5df58c5f61f8179cbceb0b28"
+"@recative/smart-resource@npm:^0.2.0, @recative/smart-resource@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "@recative/smart-resource@npm:0.2.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fsmart-resource%2F0.2.1%2F373eedf1db1c9789dd69aecf6ed5ae104a9bcd61"
   dependencies:
     debug: ^4.3.4
-  checksum: 20fde9dd0d34fd95e0e482e6e30ac9387da97c8872bbe00e1809d6ed795e2141002096fabe007309d213c03e8ff2b5abf69f9c1e499e60f318b2adbdb56a4458
+  checksum: d7eda6caff598941ee728c2ac23f12c2bd15f39ed3364edc8750f1c562d42298905177e7b0cf53bd43bb712ac4f6fdba2be66dd78c4697fe4f6dc10aa0597b59
   languageName: node
   linkType: hard
 
@@ -5432,12 +5426,12 @@ __metadata:
     "@pmmmwh/react-refresh-webpack-plugin": 0.5.6
     "@reach/portal": ^0.16.2
     "@react-hookz/web": ^14.2.2
-    "@recative/act-player": ^0.4.2
-    "@recative/client-sdk": ^8.0.0
-    "@recative/definitions": ^0.4.3
+    "@recative/act-player": ^0.5.4
+    "@recative/client-sdk": ^11.0.5
+    "@recative/definitions": ^0.5.2
     "@recative/extension-sdk": "workspace:^"
-    "@recative/open-promise": ^0.2.3
-    "@recative/smart-resource": ^0.2.0
+    "@recative/open-promise": ^0.2.4
+    "@recative/smart-resource": ^0.2.1
     "@recative/studio-definitions": "workspace:^"
     "@recative/ugly-json": ^0.0.1
     "@teamsupercell/typings-for-css-modules-loader": ^2.4.0
@@ -5629,10 +5623,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@recative/time-schedule@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "@recative/time-schedule@npm:0.2.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Ftime-schedule%2F0.2.0%2Fea9a39b4986f0c46665c37a142b11572cc95c83e"
-  checksum: b36bff35a27b9df7e9a4e2effff42186baa4fc4ef0cc6e34f67dd9ae56694006029185a53d82edfae0159b5c2960a2354d26f47cff00c970ec88938feca8ae6f
+"@recative/time-schedule@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "@recative/time-schedule@npm:0.2.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Ftime-schedule%2F0.2.1%2F329afa253272d611cf2b5f3398a28195bcaed2dd"
+  checksum: 3fdde546afb3880424dcb3ad6b45666a96d8cae50eb9678a0f1ee145a03d7312e45c09a8da454e6805aa807805cad13a8fbba1a8c34f5a9e0ca9d21cc7659fb1
   languageName: node
   linkType: hard
 
@@ -11257,6 +11251,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"detect-gpu@npm:^4.0.43":
+  version: 4.0.49
+  resolution: "detect-gpu@npm:4.0.49"
+  dependencies:
+    webgl-constants: ^1.1.1
+  checksum: d83ba54cae03608b4192a7760c61519ad37e1ae20f7fc27d68e5036fc8f9d79058aaf9758855e8fdacf6a96f43cbc2f81479317e9da6b5a361f904429da116cf
+  languageName: node
+  linkType: hard
+
 "detect-libc@npm:^1.0.3":
   version: 1.0.3
   resolution: "detect-libc@npm:1.0.3"
@@ -14435,6 +14438,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"html-parse-stringify@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "html-parse-stringify@npm:3.0.1"
+  dependencies:
+    void-elements: 3.1.0
+  checksum: 334fdebd4b5c355dba8e95284cead6f62bf865a2359da2759b039db58c805646350016d2017875718bc3c4b9bf81a0d11be5ee0cf4774a3a5a7b97cde21cfd67
+  languageName: node
+  linkType: hard
+
 "htmlparser2@npm:^6.1.0":
   version: 6.1.0
   resolution: "htmlparser2@npm:6.1.0"
@@ -14622,6 +14634,15 @@ __metadata:
   version: 1.0.4
   resolution: "hyphenate-style-name@npm:1.0.4"
   checksum: 4f5bf4b055089754924babebaa23c17845937bcca6aee95d5d015f8fa1e6814279002bd6a9e541e3fac2cd02519fc76305396727066c57c8e21a7e73e7a12137
+  languageName: node
+  linkType: hard
+
+"i18next@npm:^22.0.5":
+  version: 22.0.6
+  resolution: "i18next@npm:22.0.6"
+  dependencies:
+    "@babel/runtime": ^7.17.2
+  checksum: b9d20b8d6cdd16c38def15d4f1c5906418926412eafa7d582fbd8395618deb177e73bdc709559480de7e1a3281287b69665d6f7c2af8df791f10ea1dfd79cb79
   languageName: node
   linkType: hard
 
@@ -20740,6 +20761,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-i18next@npm:^12.0.0":
+  version: 12.0.0
+  resolution: "react-i18next@npm:12.0.0"
+  dependencies:
+    "@babel/runtime": ^7.14.5
+    html-parse-stringify: ^3.0.1
+  peerDependencies:
+    i18next: ">= 19.0.0"
+    react: ">= 16.8.0"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+  checksum: f523d7ec5dcb7f5fd36efc9385639d01160071f4dadbbc5a3f1daa64b0f332f709347bdd3bc68f5aefbd72c8742233aa715b308b1ca87179ad501acc19c72068
+  languageName: node
+  linkType: hard
+
 "react-input-mask@npm:^2.0.4":
   version: 2.0.4
   resolution: "react-input-mask@npm:2.0.4"
@@ -21297,6 +21336,13 @@ __metadata:
   version: 1.4.2
   resolution: "regenerate@npm:1.4.2"
   checksum: 3317a09b2f802da8db09aa276e469b57a6c0dd818347e05b8862959c6193408242f150db5de83c12c3fa99091ad95fb42a6db2c3329bfaa12a0ea4cbbeb30cb0
+  languageName: node
+  linkType: hard
+
+"regenerator-runtime@npm:^0.13.10":
+  version: 0.13.11
+  resolution: "regenerator-runtime@npm:0.13.11"
+  checksum: 27481628d22a1c4e3ff551096a683b424242a216fee44685467307f14d58020af1e19660bf2e26064de946bad7eff28950eae9f8209d55723e2d9351e632bbb4
   languageName: node
   linkType: hard
 
@@ -24648,6 +24694,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"void-elements@npm:3.1.0":
+  version: 3.1.0
+  resolution: "void-elements@npm:3.1.0"
+  checksum: 0390f818107fa8fce55bb0a5c3f661056001c1d5a2a48c28d582d4d847347c2ab5b7f8272314cac58acf62345126b6b09bea623a185935f6b1c3bbce0dfd7f7f
+  languageName: node
+  linkType: hard
+
 "w3c-hr-time@npm:^1.0.2":
   version: 1.0.2
   resolution: "w3c-hr-time@npm:1.0.2"
@@ -24750,6 +24803,13 @@ resolve@^2.0.0-next.3:
   version: 2.1.1
   resolution: "web-streams-polyfill@npm:2.1.1"
   checksum: 8a8df1e8effd8bc13e23edbb771629cece8673952de48bc42d51ffc67401fb6bf9dea06aed967f517435e2449483e214ca27503a0270af434576b9dd31189297
+  languageName: node
+  linkType: hard
+
+"webgl-constants@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "webgl-constants@npm:1.1.1"
+  checksum: b40091528a1c30ff9b2413f97a67b98be720f76629fe105f05e955f33ed440d441dd69de4d7cf46d27ca9d74bcc6218809ae9a2a90557aa5963e78d11c1b39a5
   languageName: node
   linkType: hard
 
