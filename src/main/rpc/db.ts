@@ -41,28 +41,28 @@ export const getDb = async (
   return newDb;
 };
 
-export const saveAllDatabase = <T>(db: IDbInstance<T>) => {
+export const saveAllDatabase = async <T>(db: IDbInstance<T>) => {
   const waitFor = Object.entries(db)
     .filter(([, value]) => Object.hasOwn(value, '$db'))
     .map(([key]) => key) as Array<keyof IDbInstance<T>>;
 
   log.info('::', waitFor.length, 'database will be saved');
-  return Promise.all(
-    waitFor.map((key) => {
-      const collection = db[key] as { $db: Loki };
 
-      return new Promise<void>((resolve, reject) => {
-        collection.$db.saveDatabase((err) => {
-          if (err) {
-            reject(err);
-          } else {
-            log.info('::', key, 'saved');
-            resolve();
-          }
-        });
+  for (let i = 0; i < waitFor.length; i += 1) {
+    const key = waitFor[i];
+    const collection = db[key] as { $db: Loki };
+
+    await new Promise<void>((resolve, reject) => {
+      collection.$db.saveDatabase((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          log.info('::', key, 'saved');
+          resolve();
+        }
       });
-    })
-  );
+    });
+  }
 };
 
 export const cleanupDb = async () => {
