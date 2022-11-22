@@ -15,6 +15,7 @@ const actPointContainerStyles: StyleObject = {
   display: 'grid',
   gridTemplate: `" icon          firstLevelPath  separator     secondLevelPath"
                    / max-content  minmax(0, 1fr)  min-content  max-content`,
+  alignItems: 'center',
 };
 
 export const ActPointItem: React.FC<IActPoint> = ({
@@ -25,7 +26,7 @@ export const ActPointItem: React.FC<IActPoint> = ({
 
   return (
     <RecativeBlock className={css(actPointContainerStyles)}>
-      <RecativeBlock gridArea="icon">
+      <RecativeBlock gridArea="icon" height="20px" lineHeight="20px">
         <ActPointIconOutline width={20} style={{ marginRight: '4px' }} />
       </RecativeBlock>
       <RecativeBlock gridArea="firstLevelPath" marginRight="4px">

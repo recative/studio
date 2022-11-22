@@ -3,6 +3,8 @@ import * as React from 'react';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
+import type { IEpisode } from '@recative/definitions';
+
 import {
   Modal,
   ModalBody,
@@ -23,27 +25,25 @@ import { I18Selector } from 'components/Input/I18Selector';
 import { I18FormControl, isFinished } from 'components/Input/I18FormControl';
 import { AssetSelect, AssetSelectType } from 'components/Input/AssetSelect';
 
+import { server } from 'utils/rpc';
+import { ModalManager } from 'utils/hooks/useModalManager';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 import { useFormChangeCallbacks } from 'utils/hooks/useFormChangeCallbacks';
-import { IEpisode } from '@recative/definitions';
 
 export interface IEditEpisodeModalProps {
-  episode: IEpisode | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (result: IEpisode) => void;
+  onRefreshEpisodeListRequest: () => void;
 }
 
 const modalBodyStyles: StyleObject = {
   boxSizing: 'border-box',
 };
 
+export const useEditEpisodeModal = ModalManager<IEpisode, null>(null);
+
 export const EditEpisodeModal: React.FC<IEditEpisodeModalProps> = ({
-  episode,
-  isOpen,
-  onClose,
-  onSubmit,
+  onRefreshEpisodeListRequest,
 }) => {
+  const [isOpen, episode, , onClose] = useEditEpisodeModal();
   const [css] = useStyletron();
 
   const [clonedEpisode, valueChangeCallbacks, , setClonedValue] =
@@ -53,6 +53,13 @@ export const EditEpisodeModal: React.FC<IEditEpisodeModalProps> = ({
   React.useEffect(() => {
     setClonedValue(episode);
   }, [setClonedValue, episode]);
+
+  const handleSubmitEditEpisodeModal = React.useCallback(async () => {
+    if (!clonedEpisode) return;
+    await server.updateOrInsertEpisodes([clonedEpisode]);
+    onRefreshEpisodeListRequest();
+    onClose();
+  }, [clonedEpisode, onClose, onRefreshEpisodeListRequest]);
 
   return (
     <Modal
@@ -131,7 +138,7 @@ export const EditEpisodeModal: React.FC<IEditEpisodeModalProps> = ({
         </ModalButton>
         <ModalButton
           disabled={databaseLocked}
-          onClick={() => clonedEpisode && onSubmit(clonedEpisode)}
+          onClick={handleSubmitEditEpisodeModal}
         >
           Confirm
         </ModalButton>

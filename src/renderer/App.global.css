@@ -53,3 +53,7 @@ div[data-baseweb='modal'] {
   fill: black !important;
   opacity: 0.8;
 }
+
+.cm-theme {
+  font-weight: 600 !important;
+}

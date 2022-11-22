@@ -13,6 +13,8 @@ import {
 import { json } from '@codemirror/lang-json';
 import CodeMirror from '@uiw/react-codemirror';
 
+import type { IAsset } from '@recative/definitions';
+
 import { useImmer } from 'use-immer';
 
 import {
@@ -25,30 +27,36 @@ import {
   SIZE,
 } from 'baseui/modal';
 import { Input } from 'baseui/input';
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { Tabs, Tab } from 'baseui/tabs-motion';
 import { FormControl } from 'baseui/form-control';
+import { StatefulTooltip } from 'baseui/tooltip';
 import { KIND as BUTTON_KIND } from 'baseui/button';
+import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
 
 import {
   ResourceSearchMode,
   ResourceSearchButton,
 } from 'components/ResourceSearchModal/ResourceSearchModal';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { TabTitle } from 'components/Layout/Pivot';
 
 import {
   useInputUpdateImmerCallback,
   useAssetUpdateImmerCallback,
 } from 'utils/hooks/useUpdateImmerCallback';
+import { server } from 'utils/rpc';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 import { TABS_OVERRIDES, PIVOT_TAB_OVERRIDES } from 'utils/style/tab';
 
-import type { IAsset } from '@recative/definitions';
-
-import { Checkbox } from 'baseui/checkbox';
 import { neoTheme } from '../../Preview/utils/neoTheme';
+import { useEditAssetModal } from '../hooks/useEditAssetModal';
 
 const log = debug('renderer:edit-asset-modal');
+
+const EXTENSIONS = [json()];
+
+type EmptyData = Record<never, never>;
+const EMPTY_DATA: EmptyData = {};
 
 const triggersTypeChecker = ArrayType(
   RecordType({
@@ -68,24 +76,19 @@ const triggersTypeChecker = ArrayType(
   )
 );
 
-type Nothing = Record<never, never>;
-
 export interface IEditAssetModalProps {
-  asset: IAsset | Nothing;
-  isOpen: boolean;
-  onSubmit: (x: IAsset) => void;
-  onClose: () => void;
+  onRefreshEpisodeListRequest: () => void;
 }
 
-export const EditAssetModal: React.VFC<IEditAssetModalProps> = ({
-  asset,
-  isOpen,
-  onSubmit,
-  onClose,
+export const EditAssetModal: React.FC<IEditAssetModalProps> = ({
+  onRefreshEpisodeListRequest,
 }) => {
+  const [isOpen, asset, , onClose] = useEditAssetModal();
   const databaseLocked = useDatabaseLocked();
 
-  const [assetData, setAssetData] = useImmer(asset);
+  const [assetData, setAssetData] = useImmer<IAsset | EmptyData>(
+    asset || EMPTY_DATA
+  );
   const [activeKey, setActiveKey] = React.useState<React.Key>(1);
 
   React.useEffect(() => {
@@ -94,14 +97,23 @@ export const EditAssetModal: React.VFC<IEditAssetModalProps> = ({
     }
   }, [asset, isOpen, setAssetData]);
 
+  const handleEditAssetModalSubmit = React.useCallback(
+    async (x: IAsset) => {
+      await server.updateOrInsertAssets([x]);
+      onRefreshEpisodeListRequest();
+      onClose();
+    },
+    [onClose, onRefreshEpisodeListRequest]
+  );
+
   const [valid, setValid] = React.useState(true);
   const handleSubmit = React.useCallback(() => {
     if ('id' in assetData) {
-      onSubmit(assetData);
+      handleEditAssetModalSubmit(assetData);
     }
-  }, [assetData, onSubmit]);
+  }, [assetData, handleEditAssetModalSubmit]);
 
-  const handleCodeChange = React.useCallback(
+  const handleTriggersChange = React.useCallback(
     (value: string) => {
       setAssetData((draft) => {
         if (!('id' in draft)) return;
@@ -111,6 +123,24 @@ export const EditAssetModal: React.VFC<IEditAssetModalProps> = ({
           if (triggersTypeChecker.check(parsedValue)) {
             draft.triggers = parsedValue;
           }
+
+          setValid(true);
+        } catch (e) {
+          log('ERROR:', e);
+          setValid(false);
+        }
+      });
+    },
+    [setAssetData]
+  );
+  const handleExtensionConfigurationsChange = React.useCallback(
+    (value: string) => {
+      setAssetData((draft) => {
+        if (!('id' in draft)) return;
+
+        try {
+          const parsedValue = JSON.parse(value);
+          draft.extensionConfigurations = parsedValue;
 
           setValid(true);
         } catch (e) {
@@ -207,33 +237,37 @@ export const EditAssetModal: React.VFC<IEditAssetModalProps> = ({
                 onChange={handleSelectedAssetChange}
               />
             </FormControl>
-            <FormControl
-              label="Early destroy"
-              caption="Should this asset destroy earlier than setup of next asset"
-            >
-              <Checkbox
-                disabled={databaseLocked}
-                checked={
-                  'earlyDestroyOnSwitch' in assetData
-                    ? assetData.earlyDestroyOnSwitch
-                    : false
-                }
-                onChange={handleEarlyDestroyChange}
-              />
-            </FormControl>
-            <FormControl
-              label="Preload"
-              caption="Should this asset preloaded when last asset was playing"
-            >
-              <Checkbox
-                disabled={databaseLocked}
-                checked={
-                  'preloadDisabled' in assetData
-                    ? !assetData.preloadDisabled
-                    : true
-                }
-                onChange={handlePreloadChange}
-              />
+            <FormControl label="Lifecycle Control">
+              <RecativeBlock>
+                <StatefulTooltip content="Should this asset destroy earlier than setup of next asset.">
+                  <div>
+                    <Checkbox
+                      disabled={databaseLocked}
+                      checked={
+                        Reflect.get(assetData, 'earlyDestroyOnSwitch') ?? false
+                      }
+                      onChange={handleEarlyDestroyChange}
+                      labelPlacement={LABEL_PLACEMENT.right}
+                    >
+                      Early destroy
+                    </Checkbox>
+                  </div>
+                </StatefulTooltip>
+                <StatefulTooltip content="Should this asset preloaded when last asset was playing.">
+                  <div>
+                    <Checkbox
+                      disabled={databaseLocked}
+                      checked={
+                        Reflect.get(assetData, 'preloadDisabled') ?? false
+                      }
+                      onChange={handlePreloadChange}
+                      labelPlacement={LABEL_PLACEMENT.right}
+                    >
+                      Preload
+                    </Checkbox>
+                  </div>
+                </StatefulTooltip>
+              </RecativeBlock>
             </FormControl>
             <FormControl
               label="Notes"
@@ -256,9 +290,29 @@ export const EditAssetModal: React.VFC<IEditAssetModalProps> = ({
                 key={assetData.id}
                 height="calc(80vh - 188px)"
                 value={JSON.stringify(assetData.triggers || [], null, 2)}
-                extensions={[json()]}
+                extensions={EXTENSIONS}
                 theme={neoTheme}
-                onChange={handleCodeChange}
+                onChange={handleTriggersChange}
+              />
+            )}
+          </Tab>
+
+          <Tab
+            title={<TabTitle>Config</TabTitle>}
+            overrides={PIVOT_TAB_OVERRIDES}
+          >
+            {'id' in assetData && (
+              <CodeMirror
+                key={assetData.id}
+                height="calc(80vh - 188px)"
+                value={JSON.stringify(
+                  assetData.extensionConfigurations || {},
+                  null,
+                  2
+                )}
+                extensions={EXTENSIONS}
+                theme={neoTheme}
+                onChange={handleExtensionConfigurationsChange}
               />
             )}
           </Tab>

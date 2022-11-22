@@ -8,6 +8,12 @@ import { useInterval } from 'react-use';
 import { useStyletron } from 'styletron-react';
 
 import {
+  ITerminal,
+  TerminalStepStatus,
+  TerminalMessageLevel,
+} from '@recative/studio-definitions';
+
+import {
   Modal,
   ModalBody,
   ModalButton,
@@ -25,12 +31,6 @@ import { LoadingIconOutline } from 'components/Icons/LoadingIconOutline';
 import { WarningIconOutline } from 'components/Icons/WarningIconOutline';
 
 import { ModalManager } from 'utils/hooks/useModalManager';
-
-import {
-  ITerminal,
-  TerminalStepStatus,
-  TerminalMessageLevel,
-} from '@recative/studio-definitions';
 
 import { server } from 'utils/rpc';
 
