@@ -196,6 +196,7 @@ export const getClientSideAssetList = async (
           spec: {
             contentExtensionId: asset.contentExtensionId,
             resourceId: matchedResource.group.id,
+            extensionConfigurations: asset.extensionConfigurations,
           },
           preloadDisabled: asset.preloadDisabled,
           earlyDestroyOnSwitch: asset.earlyDestroyOnSwitch,
