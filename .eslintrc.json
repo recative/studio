@@ -1,0 +1,89 @@
+{
+  "root": true,
+  "ignorePatterns": [".erb/**/*"],
+  "plugins": ["react", "jsx-a11y", "react-hooks"],
+  "extends": ["airbnb-base", "airbnb-typescript/base"],
+  "parserOptions": {
+    "project": ["./tsconfig(.*)?json"],
+    "sourceType": "module",
+    "ecmaVersion": 12
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": [
+        "airbnb-base",
+        "airbnb-typescript/base",
+        "plugin:react/recommended",
+        "plugin:react/jsx-runtime",
+        "plugin:jsx-a11y/recommended",
+        "plugin:react-hooks/recommended",
+        "prettier"
+      ],
+      "rules": {
+        "new-cap": "off",
+        "arrow-body-style": "off",
+        "consistent-return": "off",
+        "class-methods-use-this": "off",
+        "function-paren-newline": "off",
+        "global-require": "off",
+        "linebreak-style": ["off", "windows"],
+        "max-classes-per-file": "off",
+        "no-param-reassign": [
+          "error",
+          {
+            "props": false
+          }
+        ],
+        "no-bitwise": "off",
+        "no-continue": "off",
+        "no-await-in-loop": "off",
+        "no-underscore-dangle": "off",
+        "no-restricted-syntax": "off",
+        "operator-assignment": "off",
+        "import/extensions": "off",
+        "import/no-unresolved": "off",
+        "import/no-extraneous-dependencies": "off",
+        "import/prefer-default-export": "off",
+        "import/no-dynamic-require": "off",
+        "import/no-cycle": "warn",
+        "@typescript-eslint/ban-types": [
+          "error",
+          {
+            "types": {
+              "{}": false,
+              "Function": false
+            },
+            "extendDefaults": true
+          }
+        ],
+        "@typescript-eslint/no-unused-vars": "warn",
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/indent": "off",
+        "@typescript-eslint/naming-convention": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "react/no-typos": "error",
+        "react/prop-types": "off",
+        "react/display-name": "off",
+        "react/forbid-dom-props": "warn",
+        "jsx-a11y/iframe-has-title": "warn",
+        "jsx-a11y/media-has-caption": "warn",
+        "jsx-a11y/alt-text": "warn",
+        "jsx-a11y/no-autofocus": "off"
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "extends": [
+        "airbnb-base",
+        "plugin:react/recommended",
+        "plugin:react/jsx-runtime",
+        "plugin:jsx-a11y/recommended",
+        "plugin:react-hooks/recommended"
+      ],
+      "rules": {}
+    }
+  ]
+}

@@ -71,7 +71,6 @@ import { mergeGroupConfigurationToIndividualFile } from '../utils/mergeGroupConf
 
 import type { IResourceEditorRef, IEditableResource } from '../ResourceEditor';
 
-import 'react-contexify/dist/ReactContexify.css';
 import {
   ReplaceFileModalForGroupModal,
   useReplaceFileModalForGroupModal,

@@ -57,6 +57,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
 
       {episodes.filter(Boolean).map((episode) => (
         <EpisodeListUnit
+          key={episode.id}
           episode={episode.episode}
           resources={episode.resources}
           assets={episode.assets}

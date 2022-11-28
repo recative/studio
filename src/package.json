@@ -3,7 +3,7 @@
   "main": "./main.prod.js",
   "version": "0.0.0-alpha.1",
   "scripts": {
-    "electron-rebuild": "node -r ../.erb/scripts/BabelRegister.js ../.erb/scripts/ElectronRebuild.js"
+    "electron-rebuild": "node -r ../.erb/scripts/BabelRegister.js ../.erb/scripts/ElectronRebuild.mjs"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {

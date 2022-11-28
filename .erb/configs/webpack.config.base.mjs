@@ -4,18 +4,23 @@
 
 import path from 'path';
 import webpack from 'webpack';
-import { dependencies as externals } from '../../src/package.json';
+
+import { __dirname } from '../utils/path.mjs';
+
+import manifest from '../../src/package.json' assert { type: 'json' };
+
+const externals = manifest.dependencies;
 
 export default {
   externals: [...Object.keys(externals || {})].filter(
-    (x) => !x.startsWith('@gpmc')
+    (x) => !x.startsWith('@recative')
   ),
 
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        exclude: /node_modules(?!\/@gpmc)/,
+        exclude: /node_modules(?!\/@recative)/,
         use: {
           loader: 'babel-loader',
           options: {

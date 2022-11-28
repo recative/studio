@@ -75,6 +75,7 @@ export const AssetTable: React.FC<IAssetsProps> = ({
 
         {assets.filter(Boolean).map((asset) => (
           <AssetTableUnit
+            key={asset.id}
             asset={asset}
             resources={resources}
             onRefreshEpisodeListRequest={onRefreshEpisodeListRequest}

@@ -9,16 +9,19 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
 import { merge } from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
-import baseConfig from './webpack.config.base';
-import CheckNodeEnv from '../scripts/CheckNodeEnv';
-import DeleteSourceMaps from '../scripts/DeleteSourceMaps';
+import baseConfig from './webpack.config.base.mjs';
+import CheckNodeEnv from '../scripts/CheckNodeEnv.mjs';
+import DeleteSourceMaps from '../scripts/DeleteSourceMaps.mjs';
 
 CheckNodeEnv('production');
 DeleteSourceMaps();
 
-const devtoolsConfig = process.env.DEBUG_PROD === 'true' ? {
-  devtool: 'source-map'
-} : {};
+const devtoolsConfig =
+  process.env.DEBUG_PROD === 'true'
+    ? {
+        devtool: 'source-map',
+      }
+    : {};
 
 export default merge(baseConfig, {
   ...devtoolsConfig,
@@ -52,7 +55,7 @@ export default merge(baseConfig, {
             },
           },
           'css-loader',
-          'sass-loader'
+          'sass-loader',
         ],
       },
       // WOFF Font
@@ -125,13 +128,12 @@ export default merge(baseConfig, {
 
   optimization: {
     minimize: true,
-    minimizer:
-      [
-        new TerserPlugin({
-          parallel: true,
-        }),
-        new CssMinimizerPlugin(),
-      ],
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+      }),
+      new CssMinimizerPlugin(),
+    ],
   },
 
   plugins: [

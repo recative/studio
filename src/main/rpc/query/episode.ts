@@ -329,10 +329,10 @@ export const getEpisodeDetail = async (
 };
 
 export const getEpisodeDetailList = async (
-  episodeIds: string[] | null = null,
   request: ProfileConfig,
   dbPromise: ReturnType<typeof getDb> | null = null,
-  skipResources = false
+  skipResources = false,
+  episodeIds: string[] | null = null
 ) => {
   const internalEpisodeIds =
     episodeIds ??
