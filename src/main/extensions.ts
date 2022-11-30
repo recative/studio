@@ -17,6 +17,7 @@ import androidApkBundlerExtension from '@recative/extension-android';
 import crowdinExtension from '@recative/extension-crowdin';
 import dbFixerExtension from '@recative/extension-db-fixer';
 import i18nUtilsExtension from '@recative/extension-i18n-utils';
+import resourceExporterExtension from '@recative/extension-resource-exporter';
 
 export const extensions = [
   aliOssExtension,
@@ -33,4 +34,5 @@ export const extensions = [
   i18nUtilsExtension,
   dbFixerExtension,
   crowdinExtension,
+  resourceExporterExtension,
 ] as ExtensionManifest[];

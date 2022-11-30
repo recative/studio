@@ -397,6 +397,7 @@
     "packages/extension-crowdin",
     "packages/extension-audio-backends",
     "packages/extension-db-fixer",
+    "packages/extension-resource-exporter",
     "packages/studio-definitions",
     "packages/loki-fs-structured-adapter"
   ],

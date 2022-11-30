@@ -5355,6 +5355,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@recative/extension-resource-exporter@workspace:packages/extension-resource-exporter":
+  version: 0.0.0-use.local
+  resolution: "@recative/extension-resource-exporter@workspace:packages/extension-resource-exporter"
+  dependencies:
+    "@types/mime-types": ^2.1.1
+    fs-extra: ^10.1.0
+    mime-types: ^2.1.35
+  languageName: unknown
+  linkType: soft
+
 "@recative/extension-s3-bucket@workspace:packages/extension-s3-bucket":
   version: 0.0.0-use.local
   resolution: "@recative/extension-s3-bucket@workspace:packages/extension-s3-bucket"
