@@ -36,6 +36,14 @@ const PlayerContainerStyles = {
   flexGrow: 1,
 } as const;
 
+const USER_DATA = {
+  token: '',
+  avatar: '',
+  userName: '',
+};
+
+const onEpisodeUpdate = async () => {};
+
 const InternalPreviewPlayer: React.FC = React.memo(() => {
   const [css] = useStyletron();
 
@@ -73,13 +81,14 @@ const InternalPreviewPlayer: React.FC = React.memo(() => {
         <React.Suspense fallback={<Loading />}>
           <Content
             episodeId={previewAssetId}
-            initialAsset={initialAsset}
             userImplementedFunctions={userImplementedFunctions}
             envVariable={envVariable}
             trustedUploaders={TRUSTED_UPLOADERS}
             preferredUploaders={PREFERRED_UPLOADERS}
-            loadingComponent={Loading}
+            LoadingComponent={Loading}
             playerPropsHookDependencies={DEPENDENCIES}
+            userData={USER_DATA}
+            onEpisodeIdUpdate={onEpisodeUpdate}
           />
         </React.Suspense>
       ) : (

@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "*": ["renderer/*", "main/*"]
+    }
+  },
+  "exclude": ["node_modules", "tmp", "main", "packages"]
+}

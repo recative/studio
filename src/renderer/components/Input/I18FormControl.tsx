@@ -8,8 +8,9 @@ import type { FormControlProps } from 'baseui/form-control';
 
 import { LANGUAGES } from './constants/languages';
 
-export interface I18FormControlProps extends FormControlProps {
+export interface I18FormControlProps extends Omit<FormControlProps, 'label'> {
   finished: boolean;
+  label?: React.ReactNode;
 }
 
 export const isFinished = (x?: Record<string, string>) => {

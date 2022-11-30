@@ -1,7 +1,7 @@
 {
   "name": "@recative/extension-crowdin",
   "packageManager": "yarn@3.2.3",
-  "main": "./manifest.ts",
+  "main": "./src/manifest.ts",
   "dependencies": {
     "@crowdin/crowdin-api-client": "^1.19.2"
   }

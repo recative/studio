@@ -330,6 +330,7 @@ export const Welcome: React.FC = () => {
                         }) as unknown as React.ReactNode
                       }
                     />
+                    <RecativeBlock />
                   </ButtonGroup>
                 </StatefulTooltip>
               </RecativeBlock>

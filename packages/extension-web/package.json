@@ -1,4 +1,4 @@
 {
   "name": "@recative/extension-web",
-  "main": "./manifest.ts"
+  "main": "./src/manifest.ts"
 }

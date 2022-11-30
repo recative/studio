@@ -103,6 +103,7 @@ export const addEmptyAsset = async (episodeId: string) => {
     updateTime: Date.now(),
     preloadDisabled: false,
     earlyDestroyOnSwitch: false,
+    extensionConfigurations: {},
   };
 
   db.episode.assets.insert(newAsset);

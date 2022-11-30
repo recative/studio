@@ -1,4 +1,4 @@
 {
-    "name": "@recative/studio-definitions",
-    "main": "./src/index.ts"
+  "name": "@recative/studio-definitions",
+  "main": "./src/index.ts"
 }

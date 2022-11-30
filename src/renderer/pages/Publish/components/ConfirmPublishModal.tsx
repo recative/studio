@@ -27,7 +27,7 @@ import { ResourceManagerIconOutline } from 'components/Icons/ResourceManagerIcon
 import { server } from 'utils/rpc';
 import { ModalManager } from 'utils/hooks/useModalManager';
 
-import type { IPublishTasks } from 'utils/IPublishTask';
+import type { IPublishTasks } from '../../../../utils/IPublishTask';
 
 const PUBLISH_TYPE_LIST_STYLE = {
   gap: '6px',

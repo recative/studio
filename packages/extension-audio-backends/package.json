@@ -1,5 +1,5 @@
 {
   "name": "@recative/extension-audio-backends",
   "packageManager": "yarn@3.1.1",
-  "main": "./manifest.ts"
+  "main": "./src/manifest.ts"
 }

@@ -1,7 +1,7 @@
 {
   "name": "@recative/extension-polyv-vod",
   "packageManager": "yarn@3.0.0-rc.9",
-  "main": "./manifest.ts",
+  "main": "./src/manifest.ts",
   "dependencies": {
     "@recative/polyv": "^1.2.5",
     "@types/md5": "^2.3.1",

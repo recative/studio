@@ -20,7 +20,7 @@ export const importedFileToFile = async (
     postProcessedFile,
     postProcessedThumbnail,
     ...internalResourceDefinition
-  } = file;
+  } = file as IPostProcessedResourceFileForImport;
 
   const resourceDefinition = cloneDeep(
     internalResourceDefinition

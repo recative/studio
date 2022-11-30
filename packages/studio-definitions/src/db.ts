@@ -10,10 +10,10 @@ import {
   IBundleRelease,
   ISeriesMetadata,
 } from '@recative/definitions';
-import { IBundleProfile } from '@recative/extension-sdk';
 
 import type {
   ISetting,
+  IBundleProfile,
   PostProcessedResourceItemForUpload,
 } from '@recative/extension-sdk';
 

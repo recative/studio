@@ -1,4 +1,4 @@
-import '../wydr';
+import './wydr';
 
 import React from 'react';
 
@@ -11,7 +11,7 @@ import type { StandardEngine } from 'styletron-react';
 import { HashRouter } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 
-import { App } from './App';
+import { App } from './renderer/App';
 
 const container = document.getElementById('root') as HTMLDivElement;
 const root = createRoot(container);

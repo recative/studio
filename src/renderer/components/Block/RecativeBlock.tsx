@@ -9,8 +9,13 @@ import { useStyletron } from 'styletron-react';
 import type { Properties } from 'styletron-standard';
 
 export interface IBlockProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'color' | 'translate'>,
-    CSS.Properties<string | number> {}
+  extends Omit<
+      React.HTMLAttributes<HTMLDivElement>,
+      'color' | 'translate' | 'children'
+    >,
+    CSS.Properties<string | number> {
+  children?: React.ReactNode | ((props: {}) => React.ReactNode);
+}
 
 const HTML_KEYS = [
   'defaultChecked',
@@ -23,6 +28,7 @@ const HTML_KEYS = [
   'contextMenu',
   'dir',
   'draggable',
+  'disabled',
   'hidden',
   'id',
   'lang',
@@ -85,6 +91,4 @@ const InternalBlock: React.ForwardRefRenderFunction<
   return <div {...divProps} className={cn(style, className)} />;
 };
 
-export const RecativeBlock = React.memo(
-  React.forwardRef<HTMLDivElement, IBlockProps>(InternalBlock)
-);
+export const RecativeBlock = React.memo(React.forwardRef(InternalBlock));

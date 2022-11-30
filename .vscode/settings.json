@@ -46,6 +46,7 @@
     "codemirror",
     "compat",
     "Contexify",
+    "craco",
     "dbref",
     "digestalg",
     "Dirtable",

@@ -49,18 +49,17 @@ export const Login: React.FC = () => {
   );
 
   const loginButtonClick = React.useCallback(() => {
-    (async () => {
-      const { code, ...thisUser } = await server.userLogin(token, actServer);
-
-      if (thisUser && 'id' in thisUser) {
-        setUser(thisUser);
-        setIsUserInfoOpen(true);
-      } else {
-        toaster.info(`Failed to login: ${code || 'Unknown Error'}`, {
-          overrides: { InnerContainer: { style: { width: '100%' } } },
-        });
-      }
-    })();
+    // (async () => {
+    //   const { code, ...thisUser } = await server.userLogin(token, actServer);
+    //   if (thisUser && 'id' in thisUser) {
+    //     setUser(thisUser);
+    //     setIsUserInfoOpen(true);
+    //   } else {
+    //     toaster.info(`Failed to login: ${code || 'Unknown Error'}`, {
+    //       overrides: { InnerContainer: { style: { width: '100%' } } },
+    //     });
+    //   }
+    // })();
   }, [setIsUserInfoOpen]);
 
   return (

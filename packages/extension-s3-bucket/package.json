@@ -1,7 +1,7 @@
 {
   "name": "@recative/extension-s3-bucket",
   "packageManager": "yarn@3.0.0-rc.9",
-  "main": "./manifest.ts",
+  "main": "./src/manifest.ts",
   "dependencies": {
     "@aws-sdk/client-s3": "3.137.0",
     "@types/md5": "^2.3.1",

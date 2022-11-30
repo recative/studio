@@ -274,7 +274,7 @@ export const getEpisodeList = async (
 
 export const getEpisodeDetail = async (
   requestId: string,
-  request: ProfileConfig,
+  request: ProfileConfig | null,
   dbPromise: ReturnType<typeof getDb> | null = null,
   skipResources = false
 ) => {
@@ -303,7 +303,7 @@ export const getEpisodeDetail = async (
 
   const rawAssets = await getClientSideAssetList(
     episode.id,
-    request,
+    request ?? undefined,
     dbPromise
   );
   const assets = rawAssets.filter((x) =>
@@ -329,7 +329,7 @@ export const getEpisodeDetail = async (
 };
 
 export const getEpisodeDetailList = async (
-  request: ProfileConfig,
+  request: ProfileConfig | null,
   dbPromise: ReturnType<typeof getDb> | null = null,
   skipResources = false,
   episodeIds: string[] | null = null
