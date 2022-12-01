@@ -8,11 +8,13 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 
+import { cleanupDb } from './main/rpc/db';
 import { setMainWindow } from './main/rpc/window/mainWindow';
 import { installDevTools } from './main/devtools';
 import { initializeServer } from './main/rpc';
-import { cleanupDb } from './main/rpc/db';
 import { registerProtocols, initializeProtocols } from './main/protocols';
+
+const isDev = process.env.NODE_ENV === 'development';
 
 initializeProtocols();
 
@@ -73,7 +75,9 @@ const createWindow = async () => {
 
   mainWindow.setMenuBarVisibility(false);
 
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
+  mainWindow.loadURL(
+    isDev ? 'http://localhost:3000' : 'recative-system://root/index.html'
+  );
 
   mainWindow.webContents.on('did-finish-load', () => {
     if (!mainWindow) {

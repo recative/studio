@@ -1,10 +1,13 @@
 /* eslint-disable class-methods-use-this */
 
-import { ipcRenderer } from 'electron';
+import type { ipcRenderer as IpcRenderer } from 'electron';
 
 import type { CallbackBasedChannel } from 'async-call-rpc';
 
 type JSONRPCHandlerCallback = (data: unknown) => Promise<unknown>;
+
+const ipcRenderer = (window as unknown as Record<string, unknown>)
+  .ipcRenderer as typeof IpcRenderer;
 
 export class IpcRendererChannel implements CallbackBasedChannel {
   setup(callback: JSONRPCHandlerCallback) {
