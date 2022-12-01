@@ -14,10 +14,7 @@
       "extends": [
         "airbnb-base",
         "airbnb-typescript/base",
-        "plugin:react/recommended",
-        "plugin:react/jsx-runtime",
         "plugin:jsx-a11y/recommended",
-        "plugin:react-hooks/recommended",
         "prettier"
       ],
       "rules": {
@@ -76,12 +73,7 @@
     },
     {
       "files": ["*.js", "*.jsx"],
-      "extends": [
-        "airbnb-base",
-        "plugin:react/recommended",
-        "plugin:jsx-a11y/recommended",
-        "plugin:react-hooks/recommended"
-      ],
+      "extends": ["airbnb-base", "plugin:jsx-a11y/recommended"],
       "rules": {}
     }
   ]
