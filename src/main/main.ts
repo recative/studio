@@ -3,18 +3,17 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
+import isDev from 'electron-is-dev';
 import { app, BrowserWindow, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 
-import { cleanupDb } from './main/rpc/db';
-import { setMainWindow } from './main/rpc/window/mainWindow';
-import { installDevTools } from './main/devtools';
-import { initializeServer } from './main/rpc';
-import { registerProtocols, initializeProtocols } from './main/protocols';
-
-const isDev = process.env.NODE_ENV === 'development';
+import { cleanupDb } from './rpc/db';
+import { setMainWindow } from './rpc/window/mainWindow';
+import { installDevTools } from './devtools';
+import { initializeServer } from './rpc';
+import { registerProtocols, initializeProtocols } from './protocols';
 
 initializeProtocols();
 
@@ -78,6 +77,10 @@ const createWindow = async () => {
   mainWindow.loadURL(
     isDev ? 'http://localhost:3000' : 'recative-system://root/index.html'
   );
+
+  if (isDev) {
+    mainWindow.webContents.openDevTools({ mode: 'detach' });
+  }
 
   mainWindow.webContents.on('did-finish-load', () => {
     if (!mainWindow) {

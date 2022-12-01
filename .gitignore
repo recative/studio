@@ -71,3 +71,7 @@ src/api
 spec.yaml
 
 .env
+
+build
+
+out/

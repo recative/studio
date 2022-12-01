@@ -1,4 +1,4 @@
-import './wydr';
+import './renderer/wydr';
 
 import React from 'react';
 
