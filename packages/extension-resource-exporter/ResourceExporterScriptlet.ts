@@ -39,12 +39,11 @@ export class ResourceExporterScriptlet extends Scriptlet<
   ];
 
   scriptExportSelectedResources = async (selectedResources: string[]) => {
-    const outputPath = join(
-      this.config.exportDestinationPath,
-      Date.now().toString()
+    this.dependency.logToTerminal(
+      `:: File received: ${selectedResources.join(', ')}`
     );
 
-    await ensureDir(outputPath);
+    await ensureDir(this.config.exportDestinationPath);
 
     const resources = this.dependency.db.resource.resources
       .find({
@@ -62,7 +61,7 @@ export class ResourceExporterScriptlet extends Scriptlet<
         ],
         removed: false,
       })
-      .filter((x) => x.type === 'file' && !x.resourceGroupId);
+      .filter((x) => x.type === 'file');
 
     if (!resources.length) {
       return {
@@ -70,6 +69,8 @@ export class ResourceExporterScriptlet extends Scriptlet<
         message: 'No convertible resource found',
       };
     }
+
+    this.dependency.logToTerminal(`:: ${resources.length} files queried`);
 
     await Promise.all(
       resources.map(async (resource) => {
@@ -81,9 +82,11 @@ export class ResourceExporterScriptlet extends Scriptlet<
           resource.mimeType
         )}`;
 
+        this.dependency.logToTerminal(`:: Exporting ${outputFileName}`);
+
         await copy(
           await this.dependency.getResourceFilePath(resource),
-          join(outputPath, outputFileName)
+          join(this.config.exportDestinationPath, outputFileName)
         );
       })
     );
