@@ -19,14 +19,14 @@ export class AtlasResourceScriptlet extends Scriptlet<string> {
   static readonly scripts = [
     {
       id: 'recoverTextureDimension',
-      label: 'Recover Broken',
+      label: 'Recover Broken Dimension',
       type: ScriptType.Resource,
       executeMode: ScriptExecutionMode.Terminal,
       confirmBeforeExecute: true,
     },
     {
       id: 'recoverSelectedResourceDimension',
-      label: 'Recover Selected',
+      label: 'Recover Selected Dimension',
       type: ScriptType.Resource,
       executeMode: ScriptExecutionMode.Terminal,
       confirmBeforeExecute: false,
