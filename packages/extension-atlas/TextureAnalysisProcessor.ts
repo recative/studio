@@ -62,6 +62,32 @@ export class TextureAnalysisProcessor extends ResourceProcessor<
     return ctx.getImageData(0, 0, x.width, x.height);
   };
 
+  static getImageEnvelope = (
+    resource:
+      | IResourceFile
+      | IPostProcessedResourceFileForImport
+      | IPostProcessedResourceFileForUpload
+  ) => {
+    return {
+      x: Number.parseInt(
+        resource.extensionConfigurations[`${TextureAnalysisProcessor.id}~~ex`],
+        10
+      ),
+      y: Number.parseInt(
+        resource.extensionConfigurations[`${TextureAnalysisProcessor.id}~~ey`],
+        10
+      ),
+      w: Number.parseInt(
+        resource.extensionConfigurations[`${TextureAnalysisProcessor.id}~~ew`],
+        10
+      ),
+      h: Number.parseInt(
+        resource.extensionConfigurations[`${TextureAnalysisProcessor.id}~~eh`],
+        10
+      ),
+    };
+  };
+
   static calculateImageEnvelope = (
     resource:
       | IResourceFile
