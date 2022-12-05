@@ -33,7 +33,6 @@ const getBundlerConfigs = async (
 
   const episodes = cloneDeep(
     await getEpisodeDetailList(
-      null,
       profile
         ? {
             type: 'bundleProfile',

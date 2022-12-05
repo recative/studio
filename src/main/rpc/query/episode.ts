@@ -334,11 +334,9 @@ export const getEpisodeDetailList = async (
   skipResources = false,
   episodeIds: string[] | null = null
 ) => {
+  const db = await (dbPromise || getDb());
   const internalEpisodeIds =
-    episodeIds ??
-    (
-      (await (dbPromise || getDb())).episode.episodes.find({}) as IEpisode[]
-    ).map((x) => x.id);
+    episodeIds ?? (db.episode.episodes.find({}) as IEpisode[]).map((x) => x.id);
 
   return Promise.all(
     internalEpisodeIds.map((episodeId) =>

@@ -52,9 +52,9 @@ export const getResourceList = async (request: FastifyRequest) => {
 export const getEpisodeList = async (request: FastifyRequest) => {
   const db = getDbFromRequest(request);
 
-  return (
-    await getEpisodeDetailList(null, await getProfile(request), db, true)
-  ).sort((a, b) => a.episode.order - b.episode.order);
+  return (await getEpisodeDetailList(await getProfile(request), db, true)).sort(
+    (a, b) => a.episode.order - b.episode.order
+  );
 };
 
 interface IParameterWithSerializer {
