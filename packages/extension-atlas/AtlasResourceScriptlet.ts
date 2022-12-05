@@ -44,6 +44,9 @@ export class AtlasResourceScriptlet extends Scriptlet<string> {
           {
             $eq: undefined,
           },
+          {
+            $exists: false,
+          },
         ],
       },
     });
