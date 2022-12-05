@@ -145,7 +145,7 @@ export class AtlasResourceScriptlet extends Scriptlet<string> {
         ],
         removed: false,
       })
-      .filter((x) => x.type === 'file' && !x.resourceGroupId);
+      .filter((x) => x.type === 'file');
 
     if (!resources.length) {
       return {
