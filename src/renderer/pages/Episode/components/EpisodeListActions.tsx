@@ -10,6 +10,7 @@ import { useEvent } from 'utils/hooks/useEvent';
 
 import { server } from 'utils/rpc';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
+import { useEditEpisodeModal } from './EditEpisodeModal';
 
 export interface IEpisodeListActionsProps {
   episode: IEpisode;
@@ -22,14 +23,23 @@ export const EpisodeListActions: React.FC<IEpisodeListActionsProps> = ({
 }) => {
   const databaseLocked = useDatabaseLocked();
 
+  const [, , openEditEpisodeModal] = useEditEpisodeModal();
+
   const handleAddAssetClick = useEvent(async () => {
     const asset = await server.addEmptyAsset(episode.id);
     onRefreshEpisodeListRequest();
     return asset;
   });
 
+  const handleEditEpisodeClick = useEvent(() => {
+    if (episode) openEditEpisodeModal(episode);
+  });
+
   return (
     <RecativeBlock width="100%" textAlign="right">
+      <SmallIconButton title="Edit Episode" disabled={databaseLocked}>
+        <AddIconOutline width={16} onClick={handleEditEpisodeClick} />
+      </SmallIconButton>
       <SmallIconButton title="Add Episode" disabled={databaseLocked}>
         <AddIconOutline width={16} onClick={handleAddAssetClick} />
       </SmallIconButton>
