@@ -1,16 +1,7 @@
 import fetch from 'node-fetch';
-import jwtDecode from 'jwt-decode';
+// import jwtDecode from 'jwt-decode';
 
 import { localStorage } from '../../utils/localStorage';
-
-interface IUserLoginResponse {
-  id: number;
-  name: string;
-  email: string;
-  label: string;
-  active: boolean;
-  token: string;
-}
 
 interface IToken {
   id: number;
@@ -20,10 +11,12 @@ interface IToken {
   expiresIn: number;
 }
 
+const HOST_KEY = '@recative/auth-service/host';
+const TOKEN_KEY = '@recative/auth-service/host';
+
 export const localLogout = async () => {
-  localStorage.removeItem('@recative/auth-service/id');
   localStorage.removeItem('@recative/auth-service/name');
-  localStorage.removeItem('@recative/auth-service/token');
+  localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem('@recative/auth-service/label');
   localStorage.removeItem('@recative/auth-service/expires');
 };
@@ -39,14 +32,14 @@ export const getUserData = () => {
     return null;
   }
 
-  const token = localStorage.getItem('@recative/auth-service/token');
+  const token = localStorage.getItem(TOKEN_KEY);
   const id = Number.parseInt(
     localStorage.getItem('@recative/auth-service/id') || '-1',
     10
   );
   const name = localStorage.getItem('@recative/auth-service/name') || '';
   const label = localStorage.getItem('@recative/auth-service/label') || '';
-  const host = localStorage.getItem('@recative/auth-service/host') || '';
+  const host = localStorage.getItem(HOST_KEY) || '';
 
   if (!token) return null;
 
@@ -61,12 +54,12 @@ export const getUserData = () => {
 
 export const getTokenHeader = () => {
   return {
-    Authorization: localStorage.getItem('@recative/auth-service/token'),
+    Authorization: localStorage.getItem(TOKEN_KEY),
   };
 };
 
 const getRequestUrl = (pathName: string) => {
-  const server = localStorage.getItem('@recative/auth-service/host');
+  const server = localStorage.getItem(HOST_KEY);
 
   if (!server) {
     throw new TypeError('Service not available');
@@ -77,54 +70,66 @@ const getRequestUrl = (pathName: string) => {
   return requestUrl.toString();
 };
 
-export const userLogin = async (
-  email: string,
-  password: string,
-  actServer: string
-) => {
-  try {
-    const requestUrl = new URL(actServer);
-    requestUrl.pathname = '/admin/user/token';
+class RequestError extends Error {
+  name = 'RequestError';
 
-    const response = await fetch(requestUrl.toString(), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Request failed');
-    }
-
-    const body = (await response.json()) as IUserLoginResponse;
-    const { id, name, token, label } = body;
-
-    const data: IToken = jwtDecode(token);
-
-    if (typeof token === 'string') {
-      localStorage.setItem('@recative/auth-service/host', actServer);
-      localStorage.setItem('@recative/auth-service/id', id.toString());
-      localStorage.setItem('@recative/auth-service/name', name);
-      localStorage.setItem('@recative/auth-service/token', token);
-      localStorage.setItem('@recative/auth-service/label', label);
-      localStorage.setItem(
-        '@recative/auth-service/expires',
-        data.expiresIn.toString()
-      );
-
-      return { token, ...data };
-    }
-
-    throw new Error('Invalid response');
-  } catch (error) {
-    if (error instanceof Error) {
-      return { code: error.name || error.message };
-    }
-    return { code: 'UNKNOWN_ERROR' };
+  constructor(
+    public path: string,
+    public body?: Record<string, unknown>,
+    message = `Unable to process the request.`,
+    public internalErrorName?: string,
+    public unknownObject?: unknown
+  ) {
+    super(message);
   }
+}
+
+const requestFactory =
+  (method: string) =>
+  async <T>(path: string, body?: Record<string, unknown>) => {
+    try {
+      const response = await fetch(getRequestUrl(path), {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        throw new Error('Request failed');
+      }
+
+      return response.json() as T;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new RequestError(path, body, error.message, error.name);
+      }
+      throw new RequestError(
+        path,
+        body,
+        `Unable to process the request.`,
+        undefined,
+        error
+      );
+    }
+  };
+
+const get = requestFactory('GET');
+// const post = requestFactory('POST');
+
+export const userLogin = async (token: string, actServer: string) => {
+  localStorage.setItem(HOST_KEY, token);
+
+  const response = await get('/admin/tokens');
+  localStorage.setItem(HOST_KEY, actServer);
+  localStorage.setItem(TOKEN_KEY, token);
+  // localStorage.setItem('@recative/auth-service/name', name);
+  // localStorage.setItem('@recative/auth-service/label', label);
+  // localStorage.setItem(
+  //   '@recative/auth-service/expires',
+  //   data.expiresIn.toString()
+  // );
+
+  return { token, response };
 };
 
 export const userLogout = async () => {

@@ -19,6 +19,7 @@ import {
   useOnChangeEventWrapperForStringType,
 } from 'utils/hooks/useFormChangeCallbacks';
 import { ContentContainer } from 'components/Layout/ContentContainer';
+import { useEvent } from 'utils/hooks/useEvent';
 
 interface IUser {
   token: string;
@@ -48,20 +49,21 @@ export const Login: React.FC = () => {
     valueChangeCallbacks.token
   );
 
-  const loginButtonClick = React.useCallback(() => {
-    (async () => {
-      const { code, ...thisUser } = await server.userLogin(token, actServer);
+  const loginButtonClick = useEvent(async () => {
+    const { code, ...thisUser } = await server.userLogin(
+      actServerValue.token,
+      actServerValue.actServer
+    );
 
-      if (thisUser && 'id' in thisUser) {
-        setUser(thisUser);
-        setIsUserInfoOpen(true);
-      } else {
-        toaster.info(`Failed to login: ${code || 'Unknown Error'}`, {
-          overrides: { InnerContainer: { style: { width: '100%' } } },
-        });
-      }
-    })();
-  }, [setIsUserInfoOpen]);
+    if (thisUser && 'id' in thisUser) {
+      setUser(thisUser);
+      setIsUserInfoOpen(true);
+    } else {
+      toaster.info(`Failed to login: ${code || 'Unknown Error'}`, {
+        overrides: { InnerContainer: { style: { width: '100%' } } },
+      });
+    }
+  });
 
   return (
     <PivotLayout>
