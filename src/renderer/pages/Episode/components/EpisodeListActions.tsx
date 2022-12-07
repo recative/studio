@@ -4,6 +4,7 @@ import { IEpisode } from '@recative/definitions';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
+import { EditIconOutline } from 'components/Icons/EditIconOutline';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
 
 import { useEvent } from 'utils/hooks/useEvent';
@@ -38,7 +39,7 @@ export const EpisodeListActions: React.FC<IEpisodeListActionsProps> = ({
   return (
     <RecativeBlock width="100%" textAlign="right">
       <SmallIconButton title="Edit Episode" disabled={databaseLocked}>
-        <AddIconOutline width={16} onClick={handleEditEpisodeClick} />
+        <EditIconOutline width={16} onClick={handleEditEpisodeClick} />
       </SmallIconButton>
       <SmallIconButton title="Add Episode" disabled={databaseLocked}>
         <AddIconOutline width={16} onClick={handleAddAssetClick} />
