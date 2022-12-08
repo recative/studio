@@ -9,7 +9,7 @@ import { Button } from 'baseui/button';
 import { DisplayXSmall, LabelLarge } from 'baseui/typography';
 import type { ButtonOverrides } from 'baseui/button';
 
-import { USER, USER_INFO_MODAL_OPEN } from 'stores/ProjectDetail';
+import { USER } from 'stores/ProjectDetail';
 
 import { server } from 'utils/rpc';
 
@@ -37,23 +37,19 @@ const SUBTITLE_STYLES: StyleObject = {
   opacity: '0.6',
 };
 
-const InternalUserInfo: React.VFC = () => {
+const InternalUserInfo: React.FC = () => {
   const [css] = useStyletron();
   const [user, setUser] = useAtom(USER);
-
-  const [isUserInfoOpen, setIsUserInfoOpen] = useAtom(USER_INFO_MODAL_OPEN);
 
   const logoutButtonClick = React.useCallback(async () => {
     await server.userLogout();
     setUser(null);
-    setIsUserInfoOpen(false);
-  }, [setIsUserInfoOpen, setUser]);
+  }, [setUser]);
 
   return (
     <RecativeBlock
       width="100vw"
       height="calc(100vh - 30px)"
-      display={isUserInfoOpen ? 'flex' : 'none'}
       justifyContent="center"
       alignItems="center"
       position="fixed"
@@ -79,7 +75,7 @@ const InternalUserInfo: React.VFC = () => {
             >
               <DisplayXSmall>{user?.label || 'NoName'}</DisplayXSmall>
               <RecativeBlock className={css(SUBTITLE_STYLES)}>
-                <LabelLarge>#{user?.id || '[empty]'}</LabelLarge>
+                <LabelLarge>#{user?.host || '[empty]'}</LabelLarge>
               </RecativeBlock>
             </RecativeBlock>
           </RecativeBlock>

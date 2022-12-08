@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import { useAtom } from 'jotai';
-
 import { Input } from 'baseui/input';
 import { Button } from 'baseui/button';
 import { FormControl } from 'baseui/form-control';
@@ -13,19 +11,18 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { server } from 'utils/rpc';
 
-import { USER_INFO_MODAL_OPEN } from 'stores/ProjectDetail';
 import {
   useFormChangeCallbacks,
   useOnChangeEventWrapperForStringType,
 } from 'utils/hooks/useFormChangeCallbacks';
 import { ContentContainer } from 'components/Layout/ContentContainer';
 import { useEvent } from 'utils/hooks/useEvent';
+import { useAsync } from '@react-hookz/web';
 
 interface IUser {
   token: string;
-  id: number;
-  name: string;
   label: string;
+  host: string;
 }
 
 const DEFAULT_FORM_DATA = {
@@ -36,10 +33,23 @@ const DEFAULT_FORM_DATA = {
 export const Login: React.FC = () => {
   const [, setUser] = React.useState<IUser | null>(null);
 
-  const [, setIsUserInfoOpen] = useAtom(USER_INFO_MODAL_OPEN);
+  const [lastCredential, lastCredentialActions] = useAsync(
+    server.getLastLoginCredential
+  );
 
   const [actServerValue, valueChangeCallbacks] =
     useFormChangeCallbacks(DEFAULT_FORM_DATA);
+
+  React.useEffect(() => {
+    lastCredentialActions.execute();
+  }, [lastCredentialActions]);
+
+  React.useEffect(() => {
+    if (lastCredential.result) {
+      valueChangeCallbacks.actServer(lastCredential.result.host);
+      valueChangeCallbacks.token(lastCredential.result.token);
+    }
+  }, [lastCredential.result, valueChangeCallbacks]);
 
   const handleActServerChange = useOnChangeEventWrapperForStringType(
     valueChangeCallbacks.actServer
@@ -50,18 +60,26 @@ export const Login: React.FC = () => {
   );
 
   const loginButtonClick = useEvent(async () => {
-    const { code, ...thisUser } = await server.userLogin(
-      actServerValue.token,
-      actServerValue.actServer
-    );
+    try {
+      const user = await server.userLogin(
+        actServerValue.token,
+        actServerValue.actServer
+      );
 
-    if (thisUser && 'id' in thisUser) {
-      setUser(thisUser);
-      setIsUserInfoOpen(true);
-    } else {
-      toaster.info(`Failed to login: ${code || 'Unknown Error'}`, {
-        overrides: { InnerContainer: { style: { width: '100%' } } },
+      setUser({
+        token: user.token,
+        host: user.host,
+        label: user.comment,
       });
+    } catch (error) {
+      toaster.negative(
+        `Failed to login: ${
+          error instanceof Error ? error.message : 'Unknown Error'
+        }`,
+        {
+          overrides: { InnerContainer: { style: { width: '100%' } } },
+        }
+      );
     }
   });
 
