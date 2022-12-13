@@ -243,13 +243,25 @@ const useFileIdToFileMap = (
   const handleRemoveFile = React.useCallback(
     (fileId: string | string[]) => {
       setFileIdToFileMap((draft) => {
-        if (Array.isArray(fileId)) {
-          for (let i = 0; i < fileId.length; i += 1) {
-            delete draft[fileId[i]];
+        const batchRemove = (x: Set<string>) => {
+          const managedFiles = new Set<string>();
+
+          x.forEach((removedFileId) => {
+            const resource = draft[removedFileId];
+
+            if (resource.managedBy) {
+              managedFiles.add(resource.managedBy);
+            }
+
+            delete draft[removedFileId];
+          });
+
+          if (managedFiles.size) {
+            batchRemove(managedFiles);
           }
-        } else {
-          delete draft[fileId];
-        }
+        };
+
+        batchRemove(new Set(Array.isArray(fileId) ? fileId : [fileId]));
       });
     },
     [setFileIdToFileMap]
@@ -705,231 +717,225 @@ const useExtensionMetadata = () => {
   return extensionMetadata.result;
 };
 
-const InternalEditResourceGroupModal: React.FC<IEditResourceGroupModalProps> =
-  ({ onRefreshResourceListRequest }) => {
-    const editorRef = React.useRef<IResourceEditorRef>(null);
-    const [, , handleReplaceFileModalOpen] = useReplaceFileModalForGroupModal();
+const InternalEditResourceGroupModal: React.FC<
+  IEditResourceGroupModalProps
+> = ({ onRefreshResourceListRequest }) => {
+  const editorRef = React.useRef<IResourceEditorRef>(null);
+  const [, , handleReplaceFileModalOpen] = useReplaceFileModalForGroupModal();
 
-    const [css, theme] = useStyletron();
+  const [css, theme] = useStyletron();
 
-    const [isOpen, fileId, , onClose] = useEditResourceGroupModal();
-    const { group, files } = useEditableResourceDefinition(isOpen, fileId);
+  const [isOpen, fileId, , onClose] = useEditResourceGroupModal();
+  const { group, files } = useEditableResourceDefinition(isOpen, fileId);
 
-    const [groupLabel, handleGroupLabelUpdate] = useLabelUpdateCallback(group);
+  const [groupLabel, handleGroupLabelUpdate] = useLabelUpdateCallback(group);
 
-    const extensionMetadata = useExtensionMetadata();
+  const extensionMetadata = useExtensionMetadata();
 
-    const { editableResourceGroup, setEditableResourceGroup } =
-      useEditableResourceGroup(group?.id ?? null, files, extensionMetadata);
+  const { editableResourceGroup, setEditableResourceGroup } =
+    useEditableResourceGroup(group?.id ?? null, files, extensionMetadata);
 
-    const {
-      fileIdToFileMap,
-      handleAddFile,
-      handleRemoveFile,
-      handleUpdateFile,
-      setFileIdToFileMap,
-    } = useFileIdToFileMap(files, setEditableResourceGroup);
+  const {
+    fileIdToFileMap,
+    handleAddFile,
+    handleRemoveFile,
+    handleUpdateFile,
+    setFileIdToFileMap,
+  } = useFileIdToFileMap(files, setEditableResourceGroup);
 
-    const handleGroupModalSubmit = useGroupModalSubmitCallback(
-      editorRef,
-      fileIdToFileMap,
-      group,
-      groupLabel,
-      editableResourceGroup,
-      onRefreshResourceListRequest
-    );
+  const handleGroupModalSubmit = useGroupModalSubmitCallback(
+    editorRef,
+    fileIdToFileMap,
+    group,
+    groupLabel,
+    editableResourceGroup,
+    onRefreshResourceListRequest
+  );
 
-    const { selectedFileId, resetSelectedFile, handleButtonClickCallbacks } =
-      useSelectedFileState(fileIdToFileMap, editableResourceGroup);
+  const { selectedFileId, resetSelectedFile, handleButtonClickCallbacks } =
+    useSelectedFileState(fileIdToFileMap, editableResourceGroup);
 
-    const handleModalClose = React.useCallback(() => {
-      resetSelectedFile();
-      onClose();
-    }, [onClose, resetSelectedFile]);
+  const handleModalClose = React.useCallback(() => {
+    resetSelectedFile();
+    onClose();
+  }, [onClose, resetSelectedFile]);
 
-    const handleSubmitClick = React.useCallback(() => {
-      handleGroupModalSubmit();
-      handleModalClose();
-    }, [handleGroupModalSubmit, handleModalClose]);
+  const handleSubmitClick = React.useCallback(() => {
+    handleGroupModalSubmit();
+    handleModalClose();
+  }, [handleGroupModalSubmit, handleModalClose]);
 
-    const handleAddResourceFile = React.useCallback(
-      async (resourceFile: IResourceFile) => {
-        if (!group) {
-          throw new TypeError(
-            `Resource item is not a group, this is not allowed`
-          );
-        }
-        await server.addFileToGroup(resourceFile, group.id);
-        handleAddFile(resourceFile.id);
-      },
-      [group, handleAddFile]
-    );
-
-    const handleRemoveResourceFile = React.useCallback(
-      async (resourceFile: IEditableResourceFile) => {
-        await server.removeFileFromGroup(resourceFile);
-        handleRemoveFile(resourceFile.id);
-      },
-      [handleRemoveFile]
-    );
-
-    const { handleFileReplaced } = useReplaceFileModalState(
-      files,
-      handleAddFile,
-      handleRemoveFile
-    );
-
-    const { triggers, contextMenuItem, handleItemClick } =
-      useListItemContextMenu(
-        files || EMPTY_ARRAY,
-        handleRemoveResourceFile,
-        handleReplaceFileModalOpen
-      );
-
-    const { modalMenuItem } = useModalEditMenu(
-      handleAddResourceFile,
-      setFileIdToFileMap
-    );
-
-    React.useEffect(() => {
-      if (selectedFileId === editableResourceGroup?.id) {
-        editorRef.current?.setValue(editableResourceGroup);
-      } else {
-        const nextFile = fileIdToFileMap[selectedFileId];
-
-        editorRef.current?.setValue(nextFile ?? null);
+  const handleAddResourceFile = React.useCallback(
+    async (resourceFile: IResourceFile) => {
+      if (!group) {
+        throw new TypeError(
+          `Resource item is not a group, this is not allowed`
+        );
       }
-    }, [fileIdToFileMap, selectedFileId, editableResourceGroup]);
+      const resourceIds = await server.addFileToGroup(resourceFile, group.id);
+      handleAddFile([...resourceIds]);
+    },
+    [group, handleAddFile]
+  );
 
-    const databaseLocked = useDatabaseLocked();
+  const handleRemoveResourceFile = React.useCallback(
+    async (resourceFile: IEditableResourceFile) => {
+      await server.removeFileFromGroup(resourceFile);
+      handleRemoveFile(resourceFile.id);
+    },
+    [handleRemoveFile]
+  );
 
-    return (
-      <Modal
-        onClose={handleModalClose}
-        isOpen={isOpen}
-        animate
-        autoFocus
-        size={SIZE.default}
-        role={ROLE.dialog}
-        closeable={false}
-        overrides={modalOverrides}
-      >
-        <ModalHeader>
-          <RecativeBlock display="flex">
-            <Input
-              disabled={databaseLocked}
-              size={INPUT_SIZE.large}
-              overrides={titleOverrides}
-              value={groupLabel}
-              onChange={handleGroupLabelUpdate}
-            />
-            <StatefulTooltip
-              overrides={ButtonMenuOverride}
-              content={modalMenuItem}
-              placement={PLACEMENT.bottomRight}
-              triggerType={TRIGGER_TYPE.click}
-            >
-              <Button
-                kind={BUTTON_KIND.tertiary}
-                startEnhancer={<EditGroupIconOutline width={16} />}
-                overrides={IconButtonOverrides}
-              />
-            </StatefulTooltip>
-          </RecativeBlock>
-        </ModalHeader>
-        <ModalBody className={css(modalBodyStyles)}>
-          <List>
-            {group && (
-              <ListItem overrides={fileListOverrides}>
-                <div style={listItemContainerStyles}>
-                  <Button
-                    overrides={listItemOverrides}
-                    kind={
-                      selectedFileId === group?.id
-                        ? BUTTON_KIND.secondary
-                        : BUTTON_KIND.tertiary
-                    }
-                    onClick={handleButtonClickCallbacks[group.id]}
-                  >
-                    <LabelSmall>
-                      <RecativeBlock display="flex">
-                        <RecativeBlock marginRight="8px">
-                          <ResourceManagerIconOutline width={16} />
-                        </RecativeBlock>
-                        <RecativeBlock>Group</RecativeBlock>
-                      </RecativeBlock>
-                    </LabelSmall>
-                  </Button>
-                </div>
-              </ListItem>
-            )}
-            {Object.values(fileIdToFileMap).map((file) => (
-              <ListItem key={file.id} overrides={fileListOverrides}>
-                <div
-                  style={listItemContainerStyles}
-                  onContextMenu={triggers[file.id]}
-                >
-                  <Button
-                    overrides={listItemOverrides}
-                    kind={
-                      selectedFileId === file.id
-                        ? BUTTON_KIND.secondary
-                        : BUTTON_KIND.tertiary
-                    }
-                    onClick={handleButtonClickCallbacks[file.id]}
-                  >
-                    <ResourceItem {...file} />
-                  </Button>
-                </div>
-              </ListItem>
-            ))}
-          </List>
-          <ContextMenu id={CONTEXT_MENU_ID}>
-            <StatefulMenu
-              items={contextMenuItem}
-              onItemSelect={handleItemClick}
-            />
-          </ContextMenu>
-          <RecativeBlock className={css(mainContentStyles)}>
-            {extensionMetadata ? (
-              <ResourceEditor ref={editorRef} onChange={handleUpdateFile} />
-            ) : null}
-          </RecativeBlock>
-        </ModalBody>
-        <ModalFooter>
-          <RecativeBlock
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
+  const { handleFileReplaced } = useReplaceFileModalState(
+    files,
+    handleAddFile,
+    handleRemoveFile
+  );
+
+  const { triggers, contextMenuItem, handleItemClick } = useListItemContextMenu(
+    files || EMPTY_ARRAY,
+    handleRemoveResourceFile,
+    handleReplaceFileModalOpen
+  );
+
+  const { modalMenuItem } = useModalEditMenu(
+    handleAddResourceFile,
+    setFileIdToFileMap
+  );
+
+  React.useEffect(() => {
+    if (selectedFileId === editableResourceGroup?.id) {
+      editorRef.current?.setValue(editableResourceGroup);
+    } else {
+      const nextFile = fileIdToFileMap[selectedFileId];
+
+      editorRef.current?.setValue(nextFile ?? null);
+    }
+  }, [fileIdToFileMap, selectedFileId, editableResourceGroup]);
+
+  const databaseLocked = useDatabaseLocked();
+
+  return (
+    <Modal
+      onClose={handleModalClose}
+      isOpen={isOpen}
+      animate
+      autoFocus
+      size={SIZE.default}
+      role={ROLE.dialog}
+      closeable={false}
+      overrides={modalOverrides}
+    >
+      <ModalHeader>
+        <RecativeBlock display="flex">
+          <Input
+            disabled={databaseLocked}
+            size={INPUT_SIZE.large}
+            overrides={titleOverrides}
+            value={groupLabel}
+            onChange={handleGroupLabelUpdate}
+          />
+          <StatefulTooltip
+            overrides={ButtonMenuOverride}
+            content={modalMenuItem}
+            placement={PLACEMENT.bottomRight}
+            triggerType={TRIGGER_TYPE.click}
           >
-            <RecativeBlock
-              id="id"
-              fontSize="0.85em"
-              fontWeight={500}
-              color={theme.colors.buttonDisabledText}
-            >
-              {group?.id}
-            </RecativeBlock>
-            <RecativeBlock>
-              <ModalButton
-                kind={BUTTON_KIND.tertiary}
-                onClick={handleModalClose}
+            <Button
+              kind={BUTTON_KIND.tertiary}
+              startEnhancer={<EditGroupIconOutline width={16} />}
+              overrides={IconButtonOverrides}
+            />
+          </StatefulTooltip>
+        </RecativeBlock>
+      </ModalHeader>
+      <ModalBody className={css(modalBodyStyles)}>
+        <List>
+          {group && (
+            <ListItem overrides={fileListOverrides}>
+              <div style={listItemContainerStyles}>
+                <Button
+                  overrides={listItemOverrides}
+                  kind={
+                    selectedFileId === group?.id
+                      ? BUTTON_KIND.secondary
+                      : BUTTON_KIND.tertiary
+                  }
+                  onClick={handleButtonClickCallbacks[group.id]}
+                >
+                  <LabelSmall>
+                    <RecativeBlock display="flex">
+                      <RecativeBlock marginRight="8px">
+                        <ResourceManagerIconOutline width={16} />
+                      </RecativeBlock>
+                      <RecativeBlock>Group</RecativeBlock>
+                    </RecativeBlock>
+                  </LabelSmall>
+                </Button>
+              </div>
+            </ListItem>
+          )}
+          {Object.values(fileIdToFileMap).map((file) => (
+            <ListItem key={file.id} overrides={fileListOverrides}>
+              <div
+                style={listItemContainerStyles}
+                onContextMenu={triggers[file.id]}
               >
-                Cancel
-              </ModalButton>
-              <ModalButton
-                disabled={databaseLocked}
-                onClick={handleSubmitClick}
-              >
-                Confirm
-              </ModalButton>
-            </RecativeBlock>
+                <Button
+                  overrides={listItemOverrides}
+                  kind={
+                    selectedFileId === file.id
+                      ? BUTTON_KIND.secondary
+                      : BUTTON_KIND.tertiary
+                  }
+                  onClick={handleButtonClickCallbacks[file.id]}
+                >
+                  <ResourceItem {...file} />
+                </Button>
+              </div>
+            </ListItem>
+          ))}
+        </List>
+        <ContextMenu id={CONTEXT_MENU_ID}>
+          <StatefulMenu
+            items={contextMenuItem}
+            onItemSelect={handleItemClick}
+          />
+        </ContextMenu>
+        <RecativeBlock className={css(mainContentStyles)}>
+          {extensionMetadata ? (
+            <ResourceEditor ref={editorRef} onChange={handleUpdateFile} />
+          ) : null}
+        </RecativeBlock>
+      </ModalBody>
+      <ModalFooter>
+        <RecativeBlock
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <RecativeBlock
+            id="id"
+            fontSize="0.85em"
+            fontWeight={500}
+            color={theme.colors.buttonDisabledText}
+          >
+            {group?.id}
           </RecativeBlock>
-        </ModalFooter>
-        <ReplaceFileModalForGroupModal onReplaced={handleFileReplaced} />
-      </Modal>
-    );
-  };
+          <RecativeBlock>
+            <ModalButton kind={BUTTON_KIND.tertiary} onClick={handleModalClose}>
+              Cancel
+            </ModalButton>
+            <ModalButton disabled={databaseLocked} onClick={handleSubmitClick}>
+              Confirm
+            </ModalButton>
+          </RecativeBlock>
+        </RecativeBlock>
+      </ModalFooter>
+      <ReplaceFileModalForGroupModal onReplaced={handleFileReplaced} />
+    </Modal>
+  );
+};
 
 export const EditResourceGroupModal = React.memo(
   InternalEditResourceGroupModal
