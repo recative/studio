@@ -281,6 +281,7 @@ export const searchRelease = async (query: string, type: 'media' | 'code') => {
         Number.isNaN(nQuery) ? undefined : { id: nQuery },
       ],
     })
+    .simplesort('commitTime', { desc: true })
     .limit(10)
     .data();
 

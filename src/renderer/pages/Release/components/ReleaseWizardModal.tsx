@@ -15,6 +15,7 @@ import {
 } from 'baseui/modal';
 import { FormControl } from 'baseui/form-control';
 import { Radio, RadioGroup } from 'baseui/radio';
+import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { LabelSmall, ParagraphSmall } from 'baseui/typography';
@@ -31,13 +32,27 @@ import { useSelectedProfile } from 'pages/Bundle/components/CreateBundleModal';
 import { ModalManager } from 'utils/hooks/useModalManager';
 
 import { server } from 'utils/rpc';
+import { ReleaseSelect } from './ReleaseSelect';
+import { useFormChangeCallbacks } from 'utils/hooks/useFormChangeCallbacks';
 
 export const useReleaseWizardModal = ModalManager<void, null>(null);
+
+export interface IReleaseItemWizard {
+  notes: string;
+  codeReleaseId: number;
+  mediaReleaseId: number;
+  profileIds: string[];
+  publishMediaRelease: boolean;
+  publishCodeRelease: boolean;
+}
 
 export const ReleaseWizardModal = () => {
   const [css, theme] = useStyletron();
   const [isOpen, , , onClose] = useReleaseWizardModal();
   const [step, setStep] = React.useState(0);
+
+  const [clonedProfile, valueChangeCallbacks, , setClonedProfile] =
+    useFormChangeCallbacks({} ?? null);
 
   const nextStep = useEvent(() => {
     setStep((x) => x + 1);
@@ -80,10 +95,10 @@ export const ReleaseWizardModal = () => {
   const unitStyle = React.useMemo(
     () =>
       css({
-        paddingTop: '8px',
-        paddingBottom: '8px',
-        paddingLeft: '10px',
-        paddingRight: '10px',
+        paddingTop: '10px',
+        paddingBottom: '10px',
+        paddingLeft: '8px',
+        paddingRight: '8px',
         display: 'flex',
         alignItems: 'center',
       }),
@@ -96,6 +111,9 @@ export const ReleaseWizardModal = () => {
         paddingTop: '2px',
         paddingBottom: '2px',
         whiteSpace: 'nowrap',
+        display: 'flex',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
       }),
     [css]
   );
@@ -162,9 +180,15 @@ export const ReleaseWizardModal = () => {
                       <LabelSmall>Use existed bundle</LabelSmall>
                     </Radio>
                   </RadioGroup>
-                  <FormControl label="Reused Release">
-                    <Input value={''} size={INPUT_SIZE.mini} />
-                  </FormControl>
+                  <RecativeBlock paddingLeft="32px">
+                    <FormControl label="Reused Release">
+                      <ReleaseSelect
+                        size={SELECT_SIZE.mini}
+                        placeholder="Select Media bundle"
+                        type="media"
+                      />
+                    </FormControl>
+                  </RecativeBlock>
                 </RecativeBlock>
               </ModalBody>
             </>
@@ -186,9 +210,15 @@ export const ReleaseWizardModal = () => {
                       <LabelSmall>Use existed bundle</LabelSmall>
                     </Radio>
                   </RadioGroup>
-                  <FormControl label="Reused Release">
-                    <Input value={''} size={INPUT_SIZE.mini} />
-                  </FormControl>
+                  <RecativeBlock paddingLeft="32px">
+                    <FormControl label="Reused Release">
+                      <ReleaseSelect
+                        size={SELECT_SIZE.mini}
+                        placeholder="Select Code bundle"
+                        type="code"
+                      />
+                    </FormControl>
+                  </RecativeBlock>
                 </RecativeBlock>
               </ModalBody>
             </>

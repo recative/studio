@@ -48,7 +48,7 @@ const getOptionLabel: GetOptionLabel<ISimpleRelease> = ({ option }) => {
   );
 };
 
-const useSearchRelease = (type: 'media' | 'code') => {
+export const useSearchRelease = (type: 'media' | 'code') => {
   const [state, actions] = useAsync(async (query: string) => {
     return server.searchRelease(query, type);
   });
@@ -59,6 +59,10 @@ const useSearchRelease = (type: 'media' | 'code') => {
     },
     []
   );
+
+  React.useEffect(() => {
+    actions.execute('');
+  }, []);
 
   const queryResult = state.result || [];
   const loading = state.status === 'loading';
@@ -84,7 +88,9 @@ const useSelectValue = <T,>() => {
 const useInputProps = () => {
   const [value, setValue] = React.useState('');
 
-  const handleValueChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleValueChange = (
+    event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setValue(event.currentTarget.value);
   };
 
@@ -181,7 +187,11 @@ export const CommitForm: React.FC<ICommitFormProps> = ({
             overrides={{ Input: { style: { width: '256px' } } }}
             onChange={handleMessageChange}
           />
-          <RecativeBlock paddingTop="12px" display="flex" justifyContent="flex-end">
+          <RecativeBlock
+            paddingTop="12px"
+            display="flex"
+            justifyContent="flex-end"
+          >
             <Button disabled={disabled} onClick={handleSubmit}>
               Commit
             </Button>
