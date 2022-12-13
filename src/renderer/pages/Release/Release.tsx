@@ -30,6 +30,7 @@ import {
 } from './components/BundleReleaseSuccessModal';
 
 import type { ICommitFormInputs } from './components/CommitForm';
+import { ReleaseWizardModal } from './components/ReleaseWizardModal';
 
 const mainContainerStyles: StyleObject = {
   width: '100%',
@@ -164,13 +165,11 @@ export const Release: React.FC = () => {
   const { releaseData, fetchReleaseData } = useReleaseData();
   const { handleBuildCode } = useBuildCodeProps();
   const { handleBuildMedia } = useBundleMediaProps();
-  const {
-    handleCreateBundleRelease,
-  } = useCreateBundleReleaseProps();
+  const { handleCreateBundleRelease } = useCreateBundleReleaseProps();
 
   const databaseLocked = useDatabaseLocked();
-  
-  const [isTerminalOpen, ] = useTerminalModal();
+
+  const [isTerminalOpen] = useTerminalModal();
 
   React.useEffect(() => {
     fetchReleaseData();
@@ -249,6 +248,7 @@ export const Release: React.FC = () => {
         </RecativeBlock>
       </ContentContainer>
       <BundleReleaseSuccessModal onCancel={null} onSubmit={fetchReleaseData} />
+      <ReleaseWizardModal />
     </PivotLayout>
   );
 };

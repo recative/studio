@@ -11,6 +11,12 @@ export interface IToggleProps extends CheckboxProps {
 }
 
 const ToggleOverrides: CheckboxOverrides = {
+  Root: {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+    },
+  },
   ToggleTrack: {
     style: {
       marginTop: '4px',
