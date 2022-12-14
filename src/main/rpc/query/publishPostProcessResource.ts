@@ -144,7 +144,7 @@ export const postProcessResource = async (
   let insertCount = 0;
 
   postProcessedFiles.forEach((resource) => {
-    const newRecord = cleanupLoki(resource);
+    const newRecord = cloneDeep(cleanupLoki(resource));
 
     if (postProcessedFileMap.has(resource.id)) {
       const updated =
