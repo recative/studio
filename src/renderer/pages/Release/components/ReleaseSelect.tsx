@@ -24,11 +24,11 @@ interface IReleaseSelectProps {
 
 const getValueLabel: GetValueLabel<ISimpleRelease> = ({ option }) => {
   return (
-    <RecativeBlock display="flex">
-      <RecativeBlock color="contentTertiary" marginRight="8px">
+    <RecativeBlock display="flex" transform="translateY(1px)">
+      <LabelSmall color="contentTertiary" marginRight="6px">
         #{option?.id}
-      </RecativeBlock>
-      <RecativeBlock>{option?.notes}</RecativeBlock>
+      </LabelSmall>
+      <LabelSmall>{option?.notes}</LabelSmall>
     </RecativeBlock>
   );
 };
@@ -36,7 +36,7 @@ const getValueLabel: GetValueLabel<ISimpleRelease> = ({ option }) => {
 const getOptionLabel: GetOptionLabel<ISimpleRelease> = ({ option }) => {
   return (
     <RecativeBlock>
-      <LabelXSmall>#{option?.id}</LabelXSmall>
+      <LabelXSmall color="contentTertiary">#{option?.id}</LabelXSmall>
       <LabelSmall>
         <b>{option?.notes}</b>
       </LabelSmall>
@@ -44,7 +44,7 @@ const getOptionLabel: GetOptionLabel<ISimpleRelease> = ({ option }) => {
   );
 };
 
-export const ReleaseSelect: React.FC<IReleaseSelectProps> = ({
+const InternalReleaseSelect: React.FC<IReleaseSelectProps> = ({
   disabled,
   value,
   placeholder,
@@ -74,3 +74,5 @@ export const ReleaseSelect: React.FC<IReleaseSelectProps> = ({
     />
   );
 };
+
+export const ReleaseSelect = React.memo(InternalReleaseSelect);

@@ -6,15 +6,21 @@ import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
 import { Card } from 'baseui/card';
-import { RecativeBlock } from 'components/Block/RecativeBlock';
+import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import { LabelLarge } from 'baseui/typography';
 
 import type { StyleObject } from 'styletron-react';
 import type { CardOverrides } from 'baseui/card';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { ContentContainer } from 'components/Layout/ContentContainer';
 import { useTerminalModal } from 'components/Terminal/TerminalModal';
+import {
+  ReleaseWizardModal,
+  useReleaseWizardModal,
+} from './components/ReleaseWizardModal';
+import { ReleaseWizardOutline } from 'components/Icons/ReleaseWizardOutline';
 
 import { WORKSPACE_CONFIGURATION } from 'stores/ProjectDetail';
 
@@ -30,7 +36,7 @@ import {
 } from './components/BundleReleaseSuccessModal';
 
 import type { ICommitFormInputs } from './components/CommitForm';
-import { ReleaseWizardModal } from './components/ReleaseWizardModal';
+import { useEvent } from 'utils/hooks/useEvent';
 
 const mainContainerStyles: StyleObject = {
   width: '100%',
@@ -166,6 +172,11 @@ export const Release: React.FC = () => {
   const { handleBuildCode } = useBuildCodeProps();
   const { handleBuildMedia } = useBundleMediaProps();
   const { handleCreateBundleRelease } = useCreateBundleReleaseProps();
+  const [, , openReleaseWizardModal] = useReleaseWizardModal();
+
+  const handleOpenReleaseWizardModal = useEvent(() => {
+    openReleaseWizardModal();
+  });
 
   const databaseLocked = useDatabaseLocked();
 
@@ -176,7 +187,19 @@ export const Release: React.FC = () => {
   }, [isTerminalOpen]);
 
   return (
-    <PivotLayout>
+    <PivotLayout
+      footer={
+        <>
+          <Button
+            kind={BUTTON_KIND.tertiary}
+            startEnhancer={<ReleaseWizardOutline width={20} />}
+            onClick={handleOpenReleaseWizardModal}
+          >
+            Release Wizard
+          </Button>
+        </>
+      }
+    >
       <ContentContainer className={css(mainContainerStyles)} width={1400}>
         <RecativeBlock gridArea="media">
           <Card overrides={cardOverrides}>

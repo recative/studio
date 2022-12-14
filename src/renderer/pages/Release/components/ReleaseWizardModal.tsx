@@ -33,26 +33,135 @@ import { ModalManager } from 'utils/hooks/useModalManager';
 
 import { server } from 'utils/rpc';
 import { ReleaseSelect } from './ReleaseSelect';
-import { useFormChangeCallbacks } from 'utils/hooks/useFormChangeCallbacks';
+import {
+  useFormChangeCallbacks,
+  useOnChangeEventWrapperForStringType,
+  useOnChangeEventWrapperForCheckboxType,
+} from 'utils/hooks/useFormChangeCallbacks';
+import { ISimpleRelease } from '@recative/definitions';
 
 export const useReleaseWizardModal = ModalManager<void, null>(null);
 
 export interface IReleaseItemWizard {
   notes: string;
-  codeReleaseId: number;
-  mediaReleaseId: number;
+  codeRelease: ISimpleRelease;
+  mediaRelease: ISimpleRelease;
   profileIds: string[];
   publishMediaRelease: boolean;
   publishCodeRelease: boolean;
 }
+
+interface IWrappedCheckbox {
+  checked: boolean;
+  title: string;
+  id: string;
+  onChange: (checked: boolean, id: string) => void;
+}
+
+const WrappedCheckbox: React.FC<IWrappedCheckbox> = ({
+  checked,
+  title,
+  id,
+  onChange,
+}) => {
+  const handleChange = useEvent(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(event.currentTarget.checked, id);
+    }
+  );
+  return <Checkbox title={title} checked={checked} onChange={handleChange} />;
+};
 
 export const ReleaseWizardModal = () => {
   const [css, theme] = useStyletron();
   const [isOpen, , , onClose] = useReleaseWizardModal();
   const [step, setStep] = React.useState(0);
 
-  const [clonedProfile, valueChangeCallbacks, , setClonedProfile] =
-    useFormChangeCallbacks({} ?? null);
+  const lastConfig = React.useMemo(
+    () => ({
+      notes: localStorage.getItem('@recative/release-wizard/notes') ?? '',
+      mediaRelease: undefined as ISimpleRelease | undefined,
+      codeRelease: undefined as ISimpleRelease | undefined,
+      mediaReleaseOption: 'new',
+      codeReleaseOption: 'new',
+      publishMediaRelease:
+        localStorage.getItem('@recative/release-wizard/publishMediaRelease') ===
+        'yes',
+      publishCodeRelease:
+        localStorage.getItem('@recative/release-wizard/publishCodeRelease') ===
+        'yes',
+    }),
+    []
+  );
+
+  const [clonedConfig, valueChangeCallbacks, ,] =
+    useFormChangeCallbacks(lastConfig);
+
+  React.useEffect(() => {
+    localStorage.setItem('@recative/release-wizard/notes', clonedConfig.notes);
+    localStorage.setItem(
+      '@recative/release-wizard/publishMediaRelease',
+      clonedConfig.publishMediaRelease ? 'yes' : 'no'
+    );
+    localStorage.setItem(
+      '@recative/release-wizard/publishCodeRelease',
+      clonedConfig.publishCodeRelease ? 'yes' : 'no'
+    );
+  }, [clonedConfig]);
+
+  const handleNotesChange = useOnChangeEventWrapperForStringType(
+    valueChangeCallbacks.notes
+  );
+  const handleMediaReleaseChange = useOnChangeEventWrapperForStringType(
+    valueChangeCallbacks.mediaReleaseOption
+  );
+  const handleCodeReleaseChange = useOnChangeEventWrapperForStringType(
+    valueChangeCallbacks.codeReleaseOption
+  );
+  const handlePublishMediaChange = useOnChangeEventWrapperForCheckboxType(
+    valueChangeCallbacks.publishMediaRelease
+  );
+  const handlePublishCodeChange = useOnChangeEventWrapperForCheckboxType(
+    valueChangeCallbacks.publishCodeRelease
+  );
+
+  const nextStepAvailable = React.useMemo(() => {
+    if (step === 0) return !!clonedConfig.notes;
+    if (step === 1) {
+      if (clonedConfig.mediaReleaseOption === 'new') {
+        return true;
+      }
+
+      if (
+        clonedConfig.mediaReleaseOption === 'old' &&
+        clonedConfig.mediaRelease
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+
+    if (step === 2) {
+      if (clonedConfig.codeReleaseOption === 'new') {
+        return true;
+      }
+
+      if (
+        clonedConfig.codeReleaseOption === 'old' &&
+        clonedConfig.codeRelease
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+
+    if (step === 3) return true;
+    if (step === 4) return true;
+
+    return false;
+  }, [step, clonedConfig]);
 
   const nextStep = useEvent(() => {
     setStep((x) => x + 1);
@@ -63,10 +172,6 @@ export const ReleaseWizardModal = () => {
   });
 
   const [profiles, profilesActions] = useAsync(server.listBundleProfile);
-
-  const profileIds = React.useMemo(() => {
-    return profiles.result?.map((profile) => profile.id) ?? [];
-  }, [profiles.result]);
 
   React.useEffect(() => {
     profilesActions.execute();
@@ -95,10 +200,10 @@ export const ReleaseWizardModal = () => {
   const unitStyle = React.useMemo(
     () =>
       css({
-        paddingTop: '10px',
-        paddingBottom: '10px',
-        paddingLeft: '8px',
-        paddingRight: '8px',
+        paddingTop: '8px !important',
+        paddingBottom: '8px !important',
+        paddingLeft: '12px !important',
+        paddingRight: '12px !important',
         display: 'flex',
         alignItems: 'center',
       }),
@@ -108,8 +213,11 @@ export const ReleaseWizardModal = () => {
   const contentUnitStyle = React.useMemo(
     () =>
       css({
-        paddingTop: '2px',
-        paddingBottom: '2px',
+        paddingTop: '6px !important',
+        paddingBottom: '6px !important',
+        paddingLeft: '12px !important',
+        paddingRight: '12px !important',
+        lineHeight: '1em',
         whiteSpace: 'nowrap',
         display: 'flex',
         justifyContent: 'flex-start',
@@ -157,7 +265,11 @@ export const ReleaseWizardModal = () => {
                     caption="A human-readable note to the release, this is only for
                 developers, would not be used anywhere."
                   >
-                    <Input value={''} size={INPUT_SIZE.mini} />
+                    <Input
+                      value={clonedConfig.notes}
+                      size={INPUT_SIZE.mini}
+                      onChange={handleNotesChange}
+                    />
                   </FormControl>
                 </RecativeBlock>
               </ModalBody>
@@ -172,7 +284,10 @@ export const ReleaseWizardModal = () => {
                   existing bundle that has previously been developed.
                 </ParagraphSmall>
                 <RecativeBlock paddingTop="4px">
-                  <RadioGroup>
+                  <RadioGroup
+                    value={clonedConfig.mediaReleaseOption}
+                    onChange={handleMediaReleaseChange}
+                  >
                     <Radio value="new">
                       <LabelSmall>Create a new bundle</LabelSmall>
                     </Radio>
@@ -180,15 +295,19 @@ export const ReleaseWizardModal = () => {
                       <LabelSmall>Use existed bundle</LabelSmall>
                     </Radio>
                   </RadioGroup>
-                  <RecativeBlock paddingLeft="32px">
-                    <FormControl label="Reused Release">
-                      <ReleaseSelect
-                        size={SELECT_SIZE.mini}
-                        placeholder="Select Media bundle"
-                        type="media"
-                      />
-                    </FormControl>
-                  </RecativeBlock>
+                  {clonedConfig.mediaReleaseOption === 'old' && (
+                    <RecativeBlock paddingLeft="32px">
+                      <FormControl label="Reused Release">
+                        <ReleaseSelect
+                          size={SELECT_SIZE.mini}
+                          placeholder="Select Media bundle"
+                          type="media"
+                          value={clonedConfig.mediaRelease}
+                          onChange={valueChangeCallbacks.mediaRelease}
+                        />
+                      </FormControl>
+                    </RecativeBlock>
+                  )}
                 </RecativeBlock>
               </ModalBody>
             </>
@@ -202,7 +321,10 @@ export const ReleaseWizardModal = () => {
                   existing bundle that has previously been developed.
                 </ParagraphSmall>
                 <RecativeBlock paddingTop="4px">
-                  <RadioGroup>
+                  <RadioGroup
+                    value={clonedConfig.codeReleaseOption}
+                    onChange={handleCodeReleaseChange}
+                  >
                     <Radio value="new">
                       <LabelSmall>Create a new bundle</LabelSmall>
                     </Radio>
@@ -210,15 +332,19 @@ export const ReleaseWizardModal = () => {
                       <LabelSmall>Use existed bundle</LabelSmall>
                     </Radio>
                   </RadioGroup>
-                  <RecativeBlock paddingLeft="32px">
-                    <FormControl label="Reused Release">
-                      <ReleaseSelect
-                        size={SELECT_SIZE.mini}
-                        placeholder="Select Code bundle"
-                        type="code"
-                      />
-                    </FormControl>
-                  </RecativeBlock>
+                  {clonedConfig.codeReleaseOption === 'old' && (
+                    <RecativeBlock paddingLeft="32px">
+                      <FormControl label="Reused Release">
+                        <ReleaseSelect
+                          size={SELECT_SIZE.mini}
+                          placeholder="Select Code bundle"
+                          type="code"
+                          value={clonedConfig.codeRelease}
+                          onChange={valueChangeCallbacks.codeRelease}
+                        />
+                      </FormControl>
+                    </RecativeBlock>
+                  )}
                 </RecativeBlock>
               </ModalBody>
             </>
@@ -232,11 +358,19 @@ export const ReleaseWizardModal = () => {
                   to the users.
                 </ParagraphSmall>
                 <RecativeBlock paddingTop="4px">
-                  <Toggle labelPlacement={LABEL_PLACEMENT.right}>
+                  <Toggle
+                    checked={clonedConfig.publishMediaRelease}
+                    onChange={handlePublishMediaChange}
+                    labelPlacement={LABEL_PLACEMENT.right}
+                  >
                     <LabelSmall>Publish generated media bundle</LabelSmall>
                   </Toggle>
                   <RecativeBlock padding="8px"></RecativeBlock>
-                  <Toggle labelPlacement={LABEL_PLACEMENT.right}>
+                  <Toggle
+                    checked={clonedConfig.publishCodeRelease}
+                    onChange={handlePublishCodeChange}
+                    labelPlacement={LABEL_PLACEMENT.right}
+                  >
                     <LabelSmall>Publish generated code bundle</LabelSmall>
                   </Toggle>
                 </RecativeBlock>
@@ -280,19 +414,23 @@ export const ReleaseWizardModal = () => {
                         display="contents"
                         role="row"
                       >
-                        <StyledBodyCell className={unitStyle}>
-                          <RecativeBlock transform="scale(0.75)">
-                            <Checkbox />
+                        <StyledBodyCell className={contentUnitStyle}>
+                          <RecativeBlock
+                            transform="scale(0.75)"
+                            data-profile-id={profile.id}
+                          >
+                            <WrappedCheckbox
+                              id={profile.id}
+                              title={profile.label}
+                              checked={selectedProfiles.has(profile.id)}
+                              onChange={handleSelectProfile}
+                            />
                           </RecativeBlock>
                         </StyledBodyCell>
-                        <StyledBodyCell
-                          className={cn(contentUnitStyle, unitStyle)}
-                        >
+                        <StyledBodyCell className={contentUnitStyle}>
                           <LabelSmall>{profile.label}</LabelSmall>
                         </StyledBodyCell>
-                        <StyledBodyCell
-                          className={cn(contentUnitStyle, unitStyle)}
-                        >
+                        <StyledBodyCell className={contentUnitStyle}>
                           <LabelSmall>{profile.bundleExtensionId}</LabelSmall>
                         </StyledBodyCell>
                       </RecativeBlock>
@@ -322,15 +460,13 @@ export const ReleaseWizardModal = () => {
         padding="12px"
         borderTop={`1px solid ${theme.borders.border100.borderColor}`}
       >
-        {step === 0 && (
-          <ModalButton
-            kind={BUTTON_KIND.tertiary}
-            size={BUTTON_SIZE.compact}
-            onClick={onClose}
-          >
-            Cancel
-          </ModalButton>
-        )}
+        <ModalButton
+          kind={BUTTON_KIND.tertiary}
+          size={BUTTON_SIZE.compact}
+          onClick={onClose}
+        >
+          Cancel
+        </ModalButton>
 
         {step !== 0 && (
           <ModalButton
@@ -349,6 +485,7 @@ export const ReleaseWizardModal = () => {
             kind={BUTTON_KIND.tertiary}
             size={BUTTON_SIZE.compact}
             onClick={nextStep}
+            disabled={!nextStepAvailable}
           >
             <RecativeBlock marginRight="6px">Next</RecativeBlock>
             <RecativeBlock transform="rotate(-90deg)">
