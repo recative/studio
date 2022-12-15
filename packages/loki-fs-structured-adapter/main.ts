@@ -197,7 +197,7 @@ export class LokiFsStructuredAdapter {
       internalCollectionIndex += 1;
       // if there are more collections, load the next one
       if (internalCollectionIndex < this.dbref.collections.length) {
-        this.loadNextCollection(databaseName, collectionIndex, callback);
+        this.loadNextCollection(databaseName, internalCollectionIndex, callback);
       }
       // otherwise we are done, callback to loadDatabase so it can return the
       // new db object representation.
