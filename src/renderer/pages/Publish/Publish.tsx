@@ -8,6 +8,8 @@ import { SmallIconButton } from 'components/Button/SmallIconButton';
 import { ContentContainer } from 'components/Layout/ContentContainer';
 import { PublishIconOutline } from 'components/Icons/PublishIconOutline';
 
+import { useEvent } from 'utils/hooks/useEvent';
+
 import { ReleaseList } from 'pages/Bundle/components/ReleaseList';
 
 import {
@@ -22,9 +24,9 @@ interface IActionsProps {
 const Actions: React.FC<IActionsProps> = ({ id }) => {
   const [, , open] = useConfirmPublishModal();
 
-  const handleOpen = React.useCallback(() => {
+  const handleOpen = useEvent(() => {
     open(id);
-  }, [id, open]);
+  });
 
   return (
     <RecativeBlock>

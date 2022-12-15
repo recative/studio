@@ -115,7 +115,7 @@ export const uploadBundle = async (
 
   await wrapTaskFunction(terminalId, 'Uploading Code Files', async () => {
     if (codeBundle) {
-      const codeReleaseId = targetRelease.codeBuildId.toString();
+      const codeReleaseId = targetRelease.codeBuildId;
       const codeTaskQueue = await uploadCodeBundle(codeReleaseId, terminalId);
       if (codeTaskQueue.size === 0) {
         return;

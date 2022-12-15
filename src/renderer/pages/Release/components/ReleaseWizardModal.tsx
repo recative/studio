@@ -39,17 +39,9 @@ import {
   useOnChangeEventWrapperForCheckboxType,
 } from 'utils/hooks/useFormChangeCallbacks';
 import { ISimpleRelease } from '@recative/definitions';
+import { useTerminalModal } from 'components/Terminal/TerminalModal';
 
 export const useReleaseWizardModal = ModalManager<void, null>(null);
-
-export interface IReleaseItemWizard {
-  notes: string;
-  codeRelease: ISimpleRelease;
-  mediaRelease: ISimpleRelease;
-  profileIds: string[];
-  publishMediaRelease: boolean;
-  publishCodeRelease: boolean;
-}
 
 interface IWrappedCheckbox {
   checked: boolean;
@@ -75,6 +67,8 @@ const WrappedCheckbox: React.FC<IWrappedCheckbox> = ({
 export const ReleaseWizardModal = () => {
   const [css, theme] = useStyletron();
   const [isOpen, , , onClose] = useReleaseWizardModal();
+  const [, , openTerminal] = useTerminalModal();
+
   const [step, setStep] = React.useState(0);
 
   const lastConfig = React.useMemo(
@@ -169,6 +163,25 @@ export const ReleaseWizardModal = () => {
 
   const previousStep = useEvent(() => {
     setStep((x) => x - 1);
+  });
+
+  const handleStart = useEvent(() => {
+    onClose();
+    openTerminal('releaseWizard');
+    server.releaseWizard({
+      notes: clonedConfig.notes,
+      mediaReleaseId:
+        clonedConfig.mediaReleaseOption === 'new'
+          ? undefined
+          : clonedConfig.mediaRelease?.id ?? undefined,
+      codeReleaseId:
+        clonedConfig.codeReleaseOption === 'new'
+          ? undefined
+          : clonedConfig.codeRelease?.id ?? undefined,
+      profileIds: [...selectedProfiles],
+      publishCodeRelease: clonedConfig.publishCodeRelease,
+      publishMediaRelease: clonedConfig.publishMediaRelease,
+    });
   });
 
   const [profiles, profilesActions] = useAsync(server.listBundleProfile);
@@ -497,7 +510,7 @@ export const ReleaseWizardModal = () => {
           <ModalButton
             kind={BUTTON_KIND.tertiary}
             size={BUTTON_SIZE.compact}
-            onClick={onClose}
+            onClick={handleStart}
           >
             Start
           </ModalButton>

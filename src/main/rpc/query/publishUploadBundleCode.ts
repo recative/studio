@@ -20,7 +20,7 @@ import { getBuildPath } from './setting';
  * @param terminalId Output information to which terminal.
  */
 export const uploadCodeBundle = async (
-  codeReleaseId: string,
+  codeReleaseId: number,
   terminalId: string
 ) => {
   const buildPath = await getBuildPath();
@@ -31,7 +31,7 @@ export const uploadCodeBundle = async (
 
   const codeBundlePath = join(
     buildPath,
-    `code-${codeReleaseId.padStart(4, '0')}.zip`
+    `code-${codeReleaseId.toString().padStart(4, '0')}.zip`
   );
 
   const codeBundle = new StreamZip.async({ file: codeBundlePath });
@@ -64,7 +64,7 @@ export const uploadCodeBundle = async (
           const path = join(
             seriesId,
             'code-release',
-            codeReleaseId.padStart(4, '0')
+            codeReleaseId.toString().padStart(4, '0')
           ).replaceAll('\\', '/');
           const file = await codeBundle.entryData(codeFile);
           await uploader.upload(file, codeFile.name, path);

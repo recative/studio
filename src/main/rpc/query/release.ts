@@ -141,7 +141,10 @@ export const buildCode = async (terminalId: string) => {
   return true;
 };
 
-export const bundleBuild = async (notes: string, terminalId: string) => {
+export const bundleBuild = async (
+  notes: string,
+  terminalId: string
+): Promise<number> => {
   const config = getWorkspace();
   const buildPath = await getBuildPath();
   const db = await getDb();
@@ -365,6 +368,8 @@ export const createMediaRelease = async (
     },
     abortController
   )();
+
+  return mediaReleaseId;
 };
 
 /**
@@ -389,65 +394,7 @@ export const createCodeRelease = async (
     return buildCode(terminalId);
   })();
 
-  await wrapTaskFunction(terminalId, 'Bundling Artifacts', async () => {
+  return wrapTaskFunction(terminalId, 'Bundling Artifacts', async () => {
     return bundleBuild(notes, terminalId);
   })();
-};
-
-let fastBuildLock = false;
-
-/**
- * Builds the latest code and database bundles.
- *
- * Available steps are:
- * - `Creating Code Bundle`
- *    - `Building Code`
- *    - `Bundling Artifacts`
- * - `Creating Media Bundle`
- *    - `Building Database`
- *    - `Copying Media`
- *
- * @param ifBuildMediaBundle If true, builds a media release.
- * @param ifCreateCodeBundle If true, builds a code release.
- * @param notes Some information for the human.
- * @param terminalId Output information to which terminal.
- * @return The index of the release.
- */
-export const fastRelease = async (
-  ifBuildMediaBundle: boolean,
-  ifCreateCodeBundle: boolean,
-  notes: string,
-  terminalId = 'fastRelease'
-) => {
-  if (fastBuildLock) throw new TaskLockedError();
-
-  fastBuildLock = true;
-
-  if (terminalId === 'fastRelease') {
-    newTerminalSession(terminalId, [
-      'Creating Media Bundle',
-      'Creating Code Bundle',
-    ]);
-  }
-
-  const db = await getDb();
-
-  await wrapTaskFunction(terminalId, 'Creating Media Bundle', async () => {
-    if (ifBuildMediaBundle) {
-      await createMediaRelease(notes, terminalId);
-    }
-  })();
-
-  await wrapTaskFunction(terminalId, 'Creating Code Bundle', async () => {
-    if (ifCreateCodeBundle) {
-      await createCodeRelease(notes, terminalId);
-    }
-  })();
-
-  const codeBuildId = db.release.codeReleases.max('id');
-  const dbBuildId = db.release.mediaReleases.max('id');
-
-  fastBuildLock = false;
-
-  return createBundleRelease(dbBuildId, codeBuildId, notes);
 };
