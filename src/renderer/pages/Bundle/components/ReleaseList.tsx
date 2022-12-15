@@ -1,11 +1,15 @@
 import * as React from 'react';
 import cn from 'classnames';
 
-import { useStyletron } from 'baseui';
+import type { IBundleRelease } from '@recative/definitions';
 
-import { RecativeBlock } from 'components/Block/RecativeBlock';
+import { useStyletron } from 'baseui';
 import { StyledTable, StyledHeadCell, StyledBodyCell } from 'baseui/table-grid';
 
+import { EmptySpace } from 'components/EmptyState/EmptyState';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
+
+import { YYYYMMDD } from 'utils/formatDate';
 import { useReleaseData } from 'pages/Release/Release';
 
 export interface IActionsProps {
@@ -16,6 +20,7 @@ export interface IActionsProps {
 }
 
 export interface IReleaseList {
+  type?: 'media' | 'code' | 'bundle';
   Actions?: React.FC<IActionsProps>;
 }
 
@@ -34,7 +39,12 @@ const bodyStyle = {
   display: 'contents',
 } as const;
 
-export const ReleaseList: React.FC<IReleaseList> = ({ Actions }) => {
+const DEFAULT_ACTIONS = () => <></>;
+
+export const ReleaseList: React.FC<IReleaseList> = ({
+  type = 'bundle',
+  Actions = DEFAULT_ACTIONS,
+}) => {
   const [css, theme] = useStyletron();
 
   const { releaseData, fetchReleaseData } = useReleaseData();
@@ -56,16 +66,28 @@ export const ReleaseList: React.FC<IReleaseList> = ({ Actions }) => {
 
   React.useEffect(() => {
     fetchReleaseData();
-  }, [fetchReleaseData]);
+  }, [fetchReleaseData, type]);
+
+  const gridHeaderStyle = React.useMemo(
+    () =>
+      css({
+        height: '20px',
+        textTransform: 'capitalize',
+      }),
+    [css]
+  );
+
+  const releases = React.useMemo(
+    () => releaseData?.[type].filter(Boolean) ?? [],
+    [releaseData, type]
+  );
 
   const gridTemplateRowStyles = React.useMemo(
     () =>
       css({
-        gridTemplateRows: `repeat(${
-          releaseData?.bundle.length ?? 0 + 1
-        }, min-content)`,
+        gridTemplateRows: `repeat(${releases.length ?? 0 + 1}, min-content)`,
       }),
-    [css, releaseData?.bundle.length]
+    [css, releases.length]
   );
 
   if (!releaseData) return null;
@@ -75,44 +97,75 @@ export const ReleaseList: React.FC<IReleaseList> = ({ Actions }) => {
       role="grid"
       className={cn(css(tableStyle), gridTemplateRowStyles)}
       $gridTemplateColumns={
-        Actions
+        type === 'bundle'
           ? '120px 120px 120px auto max-content'
-          : '120px 120px 120px auto'
+          : '120px 120px auto max-content'
       }
     >
       <RecativeBlock id="checker" className={css(headerStyle)} role="row">
-        <StyledHeadCell>Bundle #</StyledHeadCell>
-        <StyledHeadCell>Media #</StyledHeadCell>
-        <StyledHeadCell>Code #</StyledHeadCell>
-        <StyledHeadCell>Notes</StyledHeadCell>
-        {Actions && <StyledHeadCell />}
+        {type === 'bundle' ? (
+          <>
+            <StyledHeadCell className={gridHeaderStyle}>
+              Bundle #
+            </StyledHeadCell>
+            <StyledHeadCell className={gridHeaderStyle}>Media #</StyledHeadCell>
+            <StyledHeadCell className={gridHeaderStyle}>Code #</StyledHeadCell>
+            <StyledHeadCell className={gridHeaderStyle}>Notes</StyledHeadCell>
+          </>
+        ) : (
+          <>
+            <StyledHeadCell className={gridHeaderStyle}>
+              {type} #
+            </StyledHeadCell>
+            <StyledHeadCell className={gridHeaderStyle}>Notes</StyledHeadCell>
+            <StyledHeadCell className={gridHeaderStyle}>Date</StyledHeadCell>
+          </>
+        )}
+        <StyledHeadCell className={gridHeaderStyle} />
       </RecativeBlock>
-      {releaseData.bundle.filter(Boolean).map((release) => (
+      {releases.map((release) => (
         <RecativeBlock key={release.id} className={css(bodyStyle)} role="row">
           <StyledBodyCell className={css(cellStyle)}>
             <RecativeBlock fontWeight={500}>{release.id}</RecativeBlock>
           </StyledBodyCell>
-          <StyledBodyCell className={css(cellStyle)}>
-            {release.mediaBuildId}
-          </StyledBodyCell>
-          <StyledBodyCell className={css(cellStyle)}>
-            {release.codeBuildId}
-          </StyledBodyCell>
+          {type === 'bundle' && (
+            <>
+              <StyledBodyCell className={css(cellStyle)}>
+                {(release as IBundleRelease).mediaBuildId}
+              </StyledBodyCell>
+              <StyledBodyCell className={css(cellStyle)}>
+                {(release as IBundleRelease).codeBuildId}
+              </StyledBodyCell>
+            </>
+          )}
           <StyledBodyCell className={css(cellStyle)}>
             {release.notes}
           </StyledBodyCell>
+          {type !== 'bundle' && (
+            <StyledBodyCell className={css(cellStyle)}>
+              {YYYYMMDD(release.commitTime)}
+            </StyledBodyCell>
+          )}
           {Actions && (
             <StyledBodyCell className={css(cellStyle)}>
               <Actions
                 id={release.id}
-                codeBuildId={release.codeBuildId}
-                mediaBuildId={release.mediaBuildId}
+                codeBuildId={(release as IBundleRelease).codeBuildId}
+                mediaBuildId={(release as IBundleRelease).mediaBuildId}
                 notes={release.notes}
               />
             </StyledBodyCell>
           )}
         </RecativeBlock>
       ))}
+      {!releases.length && (
+        <RecativeBlock gridColumn={type === 'bundle' ? '1 / 5' : '1 / 4'}>
+          <EmptySpace
+            title="No release"
+            content="Create a new release with the release wizard."
+          />
+        </RecativeBlock>
+      )}
     </StyledTable>
   );
 };

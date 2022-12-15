@@ -3,15 +3,36 @@ import * as React from 'react';
 import { ISimpleRelease } from '@recative/definitions';
 
 import { SIZE } from 'baseui/select';
+import { LabelSmall, LabelXSmall } from 'baseui/typography';
 
 import { Select } from 'components/Select/Select';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import type { GetOptionLabel, GetValueLabel } from 'components/Select/Select';
 
 import { useEvent } from 'utils/hooks/useEvent';
+import { useAsync } from '@react-hookz/web';
+import { server } from 'utils/rpc';
 
-import { useSearchRelease } from './CommitForm';
-import { LabelSmall, LabelXSmall } from 'baseui/typography';
+export const useSearchRelease = (type: 'media' | 'code') => {
+  const [state, actions] = useAsync(async (query: string) => {
+    return server.searchRelease(query, type);
+  });
+
+  const handleInputChange = useEvent(
+    (event?: React.FormEvent<HTMLInputElement>) => {
+      actions.execute(event?.currentTarget.value || '');
+    }
+  );
+
+  React.useEffect(() => {
+    actions.execute('');
+  }, []);
+
+  const queryResult = state.result || [];
+  const loading = state.status === 'loading';
+
+  return [queryResult, loading, handleInputChange] as const;
+};
 
 interface IReleaseSelectProps {
   disabled?: boolean;
