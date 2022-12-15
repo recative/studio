@@ -18,7 +18,7 @@ import { Radio, RadioGroup } from 'baseui/radio';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
-import { LabelSmall, ParagraphSmall } from 'baseui/typography';
+import { LabelSmall, LabelXSmall, ParagraphSmall } from 'baseui/typography';
 import { KIND as BUTTON_KIND, SIZE as BUTTON_SIZE } from 'baseui/button';
 import { StyledTable, StyledHeadCell, StyledBodyCell } from 'baseui/table-grid';
 
@@ -441,10 +441,10 @@ export const ReleaseWizardModal = () => {
                           </RecativeBlock>
                         </StyledBodyCell>
                         <StyledBodyCell className={contentUnitStyle}>
-                          <LabelSmall>{profile.label}</LabelSmall>
+                          <LabelXSmall>{profile.label}</LabelXSmall>
                         </StyledBodyCell>
                         <StyledBodyCell className={contentUnitStyle}>
-                          <LabelSmall>{profile.bundleExtensionId}</LabelSmall>
+                          <LabelXSmall>{profile.bundleExtensionId}</LabelXSmall>
                         </StyledBodyCell>
                       </RecativeBlock>
                     ))}
