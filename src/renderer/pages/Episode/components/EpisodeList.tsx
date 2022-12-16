@@ -10,6 +10,7 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { server } from 'utils/rpc';
 
+import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { EpisodeListUnit } from './EpisodeListUnit';
 
 const tableStyle = {
@@ -34,6 +35,14 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
 }) => {
   const [css] = useStyletron();
 
+  const gridTemplateHeaderStyles = React.useMemo(
+    () =>
+      css({
+        height: '20px',
+      }),
+    [css]
+  );
+
   const gridTemplateRowStyles = React.useMemo(
     () =>
       css({
@@ -51,8 +60,10 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
       $gridTemplateColumns="min-content auto"
     >
       <RecativeBlock id="checker" className={css(headerStyle)} role="row">
-        <StyledHeadCell>Label</StyledHeadCell>
-        <StyledHeadCell />
+        <StyledHeadCell className={gridTemplateHeaderStyles}>
+          Label
+        </StyledHeadCell>
+        <StyledHeadCell className={gridTemplateHeaderStyles} />
       </RecativeBlock>
 
       {episodes.filter(Boolean).map((episode) => (
@@ -64,6 +75,14 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
           onRefreshEpisodeListRequest={onRefreshEpisodeListRequest}
         />
       ))}
+      {!episodes.filter(Boolean).length && (
+        <RecativeBlock gridColumn="1 / 3">
+          <EmptySpace
+            title="No episode"
+            content="Create a new episode and config them here."
+          />
+        </RecativeBlock>
+      )}
     </StyledTable>
   );
 };
