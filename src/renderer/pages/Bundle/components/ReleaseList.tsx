@@ -16,6 +16,7 @@ export interface IActionsProps {
   id: number;
   codeBuildId: number;
   mediaBuildId: number;
+  type: 'media' | 'code' | 'bundle';
   notes: string;
 }
 
@@ -51,7 +52,7 @@ export const ReleaseList: React.FC<IReleaseList> = ({
 
   const cellStyle = React.useMemo(
     () =>
-      ({
+      css({
         height: '40px',
         borderBottomColor: theme.colors.borderTransparent || 'black',
         borderBottomWidth: '1px',
@@ -61,7 +62,7 @@ export const ReleaseList: React.FC<IReleaseList> = ({
         overflow: 'hidden',
         textOverflow: 'ellipsis',
       } as const),
-    [theme]
+    [css, theme.colors.borderTransparent]
   );
 
   React.useEffect(() => {
@@ -73,6 +74,14 @@ export const ReleaseList: React.FC<IReleaseList> = ({
       css({
         height: '20px',
         textTransform: 'capitalize',
+      }),
+    [css]
+  );
+  const deprecatedStyle = React.useMemo(
+    () =>
+      css({
+        textDecoration: 'line-through',
+        opacity: 0.5,
       }),
     [css]
   );
@@ -123,41 +132,49 @@ export const ReleaseList: React.FC<IReleaseList> = ({
         )}
         <StyledHeadCell className={gridHeaderStyle} />
       </RecativeBlock>
-      {releases.map((release) => (
-        <RecativeBlock key={release.id} className={css(bodyStyle)} role="row">
-          <StyledBodyCell className={css(cellStyle)}>
-            <RecativeBlock fontWeight={500}>{release.id}</RecativeBlock>
-          </StyledBodyCell>
-          {type === 'bundle' && (
-            <>
-              <StyledBodyCell className={css(cellStyle)}>
-                {(release as IBundleRelease).mediaBuildId}
-              </StyledBodyCell>
-              <StyledBodyCell className={css(cellStyle)}>
-                {(release as IBundleRelease).codeBuildId}
-              </StyledBodyCell>
-            </>
-          )}
-          <StyledBodyCell className={css(cellStyle)}>
-            {release.notes}
-          </StyledBodyCell>
-          {type !== 'bundle' && (
-            <StyledBodyCell className={css(cellStyle)}>
-              {YYYYMMDD(release.commitTime)}
+      {releases.map((release) => {
+        const contentStyle = cn(cellStyle, {
+          [deprecatedStyle]: release.deprecated,
+        });
+        return (
+          <RecativeBlock key={release.id} className={css(bodyStyle)} role="row">
+            <StyledBodyCell className={contentStyle}>
+              <RecativeBlock fontWeight={500}>{release.id}</RecativeBlock>
             </StyledBodyCell>
-          )}
-          {Actions && (
-            <StyledBodyCell className={css(cellStyle)}>
-              <Actions
-                id={release.id}
-                codeBuildId={(release as IBundleRelease).codeBuildId}
-                mediaBuildId={(release as IBundleRelease).mediaBuildId}
-                notes={release.notes}
-              />
+            {type === 'bundle' && (
+              <>
+                <StyledBodyCell className={contentStyle}>
+                  {(release as IBundleRelease).mediaBuildId}
+                </StyledBodyCell>
+                <StyledBodyCell className={contentStyle}>
+                  {(release as IBundleRelease).codeBuildId}
+                </StyledBodyCell>
+              </>
+            )}
+            <StyledBodyCell className={contentStyle}>
+              {release.notes}
             </StyledBodyCell>
-          )}
-        </RecativeBlock>
-      ))}
+            {type !== 'bundle' && (
+              <StyledBodyCell className={contentStyle}>
+                {YYYYMMDD(release.commitTime)}
+              </StyledBodyCell>
+            )}
+            {Actions && (
+              <StyledBodyCell className={contentStyle}>
+                {!release.deprecated && (
+                  <Actions
+                    id={release.id}
+                    codeBuildId={(release as IBundleRelease).codeBuildId}
+                    mediaBuildId={(release as IBundleRelease).mediaBuildId}
+                    notes={release.notes}
+                    type={type}
+                  />
+                )}
+              </StyledBodyCell>
+            )}
+          </RecativeBlock>
+        );
+      })}
       {!releases.length && (
         <RecativeBlock gridColumn={type === 'bundle' ? '1 / 5' : '1 / 4'}>
           <EmptySpace

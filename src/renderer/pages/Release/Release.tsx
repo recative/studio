@@ -8,7 +8,6 @@ import {
   SIZE as BUTTON_SIZE,
 } from 'baseui/button';
 import { HeadingXXLarge } from 'baseui/typography';
-import { StatefulTooltip } from 'baseui/tooltip';
 import { ButtonGroup, MODE } from 'baseui/button-group';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
@@ -21,14 +20,22 @@ import {
 } from './components/ReleaseWizardModal';
 import { ReleaseWizardOutline } from 'components/Icons/ReleaseWizardOutline';
 
-import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
-import { server } from 'utils/rpc';
-
-import { useEvent } from 'utils/hooks/useEvent';
-import { ReleaseList } from 'pages/Bundle/components/ReleaseList';
-import { MediaIconOutline } from 'components/Icons/MediaIconOutline';
 import { CodeIconOutline } from 'components/Icons/CodeIconOutline';
+import { SmallIconButton } from 'components/Button/SmallIconButton';
+import { MediaIconOutline } from 'components/Icons/MediaIconOutline';
 import { BundleIconOutline } from 'components/Icons/BundleIconOutline';
+import { ReleaseDeprecateOutline } from 'components/Icons/ReleaseDeprecateOutline';
+
+import { ReleaseList } from 'pages/Bundle/components/ReleaseList';
+
+import { server } from 'utils/rpc';
+import { useEvent } from 'utils/hooks/useEvent';
+import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
+
+import {
+  ConfirmDeprecateReleaseModal,
+  useConfirmDeprecateReleaseModal,
+} from './components/ConfirmDeprecateReleaseModal';
 
 export const useReleaseData = () => {
   const [{ result: releaseData }, { execute: fetchReleaseData }] = useAsync(
@@ -38,11 +45,36 @@ export const useReleaseData = () => {
   return { releaseData, fetchReleaseData };
 };
 
+interface IActionsProps {
+  id: number;
+  type: 'media' | 'code' | 'bundle';
+}
+
+const Actions: React.FC<IActionsProps> = (detail) => {
+  const [, , open] = useConfirmDeprecateReleaseModal();
+
+  const handleOpen = useEvent(() => {
+    open(detail);
+  });
+
+  return (
+    <RecativeBlock>
+      <SmallIconButton title="Deprecate Release">
+        <ReleaseDeprecateOutline width={16} onClick={handleOpen} />
+      </SmallIconButton>
+    </RecativeBlock>
+  );
+};
+
 const RELEASE_TYPE = ['media', 'code', 'bundle'] as const;
 
 export const Release: React.FC = () => {
+  const [randomId, setRandomId] = React.useState(0);
   const [releaseIndex, setReleaseIndex] = React.useState(2);
   const [, , openReleaseWizardModal] = useReleaseWizardModal();
+  const [, selectedRelease] = useConfirmDeprecateReleaseModal();
+  const [isTerminalOpen, , openTerminal] = useTerminalModal();
+  const databaseLocked = useDatabaseLocked();
 
   const handleOpenReleaseWizardModal = useEvent(() => {
     openReleaseWizardModal();
@@ -52,11 +84,16 @@ export const Release: React.FC = () => {
     setReleaseIndex(index);
   });
 
-  const databaseLocked = useDatabaseLocked();
+  React.useLayoutEffect(() => {
+    setRandomId(Math.random());
+  }, [isTerminalOpen]);
 
-  const [isTerminalOpen] = useTerminalModal();
+  const handleConfirmDeprecateRelease = useEvent(() => {
+    if (!selectedRelease) return;
 
-  React.useEffect(() => {}, [isTerminalOpen]);
+    openTerminal('deprecateRelease');
+    server.deprecateRelease(selectedRelease.id, selectedRelease.type);
+  });
 
   return (
     <PivotLayout
@@ -117,12 +154,20 @@ export const Release: React.FC = () => {
             position="relative"
           >
             <RecativeBlock width="100%" height="100%" position="absolute">
-              <ReleaseList type={RELEASE_TYPE[releaseIndex] ?? 'bundle'} />
+              <ReleaseList
+                key={randomId}
+                type={RELEASE_TYPE[releaseIndex] ?? 'bundle'}
+                Actions={Actions}
+              />
             </RecativeBlock>
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
       <ReleaseWizardModal />
+      <ConfirmDeprecateReleaseModal
+        onCancel={null}
+        onSubmit={handleConfirmDeprecateRelease}
+      />
     </PivotLayout>
   );
 };

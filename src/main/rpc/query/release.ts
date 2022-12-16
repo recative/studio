@@ -1,6 +1,6 @@
 import spawn from 'cross-spawn';
 import { uniqBy } from 'lodash';
-import { ensureDir, writeJSON } from 'fs-extra';
+import { ensureDir, writeJSON, remove } from 'fs-extra';
 
 import type { Collection } from 'lokijs';
 
@@ -22,6 +22,8 @@ import {
 } from './terminal';
 import { getBuildPath } from './setting';
 import { postProcessResource } from './publishPostProcessResource';
+
+import { getResourceFilePath } from '../../utils/getResourceFile';
 
 import { getWorkspace } from '../workspace';
 import { getDb, saveAllDatabase } from '../db';
@@ -171,6 +173,7 @@ export const bundleBuild = async (
       id: buildId,
       committer: 'Default User',
       commitTime: Date.now(),
+      deprecated: false,
       notes,
     },
   ]);
@@ -264,6 +267,7 @@ export const createBundleRelease = async (
       notes,
       committer: 'Default User',
       commitTime: Date.now(),
+      deprecated: false,
     },
   ]);
 
@@ -361,6 +365,7 @@ export const createMediaRelease = async (
           id: mediaReleaseId,
           committer: 'Default User',
           commitTime: Date.now(),
+          deprecated: false,
           notes,
         },
       ]);
@@ -396,5 +401,94 @@ export const createCodeRelease = async (
 
   return wrapTaskFunction(terminalId, 'Bundling Artifacts', async () => {
     return bundleBuild(notes, terminalId);
+  })();
+};
+
+export const cleanupPostProcessedFiles = async (
+  terminalId = 'deprecateRelease'
+) => {
+  const db = await getDb();
+
+  logToTerminal(terminalId, 'Cleanings up post-processed files');
+
+  const deprecatedReleases = new Set(
+    db.release.mediaReleases.find({ deprecated: true }).map((x) => x.id)
+  );
+
+  const deprecatedResources = db.resource.postProcessed
+    .find({ removed: false })
+    .filter((x) =>
+      x.postProcessRecord.mediaBundleId.every((id) =>
+        deprecatedReleases.has(id)
+      )
+    );
+
+  for (let i = 0; i < deprecatedResources.length; i += 1) {
+    const deprecatedResource = deprecatedResources[i];
+    logToTerminal(terminalId, `:: Removing ${deprecatedResource.label}`);
+
+    const resourcePath = await getResourceFilePath(deprecatedResource, false);
+    const thumbnailPath = await getResourceFilePath(deprecatedResource, true);
+
+    await remove(resourcePath);
+    await remove(thumbnailPath);
+
+    deprecatedResource.removed = true;
+    deprecatedResource.removedTime = Date.now();
+    db.resource.postProcessed.update(deprecatedResource);
+  }
+
+  return deprecatedResources;
+};
+
+export const deprecateRelease = async (
+  id: number,
+  type: 'media' | 'code' | 'bundle',
+  terminalId = 'deprecateRelease'
+) => {
+  if (terminalId === 'deprecateRelease') {
+    newTerminalSession(terminalId, [
+      'Updating Metadata',
+      'Cleaning up resources',
+    ]);
+  }
+
+  const db = await getDb();
+
+  await wrapTaskFunction(terminalId, 'Updating Metadata', async () => {
+    logToTerminal(terminalId, 'Cleanings up metadata');
+    if (type === 'media') {
+      db.release.mediaReleases.findAndUpdate({ id }, (x) => {
+        x.deprecated = true;
+        return x;
+      });
+
+      db.release.bundleReleases.findAndUpdate({ mediaBuildId: id }, (x) => {
+        x.deprecated = true;
+        return x;
+      });
+    }
+
+    if (type === 'code') {
+      db.release.codeReleases.findAndUpdate({ id }, (x) => {
+        x.deprecated = true;
+        return x;
+      });
+      db.release.bundleReleases.findAndUpdate({ codeBuildId: id }, (x) => {
+        x.deprecated = true;
+        return x;
+      });
+    }
+
+    if (type === 'bundle') {
+      db.release.bundleReleases.findAndUpdate({ id }, (x) => {
+        x.deprecated = true;
+        return x;
+      });
+    }
+  })();
+
+  await wrapTaskFunction(terminalId, 'Cleaning up resources', async () => {
+    return cleanupPostProcessedFiles(terminalId);
   })();
 };

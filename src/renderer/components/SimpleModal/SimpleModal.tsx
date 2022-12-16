@@ -55,7 +55,7 @@ export const SimpleModalFactory = <T,>(
         <ModalHeader>
           {typeof head === 'string' ? head : head(data)}
         </ModalHeader>
-        <ModalBody>{typeof body === 'string' ? head : body(data)}</ModalBody>
+        <ModalBody>{typeof body === 'string' ? body : body(data)}</ModalBody>
         <ModalFooter>
           {cancel && (
             <ModalButton kind={BUTTON_KIND.tertiary} onClick={handleCancel}>
