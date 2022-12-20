@@ -1,16 +1,21 @@
 import fetch from 'node-fetch';
+import { h32 } from 'xxhashjs';
+import { faker } from '@faker-js/faker';
 
 import { localStorage } from '../../utils/localStorage';
 
 const HOST_KEY = '@recative/auth-service/host';
 const TOKEN_KEY = '@recative/auth-service/token';
 const LABEL_KEY = '@recative/auth-service/label';
+const SESSION_ID_KEY = '@recative/auth-service/session';
+const HASH_KEY = '@recative/auth-service/hash';
 const EXPIRES_KEY = '@recative/auth-service/expires';
 
-export const localLogout = async () => {
+export const userLogout = async () => {
   localStorage.removeItem(LABEL_KEY);
-  localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(EXPIRES_KEY);
+  localStorage.removeItem(HASH_KEY);
+  localStorage.removeItem(SESSION_ID_KEY);
 };
 
 export const getUserData = () => {
@@ -20,7 +25,7 @@ export const getUserData = () => {
   );
 
   if (Date.now() > expires) {
-    localLogout();
+    userLogout();
     return null;
   }
 
@@ -159,14 +164,25 @@ export const validToken = async (token = localStorage.getItem(TOKEN_KEY)) => {
   return response;
 };
 
+const capitalizeFirstLetter = (string: string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
 export const userLogin = async (token: string, actServer: string) => {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(HOST_KEY, actServer);
 
   const response = await validToken(token);
 
+  const tokenHash = h32(token, 0x1bf52).toNumber();
+  faker.seed(tokenHash);
+  const adj = capitalizeFirstLetter(faker.hacker.adjective());
+  const n = faker.science.chemicalElement().name;
+
   localStorage.setItem(LABEL_KEY, response.comment);
   localStorage.setItem(EXPIRES_KEY, response.expired_at);
+  localStorage.setItem(HASH_KEY, tokenHash.toString(16));
+  localStorage.setItem(SESSION_ID_KEY, `${adj} ${n}`);
 
   return {
     ...response,
@@ -178,11 +194,11 @@ export const getLastLoginCredential = () => {
   return {
     token: localStorage.getItem(TOKEN_KEY),
     host: localStorage.getItem(HOST_KEY),
+    tokenHash: localStorage.getItem(HASH_KEY),
+    sessionId: localStorage.getItem(SESSION_ID_KEY),
+    expiresAt: localStorage.getItem(EXPIRES_KEY),
+    label: localStorage.getItem(LABEL_KEY),
   };
-};
-
-export const userLogout = async () => {
-  localLogout();
 };
 
 export const getStorages = async () => {

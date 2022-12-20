@@ -8,48 +8,33 @@ import { toaster, ToasterContainer, PLACEMENT } from 'baseui/toast';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
+import { ContentContainer } from 'components/Layout/ContentContainer';
 
 import { server } from 'utils/rpc';
-
+import { useEvent } from 'utils/hooks/useEvent';
+import { useLoginCredential } from 'utils/hooks/loginCredential';
 import {
   useFormChangeCallbacks,
   useOnChangeEventWrapperForStringType,
 } from 'utils/hooks/useFormChangeCallbacks';
-import { ContentContainer } from 'components/Layout/ContentContainer';
-import { useEvent } from 'utils/hooks/useEvent';
-import { useAsync } from '@react-hookz/web';
-
-interface IUser {
-  token: string;
-  label: string;
-  host: string;
-}
 
 const DEFAULT_FORM_DATA = {
   actServer: '',
   token: '',
 };
 
-export const Login: React.FC = () => {
-  const [, setUser] = React.useState<IUser | null>(null);
-
-  const [lastCredential, lastCredentialActions] = useAsync(
-    server.getLastLoginCredential
-  );
+const InternalLogin: React.FC = () => {
+  const [lastCredential, fetchLoginCredential] = useLoginCredential();
 
   const [actServerValue, valueChangeCallbacks] =
     useFormChangeCallbacks(DEFAULT_FORM_DATA);
 
   React.useEffect(() => {
-    lastCredentialActions.execute();
-  }, [lastCredentialActions]);
-
-  React.useEffect(() => {
-    if (lastCredential.result) {
-      valueChangeCallbacks.actServer(lastCredential.result.host);
-      valueChangeCallbacks.token(lastCredential.result.token);
+    if (lastCredential) {
+      valueChangeCallbacks.actServer(lastCredential.host);
+      valueChangeCallbacks.token(lastCredential.token);
     }
-  }, [lastCredential.result, valueChangeCallbacks]);
+  }, [lastCredential, valueChangeCallbacks]);
 
   const handleActServerChange = useOnChangeEventWrapperForStringType(
     valueChangeCallbacks.actServer
@@ -61,16 +46,9 @@ export const Login: React.FC = () => {
 
   const loginButtonClick = useEvent(async () => {
     try {
-      const user = await server.userLogin(
-        actServerValue.token,
-        actServerValue.actServer
-      );
+      await server.userLogin(actServerValue.token, actServerValue.actServer);
 
-      setUser({
-        token: user.token,
-        host: user.host,
-        label: user.comment,
-      });
+      await fetchLoginCredential();
     } catch (error) {
       toaster.negative(
         `Failed to login: ${
@@ -121,3 +99,5 @@ export const Login: React.FC = () => {
     </PivotLayout>
   );
 };
+
+export const Login = React.memo(InternalLogin);

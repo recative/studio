@@ -10,6 +10,7 @@ import { Routes, Route } from 'react-router-dom';
 import { server } from 'utils/rpc';
 import { useDatabaseLockChecker } from 'utils/hooks/useDatabaseLockChecker';
 
+import { User } from './pages/User/User';
 import { Login } from './pages/User/Login';
 import { Cloud } from './pages/Cloud/Cloud';
 import { Series } from './pages/Series/Series';
@@ -141,6 +142,7 @@ export const App = () => {
         <Route path="bundle" element={<Bundle />} />
         <Route path="preview" element={<Preview />} />
         <Route path="login" element={<Login />} />
+        <Route path="user" element={<User />} />
         <Route path="preview-player" element={<PreviewPlayer />} />
         <Route path="merge-resource-db" element={<MergeResourceDatabase />} />
         <Route path="/" element={<Welcome />} />

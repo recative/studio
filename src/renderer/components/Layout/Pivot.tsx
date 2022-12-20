@@ -38,6 +38,10 @@ import { ResourceServerPendingOutline } from 'components/Icons/ResourceServerPen
 import { PIVOT_TAB_OVERRIDES } from 'utils/style/tab';
 
 import { server } from 'utils/rpc';
+import { useAsync } from '@react-hookz/web';
+import { useLoginCredential } from 'utils/hooks/loginCredential';
+import { useEvent } from 'utils/hooks/useEvent';
+import Avatar from 'boring-avatars';
 
 export const TabTitle = styled('div', {
   marginTop: '-8px',
@@ -92,6 +96,39 @@ interface IPivotProps {
   tabColors?: ColorDefinition[];
 }
 
+interface IPivotButtonProps {
+  startEnhancer: React.ReactNode;
+  to: string;
+  replace?: boolean;
+  disabled?: boolean;
+  children: React.ReactNode;
+}
+
+const PivotButton: React.FC<IPivotButtonProps> = ({
+  startEnhancer,
+  to,
+  replace = true,
+  disabled,
+  children,
+}) => {
+  const navigate = useNavigate();
+
+  const goTo = useEvent(() => {
+    navigate(to, { replace });
+  });
+
+  return (
+    <Button
+      kind={BUTTON_KIND.tertiary}
+      startEnhancer={startEnhancer}
+      onClick={goTo}
+      disabled={disabled}
+    >
+      {children}
+    </Button>
+  );
+};
+
 export const InternalPivot: React.FC<IPivotProps> = ({
   additionalTabs,
   tabColors,
@@ -113,6 +150,12 @@ export const InternalPivot: React.FC<IPivotProps> = ({
 
   // const { toggleCodeServerStatus, codeServerStatus } = useCodeServer();
 
+  const [loginCredential] = useLoginCredential();
+  const handleClose = useEvent(async () => {
+    await server.closeDb();
+    navigate('/', { replace: true });
+  });
+
   return (
     <Tabs
       activeKey={activeKey}
@@ -123,84 +166,72 @@ export const InternalPivot: React.FC<IPivotProps> = ({
       activateOnFocus
     >
       <Tab title={<TabTitle>Project</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
-        <Button
-          kind={BUTTON_KIND.tertiary}
+        <PivotButton
           startEnhancer={<ReleaseManagerIconOutline width={20} />}
-          onClick={() => navigate('/release', { replace: true })}
+          to="/release"
         >
           Release
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          onClick={() => navigate('/publish', { replace: true })}
+        </PivotButton>
+        <PivotButton
           startEnhancer={<PublishIconOutline width={20} />}
+          to="/publish"
         >
           Publish
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          onClick={() => navigate('/bundle', { replace: true })}
+        </PivotButton>
+        <PivotButton
           startEnhancer={<BundleIconOutline width={20} />}
+          to="/bundle"
         >
           Bundle
-        </Button>
+        </PivotButton>
         <Separator />
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          onClick={() => navigate('/setting', { replace: true })}
+        <PivotButton
           startEnhancer={<SettingsIconOutline width={20} />}
+          to="/setting"
         >
           Settings
-        </Button>
+        </PivotButton>
         <Separator />
         <Button
           kind={BUTTON_KIND.tertiary}
           startEnhancer={<CloseIconOutline width={20} />}
-          onClick={async () => {
-            await server.closeDb();
-            navigate('/', { replace: true });
-          }}
+          onClick={handleClose}
         >
           Close
         </Button>
       </Tab>
       <Tab title={<TabTitle>View</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
-        <Button
-          kind={BUTTON_KIND.tertiary}
+        <PivotButton
           startEnhancer={<ResourceManagerIconOutline width={20} />}
-          onClick={() => navigate('/resource', { replace: true })}
+          to="/resource"
         >
           Resource
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
+        </PivotButton>
+        <PivotButton
           startEnhancer={<CloudIconOutline width={20} />}
-          onClick={() => navigate('/cloud', { replace: true })}
+          to="/cloud"
         >
           Cloud
-        </Button>
+        </PivotButton>
         <Separator />
-        <Button
-          kind={BUTTON_KIND.tertiary}
+        <PivotButton
           startEnhancer={<SeriesIconOutline width={20} />}
-          onClick={() => navigate('/series', { replace: true })}
+          to="/series"
         >
           Series
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
+        </PivotButton>
+        <PivotButton
           startEnhancer={<EpisodeIconOutline width={20} />}
-          onClick={() => navigate('/episode', { replace: true })}
+          to="/episode"
         >
           Episode
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
+        </PivotButton>
+        <PivotButton
           startEnhancer={<ActPointIconOutline width={20} />}
-          onClick={() => navigate('/act-point', { replace: true })}
+          to="/act-point"
         >
           Act Point
-        </Button>
+        </PivotButton>
       </Tab>
       <Tab title={<TabTitle>Server</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
         <Button
@@ -244,46 +275,43 @@ export const InternalPivot: React.FC<IPivotProps> = ({
           Code
         </Button> */}
         <Separator />
-        <Button
-          kind={BUTTON_KIND.tertiary}
+        <PivotButton
           disabled={resourceServerStatus !== ResourceServerStatus.Running}
           startEnhancer={<PlayerPreviewIconOutline width={20} />}
-          onClick={() => navigate('/preview', { replace: true })}
+          to="/preview"
         >
           Preview
-        </Button>
+        </PivotButton>
       </Tab>
       <Tab title={<TabTitle>Sync</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
-        <Button
-          kind={BUTTON_KIND.tertiary}
+        {loginCredential?.tokenHash ? (
+          <PivotButton
+            startEnhancer={
+              <Avatar
+                variant="beam"
+                size={20}
+                name={loginCredential?.sessionId || 'Untitled'}
+              />
+            }
+            to="/user"
+          >
+            {loginCredential?.sessionId}
+          </PivotButton>
+        ) : (
+          <PivotButton
+            startEnhancer={<MergeDatabaseIconOutline width={20} />}
+            to="/login"
+          >
+            Login
+          </PivotButton>
+        )}
+
+        <PivotButton
           startEnhancer={<MergeDatabaseIconOutline width={20} />}
-          onClick={() => navigate('/login', { replace: true })}
-        >
-          Login
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<MergeDatabaseIconOutline width={20} />}
-          onClick={() => {}}
+          to="/login"
         >
           Archives
-        </Button>
-      </Tab>
-      <Tab title={<TabTitle>Utils</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<MergeDatabaseIconOutline width={20} />}
-          onClick={() => navigate('/merge-resource-db', { replace: true })}
-        >
-          Merge Resource DB
-        </Button>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<MergeDatabaseIconOutline width={20} />}
-          onClick={() => server.purgePostProcessRecords()}
-        >
-          Purge Post Processing
-        </Button>
+        </PivotButton>
       </Tab>
       <Tab title={<TabTitle>Help</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
         <Button

@@ -3576,6 +3576,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@faker-js/faker@npm:^7.6.0":
+  version: 7.6.0
+  resolution: "@faker-js/faker@npm:7.6.0"
+  checksum: 942af6221774e8c98a0eb6bc75265e05fb81a941170377666c3439aab9495dd321d6beedc5406f07e6ad44262b3e43c20961f666d116ad150b78e7437dd1bb2b
+  languageName: node
+  linkType: hard
+
 "@fastify/accept-negotiator@npm:^1.0.0":
   version: 1.0.0
   resolution: "@fastify/accept-negotiator@npm:1.0.0"
@@ -5507,6 +5514,7 @@ __metadata:
     "@babel/runtime": ^7.20.1
     "@codemirror/highlight": 0.19.8
     "@codemirror/lang-json": 0.20.0
+    "@faker-js/faker": ^7.6.0
     "@fastify/cors": 8.1.0
     "@fastify/static": 6.5.0
     "@ffmpeg-installer/ffmpeg": ^1.1.0
