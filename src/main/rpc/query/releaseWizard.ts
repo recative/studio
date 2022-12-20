@@ -87,6 +87,11 @@ export const releaseWizard = async (
       throw new TypeError(`Release detail not generated correctly.`);
     }
 
-    createBundles(profileIds, releaseDetail.bundleReleaseId, false, terminalId);
+    return createBundles(
+      profileIds,
+      releaseDetail.bundleReleaseId,
+      false,
+      terminalId
+    );
   })();
 };
