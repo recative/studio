@@ -23,6 +23,7 @@ import { Setting } from './pages/Setting/Setting';
 import { Preview } from './pages/Preview/Preview';
 import { Resource } from './pages/Resource/Resource';
 import { ActPoint } from './pages/ActPoint/ActPoint';
+import { Permission } from './pages/User/Permission';
 import { NewResource } from './pages/Welcome/NewResource';
 import { PreviewPlayer } from './pages/Preview/PreviewPlayer';
 import { ImportResource } from './pages/Welcome/ImportResource';
@@ -143,6 +144,7 @@ export const App = () => {
         <Route path="preview" element={<Preview />} />
         <Route path="login" element={<Login />} />
         <Route path="user" element={<User />} />
+        <Route path="permission" element={<Permission />} />
         <Route path="preview-player" element={<PreviewPlayer />} />
         <Route path="merge-resource-db" element={<MergeResourceDatabase />} />
         <Route path="/" element={<Welcome />} />

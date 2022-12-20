@@ -141,7 +141,7 @@ const requestFactory =
   };
 
 const get = requestFactory('GET');
-// const post = requestFactory('POST');
+const post = requestFactory('POST');
 
 interface ITokenResponse {
   token: string;
@@ -203,4 +203,20 @@ export const getLastLoginCredential = () => {
 
 export const getStorages = async () => {
   return get<string[]>(`/admin/storages`);
+};
+
+interface IPermissionResponse {
+  id: string;
+  comment: string;
+}
+
+export const getPermissions = async () => {
+  return get<IPermissionResponse[]>(`/admin/permissions`);
+};
+
+export const addPermission = async (id: string, comment: string) => {
+  return post(`/admin/permission`, {
+    id,
+    comment,
+  });
 };

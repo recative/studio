@@ -42,6 +42,7 @@ import { useAsync } from '@react-hookz/web';
 import { useLoginCredential } from 'utils/hooks/loginCredential';
 import { useEvent } from 'utils/hooks/useEvent';
 import Avatar from 'boring-avatars';
+import { PermissionIconOutline } from 'components/Icons/PermissionIconOutline';
 
 export const TabTitle = styled('div', {
   marginTop: '-8px',
@@ -307,10 +308,10 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         )}
 
         <PivotButton
-          startEnhancer={<MergeDatabaseIconOutline width={20} />}
-          to="/login"
+          startEnhancer={<PermissionIconOutline width={20} />}
+          to="/permission"
         >
-          Archives
+          Permission
         </PivotButton>
       </Tab>
       <Tab title={<TabTitle>Help</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
