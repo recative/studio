@@ -4,9 +4,11 @@ import { atom, useAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { styled, useStyletron } from 'baseui';
 
+import Avatar from 'boring-avatars';
 import { Tabs, Tab } from 'baseui/tabs-motion';
-import type { TabsOverrides } from 'baseui/tabs-motion';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
+
+import type { TabsOverrides } from 'baseui/tabs-motion';
 
 import {
   useResourceServer,
@@ -27,6 +29,7 @@ import { PublishIconOutline } from 'components/Icons/PublishIconOutline';
 import { EpisodeIconOutline } from 'components/Icons/EpisodeIconOutline';
 import { ActPointIconOutline } from 'components/Icons/ActPointIconOutline';
 import { SettingsIconOutline } from 'components/Icons/SettingsIconOutline';
+import { PermissionIconOutline } from 'components/Icons/PermissionIconOutline';
 import { MergeDatabaseIconOutline } from 'components/Icons/MergeDatabaseIconOutline';
 import { PlayerPreviewIconOutline } from 'components/Icons/PlayerPreviewIconOutline';
 import { ResourceServerStopOutline } from 'components/Icons/ResourceServerStopOutline';
@@ -35,14 +38,12 @@ import { ResourceServerStartOutline } from 'components/Icons/ResourceServerStart
 import { ResourceManagerIconOutline } from 'components/Icons/ResourceManagerIconOutline';
 import { ResourceServerPendingOutline } from 'components/Icons/ResourceServerPendingOutline';
 
-import { PIVOT_TAB_OVERRIDES } from 'utils/style/tab';
-
 import { server } from 'utils/rpc';
-import { useAsync } from '@react-hookz/web';
-import { useLoginCredential } from 'utils/hooks/loginCredential';
 import { useEvent } from 'utils/hooks/useEvent';
-import Avatar from 'boring-avatars';
-import { PermissionIconOutline } from 'components/Icons/PermissionIconOutline';
+import { useLoginCredential } from 'utils/hooks/loginCredential';
+import { PIVOT_TAB_OVERRIDES } from 'utils/style/tab';
+import { TokenIconOutline } from 'components/Icons/TokenIconOutline';
+import { StorageIconOutline } from 'components/Icons/StorageIconOutline';
 
 export const TabTitle = styled('div', {
   marginTop: '-8px',
@@ -306,12 +307,23 @@ export const InternalPivot: React.FC<IPivotProps> = ({
             Login
           </PivotButton>
         )}
-
         <PivotButton
           startEnhancer={<PermissionIconOutline width={20} />}
           to="/permission"
         >
           Permission
+        </PivotButton>
+        <PivotButton
+          startEnhancer={<TokenIconOutline width={20} />}
+          to="/token"
+        >
+          Token
+        </PivotButton>
+        <PivotButton
+          startEnhancer={<StorageIconOutline width={20} />}
+          to="/storage"
+        >
+          Storage
         </PivotButton>
       </Tab>
       <Tab title={<TabTitle>Help</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>

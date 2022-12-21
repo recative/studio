@@ -1,11 +1,13 @@
-import fetch from 'node-fetch';
+import fetch, { Headers } from 'node-fetch';
 import { h32 } from 'xxhashjs';
 import { faker } from '@faker-js/faker';
+import { v4 as uuidV4 } from 'uuid';
 
 import { localStorage } from '../../utils/localStorage';
 
 const HOST_KEY = '@recative/auth-service/host';
 const TOKEN_KEY = '@recative/auth-service/token';
+const PERMISSIONS_KEY = '@recative/auth-service/tokenType';
 const LABEL_KEY = '@recative/auth-service/label';
 const SESSION_ID_KEY = '@recative/auth-service/session';
 const HASH_KEY = '@recative/auth-service/hash';
@@ -16,6 +18,7 @@ export const userLogout = async () => {
   localStorage.removeItem(EXPIRES_KEY);
   localStorage.removeItem(HASH_KEY);
   localStorage.removeItem(SESSION_ID_KEY);
+  localStorage.removeItem(PERMISSIONS_KEY);
 };
 
 export const getUserData = () => {
@@ -101,7 +104,11 @@ class RequestUnknownError extends Error {
 
 const requestFactory =
   (method: string) =>
-  async <T>(pathName: string, body?: Record<string, unknown>) => {
+  async <T>(
+    pathName: string,
+    body?: Record<string, unknown>,
+    header?: Record<string, string>
+  ) => {
     const token = localStorage.getItem(TOKEN_KEY);
     const host = localStorage.getItem(HOST_KEY);
 
@@ -112,6 +119,7 @@ const requestFactory =
       headers: {
         'Content-Type': 'application/json',
         'X-InternalAuthorization': token || '',
+        ...header,
       },
       body: JSON.stringify(body),
     });
@@ -183,6 +191,10 @@ export const userLogin = async (token: string, actServer: string) => {
   localStorage.setItem(EXPIRES_KEY, response.expired_at);
   localStorage.setItem(HASH_KEY, tokenHash.toString(16));
   localStorage.setItem(SESSION_ID_KEY, `${adj} ${n}`);
+  localStorage.setItem(
+    PERMISSIONS_KEY,
+    JSON.stringify(response.admin_permission)
+  );
 
   return {
     ...response,
@@ -198,11 +210,8 @@ export const getLastLoginCredential = () => {
     sessionId: localStorage.getItem(SESSION_ID_KEY),
     expiresAt: localStorage.getItem(EXPIRES_KEY),
     label: localStorage.getItem(LABEL_KEY),
+    permissions: JSON.parse(localStorage.getItem(PERMISSIONS_KEY) ?? '[]'),
   };
-};
-
-export const getStorages = async () => {
-  return get<string[]>(`/admin/storages`);
 };
 
 interface IPermissionResponse {
@@ -219,4 +228,43 @@ export const addPermission = async (id: string, comment: string) => {
     id,
     comment,
   });
+};
+
+export interface IToken {
+  token: string;
+  admin_permission: string[];
+  comment: string;
+  expired_at: string;
+  is_valid: boolean;
+  type: string;
+}
+
+export const getTokens = async () => {
+  return get<IToken[]>(`/admin/tokens`);
+};
+
+export const addToken = async (
+  expiredAt: number,
+  permissions: string[],
+  comment: string
+) => {
+  return post(`/admin/token`, {
+    comment,
+    admin_permission: permissions,
+    is_valid: true,
+    token: uuidV4(),
+    expiredAt,
+  });
+};
+
+export interface IStorage {
+  key: string;
+  value: string;
+  need_permissions: string[];
+  need_permission_count: number;
+  comment: string;
+}
+
+export const getStorages = async () => {
+  return get<IStorage[]>('/admin/storages');
 };

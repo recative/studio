@@ -11,9 +11,11 @@ import { server } from 'utils/rpc';
 import { useDatabaseLockChecker } from 'utils/hooks/useDatabaseLockChecker';
 
 import { User } from './pages/User/User';
+import { Token } from './pages/User/Token';
 import { Login } from './pages/User/Login';
 import { Cloud } from './pages/Cloud/Cloud';
 import { Series } from './pages/Series/Series';
+import { Storage } from './pages/User/Storage';
 import { Welcome } from './pages/Welcome/Welcome';
 import { Bundle } from './pages/Bundle/Bundle';
 import { Publish } from './pages/Publish/Publish';
@@ -145,6 +147,8 @@ export const App = () => {
         <Route path="login" element={<Login />} />
         <Route path="user" element={<User />} />
         <Route path="permission" element={<Permission />} />
+        <Route path="token" element={<Token />} />
+        <Route path="storage" element={<Storage />} />
         <Route path="preview-player" element={<PreviewPlayer />} />
         <Route path="merge-resource-db" element={<MergeResourceDatabase />} />
         <Route path="/" element={<Welcome />} />

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import { HeadingXXLarge } from 'baseui/typography';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
+import { HeadingXXLarge } from 'baseui/typography';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
@@ -13,12 +13,9 @@ import { ReleaseDeprecateOutline } from 'components/Icons/ReleaseDeprecateOutlin
 
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 
-import {
-  PermissionList,
-  IPermissionListActionsProps,
-} from './components/PermissionList';
+import { TokenList, ITokenListActionProps } from './components/TokenList';
 
-const Actions: React.FC<IPermissionListActionsProps> = ({ id }) => {
+const Actions: React.FC<ITokenListActionProps> = ({ id }) => {
   return (
     <RecativeBlock>
       <SmallIconButton title="Deprecate Release">
@@ -28,7 +25,7 @@ const Actions: React.FC<IPermissionListActionsProps> = ({ id }) => {
   );
 };
 
-const InternalPermission: React.FC = () => {
+const InternalToken: React.FC = () => {
   const databaseLocked = useDatabaseLocked();
 
   return (
@@ -66,7 +63,7 @@ const InternalPermission: React.FC = () => {
           paddingBottom="24px"
           overflow="clip"
         >
-          <HeadingXXLarge>Permission</HeadingXXLarge>
+          <HeadingXXLarge>Token</HeadingXXLarge>
 
           <RecativeBlock
             gridArea="content"
@@ -74,7 +71,7 @@ const InternalPermission: React.FC = () => {
             position="relative"
           >
             <RecativeBlock width="100%" height="100%" position="absolute">
-              <PermissionList Actions={Actions} />
+              <TokenList Actions={Actions} />
             </RecativeBlock>
           </RecativeBlock>
         </RecativeBlock>
@@ -83,4 +80,4 @@ const InternalPermission: React.FC = () => {
   );
 };
 
-export const Permission = React.memo(InternalPermission);
+export const Token = React.memo(InternalToken);

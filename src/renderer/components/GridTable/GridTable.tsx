@@ -104,7 +104,7 @@ export const GridTable = <K extends string>({
             {x.content}
           </StyledHeadCell>
         ))}
-        <StyledHeadCell className={headerCellStyle} />
+        <StyledHeadCell className={css(headerCellStyle)} />
       </RecativeBlock>
       {data?.map((row) => {
         return (
@@ -118,11 +118,9 @@ export const GridTable = <K extends string>({
               </StyledBodyCell>
             ))}
 
-            {Actions && (
-              <StyledBodyCell className={cellStyle}>
-                <Actions {...row} />
-              </StyledBodyCell>
-            )}
+            <StyledBodyCell className={cellStyle}>
+              <Actions {...row} />
+            </StyledBodyCell>
           </RecativeBlock>
         );
       })}
