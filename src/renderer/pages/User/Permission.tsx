@@ -17,6 +17,7 @@ import {
   PermissionList,
   IPermissionListActionsProps,
 } from './components/PermissionList';
+import { AddPermissionModal } from './components/AddPermissionModal';
 
 const Actions: React.FC<IPermissionListActionsProps> = ({ id }) => {
   return (
@@ -79,6 +80,7 @@ const InternalPermission: React.FC = () => {
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
+      <AddPermissionModal />
     </PivotLayout>
   );
 };

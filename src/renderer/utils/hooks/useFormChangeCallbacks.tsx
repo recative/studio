@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useImmer } from 'use-immer';
 import type { Draft } from 'immer';
 
+import { DatepickerProps } from 'baseui/datepicker';
 import type { SelectProps, OnChangeParams } from 'baseui/select';
 
 import type { Option } from 'components/Select/Select';
@@ -91,6 +92,27 @@ export const useOnChangeEventWrapperForCheckboxType = <
     },
     [callback]
   );
+};
+
+interface IDateChangeEventDetail {
+  date: Date | undefined | null | (Date | undefined | null)[];
+}
+
+export const useOnChangeEventWrapperForBaseUiDateValue = (
+  callback: ((x: Date) => void) | undefined
+): Exclude<DatepickerProps['onChange'], undefined> => {
+  const result: DatepickerProps['onChange'] = React.useCallback(
+    ({ date }: IDateChangeEventDetail) => {
+      if (Array.isArray(date)) {
+        if (date[0]) callback?.(date[0]);
+      } else if (date) {
+        callback?.(date);
+      }
+    },
+    [callback]
+  );
+
+  return result;
 };
 
 export const useOnChangeEventWrapperForBaseUiSelectWithMultipleValue = (

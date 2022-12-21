@@ -14,6 +14,7 @@ import { ReleaseDeprecateOutline } from 'components/Icons/ReleaseDeprecateOutlin
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 
 import { TokenList, ITokenListActionProps } from './components/TokenList';
+import { AddTokenModal } from './components/AddTokenModal';
 
 const Actions: React.FC<ITokenListActionProps> = ({ id }) => {
   return (
@@ -76,6 +77,7 @@ const InternalToken: React.FC = () => {
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
+      <AddTokenModal />
     </PivotLayout>
   );
 };

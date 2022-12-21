@@ -1,4 +1,4 @@
-import fetch, { Headers } from 'node-fetch';
+import fetch from 'node-fetch';
 import { h32 } from 'xxhashjs';
 import { faker } from '@faker-js/faker';
 import { v4 as uuidV4 } from 'uuid';

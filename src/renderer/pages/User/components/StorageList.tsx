@@ -70,8 +70,8 @@ export const StorageList: React.FC<IPermissionListProps> = ({ Actions }) => {
       columns={columnConfigs}
       Actions={Actions}
       data={data}
-      emptyHeader="No token"
-      emptyContent="Creating new token and manage them."
+      emptyHeader="No storage"
+      emptyContent="Creating new storage by uploading data archives."
     />
   );
 };
