@@ -287,18 +287,38 @@ export const InternalPivot: React.FC<IPivotProps> = ({
       </Tab>
       <Tab title={<TabTitle>Sync</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
         {loginCredential?.tokenHash ? (
-          <PivotButton
-            startEnhancer={
-              <Avatar
-                variant="beam"
-                size={20}
-                name={loginCredential?.sessionId || 'Untitled'}
-              />
-            }
-            to="/user"
-          >
-            {loginCredential?.sessionId}
-          </PivotButton>
+          <>
+            <PivotButton
+              startEnhancer={
+                <Avatar
+                  variant="beam"
+                  size={20}
+                  name={loginCredential?.sessionId || 'Untitled'}
+                />
+              }
+              to="/user"
+            >
+              {loginCredential?.sessionId}
+            </PivotButton>
+            <PivotButton
+              startEnhancer={<PermissionIconOutline width={20} />}
+              to="/permission"
+            >
+              Permission
+            </PivotButton>
+            <PivotButton
+              startEnhancer={<TokenIconOutline width={20} />}
+              to="/token"
+            >
+              Token
+            </PivotButton>
+            <PivotButton
+              startEnhancer={<StorageIconOutline width={20} />}
+              to="/storage"
+            >
+              Storage
+            </PivotButton>
+          </>
         ) : (
           <PivotButton
             startEnhancer={<MergeDatabaseIconOutline width={20} />}
@@ -307,24 +327,6 @@ export const InternalPivot: React.FC<IPivotProps> = ({
             Login
           </PivotButton>
         )}
-        <PivotButton
-          startEnhancer={<PermissionIconOutline width={20} />}
-          to="/permission"
-        >
-          Permission
-        </PivotButton>
-        <PivotButton
-          startEnhancer={<TokenIconOutline width={20} />}
-          to="/token"
-        >
-          Token
-        </PivotButton>
-        <PivotButton
-          startEnhancer={<StorageIconOutline width={20} />}
-          to="/storage"
-        >
-          Storage
-        </PivotButton>
       </Tab>
       <Tab title={<TabTitle>Help</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
         <Button
