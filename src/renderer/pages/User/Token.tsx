@@ -14,7 +14,7 @@ import { ReleaseDeprecateOutline } from 'components/Icons/ReleaseDeprecateOutlin
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 
 import { TokenList, ITokenListActionProps } from './components/TokenList';
-import { AddTokenModal } from './components/AddTokenModal';
+import { AddTokenModal, useAddTokenModal } from './components/AddTokenModal';
 
 const Actions: React.FC<ITokenListActionProps> = ({ id }) => {
   return (
@@ -27,27 +27,20 @@ const Actions: React.FC<ITokenListActionProps> = ({ id }) => {
 };
 
 const InternalToken: React.FC = () => {
+  const [, , openAddTokenModal] = useAddTokenModal();
   const databaseLocked = useDatabaseLocked();
 
   return (
     <PivotLayout
       footer={
-        <>
-          <Button
-            startEnhancer={<AddIconOutline width={20} />}
-            kind={BUTTON_KIND.tertiary}
-            disabled={databaseLocked}
-          >
-            Add Manually
-          </Button>
-          <Button
-            startEnhancer={<EpisodeIconOutline width={20} />}
-            kind={BUTTON_KIND.tertiary}
-            disabled={databaseLocked}
-          >
-            Sync Episodes
-          </Button>
-        </>
+        <Button
+          startEnhancer={<AddIconOutline width={20} />}
+          kind={BUTTON_KIND.tertiary}
+          disabled={databaseLocked}
+          onClick={openAddTokenModal}
+        >
+          Add Token
+        </Button>
       }
     >
       <ContentContainer width={1000} limitedHeight>

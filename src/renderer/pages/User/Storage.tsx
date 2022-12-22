@@ -26,29 +26,8 @@ const Actions: React.FC<IStorageListActionProps> = ({ id }) => {
 };
 
 const InternalStorage: React.FC = () => {
-  const databaseLocked = useDatabaseLocked();
-
   return (
-    <PivotLayout
-      footer={
-        <>
-          <Button
-            startEnhancer={<AddIconOutline width={20} />}
-            kind={BUTTON_KIND.tertiary}
-            disabled={databaseLocked}
-          >
-            Add Manually
-          </Button>
-          <Button
-            startEnhancer={<EpisodeIconOutline width={20} />}
-            kind={BUTTON_KIND.tertiary}
-            disabled={databaseLocked}
-          >
-            Sync Episodes
-          </Button>
-        </>
-      }
-    >
+    <PivotLayout>
       <ContentContainer width={1000} limitedHeight>
         <RecativeBlock
           paddingLeft="20px"

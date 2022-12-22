@@ -14,13 +14,14 @@ import { KIND as BUTTON_KIND } from 'baseui/button';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
+
 import { ModalManager } from 'utils/hooks/useModalManager';
 import {
   useFormChangeCallbacks,
   useOnChangeEventWrapperForStringType,
 } from 'utils/hooks/useFormChangeCallbacks';
 
-export const useAddPermissionModal = ModalManager<void, null>(null);
+export const useAddPermissionModal = ModalManager<unknown, null>(null);
 
 const INITIAL_FORM_VALUE = {
   id: '',

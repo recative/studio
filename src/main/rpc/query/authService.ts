@@ -5,6 +5,8 @@ import { v4 as uuidV4 } from 'uuid';
 
 import { localStorage } from '../../utils/localStorage';
 
+import { getDb } from '../db';
+
 const HOST_KEY = '@recative/auth-service/host';
 const TOKEN_KEY = '@recative/auth-service/token';
 const PERMISSIONS_KEY = '@recative/auth-service/tokenType';
@@ -134,6 +136,10 @@ const requestFactory =
         );
       }
 
+      if (request.status === 204) {
+        return null as T;
+      }
+
       return request.json() as T;
     } catch (error) {
       if (error instanceof Error) {
@@ -224,7 +230,7 @@ export const getPermissions = async () => {
 };
 
 export const addPermission = async (id: string, comment: string) => {
-  return post(`/admin/permission`, {
+  return post<null>(`/admin/permission`, {
     id,
     comment,
   });
@@ -267,4 +273,37 @@ export interface IStorage {
 
 export const getStorages = async () => {
   return get<IStorage[]>('/admin/storages');
+};
+
+export const syncPermissions = async () => {
+  const db = await getDb();
+
+  const episodes = db.episode.episodes.find({});
+  const series = db.series.metadata.findOne({});
+  const seriesId = series?.id;
+  const seriesLabel = series?.title?.en ?? 'Unknown Series';
+
+  const existedPermissionIds = new Set(
+    (await getPermissions()).map((x) => x.id)
+  );
+
+  const requiredPermissionIds = episodes
+    .map((x) => ({
+      permissionId: `@${seriesId}/${x.id}`,
+      episodeLabel: x.label,
+    }))
+    .filter((x) => !existedPermissionIds.has(x.permissionId));
+
+  await Promise.allSettled(
+    requiredPermissionIds.map(({ permissionId, episodeLabel }) => {
+      return addPermission(permissionId, `Permission for ${episodeLabel}`);
+    })
+  );
+
+  if (!existedPermissionIds.has(`@${seriesId}/database`)) {
+    await addPermission(
+      `@${seriesId}/database`,
+      `Access permission for ${seriesLabel}`
+    );
+  }
 };

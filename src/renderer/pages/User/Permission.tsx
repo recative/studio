@@ -11,13 +11,23 @@ import { ContentContainer } from 'components/Layout/ContentContainer';
 import { EpisodeIconOutline } from 'components/Icons/EpisodeIconOutline';
 import { ReleaseDeprecateOutline } from 'components/Icons/ReleaseDeprecateOutline';
 
+import { server } from 'utils/rpc';
+import { useEvent } from 'utils/hooks/useEvent';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
+
+import {
+  ConfirmSyncPermissionModal,
+  useConfirmSyncPermissionModal,
+} from './components/ConfirmSyncPermissionModal';
 
 import {
   PermissionList,
   IPermissionListActionsProps,
 } from './components/PermissionList';
-import { AddPermissionModal } from './components/AddPermissionModal';
+import {
+  AddPermissionModal,
+  useAddPermissionModal,
+} from './components/AddPermissionModal';
 
 const Actions: React.FC<IPermissionListActionsProps> = ({ id }) => {
   return (
@@ -30,7 +40,15 @@ const Actions: React.FC<IPermissionListActionsProps> = ({ id }) => {
 };
 
 const InternalPermission: React.FC = () => {
+  const [, , openConfirmSyncModal] = useConfirmSyncPermissionModal();
+  const [permissionKey, setPermissionKey] = React.useState(0);
   const databaseLocked = useDatabaseLocked();
+  const [, , openAddPermissionModal] = useAddPermissionModal();
+
+  const handleSyncConfirm = useEvent(async () => {
+    await server.syncPermissions();
+    setPermissionKey(Math.random());
+  });
 
   return (
     <PivotLayout
@@ -40,6 +58,7 @@ const InternalPermission: React.FC = () => {
             startEnhancer={<AddIconOutline width={20} />}
             kind={BUTTON_KIND.tertiary}
             disabled={databaseLocked}
+            onClick={openAddPermissionModal}
           >
             Add Manually
           </Button>
@@ -47,6 +66,7 @@ const InternalPermission: React.FC = () => {
             startEnhancer={<EpisodeIconOutline width={20} />}
             kind={BUTTON_KIND.tertiary}
             disabled={databaseLocked}
+            onClick={openConfirmSyncModal}
           >
             Sync Episodes
           </Button>
@@ -75,12 +95,16 @@ const InternalPermission: React.FC = () => {
             position="relative"
           >
             <RecativeBlock width="100%" height="100%" position="absolute">
-              <PermissionList Actions={Actions} />
+              <PermissionList key={permissionKey} Actions={Actions} />
             </RecativeBlock>
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
       <AddPermissionModal />
+      <ConfirmSyncPermissionModal
+        onCancel={null}
+        onSubmit={handleSyncConfirm}
+      />
     </PivotLayout>
   );
 };

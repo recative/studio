@@ -15,14 +15,14 @@ import { KIND as BUTTON_KIND } from 'baseui/button';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { ModalManager } from 'utils/hooks/useModalManager';
 import {
   useFormChangeCallbacks,
   useOnChangeEventWrapperForBaseUiDateValue,
   useOnChangeEventWrapperForStringType,
 } from 'utils/hooks/useFormChangeCallbacks';
+import { ModalManager } from 'utils/hooks/useModalManager';
 
-export const useAddTokenModal = ModalManager<void, null>(null);
+export const useAddTokenModal = ModalManager<unknown, null>(null);
 
 const INITIAL_FORM_VALUE = {
   token: '',
