@@ -1,11 +1,11 @@
+import { fileSync } from 'tmp';
+
 import { Zip } from '@recative/extension-sdk';
 import { DB_CONFIG } from '@recative/studio-definitions';
-import { fileSync } from 'tmp';
 
 import { getEpisodeDetailList } from './episode';
 
 import { getDb } from '../db';
-import { getWorkspace } from '../workspace';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { ReleaseNotFoundError } from '../../utils/errors/ReleaseNotFoundError';
 
@@ -23,7 +23,6 @@ export const uploadDatabase = async (
   bundleReleaseId: number,
   terminalId: string
 ) => {
-  const config = getWorkspace();
   const db0 = await getDb();
   const db = getReleasedDb(bundleReleaseId);
   const targetRelease = db0.release.bundleReleases.findOne({
