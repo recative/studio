@@ -36,6 +36,12 @@ import {
   ConfirmDeprecateReleaseModal,
   useConfirmDeprecateReleaseModal,
 } from './components/ConfirmDeprecateReleaseModal';
+import { AddIconOutline } from 'components/Icons/AddIconOutline';
+import {
+  ManuallyReleaseModal,
+  useManuallyReleaseModal,
+} from './components/ManuallyReleaseModal';
+import { BundleReleaseCreatedModal } from './components/BundleReleaseCreatedModal';
 
 export const useReleaseData = () => {
   const [{ result: releaseData }, { execute: fetchReleaseData }] = useAsync(
@@ -68,10 +74,11 @@ const Actions: React.FC<IActionsProps> = (detail) => {
 
 const RELEASE_TYPE = ['media', 'code', 'bundle'] as const;
 
-export const Release: React.FC = () => {
+export const Release: React.FC = React.memo(() => {
   const [randomId, setRandomId] = React.useState(0);
   const [releaseIndex, setReleaseIndex] = React.useState(2);
   const [, , openReleaseWizardModal] = useReleaseWizardModal();
+  const [, , openManuallyReleaseModal] = useManuallyReleaseModal();
   const [, selectedRelease] = useConfirmDeprecateReleaseModal();
   const [isTerminalOpen, , openTerminal] = useTerminalModal();
   const databaseLocked = useDatabaseLocked();
@@ -88,6 +95,10 @@ export const Release: React.FC = () => {
     setRandomId(Math.random());
   }, [isTerminalOpen]);
 
+  const handleRefreshData = useEvent(() => {
+    setRandomId(Math.random());
+  });
+
   const handleConfirmDeprecateRelease = useEvent(() => {
     if (!selectedRelease) return;
 
@@ -99,6 +110,14 @@ export const Release: React.FC = () => {
     <PivotLayout
       footer={
         <>
+          <Button
+            kind={BUTTON_KIND.tertiary}
+            startEnhancer={<AddIconOutline width={20} />}
+            onClick={openManuallyReleaseModal}
+            disabled={databaseLocked}
+          >
+            Manually Release
+          </Button>
           <Button
             kind={BUTTON_KIND.tertiary}
             startEnhancer={<ReleaseWizardOutline width={20} />}
@@ -168,6 +187,8 @@ export const Release: React.FC = () => {
         onCancel={null}
         onSubmit={handleConfirmDeprecateRelease}
       />
+      <ManuallyReleaseModal onDataRefreshRequest={handleRefreshData} />
+      <BundleReleaseCreatedModal onCancel={null} onSubmit={null} />
     </PivotLayout>
   );
-};
+});

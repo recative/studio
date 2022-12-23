@@ -167,6 +167,7 @@ export const ReleaseWizardModal = () => {
 
   const handleStart = useEvent(() => {
     onClose();
+    setStep(0);
     openTerminal('releaseWizard');
     server.releaseWizard({
       notes: clonedConfig.notes,
