@@ -59,7 +59,9 @@ export const TokenList: React.FC<IPermissionListProps> = ({ Actions }) => {
         token: token.token,
         id: token.token,
         notes: token.comment,
-        expiredAt: token.expired_at,
+        expiredAt: token.expired_at
+          ? new Date(token.expired_at).toLocaleString()
+          : 'Perpetual',
         valid: token.is_valid,
       })),
     [tokens.result]
@@ -70,6 +72,7 @@ export const TokenList: React.FC<IPermissionListProps> = ({ Actions }) => {
       columns={columnConfigs}
       Actions={Actions}
       data={data}
+      loading={tokens.status === 'loading'}
       emptyHeader="No token"
       emptyContent="Creating new token and manage them."
     />

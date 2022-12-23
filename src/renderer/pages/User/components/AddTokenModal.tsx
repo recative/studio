@@ -14,20 +14,29 @@ import { FormControl } from 'baseui/form-control';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 
+import { Select, SIZE as SELECT_SIZE } from 'baseui/select';
+
 import { RecativeBlock } from 'components/Block/RecativeBlock';
+
+import { server } from 'utils/rpc';
+import { useEvent } from 'utils/hooks/useEvent';
+import { ModalManager } from 'utils/hooks/useModalManager';
 import {
   useFormChangeCallbacks,
-  useOnChangeEventWrapperForBaseUiDateValue,
   useOnChangeEventWrapperForStringType,
+  useOnChangeEventWrapperForBaseUiDateValue,
+  useOnChangeEventWrapperForBaseUiSelectWithMultipleValue,
 } from 'utils/hooks/useFormChangeCallbacks';
-import { ModalManager } from 'utils/hooks/useModalManager';
+import { useAsync } from '@react-hookz/web';
+
+const TOKEN_PERMISSIONS = [{ id: 'read' }, { id: 'write' }];
 
 export const useAddTokenModal = ModalManager<unknown, null>(null);
 
 const INITIAL_FORM_VALUE = {
-  token: '',
   notes: '',
   expiredAt: new Date(),
+  permissions: [] as string[],
 };
 
 export const AddTokenModal: React.FC = () => {
@@ -36,15 +45,32 @@ export const AddTokenModal: React.FC = () => {
   const [clonedConfig, valueChangeCallbacks, ,] =
     useFormChangeCallbacks(INITIAL_FORM_VALUE);
 
-  const handleTokenChange = useOnChangeEventWrapperForStringType(
-    valueChangeCallbacks.token
-  );
   const handleExpiresAtChange = useOnChangeEventWrapperForBaseUiDateValue(
     valueChangeCallbacks.expiredAt
   );
   const handleNotesChange = useOnChangeEventWrapperForStringType(
     valueChangeCallbacks.notes
   );
+
+  const handlePermissionsChange =
+    useOnChangeEventWrapperForBaseUiSelectWithMultipleValue(
+      valueChangeCallbacks.permissions
+    );
+
+  const permissionValues = React.useMemo(
+    () => clonedConfig.permissions.map((id) => ({ id })),
+    [clonedConfig.permissions]
+  );
+
+  const handleSubmit = useEvent(async () => {
+    await server.addToken(
+      clonedConfig.expiredAt,
+      permissionValues.map((x) => x.id),
+      clonedConfig.notes
+    );
+
+    onClose();
+  });
 
   return (
     <Modal
@@ -59,18 +85,26 @@ export const AddTokenModal: React.FC = () => {
       <ModalHeader>Add Token</ModalHeader>
       <ModalBody>
         <RecativeBlock minWidth="400px">
-          <FormControl label="Token" caption="The content of the token">
-            <Input
-              size={INPUT_SIZE.mini}
-              value={clonedConfig.token}
-              onChange={handleTokenChange}
-            />
-          </FormControl>
           <FormControl label="Expires At" caption="When will the token expires">
             <DatePicker
               size={INPUT_SIZE.mini}
               value={clonedConfig.expiredAt}
               onChange={handleExpiresAtChange}
+            />
+          </FormControl>
+          <FormControl
+            label="Permissions"
+            caption="Allowed permissions for this user"
+          >
+            <Select
+              creatable
+              multi
+              size={SELECT_SIZE.mini}
+              options={TOKEN_PERMISSIONS}
+              labelKey="id"
+              valueKey="id"
+              onChange={handlePermissionsChange}
+              value={permissionValues}
             />
           </FormControl>
           <FormControl
@@ -89,7 +123,7 @@ export const AddTokenModal: React.FC = () => {
         <ModalButton onClick={onClose} kind={BUTTON_KIND.tertiary}>
           Cancel
         </ModalButton>
-        <ModalButton>Add</ModalButton>
+        <ModalButton onClick={handleSubmit}>Add</ModalButton>
       </ModalFooter>
     </Modal>
   );

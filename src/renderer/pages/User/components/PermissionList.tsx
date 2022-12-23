@@ -56,6 +56,7 @@ export const PermissionList: React.FC<IPermissionListProps> = ({ Actions }) => {
       columns={columnConfigs}
       Actions={Actions}
       data={data}
+      loading={permissions.status === 'loading'}
       emptyHeader="No permission"
       emptyContent="Creating new permission entries by synchronizing the episode list or manually adding one."
     />

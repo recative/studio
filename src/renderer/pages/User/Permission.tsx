@@ -8,8 +8,8 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
 import { ContentContainer } from 'components/Layout/ContentContainer';
+import { TrashIconOutline } from 'components/Icons/TrashIconOutline';
 import { EpisodeIconOutline } from 'components/Icons/EpisodeIconOutline';
-import { ReleaseDeprecateOutline } from 'components/Icons/ReleaseDeprecateOutline';
 
 import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
@@ -28,25 +28,48 @@ import {
   AddPermissionModal,
   useAddPermissionModal,
 } from './components/AddPermissionModal';
+import {
+  ConfirmRemovePermissionModal,
+  useConfirmRemovePermissionModal,
+} from './components/ConfirmRemovePermissionModal';
 
 const Actions: React.FC<IPermissionListActionsProps> = ({ id }) => {
+  const [, , openConfirmRemovePermissionModal] =
+    useConfirmRemovePermissionModal();
+
+  const handleTrashIconClick = useEvent(() => {
+    openConfirmRemovePermissionModal(id);
+  });
+
   return (
     <RecativeBlock>
       <SmallIconButton title="Deprecate Release">
-        <ReleaseDeprecateOutline width={16} />
+        <TrashIconOutline width={16} onClick={handleTrashIconClick} />
       </SmallIconButton>
     </RecativeBlock>
   );
 };
 
 const InternalPermission: React.FC = () => {
+  const [, selectedPermissionId] = useConfirmRemovePermissionModal();
   const [, , openConfirmSyncModal] = useConfirmSyncPermissionModal();
+  const [, , openAddPermissionModal] = useAddPermissionModal();
   const [permissionKey, setPermissionKey] = React.useState(0);
   const databaseLocked = useDatabaseLocked();
-  const [, , openAddPermissionModal] = useAddPermissionModal();
 
   const handleSyncConfirm = useEvent(async () => {
     await server.syncPermissions();
+    setPermissionKey(Math.random());
+  });
+
+  const handleDeletePermission = useEvent(async () => {
+    if (selectedPermissionId) {
+      await server.deletePermission(selectedPermissionId);
+      setPermissionKey(Math.random());
+    }
+  });
+
+  const handleRefreshData = useEvent(() => {
     setPermissionKey(Math.random());
   });
 
@@ -100,10 +123,14 @@ const InternalPermission: React.FC = () => {
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
-      <AddPermissionModal />
+      <AddPermissionModal onDataRefreshRequest={handleRefreshData} />
       <ConfirmSyncPermissionModal
         onCancel={null}
         onSubmit={handleSyncConfirm}
+      />
+      <ConfirmRemovePermissionModal
+        onCancel={null}
+        onSubmit={handleDeletePermission}
       />
     </PivotLayout>
   );

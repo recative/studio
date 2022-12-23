@@ -2,6 +2,7 @@ import * as React from 'react';
 import cn from 'classnames';
 
 import { useStyletron } from 'baseui';
+import { Spinner, SIZE as SPINNER_SIZE } from 'baseui/spinner';
 import { StyledTable, StyledHeadCell, StyledBodyCell } from 'baseui/table-grid';
 
 import { EmptySpace } from 'components/EmptyState/EmptyState';
@@ -26,6 +27,7 @@ export interface IGridTableProps<K extends string> {
   emptyHeader: string;
   emptyContent: string;
   Actions?: React.FC<IData<K>>;
+  loading?: boolean;
 }
 
 const tableStyle = {
@@ -52,6 +54,7 @@ const DEFAULT_ACTIONS = () => <></>;
 
 export const GridTable = <K extends string>({
   data,
+  loading,
   columns,
   emptyHeader,
   emptyContent,
@@ -124,9 +127,18 @@ export const GridTable = <K extends string>({
           </RecativeBlock>
         );
       })}
-      {!data?.length && (
+      {!data?.length && !loading && (
         <RecativeBlock gridColumn={`1 / ${sortedColumns.length + 1}`}>
           <EmptySpace title={emptyHeader} content={emptyContent} />
+        </RecativeBlock>
+      )}
+      {!data?.length && loading && (
+        <RecativeBlock
+          gridColumn={`1 / ${sortedColumns.length + 1}`}
+          display="flex"
+          justifyContent="center"
+        >
+          <Spinner $size={SPINNER_SIZE.medium} />
         </RecativeBlock>
       )}
     </StyledTable>

@@ -70,6 +70,7 @@ export const StorageList: React.FC<IPermissionListProps> = ({ Actions }) => {
       columns={columnConfigs}
       Actions={Actions}
       data={data}
+      loading={storages.status === 'loading'}
       emptyHeader="No storage"
       emptyContent="Creating new storage by uploading data archives."
     />

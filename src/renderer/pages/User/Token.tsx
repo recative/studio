@@ -7,28 +7,50 @@ import { PivotLayout } from 'components/Layout/PivotLayout';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
+import { TrashIconOutline } from 'components/Icons/TrashIconOutline';
 import { ContentContainer } from 'components/Layout/ContentContainer';
-import { EpisodeIconOutline } from 'components/Icons/EpisodeIconOutline';
-import { ReleaseDeprecateOutline } from 'components/Icons/ReleaseDeprecateOutline';
 
+import { server } from 'utils/rpc';
+import { useEvent } from 'utils/hooks/useEvent';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 
 import { TokenList, ITokenListActionProps } from './components/TokenList';
 import { AddTokenModal, useAddTokenModal } from './components/AddTokenModal';
+import {
+  ConfirmRemoveTokenModal,
+  useConfirmRemoveTokenModal,
+} from './components/ConfirmRemoveTokenModal';
 
 const Actions: React.FC<ITokenListActionProps> = ({ id }) => {
+  const [, , openConfirmRemoveTokenModal] = useConfirmRemoveTokenModal();
+  const handleTrashIconClick = useEvent(() => {
+    openConfirmRemoveTokenModal(id);
+  });
+
   return (
     <RecativeBlock>
-      <SmallIconButton title="Deprecate Release">
-        <ReleaseDeprecateOutline width={16} />
+      <SmallIconButton title="Remove Token">
+        <TrashIconOutline width={16} onClick={handleTrashIconClick} />
       </SmallIconButton>
     </RecativeBlock>
   );
 };
 
 const InternalToken: React.FC = () => {
+  const [key, setKey] = React.useState(0);
+
   const [, , openAddTokenModal] = useAddTokenModal();
+
+  const [, selectedToken] = useConfirmRemoveTokenModal();
+
   const databaseLocked = useDatabaseLocked();
+
+  const handleRemoveTokenModalSubmit = useEvent(async () => {
+    if (selectedToken) {
+      await server.deleteToken(selectedToken);
+      setKey(Math.random());
+    }
+  });
 
   return (
     <PivotLayout
@@ -65,12 +87,16 @@ const InternalToken: React.FC = () => {
             position="relative"
           >
             <RecativeBlock width="100%" height="100%" position="absolute">
-              <TokenList Actions={Actions} />
+              <TokenList key={key} Actions={Actions} />
             </RecativeBlock>
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
       <AddTokenModal />
+      <ConfirmRemoveTokenModal
+        onSubmit={handleRemoveTokenModalSubmit}
+        onCancel={null}
+      />
     </PivotLayout>
   );
 };

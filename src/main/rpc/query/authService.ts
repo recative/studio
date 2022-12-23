@@ -156,6 +156,7 @@ const requestFactory =
 
 const get = requestFactory('GET');
 const post = requestFactory('POST');
+const del = requestFactory('DELETE');
 
 interface ITokenResponse {
   token: string;
@@ -250,7 +251,7 @@ export const getTokens = async () => {
 };
 
 export const addToken = async (
-  expiredAt: number,
+  expiredAt: Date,
   permissions: string[],
   comment: string
 ) => {
@@ -259,8 +260,12 @@ export const addToken = async (
     admin_permission: permissions,
     is_valid: true,
     token: uuidV4(),
-    expiredAt,
+    expiredAt: expiredAt.toISOString(),
   });
+};
+
+export const deleteToken = (token: string) => {
+  return del<null>(`/admin/token/${token}`);
 };
 
 export interface IStorage {
@@ -290,7 +295,7 @@ export const syncPermissions = async () => {
   const requiredPermissionIds = episodes
     .map((x) => ({
       permissionId: `@${seriesId}/${x.id}`,
-      episodeLabel: x.label,
+      episodeLabel: x.label.en,
     }))
     .filter((x) => !existedPermissionIds.has(x.permissionId));
 
@@ -306,4 +311,8 @@ export const syncPermissions = async () => {
       `Access permission for ${seriesLabel}`
     );
   }
+};
+
+export const deletePermission = (permission: string) => {
+  return del<null>(`/admin/permission/${permission}`);
 };

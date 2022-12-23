@@ -20,6 +20,8 @@ import {
   useFormChangeCallbacks,
   useOnChangeEventWrapperForStringType,
 } from 'utils/hooks/useFormChangeCallbacks';
+import { useEvent } from 'utils/hooks/useEvent';
+import { server } from 'utils/rpc';
 
 export const useAddPermissionModal = ModalManager<unknown, null>(null);
 
@@ -28,7 +30,13 @@ const INITIAL_FORM_VALUE = {
   notes: '',
 };
 
-export const AddPermissionModal: React.FC = () => {
+interface IAddPermissionModalProps {
+  onDataRefreshRequest: () => void;
+}
+
+export const AddPermissionModal: React.FC<IAddPermissionModalProps> = ({
+  onDataRefreshRequest,
+}) => {
   const [isOpen, , , onClose] = useAddPermissionModal();
 
   const [clonedConfig, valueChangeCallbacks, ,] =
@@ -40,6 +48,12 @@ export const AddPermissionModal: React.FC = () => {
   const handleNotesChange = useOnChangeEventWrapperForStringType(
     valueChangeCallbacks.notes
   );
+
+  const handleAddPermission = useEvent(async () => {
+    await server.addPermission(clonedConfig.id, clonedConfig.notes);
+    onDataRefreshRequest();
+    onClose();
+  });
 
   return (
     <Modal
@@ -80,7 +94,7 @@ export const AddPermissionModal: React.FC = () => {
         <ModalButton onClick={onClose} kind={BUTTON_KIND.tertiary}>
           Cancel
         </ModalButton>
-        <ModalButton>Add</ModalButton>
+        <ModalButton onClick={handleAddPermission}>Add</ModalButton>
       </ModalFooter>
     </Modal>
   );
