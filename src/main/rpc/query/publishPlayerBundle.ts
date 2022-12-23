@@ -18,7 +18,7 @@ import { stringify } from '../../utils/serializer';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { analysisPostProcessedRecords } from '../../utils/analysisPostProcessedRecords';
 
-const getBundlerConfigs = async (
+export const getBundlerConfigs = async (
   mediaReleaseId: number | null,
   codeReleaseId: number,
   bundleReleaseId: number,

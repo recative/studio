@@ -280,6 +280,22 @@ export const getStorages = async () => {
   return get<IStorage[]>('/admin/storages');
 };
 
+export const addStorage = async (
+  key: string,
+  value: string,
+  permissions: string[],
+  permissionCount: number,
+  notes: string
+) => {
+  return post<null>('/admin/storage', {
+    key,
+    value,
+    need_permissions: permissions,
+    need_permission_count: permissionCount,
+    comment: notes,
+  });
+};
+
 export const syncPermissions = async () => {
   const db = await getDb();
 
