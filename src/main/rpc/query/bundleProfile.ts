@@ -130,7 +130,13 @@ export const createBundles = async <Dry extends boolean>(
 
     const profile = bundleProfiles.find((x) => x.id === profileId);
     if (!profile) {
-      throw new TypeError(`Profile ${profileId} not found`);
+      logToTerminal(
+        terminalId,
+        `Profile ${profileId} not found`,
+        Level.Warning
+      );
+
+      continue;
     }
 
     const title = `== ${profile.label} (${profile.bundleExtensionId}) ==`;
