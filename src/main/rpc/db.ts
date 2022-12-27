@@ -23,7 +23,9 @@ export const getDb = async (
     : yamlPath || currentDb?.path || null;
 
   if (!trueRootPath) {
-    throw new TypeError('Root path not defined, no previous path cached');
+    throw new TypeError(
+      'Root path not defined. No previous path has been cached.'
+    );
   }
 
   if (currentDb && currentDb.path === trueRootPath && !temporary) {
@@ -39,6 +41,27 @@ export const getDb = async (
   }
 
   return newDb;
+};
+
+export const forceRefreshDb = async () => {
+  const oldDb = currentDb;
+
+  if (!oldDb) {
+    throw new TypeError(
+      'Root path not defined. No previous path has been cached.'
+    );
+  }
+
+  const newDb = await initializeDb(oldDb.path, oldDb.additionalData);
+  currentDb = newDb;
+
+  if (oldDb) {
+    Object.values(oldDb).forEach((x) => {
+      if (x.$db instanceof Loki) {
+        x.$db.close();
+      }
+    });
+  }
 };
 
 export const saveAllDatabase = async <T>(db: IDbInstance<T>) => {

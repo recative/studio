@@ -296,6 +296,10 @@ export const addStorage = async (
   });
 };
 
+export const getStorage = async (key: string) => {
+  return get<IStorage>(`/admin/storage/${key}`);
+};
+
 export const syncPermissions = async () => {
   const db = await getDb();
 

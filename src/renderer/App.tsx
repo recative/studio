@@ -15,9 +15,9 @@ import { Token } from './pages/User/Token';
 import { Login } from './pages/User/Login';
 import { Cloud } from './pages/Cloud/Cloud';
 import { Series } from './pages/Series/Series';
+import { Bundle } from './pages/Bundle/Bundle';
 import { Storage } from './pages/User/Storage';
 import { Welcome } from './pages/Welcome/Welcome';
-import { Bundle } from './pages/Bundle/Bundle';
 import { Publish } from './pages/Publish/Publish';
 import { Episode } from './pages/Episode/Episode';
 import { Release } from './pages/Release/Release';
@@ -25,6 +25,7 @@ import { Setting } from './pages/Setting/Setting';
 import { Preview } from './pages/Preview/Preview';
 import { Resource } from './pages/Resource/Resource';
 import { ActPoint } from './pages/ActPoint/ActPoint';
+import { Recovering } from './pages/User/Recovering';
 import { Permission } from './pages/User/Permission';
 import { NewResource } from './pages/Welcome/NewResource';
 import { PreviewPlayer } from './pages/Preview/PreviewPlayer';
@@ -149,6 +150,7 @@ export const App = () => {
         <Route path="permission" element={<Permission />} />
         <Route path="token" element={<Token />} />
         <Route path="storage" element={<Storage />} />
+        <Route path="downloading-backup" element={<Recovering />} />
         <Route path="preview-player" element={<PreviewPlayer />} />
         <Route path="merge-resource-db" element={<MergeResourceDatabase />} />
         <Route path="/" element={<Welcome />} />

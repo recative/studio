@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SVGProps } from 'react';
 
-export const Add = (props: SVGProps<SVGSVGElement>) => (
+export const Add: React.FC<SVGProps<SVGSVGElement>> = React.memo((props) => (
   <svg
     viewBox="0 0 867 586"
     xmlns="http://www.w3.org/2000/svg"
@@ -175,4 +175,4 @@ export const Add = (props: SVGProps<SVGSVGElement>) => (
       transform="translate(170.675 40.296) scale(.71622)"
     />
   </svg>
-);
+));

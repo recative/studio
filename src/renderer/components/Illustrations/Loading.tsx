@@ -1,7 +1,8 @@
 import * as React from 'react';
+import { SVGProps } from 'react';
 
-export const Loading: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
-  return (
+export const Loading: React.FC<SVGProps<SVGSVGElement>> = React.memo(
+  (props) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="430.914"
@@ -58,5 +59,5 @@ export const Loading: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
         fill="#3f3d56"
       />
     </svg>
-  );
-};
+  )
+);

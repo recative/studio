@@ -1,18 +1,22 @@
+import tempfile from 'tempfile';
+import StreamZip from 'node-stream-zip';
+import { join } from 'path';
 import { fileSync } from 'tmp';
+import { writeFile } from 'fs/promises';
 
 import { Zip } from '@recative/extension-sdk';
 import { DB_CONFIG } from '@recative/studio-definitions';
 
+import { cleanupLoki } from './utils';
+import { getBuildPath } from './setting';
+import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
+import { addStorage, getStorage } from './authService';
 
-import { getDb } from '../db';
+import { getWorkspace } from '../workspace';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { ReleaseNotFoundError } from '../../utils/errors/ReleaseNotFoundError';
-
-import { cleanupLoki } from './utils';
-import { addStorage } from './authService';
-import { logToTerminal } from './terminal';
-import { getBuildPath } from './setting';
+import { getDb, resetDb, saveAllDatabase } from '../db';
 
 /**
  *  Upload database to act server.
@@ -120,4 +124,73 @@ export const uploadDatabase = async (
     1,
     `Database backup for ${series?.title.label}`
   );
+};
+
+const recoverStatus = {
+  message: 'No task required',
+  status: 'working' as 'working' | 'success' | 'failed',
+};
+
+export const getRecoverBackupStatus = () => recoverStatus;
+
+export const recoverBackup = async (storageId: string) => {
+  recoverStatus.status = 'working';
+  recoverStatus.message = 'Recovering Backup...';
+
+  const db = await getDb();
+  const buildPath = await getBuildPath();
+  const workspace = getWorkspace();
+
+  const { dbPath } = workspace;
+
+  recoverStatus.message = 'Downloading the backup...';
+
+  const storageContent = await getStorage(storageId);
+  const buffer = Buffer.from(storageContent.value, 'base64');
+
+  const filePath = tempfile();
+  await writeFile(filePath, buffer);
+
+  recoverStatus.message = 'Saving existed database...';
+
+  await saveAllDatabase(db);
+
+  recoverStatus.message = 'Backing up database...';
+  const outputPath = `${buildPath}/db-backup-${Date.now()}.zip`;
+
+  const zip = new Zip(outputPath);
+  await Promise.all(
+    Object.values(DB_CONFIG).map(({ file }) => {
+      return zip.appendFile(join(dbPath, file), file);
+    })
+  );
+  await zip.done();
+
+  try {
+    resetDb();
+    const newZip = new StreamZip.async({ file: filePath });
+    await Promise.all(
+      Object.values(DB_CONFIG).map(({ file }) => {
+        return newZip.extract(file, join(dbPath, file));
+      })
+    );
+
+    recoverStatus.message = 'Database recovered...';
+    recoverStatus.status = 'success';
+  } catch (e) {
+    // Rolling back
+    const newZip = new StreamZip.async({ file: outputPath });
+    await Promise.all(
+      Object.values(DB_CONFIG).map(({ file }) => {
+        return newZip.extract(file, join(dbPath, file));
+      })
+    );
+
+    const errorCode = e instanceof Error ? e.name : 'Unknown Error';
+
+    recoverStatus.message = `Recover failed: ${errorCode}`;
+    recoverStatus.status = 'failed';
+  } finally {
+    await getDb(dbPath);
+  }
 };
