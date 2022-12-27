@@ -11,7 +11,12 @@ import { cleanupLoki } from './utils';
 import { getBuildPath } from './setting';
 import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
-import { addStorage, getStorage, updateStorage } from './authService';
+import {
+  addStorage,
+  ensureStorage,
+  getStorage,
+  updateStorage,
+} from './authService';
 
 import { getWorkspace } from '../workspace';
 import { getReleasedDb } from '../../utils/getReleasedDb';
@@ -78,22 +83,21 @@ export const uploadDatabase = async (
   logToTerminal(terminalId, `Uploading episode detail list`);
 
   await Promise.allSettled(
-    formattedEpisode.map((x) => {
-      const metadataId = `@${seriesId}/${x.episode.id}`;
-      return addStorage(
-        metadataId,
+    formattedEpisode.map((x) =>
+      ensureStorage(
+        `@${seriesId}/${bundleReleaseId}/${x.episode.id}`,
         JSON.stringify(x),
-        [metadataId],
+        [`@${seriesId}/${x.episode.id}`],
         1,
         `Client side metadata for ${x.episode.label.en}`
-      );
-    })
+      )
+    )
   );
 
-  await addStorage(
-    `@${seriesId}/abstract`,
+  await ensureStorage(
+    `@${seriesId}/${bundleReleaseId}/abstract`,
     JSON.stringify(episodeAbstraction),
-    formattedEpisode.map((x) => `@${seriesId}/${x.episode.id}`),
+    [],
     1,
     `Client side abstract for ${series?.title.label}`
   );
@@ -117,14 +121,13 @@ export const uploadDatabase = async (
   await zip.done();
   const buffer = await zip.getBuffer();
 
-  const storageKey = `@${seriesId}/${bundleReleaseId}/db`;
-  const storageValue = buffer.toString('base64');
-  const storageNote = `Database backup for ${series?.title.label}`;
-  try {
-    await addStorage(storageKey, storageValue, [], 1, storageNote);
-  } catch (e) {
-    await updateStorage(storageKey, storageValue, [], 1, storageNote);
-  }
+  await ensureStorage(
+    `@${seriesId}/${bundleReleaseId}/db`,
+    buffer.toString('base64'),
+    [],
+    1,
+    `Database backup for ${series?.title.label}`
+  );
 };
 
 const recoverStatus = {

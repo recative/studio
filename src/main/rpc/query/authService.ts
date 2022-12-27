@@ -313,6 +313,20 @@ export const updateStorage = async (
   });
 };
 
+export const ensureStorage = async (
+  key: string,
+  value: string,
+  permissions: string[],
+  permissionCount: number,
+  notes: string
+) => {
+  try {
+    await addStorage(key, value, permissions, permissionCount, notes);
+  } catch (e) {
+    await updateStorage(key, value, permissions, permissionCount, notes);
+  }
+};
+
 export const getStorage = async (key: string) => {
   return get<IStorage>(`/admin/storage/${key}`);
 };
