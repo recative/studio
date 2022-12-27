@@ -163,11 +163,10 @@ export const recoverBackup = async (storageId: string) => {
   const outputPath = `${buildPath}/db-backup-${Date.now()}.zip`;
 
   const zip = new Zip(outputPath);
-  await Promise.all(
-    Object.values(DB_CONFIG).map(({ file }) => {
-      return zip.appendFile(join(dbPath, file), file);
-    })
-  );
+
+  for (const { file } of Object.values(DB_CONFIG)) {
+    await zip.appendFile(join(dbPath, file), file);
+  }
   await zip.done();
 
   try {
