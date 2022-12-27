@@ -11,12 +11,7 @@ import { cleanupLoki } from './utils';
 import { getBuildPath } from './setting';
 import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
-import {
-  addStorage,
-  ensureStorage,
-  getStorage,
-  updateStorage,
-} from './authService';
+import { getStorage, ensureStorage } from './authService';
 
 import { getWorkspace } from '../workspace';
 import { getReleasedDb } from '../../utils/getReleasedDb';
