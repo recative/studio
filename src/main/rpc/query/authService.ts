@@ -266,7 +266,7 @@ export const addToken = async (
 };
 
 export const deleteToken = (token: string) => {
-  return del<null>(`/admin/token/${token}`);
+  return del<null>(`/admin/token/${encodeURIComponent(token)}`);
 };
 
 export interface IStorage {
@@ -304,7 +304,7 @@ export const updateStorage = async (
   permissionCount: number,
   notes: string
 ) => {
-  return put<null>(`/admin/storage/${key}`, {
+  return put<null>(`/admin/storage/${encodeURIComponent(key)}`, {
     key,
     value,
     need_permissions: permissions,
@@ -365,5 +365,5 @@ export const syncPermissions = async () => {
 };
 
 export const deletePermission = (permission: string) => {
-  return del<null>(`/admin/permission/${permission}`);
+  return del<null>(`/admin/permission/${encodeURIComponent(permission)}`);
 };
