@@ -1,9 +1,11 @@
 import * as React from 'react';
 
 import { useAsync } from '@react-hookz/web';
+import { useStyletron } from 'baseui';
 
 import { server } from 'utils/rpc';
 import { GridTable, IColumnConfig } from 'components/GridTable/GridTable';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 export interface IStorageListActionProps {
   id: string;
@@ -45,6 +47,7 @@ const columnConfigs: IColumnConfig<TokenKeys>[] = [
 type TokenKeys = typeof storageKeys[number];
 
 export const StorageList: React.FC<IPermissionListProps> = ({ Actions }) => {
+  const [, theme] = useStyletron();
   const [storages, storagesActions] = useAsync(() => {
     return server.getStorages();
   });
@@ -58,7 +61,18 @@ export const StorageList: React.FC<IPermissionListProps> = ({ Actions }) => {
       storages.result?.map((storage) => ({
         id: storage.key,
         key: storage.key,
-        permissions: storage.need_permissions,
+        permissions: storage.need_permissions?.map((x) => (
+          <RecativeBlock
+            key={x}
+            width="5px"
+            height="5px"
+            margin="1px"
+            borderRadius="50%"
+            background={theme.colors.mono600}
+            display="inline-block"
+            title={x}
+          />
+        )),
         permissionCount: storage.need_permission_count,
         notes: storage.comment,
       })),
