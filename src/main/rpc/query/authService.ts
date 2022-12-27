@@ -156,6 +156,7 @@ const requestFactory =
 
 const get = requestFactory('GET');
 const post = requestFactory('POST');
+const put = requestFactory('PUT');
 const del = requestFactory('DELETE');
 
 interface ITokenResponse {
@@ -288,6 +289,22 @@ export const addStorage = async (
   notes: string
 ) => {
   return post<null>('/admin/storage', {
+    key,
+    value,
+    need_permissions: permissions,
+    need_permission_count: permissionCount,
+    comment: notes,
+  });
+};
+
+export const updateStorage = async (
+  key: string,
+  value: string,
+  permissions: string[],
+  permissionCount: number,
+  notes: string
+) => {
+  return put<null>(`/admin/storage/${key}`, {
     key,
     value,
     need_permissions: permissions,

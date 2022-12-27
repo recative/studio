@@ -11,7 +11,7 @@ import { cleanupLoki } from './utils';
 import { getBuildPath } from './setting';
 import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
-import { addStorage, getStorage } from './authService';
+import { addStorage, getStorage, updateStorage } from './authService';
 
 import { getWorkspace } from '../workspace';
 import { getReleasedDb } from '../../utils/getReleasedDb';
@@ -117,13 +117,14 @@ export const uploadDatabase = async (
   await zip.done();
   const buffer = await zip.getBuffer();
 
-  await addStorage(
-    `@${seriesId}/db`,
-    buffer.toString('base64'),
-    [],
-    1,
-    `Database backup for ${series?.title.label}`
-  );
+  const storageKey = `@${seriesId}/${bundleReleaseId}/db`;
+  const storageValue = buffer.toString('base64');
+  const storageNote = `Database backup for ${series?.title.label}`;
+  try {
+    await addStorage(storageKey, storageValue, [], 1, storageNote);
+  } catch (e) {
+    await updateStorage(storageKey, storageValue, [], 1, storageNote);
+  }
 };
 
 const recoverStatus = {
