@@ -110,7 +110,7 @@ export const uploadDatabase = async (
 
   await Promise.all(
     Object.values(DB_CONFIG).map(({ file }) => {
-      return zip.transfer(databaseBackupPath, file);
+      return zip.transfer(databaseBackupPath, file, file);
     })
   );
 
