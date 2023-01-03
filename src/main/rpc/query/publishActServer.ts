@@ -92,7 +92,7 @@ export const uploadDatabase = async (
   await ensureStorage(
     `@${seriesId}/${bundleReleaseId}/abstract`,
     JSON.stringify(episodeAbstraction),
-    [],
+    formattedEpisode.map((x) => `@${seriesId}/${x.episode.id}`),
     1,
     `Client side abstract for ${series?.title.label}`
   );
