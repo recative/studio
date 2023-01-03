@@ -13,10 +13,11 @@ import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
 import { getStorage, ensureStorage } from './authService';
 
-import { getWorkspace } from '../workspace';
+import { getWorkspace, setupWorkspace } from '../workspace';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { ReleaseNotFoundError } from '../../utils/errors/ReleaseNotFoundError';
-import { getDb, resetDb, saveAllDatabase } from '../db';
+import { getDb, saveAllDatabase, setupDb } from '../db';
+import { closeDb } from './project';
 
 /**
  *  Upload database to act server.
@@ -165,8 +166,10 @@ export const recoverBackup = async (storageId: string) => {
   }
   await zip.done();
 
+  const { mediaWorkspacePath, codeRepositoryPath, readonly } = workspace;
+
   try {
-    resetDb();
+    await closeDb();
     const newZip = new StreamZip.async({ file: filePath });
     await Promise.all(
       Object.values(DB_CONFIG).map(({ file }) => {
@@ -190,6 +193,7 @@ export const recoverBackup = async (storageId: string) => {
     recoverStatus.message = `Recover failed: ${errorCode}`;
     recoverStatus.status = 'failed';
   } finally {
-    await getDb(dbPath);
+    await setupWorkspace(mediaWorkspacePath, codeRepositoryPath, readonly);
+    await setupDb(dbPath);
   }
 };
