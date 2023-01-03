@@ -96,6 +96,7 @@ export interface ColorDefinition {
 interface IPivotProps {
   additionalTabs?: React.ReactNode;
   tabColors?: ColorDefinition[];
+  disabled?: boolean;
 }
 
 interface IPivotButtonProps {
@@ -134,6 +135,7 @@ const PivotButton: React.FC<IPivotButtonProps> = ({
 export const InternalPivot: React.FC<IPivotProps> = ({
   additionalTabs,
   tabColors,
+  disabled,
 }) => {
   const [, theme] = useStyletron();
   const navigate = useNavigate();
@@ -171,18 +173,21 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         <PivotButton
           startEnhancer={<ReleaseManagerIconOutline width={20} />}
           to="/release"
+          disabled={disabled}
         >
           Release
         </PivotButton>
         <PivotButton
           startEnhancer={<PublishIconOutline width={20} />}
           to="/publish"
+          disabled={disabled}
         >
           Publish
         </PivotButton>
         <PivotButton
           startEnhancer={<BundleIconOutline width={20} />}
           to="/bundle"
+          disabled={disabled}
         >
           Bundle
         </PivotButton>
@@ -190,6 +195,7 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         <PivotButton
           startEnhancer={<SettingsIconOutline width={20} />}
           to="/setting"
+          disabled={disabled}
         >
           Settings
         </PivotButton>
@@ -198,6 +204,7 @@ export const InternalPivot: React.FC<IPivotProps> = ({
           kind={BUTTON_KIND.tertiary}
           startEnhancer={<CloseIconOutline width={20} />}
           onClick={handleClose}
+          disabled={disabled}
         >
           Close
         </Button>
@@ -206,12 +213,14 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         <PivotButton
           startEnhancer={<ResourceManagerIconOutline width={20} />}
           to="/resource"
+          disabled={disabled}
         >
           Resource
         </PivotButton>
         <PivotButton
           startEnhancer={<CloudIconOutline width={20} />}
           to="/cloud"
+          disabled={disabled}
         >
           Cloud
         </PivotButton>
@@ -219,18 +228,21 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         <PivotButton
           startEnhancer={<SeriesIconOutline width={20} />}
           to="/series"
+          disabled={disabled}
         >
           Series
         </PivotButton>
         <PivotButton
           startEnhancer={<EpisodeIconOutline width={20} />}
           to="/episode"
+          disabled={disabled}
         >
           Episode
         </PivotButton>
         <PivotButton
           startEnhancer={<ActPointIconOutline width={20} />}
           to="/act-point"
+          disabled={disabled}
         >
           Act Point
         </PivotButton>
@@ -238,7 +250,9 @@ export const InternalPivot: React.FC<IPivotProps> = ({
       <Tab title={<TabTitle>Server</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
         <Button
           kind={BUTTON_KIND.tertiary}
-          disabled={resourceServerStatus === ResourceServerStatus.Pending}
+          disabled={
+            resourceServerStatus === ResourceServerStatus.Pending || disabled
+          }
           startEnhancer={
             <>
               {resourceServerStatus === ResourceServerStatus.Idle && (
@@ -278,7 +292,9 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         </Button> */}
         <Separator />
         <PivotButton
-          disabled={resourceServerStatus !== ResourceServerStatus.Running}
+          disabled={
+            resourceServerStatus !== ResourceServerStatus.Running || disabled
+          }
           startEnhancer={<PlayerPreviewIconOutline width={20} />}
           to="/preview"
         >
@@ -297,24 +313,28 @@ export const InternalPivot: React.FC<IPivotProps> = ({
                 />
               }
               to="/user"
+              disabled={disabled}
             >
               {loginCredential?.sessionId}
             </PivotButton>
             <PivotButton
               startEnhancer={<PermissionIconOutline width={20} />}
               to="/permission"
+              disabled={disabled}
             >
               Permission
             </PivotButton>
             <PivotButton
               startEnhancer={<TokenIconOutline width={20} />}
               to="/token"
+              disabled={disabled}
             >
               Token
             </PivotButton>
             <PivotButton
               startEnhancer={<StorageIconOutline width={20} />}
               to="/storage"
+              disabled={disabled}
             >
               Storage
             </PivotButton>
@@ -323,6 +343,7 @@ export const InternalPivot: React.FC<IPivotProps> = ({
           <PivotButton
             startEnhancer={<MergeDatabaseIconOutline width={20} />}
             to="/login"
+            disabled={disabled}
           >
             Login
           </PivotButton>
@@ -330,6 +351,7 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         <PivotButton
           startEnhancer={<PermissionIconOutline width={20} />}
           to="/downloading-backup"
+          disabled={disabled}
         >
           DOWNLOADING
         </PivotButton>
@@ -338,18 +360,21 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         <Button
           kind={BUTTON_KIND.tertiary}
           startEnhancer={<HelpIconOutline width={20} />}
+          disabled={disabled}
         >
           Help
         </Button>
         <Button
           kind={BUTTON_KIND.tertiary}
           startEnhancer={<GitHubIconOutline width={20} />}
+          disabled={disabled}
         >
           Source
         </Button>
         <Button
           kind={BUTTON_KIND.tertiary}
           startEnhancer={<AboutIconOutline width={20} />}
+          disabled={disabled}
         >
           About
         </Button>
