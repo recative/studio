@@ -107,11 +107,12 @@ export const uploadDatabase = async (
   const outputFilePath = fileSync().name;
   const zip = new Zip(outputFilePath);
 
-  await Promise.all(
-    Object.values(DB_CONFIG).map(({ file }) => {
-      return zip.transfer(databaseBackupPath, file, file);
-    })
-  );
+  const dbConfigs = Object.values(DB_CONFIG);
+
+  for (let i = 0; i < dbConfigs.length; i += 1) {
+    const { file } = dbConfigs[i];
+    await zip.transfer(databaseBackupPath, file, file);
+  }
 
   await zip.done();
   const buffer = await zip.getBuffer();
