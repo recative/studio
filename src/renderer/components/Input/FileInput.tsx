@@ -5,8 +5,12 @@ import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { Input } from 'baseui/input';
-import { Button, KIND as BUTTON_KIND } from 'baseui/button';
+import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
+import {
+  Button,
+  KIND as BUTTON_KIND,
+  SIZE as BUTTON_SIZE,
+} from 'baseui/button';
 
 import { server } from 'utils/rpc';
 
@@ -16,6 +20,7 @@ interface IFileSelectProps {
   directory?: boolean;
   multiple?: boolean;
   initialValue?: string;
+  isCompact?: boolean;
   kind?: typeof BUTTON_KIND[keyof typeof BUTTON_KIND];
   hideIcon?: boolean;
   hideInput?: boolean;
@@ -63,6 +68,7 @@ export const FileInput: React.FC<IFileSelectProps> = ({
   kind = BUTTON_KIND.secondary,
   multiple = false,
   directory = false,
+  isCompact,
   hideIcon,
   hideInput,
   onChange,
@@ -79,9 +85,16 @@ export const FileInput: React.FC<IFileSelectProps> = ({
 
   return (
     <RecativeBlock className={css(bodyStyles)}>
-      {!hideInput && <Input value={displayPath} disabled />}
+      {!hideInput && (
+        <Input
+          value={displayPath}
+          size={isCompact ? INPUT_SIZE.compact : undefined}
+          disabled
+        />
+      )}
       <Button
         kind={kind}
+        size={isCompact ? BUTTON_SIZE.compact : undefined}
         startEnhancer={hideIcon ? undefined : <OpenIcon width={20} />}
         onClick={handleButtonClick}
       >

@@ -89,8 +89,6 @@ const contentContainerStyle: StyleObject = {
 };
 
 const mainContainerStyle: StyleObject = {
-  alignItems: 'center',
-
   '@media (max-width: 800px)': {
     paddingTop: '120px',
     alignItems: 'flex-start',
@@ -286,6 +284,7 @@ export const Welcome: React.FC = () => {
       height="calc(100vh - 30px)"
       display="flex"
       justifyContent="center"
+      alignItems="center"
       className={css(mainContainerStyle)}
     >
       <RecativeBlock width="80vw" maxWidth="800px">
@@ -303,6 +302,7 @@ export const Welcome: React.FC = () => {
               >
                 <LabelLarge>Open Recent Contents</LabelLarge>
                 <StatefulTooltip content="Readonly mode">
+                  {/* @ts-ignore: Incorrect type definition */}
                   <ButtonGroup
                     mode="checkbox"
                     selected={
@@ -353,11 +353,10 @@ export const Welcome: React.FC = () => {
             <LabelLarge>Getting Started</LabelLarge>
             <RecativeBlock>
               <NavigationButton
-                disabled
                 title="Download Resource Source"
                 subtitle="Download an existing resource source from a remote server and continue your work"
                 Icon={DownloadIcon}
-                onClick={() => navigate('/', { replace: true })}
+                onClick={() => navigate('/recover', { replace: true })}
               />
             </RecativeBlock>
             <RecativeBlock>

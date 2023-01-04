@@ -20,7 +20,7 @@ export type OnChangeCallback<T> = (
 ) => void;
 
 export type GetOptionLabel<T extends Option> = (args: {
-  option?: T;
+  option?: T | undefined;
   optionState: {
     $selected?: boolean;
     $disabled?: boolean;
@@ -36,8 +36,8 @@ export interface ISelectProps<T extends Option | Readonly<Option>>
     OriginalSelectProps,
     'onChange' | 'options' | 'value' | 'getOptionLabel' | 'getValueLabel'
   > {
-  readonly options: T[];
-  readonly value?: ReadonlyArray<T> | null;
+  readonly options: T[] | undefined;
+  readonly value?: ReadonlyArray<T> | string[] | string | null;
   readonly onChange: (
     value: Omit<OnChangeParams, 'value'> & { value: ReadonlyArray<T> }
   ) => void;
@@ -52,10 +52,20 @@ export const Select = <T extends Option>({
   ValueLabel,
   ...props
 }: ISelectProps<T>) => {
+  const nextValue = React.useMemo(
+    () =>
+      (typeof value === 'string' ? [value] : value)
+        ?.map((x) =>
+          typeof x === 'string' ? props.options?.find((y) => y.id === x) : x
+        )
+        .filter(Boolean) as T[],
+    [props.options, value]
+  );
+
   return (
     <OriginalSelect
       {...props}
-      value={value ?? undefined}
+      value={nextValue ?? undefined}
       onChange={onChange as unknown as OriginalSelectProps['onChange']}
       getOptionLabel={
         OptionLabel as unknown as OriginalSelectProps['getOptionLabel']

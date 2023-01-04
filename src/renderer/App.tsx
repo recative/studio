@@ -23,6 +23,7 @@ import { Episode } from './pages/Episode/Episode';
 import { Release } from './pages/Release/Release';
 import { Setting } from './pages/Setting/Setting';
 import { Preview } from './pages/Preview/Preview';
+import { Recover } from './pages/Recover/Recover';
 import { Resource } from './pages/Resource/Resource';
 import { ActPoint } from './pages/ActPoint/ActPoint';
 import { Recovering } from './pages/User/Recovering';
@@ -150,6 +151,7 @@ export const App = () => {
         <Route path="permission" element={<Permission />} />
         <Route path="token" element={<Token />} />
         <Route path="storage" element={<Storage />} />
+        <Route path="recover" element={<Recover />} />
         <Route path="downloading-backup" element={<Recovering />} />
         <Route path="preview-player" element={<PreviewPlayer />} />
         <Route path="merge-resource-db" element={<MergeResourceDatabase />} />
