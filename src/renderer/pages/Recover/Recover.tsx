@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { useAsync } from '@react-hookz/web';
+import { useNavigate } from 'react-router';
 import { useLocalStorage } from 'react-use';
 
 import { FormControl } from 'baseui/form-control';
@@ -13,10 +14,7 @@ import { ToasterContainer, PLACEMENT, toaster } from 'baseui/toast';
 
 import { Select } from 'components/Select/Select';
 import { FileInput } from 'components/Input/FileInput';
-import { TitleGroup } from 'components/Layout/TitleGroup';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { InfoIconOutline } from 'components/Icons/InfoIconOutline';
-import { Hint, HintParagraph } from 'pages/Setting/components/Hint';
 
 import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
@@ -26,6 +24,9 @@ import {
   useOnChangeEventWrapperForBaseUiSelectWithSingleValue,
   useOnChangeEventWrapperForStringType,
 } from 'utils/hooks/useFormChangeCallbacks';
+import { GuideFormLayout } from 'components/Layout/GuideFormLayout';
+import { CardHeader } from 'components/Layout/CardHeader';
+
 import { ExistedCredential } from './components/ExistedCredential';
 
 const DEFAULT_FORM_DATA = {
@@ -43,8 +44,7 @@ const SpacedButton: React.FC<ButtonProps> = (props) => {
       overrides={{
         BaseButton: {
           style: ({ $theme }) => ({
-            marginLeft: $theme.sizing.scale200,
-            marginRight: $theme.sizing.scale200,
+            marginRight: $theme.sizing.scale400,
             marginTop: $theme.sizing.scale800,
           }),
         },
@@ -59,11 +59,16 @@ interface IStorage {
 }
 
 export const Recover: React.FC = () => {
+  const navigate = useNavigate();
   const [current, setCurrent] = React.useState(0);
 
   const previousStep = useEvent(() => setCurrent((x) => x - 1));
   const nextStep = useEvent(() => setCurrent((x) => x + 1));
 
+  const [mediaWorkspacePath, setMediaWorkspacePath] = useLocalStorage<string[]>(
+    'sync:last-media-workspace-path',
+    []
+  );
   const [codeRepositoryPath, setCodeRepositoryPath] = useLocalStorage<string[]>(
     'sync:last-code-repository-path',
     []
@@ -133,108 +138,145 @@ export const Recover: React.FC = () => {
     }
   }, [lastCredential?.tokenHash, storageListActions]);
 
+  const [gettingStarted, gettingStartedAction] = useAsync(async () => {
+    if (
+      !mediaWorkspacePath ||
+      !mediaWorkspacePath[0] ||
+      !codeRepositoryPath ||
+      !codeRepositoryPath[0] ||
+      !recoverValue?.backupKey
+    ) {
+      toaster.negative(
+        `The information you provided is not complete, unable to download the data.`
+      );
+      return;
+    }
+
+    await server.setupWorkspace(mediaWorkspacePath[0], codeRepositoryPath[0]);
+    server.recoverBackup(recoverValue.backupKey);
+    navigate('/downloading-backup');
+  });
+
   return (
-    <RecativeBlock
-      maxWidth="640px"
-      height="calc(100vh - 30px)"
-      margin="0 auto"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
+    <GuideFormLayout
+      title={<CardHeader>Download Resource Source</CardHeader>}
+      footer={<></>}
     >
-      <ToasterContainer
-        autoHideDuration={3000}
-        placement={PLACEMENT.bottomRight}
-      />
-      <TitleGroup title="Recover Backup" />
-      <Hint Artwork={InfoIconOutline}>
-        <HintParagraph>
-          Backup recovery tool allows you to download a backup bundle of your
-          database from the content auth service and recover media files from
-          the CDN.
-        </HintParagraph>
-      </Hint>
-      <ProgressSteps current={current}>
-        <Step title="Access Credential">
-          {lastCredential?.tokenHash ? (
-            <ExistedCredential />
-          ) : (
-            <RecativeBlock>
-              <FormControl
-                label="Act Server"
-                caption="An authentication server instance deployed by your team, or a public server."
-              >
-                <Input
-                  size={INPUT_SIZE.compact}
-                  value={recoverValue.actServer}
-                  onChange={handleActServerChange}
-                  disabled={firstStepTask.status === 'loading'}
-                />
-              </FormControl>
-              <FormControl
-                label="Token"
-                caption="A Token provided by the manager of your team, which should have content deployment permissions."
-              >
-                <Input
-                  type="password"
-                  size={INPUT_SIZE.compact}
-                  value={recoverValue.token}
-                  onChange={handleTokenChange}
-                  disabled={firstStepTask.status === 'loading'}
-                />
-              </FormControl>
-            </RecativeBlock>
-          )}
+      <RecativeBlock
+        maxWidth="640px"
+        margin="0 auto"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+      >
+        <ToasterContainer
+          autoHideDuration={3000}
+          placement={PLACEMENT.bottomRight}
+        />
+        <ProgressSteps current={current}>
+          <Step title="Access Credential">
+            {lastCredential?.tokenHash ? (
+              <ExistedCredential />
+            ) : (
+              <RecativeBlock>
+                <FormControl
+                  label="Act Server"
+                  caption="An authentication server instance deployed by your team, or a public server."
+                >
+                  <Input
+                    size={INPUT_SIZE.compact}
+                    value={recoverValue.actServer}
+                    onChange={handleActServerChange}
+                    disabled={firstStepTask.status === 'loading'}
+                  />
+                </FormControl>
+                <FormControl
+                  label="Token"
+                  caption="A Token provided by the manager of your team, which should have content deployment permissions."
+                >
+                  <Input
+                    type="password"
+                    size={INPUT_SIZE.compact}
+                    value={recoverValue.token}
+                    onChange={handleTokenChange}
+                    disabled={firstStepTask.status === 'loading'}
+                  />
+                </FormControl>
+              </RecativeBlock>
+            )}
 
-          <SpacedButton disabled>Previous</SpacedButton>
-          <SpacedButton
-            onClick={firstStepAction.execute}
-            disabled={firstStepTask.status === 'loading'}
-          >
-            Next
-          </SpacedButton>
-        </Step>
-        <Step title="Add Code Path">
-          <FormControl
-            label="Code Repository Path"
-            caption="The source code of the interaction program will be stored in this directory."
-          >
-            <FileInput
-              directory
-              isCompact
-              onChange={setCodeRepositoryPath}
-              initialValue={codeRepositoryPath?.[0]}
+            <SpacedButton disabled>Previous</SpacedButton>
+            <SpacedButton
+              onClick={firstStepAction.execute}
+              disabled={firstStepTask.status === 'loading'}
+            >
+              Next
+            </SpacedButton>
+          </Step>
+          <Step title="Add Code Path">
+            <FormControl
+              label={<>Media Workspace Path</>}
+              caption="All binaries and configuration files will be stored in this directory."
+            >
+              <FileInput
+                directory
+                isCompact
+                onChange={setMediaWorkspacePath}
+                initialValue={mediaWorkspacePath?.[0]}
+              />
+            </FormControl>
+
+            <FormControl
+              label="Code Repository Path"
+              caption="The source code of the interaction program will be stored in this directory."
+            >
+              <FileInput
+                directory
+                isCompact
+                onChange={setCodeRepositoryPath}
+                initialValue={codeRepositoryPath?.[0]}
+              />
+            </FormControl>
+
+            <SpacedButton onClick={previousStep}>Previous</SpacedButton>
+            <SpacedButton onClick={nextStep}>Next</SpacedButton>
+          </Step>
+          <Step title="Select Backup">
+            <Select<IStorage>
+              options={storageList.result}
+              labelKey="key"
+              valueKey="key"
+              placeholder="Choose a backup"
+              maxDropdownHeight="300px"
+              size={SELECT_SIZE.compact}
+              value={selectedRelease}
+              onChange={handleSelectChange}
             />
-          </FormControl>
-
-          <SpacedButton onClick={previousStep}>Previous</SpacedButton>
-          <SpacedButton onClick={nextStep}>Next</SpacedButton>
-        </Step>
-        <Step title="Select Backup">
-          <Select<IStorage>
-            options={storageList.result}
-            labelKey="key"
-            valueKey="key"
-            placeholder="Choose a backup"
-            maxDropdownHeight="300px"
-            size={SELECT_SIZE.compact}
-            value={selectedRelease}
-            onChange={handleSelectChange}
-          />
-          <SpacedButton onClick={previousStep}>Previous</SpacedButton>
-          <SpacedButton onClick={nextStep}>Next</SpacedButton>
-        </Step>
-        <Step title="Getting started">
-          <ParagraphSmall>
-            By clicking the start button, Recative Studio will download the
-            database backup and all related resource to your hard disk. Please
-            be aware that this process may take some time, so please be patient
-            while the recovery is being completed.
-          </ParagraphSmall>
-          <SpacedButton onClick={previousStep}>Previous</SpacedButton>
-          <SpacedButton onClick={nextStep}>Start</SpacedButton>
-        </Step>
-      </ProgressSteps>
-    </RecativeBlock>
+            <SpacedButton onClick={previousStep}>Previous</SpacedButton>
+            <SpacedButton onClick={nextStep}>Next</SpacedButton>
+          </Step>
+          <Step title="Getting started">
+            <ParagraphSmall>
+              By clicking the start button, Recative Studio will download the
+              database backup and all related resource to your hard disk. Please
+              be aware that this process may take some time, so please be
+              patient while the recovery is being completed.
+            </ParagraphSmall>
+            <SpacedButton
+              disabled={gettingStarted.status === 'loading'}
+              onClick={previousStep}
+            >
+              Previous
+            </SpacedButton>
+            <SpacedButton
+              disabled={gettingStarted.status === 'loading'}
+              onClick={gettingStartedAction.execute}
+            >
+              Start
+            </SpacedButton>
+          </Step>
+        </ProgressSteps>
+      </RecativeBlock>
+    </GuideFormLayout>
   );
 };

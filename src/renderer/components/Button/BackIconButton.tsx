@@ -8,11 +8,11 @@ import { BackIconOutline } from 'components/Icons/BackIconOutline';
 
 import { IconButton } from './IconButton';
 
-export const BackIconButton: React.VFC = () => {
+export const BackIconButton: React.FC = () => {
   const navigate = useNavigate();
 
   const goBack = React.useCallback(() => {
-    navigate(-1);
+    navigate('/');
   }, [navigate]);
 
   return (
