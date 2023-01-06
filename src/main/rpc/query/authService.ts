@@ -328,7 +328,9 @@ export const ensureStorage = async (
 };
 
 export const getStorage = async (key: string) => {
-  return get<IStorage>(`/admin/storage/${key}`);
+  return get<IStorage>(
+    `/admin/storage/${encodeURIComponent(key)}?include_value=true`
+  );
 };
 
 export const syncPermissions = async () => {

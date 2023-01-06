@@ -1,3 +1,4 @@
+import console from 'electron-log';
 import tempfile from 'tempfile';
 import StreamZip from 'node-stream-zip';
 import { join } from 'path';
@@ -18,6 +19,7 @@ import { getReleasedDb } from '../../utils/getReleasedDb';
 import { ReleaseNotFoundError } from '../../utils/errors/ReleaseNotFoundError';
 import { getDb, saveAllDatabase, setupDb } from '../db';
 import { closeDb } from './project';
+import { lockDb } from './lock';
 
 /**
  *  Upload database to act server.
@@ -138,35 +140,43 @@ export const recoverBackup = async (storageId: string) => {
   recoverStatus.status = 'working';
   recoverStatus.message = 'Recovering Backup...';
 
-  const db = await getDb();
-  const buildPath = await getBuildPath();
   const workspace = getWorkspace();
+  const { dbPath, mediaWorkspacePath, codeRepositoryPath, readonly } =
+    workspace;
 
-  const { dbPath } = workspace;
+  await lockDb();
+
+  let outputPath: string | undefined;
+  try {
+    const db = await getDb();
+    await saveAllDatabase(db);
+
+    const buildPath = await getBuildPath();
+    recoverStatus.message = 'Backing up database...';
+    outputPath = `${buildPath}/db-backup-${Date.now()}.zip`;
+
+    recoverStatus.message = 'Saving existed database...';
+
+    const zip = new Zip(outputPath);
+
+    for (const { file } of Object.values(DB_CONFIG)) {
+      await zip.appendFile(join(dbPath, file), file);
+    }
+    await zip.done();
+  } catch (e) {
+    console.error(e);
+  }
 
   recoverStatus.message = 'Downloading the backup...';
 
   const storageContent = await getStorage(storageId);
+  console.log(storageContent);
   const buffer = Buffer.from(storageContent.value, 'base64');
 
-  const filePath = tempfile();
+  const filePath = tempfile('.recative.zip');
   await writeFile(filePath, buffer);
 
-  recoverStatus.message = 'Saving existed database...';
-
-  await saveAllDatabase(db);
-
-  recoverStatus.message = 'Backing up database...';
-  const outputPath = `${buildPath}/db-backup-${Date.now()}.zip`;
-
-  const zip = new Zip(outputPath);
-
-  for (const { file } of Object.values(DB_CONFIG)) {
-    await zip.appendFile(join(dbPath, file), file);
-  }
-  await zip.done();
-
-  const { mediaWorkspacePath, codeRepositoryPath, readonly } = workspace;
+  console.log(`The file is written to ${filePath}`);
 
   try {
     await closeDb();
@@ -180,18 +190,24 @@ export const recoverBackup = async (storageId: string) => {
     recoverStatus.message = 'Database recovered...';
     recoverStatus.status = 'success';
   } catch (e) {
-    // Rolling back
-    const newZip = new StreamZip.async({ file: outputPath });
-    await Promise.all(
-      Object.values(DB_CONFIG).map(({ file }) => {
-        return newZip.extract(file, join(dbPath, file));
-      })
-    );
-
+    console.error(e);
     const errorCode = e instanceof Error ? e.name : 'Unknown Error';
 
-    recoverStatus.message = `Recover failed: ${errorCode}`;
-    recoverStatus.status = 'failed';
+    // Rolling back
+    if (outputPath) {
+      const newZip = new StreamZip.async({ file: outputPath });
+      await Promise.all(
+        Object.values(DB_CONFIG).map(({ file }) => {
+          return newZip.extract(file, join(dbPath, file));
+        })
+      );
+
+      recoverStatus.message = `Recover failed: ${errorCode}`;
+      recoverStatus.status = 'failed';
+    } else {
+      recoverStatus.message = `Unable to rollback: ${errorCode}`;
+      recoverStatus.status = 'failed';
+    }
   } finally {
     await setupWorkspace(mediaWorkspacePath, codeRepositoryPath, readonly);
     await setupDb(dbPath);
