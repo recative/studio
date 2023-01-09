@@ -36,13 +36,13 @@ export const importedFileToFile = async (
     await writeFile(await getResourceFilePath(file), postProcessedFile);
   }
 
-  const thumbnailFilePath = getResourceFilePath(file, true);
+  const thumbnailFilePath = await getResourceFilePath(file, true);
   if (postProcessedThumbnail) {
     if (typeof postProcessedThumbnail === 'string') {
       log.log(`:: [${file.id}] Thumbnail: ${postProcessedThumbnail}.`);
-      await copyFile(postProcessedThumbnail, await thumbnailFilePath);
+      await copyFile(postProcessedThumbnail, thumbnailFilePath);
     } else if (postProcessedThumbnail) {
-      await writeFile(await thumbnailFilePath, postProcessedThumbnail);
+      await writeFile(thumbnailFilePath, postProcessedThumbnail);
     }
 
     resourceDefinition.thumbnailSrc = `jb-media:///${resourceDefinition.id}-thumbnail.png`;
