@@ -18,14 +18,16 @@ import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
 import { getStorage, ensureStorage } from './authService';
 
+import { fileExists } from '../../utils/fileExists';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../utils/getResourceFile';
 import { ReleaseNotFoundError } from '../../utils/errors/ReleaseNotFoundError';
 import { getWorkspace, setupWorkspace } from '../workspace';
 import { getResourceProcessorInstances } from '../../utils/getResourceProcessorInstances';
 import { getDb, saveAllDatabase, setupDb } from '../db';
-import { closeDb } from './project';
+
 import { lockDb } from './lock';
+import { closeDb } from './project';
 import { uploadMediaBundle } from './publishUploadBundleMedia';
 
 const createDatabaseBackup = async (output: string | Zip) => {
@@ -281,32 +283,35 @@ export const recoverBackup = async (storageId: string) => {
 
           if (typeof url !== 'string') continue;
 
-          const downloader = new Downloader({ url, directory, fileName });
-          await downloader.download();
+          const resourceFilePath = await getResourceFilePath(x, false, false);
 
-          await copy(
-            join(directory, fileName),
-            await getResourceFilePath(x, false, false)
-          );
+          if (!(await fileExists(resourceFilePath))) {
+            const downloader = new Downloader({ url, directory, fileName });
+            await downloader.download();
 
-          let generatedThumbnail: null | Buffer | string = null;
-          for (let j = 0; j < resourceProcessorInstances.length; j += 1) {
-            const [, processor] = resourceProcessorInstances[j];
-            const thumbnail = await processor.generateThumbnail(x);
-
-            if (thumbnail) {
-              generatedThumbnail = thumbnail;
-              break;
-            }
+            await copy(join(directory, fileName), resourceFilePath);
           }
 
           const thumbnailPath = await getResourceFilePath(x, true, false);
 
-          if (generatedThumbnail) {
-            if (typeof generatedThumbnail === 'string') {
-              await copy(thumbnailPath, thumbnailPath);
-            } else if (generatedThumbnail instanceof Buffer) {
-              await writeFile(thumbnailPath, generatedThumbnail);
+          if (!(await fileExists(thumbnailPath))) {
+            let generatedThumbnail: null | Buffer | string = null;
+            for (let j = 0; j < resourceProcessorInstances.length; j += 1) {
+              const [, processor] = resourceProcessorInstances[j];
+              const thumbnail = await processor.generateThumbnail(x);
+
+              if (thumbnail) {
+                generatedThumbnail = thumbnail;
+                break;
+              }
+            }
+
+            if (generatedThumbnail) {
+              if (typeof generatedThumbnail === 'string') {
+                await copy(thumbnailPath, thumbnailPath);
+              } else if (generatedThumbnail instanceof Buffer) {
+                await writeFile(thumbnailPath, generatedThumbnail);
+              }
             }
           }
           break;
