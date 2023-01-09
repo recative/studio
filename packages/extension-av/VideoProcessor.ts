@@ -59,21 +59,19 @@ export class VideoProcessor extends ResourceProcessor<
     return null;
   }
 
-  beforePublishApplicationBundle = async () => {
-    return null;
+  beforePublishApplicationBundle = () => null;
+
+  beforeFileImported = () => null;
+
+  beforePreviewResourceBinaryDelivered = () => null;
+
+  beforePreviewResourceMetadataDelivered = () => null;
+
+  generateThumbnail = async (x: IResourceFile) => {
+    if (!x.mimeType.startsWith('video')) return null;
+
+    return this.dependency.screenshot(
+      await this.dependency.getResourceFilePath(x)
+    );
   };
-
-  beforeFileImported = async (
-    resources: IPostProcessedResourceFileForImport[]
-  ) => {
-    return resources;
-  };
-
-  beforePreviewResourceBinaryDelivered() {
-    return null;
-  }
-
-  beforePreviewResourceMetadataDelivered() {
-    return null;
-  }
 }

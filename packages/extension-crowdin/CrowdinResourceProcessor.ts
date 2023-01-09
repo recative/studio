@@ -23,4 +23,6 @@ export class CrowdinResourceProcessor extends ResourceProcessor<string> {
   beforePublishApplicationBundle = () => null;
 
   beforePublishMediaBundle = () => null;
+
+  generateThumbnail = () => null;
 }

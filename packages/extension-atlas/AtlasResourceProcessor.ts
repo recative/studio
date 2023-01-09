@@ -1483,7 +1483,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     return null;
   }
 
-  beforePreviewResourceBinaryDelivered() {
-    return null;
-  }
+  beforePreviewResourceBinaryDelivered = () => null;
+
+  generateThumbnail = () => null;
 }

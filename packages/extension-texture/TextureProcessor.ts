@@ -2,7 +2,11 @@
 /* eslint-disable no-restricted-syntax */
 
 import { ResourceProcessor } from '@recative/extension-sdk';
-import { IResourceItem, imageCategoryTag } from '@recative/definitions';
+import {
+  IResourceFile,
+  IResourceItem,
+  imageCategoryTag,
+} from '@recative/definitions';
 import type {
   PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForUpload,
@@ -62,11 +66,15 @@ export class TextureProcessor extends ResourceProcessor<''> {
     return resources;
   };
 
-  beforePreviewResourceBinaryDelivered() {
-    return null;
-  }
+  beforePreviewResourceBinaryDelivered = () => null;
 
-  beforePreviewResourceMetadataDelivered() {
-    return null;
-  }
+  beforePreviewResourceMetadataDelivered = () => null;
+
+  generateThumbnail = async (x: IResourceFile) => {
+    if (!x.mimeType.startsWith('image')) return null;
+
+    return this.dependency.imageThumbnail(
+      await this.dependency.getResourceFilePath(x)
+    );
+  };
 }

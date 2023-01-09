@@ -2,7 +2,11 @@
 /* eslint-disable no-restricted-syntax */
 
 import { ResourceProcessor } from '@recative/extension-sdk';
-import { IResourceItem, audioCategoryTag } from '@recative/definitions';
+import {
+  IResourceFile,
+  IResourceItem,
+  audioCategoryTag,
+} from '@recative/definitions';
 import type {
   PostProcessedResourceItemForUpload,
   IPostProcessedResourceFileForImport,
@@ -65,11 +69,15 @@ export class AudioProcessor extends ResourceProcessor<
     return resources;
   };
 
-  beforePreviewResourceBinaryDelivered() {
-    return null;
-  }
+  beforePreviewResourceBinaryDelivered = () => null;
 
-  beforePreviewResourceMetadataDelivered() {
-    return null;
-  }
+  beforePreviewResourceMetadataDelivered = () => null;
+
+  generateThumbnail = async (x: IResourceFile) => {
+    if (!x.mimeType.startsWith('audio')) return null;
+
+    return this.dependency.waveform(
+      await this.dependency.getResourceFilePath(x)
+    );
+  };
 }

@@ -51,11 +51,9 @@ export class PhonographAudioBackend extends ResourceProcessor<''> {
     return resources;
   };
 
-  beforePreviewResourceBinaryDelivered() {
-    return null;
-  }
+  beforePreviewResourceBinaryDelivered = () => null;
 
-  beforePreviewResourceMetadataDelivered() {
-    return null;
-  }
+  beforePreviewResourceMetadataDelivered = () => null;
+
+  generateThumbnail = () => null;
 }

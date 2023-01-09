@@ -425,4 +425,8 @@ export abstract class ResourceProcessor<ConfigKey extends string> {
       | IDetailedResourceItemForClient
       | IPostProcessedResourceFileForUpload
   >(resource: T, resources: T[]): Promise<Buffer | null> | Buffer | null;
+
+  abstract generateThumbnail(
+    x: IResourceFile
+  ): null | Buffer | string | Promise<null | Buffer | string>;
 }
