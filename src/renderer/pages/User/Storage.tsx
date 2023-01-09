@@ -1,14 +1,23 @@
 import * as React from 'react';
 
 import { HeadingXXLarge } from 'baseui/typography';
+import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
 import { ContentContainer } from 'components/Layout/ContentContainer';
+import { UploadBackupIconOutline } from 'components/Icons/UploadBackupIconOutline';
 import { BackupRecoverIconOutline } from 'components/Icons/BackupRecoverIconOutline';
 
+import { useEvent } from 'utils/hooks/useEvent';
+import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
+
 import { IStorageListActionProps, StorageList } from './components/StorageList';
+import {
+  ConfirmCreateBackupModal,
+  useConfirmCreateBackupModal,
+} from './components/ConfirmCreateBackupModal';
 
 const Actions: React.FC<IStorageListActionProps> = ({ id }) => {
   return (
@@ -21,8 +30,25 @@ const Actions: React.FC<IStorageListActionProps> = ({ id }) => {
 };
 
 const InternalStorage: React.FC = () => {
+  const databaseLocked = useDatabaseLocked();
+  const [, , handleOpenConfirmCreateBackupModal] =
+    useConfirmCreateBackupModal();
+
   return (
-    <PivotLayout>
+    <PivotLayout
+      footer={
+        <>
+          <Button
+            startEnhancer={<UploadBackupIconOutline width={20} />}
+            kind={BUTTON_KIND.tertiary}
+            disabled={databaseLocked}
+            onClick={handleOpenConfirmCreateBackupModal}
+          >
+            Backup Database
+          </Button>
+        </>
+      }
+    >
       <ContentContainer width={1000} limitedHeight>
         <RecativeBlock
           paddingLeft="20px"
@@ -50,6 +76,7 @@ const InternalStorage: React.FC = () => {
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
+      <ConfirmCreateBackupModal />
     </PivotLayout>
   );
 };

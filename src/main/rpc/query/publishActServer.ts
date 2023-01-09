@@ -20,6 +20,76 @@ import { ReleaseNotFoundError } from '../../utils/errors/ReleaseNotFoundError';
 import { getDb, saveAllDatabase, setupDb } from '../db';
 import { closeDb } from './project';
 import { lockDb } from './lock';
+import { uploadMediaBundle } from './publishUploadBundleMedia';
+
+const createDatabaseBackup = async (output: string | Zip) => {
+  const zip = output instanceof Zip ? output : new Zip(output);
+  const { dbPath } = getWorkspace();
+
+  for (const { file } of Object.values(DB_CONFIG)) {
+    await zip.appendFile(join(dbPath, file), file);
+  }
+
+  if (typeof output === 'string') {
+    await zip.done();
+  }
+
+  return zip;
+};
+
+const uploadDatabaseBackupBundle = async (
+  bundleReleaseId: number | null,
+  terminalId = 'uploadDatabaseBackupBundle'
+) => {
+  const db = await getDb();
+
+  const series = db.series.metadata.findOne({});
+  const seriesId = series?.id;
+
+  logToTerminal(terminalId, `Uploading database backup`);
+
+  const outputFilePath = fileSync().name;
+
+  const buildPath = await getBuildPath();
+
+  let zip: Zip;
+  if (bundleReleaseId !== null) {
+    zip = new Zip(outputFilePath);
+    const targetRelease = db.release.bundleReleases.findOne({
+      id: bundleReleaseId,
+    });
+
+    if (!targetRelease) {
+      throw new TypeError(`Target release not found`);
+    }
+
+    const mediaBuildId = targetRelease.mediaBuildId.toString().padStart(4, '0');
+
+    const databaseBackupPath = `${buildPath}/db-${mediaBuildId}.zip`;
+    const dbConfigs = Object.values(DB_CONFIG);
+
+    for (let i = 0; i < dbConfigs.length; i += 1) {
+      const { file } = dbConfigs[i];
+      await zip.transfer(databaseBackupPath, file, file);
+    }
+
+    await zip.done();
+  } else {
+    await saveAllDatabase(db);
+    zip = await createDatabaseBackup(outputFilePath);
+  }
+
+  const bundleId = bundleReleaseId === null ? Date.now() : bundleReleaseId;
+  const buffer = await zip.getBuffer();
+
+  await ensureStorage(
+    `@${seriesId}/${bundleId}/db`,
+    buffer.toString('base64'),
+    [],
+    1,
+    `Database backup for ${series?.title.label}`
+  );
+};
 
 /**
  *  Upload database to act server.
@@ -100,33 +170,7 @@ export const uploadDatabase = async (
     `Client side abstract for ${series?.title.label}`
   );
 
-  logToTerminal(terminalId, `Uploading database backup`);
-
-  const buildPath = await getBuildPath();
-  const databaseBackupPath = `${buildPath}/db-${targetRelease.mediaBuildId
-    .toString()
-    .padStart(4, '0')}.zip`;
-
-  const outputFilePath = fileSync().name;
-  const zip = new Zip(outputFilePath);
-
-  const dbConfigs = Object.values(DB_CONFIG);
-
-  for (let i = 0; i < dbConfigs.length; i += 1) {
-    const { file } = dbConfigs[i];
-    await zip.transfer(databaseBackupPath, file, file);
-  }
-
-  await zip.done();
-  const buffer = await zip.getBuffer();
-
-  await ensureStorage(
-    `@${seriesId}/${bundleReleaseId}/db`,
-    buffer.toString('base64'),
-    [],
-    1,
-    `Database backup for ${series?.title.label}`
-  );
+  await uploadDatabaseBackupBundle(bundleReleaseId, terminalId);
 };
 
 const recoverStatus = {
@@ -157,12 +201,7 @@ export const recoverBackup = async (storageId: string) => {
 
     recoverStatus.message = 'Saving existed database...';
 
-    const zip = new Zip(outputPath);
-
-    for (const { file } of Object.values(DB_CONFIG)) {
-      await zip.appendFile(join(dbPath, file), file);
-    }
-    await zip.done();
+    await createDatabaseBackup(outputPath);
   } catch (e) {
     console.error(e);
   }
@@ -170,7 +209,6 @@ export const recoverBackup = async (storageId: string) => {
   recoverStatus.message = 'Downloading the backup...';
 
   const storageContent = await getStorage(storageId);
-  console.log(storageContent);
   const buffer = Buffer.from(storageContent.value, 'base64');
 
   const filePath = tempfile('.recative.zip');
@@ -212,4 +250,15 @@ export const recoverBackup = async (storageId: string) => {
     await setupWorkspace(mediaWorkspacePath, codeRepositoryPath, readonly);
     await setupDb(dbPath);
   }
+};
+
+export const uploadDatabaseBackup = async (
+  publishMedia: boolean,
+  terminalId = 'createDatabaseBackup'
+) => {
+  if (publishMedia) {
+    await uploadMediaBundle(null, undefined, terminalId);
+  }
+
+  await uploadDatabaseBackupBundle(null);
 };

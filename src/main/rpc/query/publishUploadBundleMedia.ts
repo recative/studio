@@ -24,7 +24,7 @@ import { getUploaderInstances } from '../../utils/getResourceProcessorInstances'
  * @param terminalId Output information to which terminal.
  */
 export const uploadMediaBundle = async (
-  mediaReleaseId: number,
+  mediaReleaseId: number | null,
   bundleReleaseId: number | undefined,
   terminalId: string
 ) => {
@@ -44,9 +44,22 @@ export const uploadMediaBundle = async (
 
   logToTerminal(terminalId, `:: Resources: ${resourceToBeUploaded.length}`);
 
-  const postProcessedResourceToBeUploaded = db0.resource.postProcessed
-    .find({ type: 'file', removed: false })
-    .filter((x) => x.postProcessRecord.mediaBundleId.includes(mediaReleaseId));
+  const postProcessedFiles = db0.resource.postProcessed.find({
+    type: 'file',
+    removed: false,
+  });
+
+  const postProcessedResourceToBeUploaded = postProcessedFiles.filter((x) =>
+    x.postProcessRecord.mediaBundleId.includes(
+      mediaReleaseId === null
+        ? Math.max(
+            ...postProcessedFiles.flatMap(
+              (f) => f.postProcessRecord.mediaBundleId
+            )
+          )
+        : mediaReleaseId
+    )
+  );
 
   logToTerminal(
     terminalId,
