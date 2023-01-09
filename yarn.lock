@@ -5621,7 +5621,6 @@ __metadata:
     eslint-plugin-jsx-a11y: 6.6.1
     eslint-plugin-react: 7.30.1
     eslint-plugin-react-hooks: 4.6.0
-    faker: ^5.5.3
     fast-copy: ^2.1.3
     fastify: 4.4.0
     file-loader: ^6.0.0
@@ -5651,7 +5650,7 @@ __metadata:
     node-json-db: ^1.3.0
     node-localstorage: ^2.2.1
     node-stream-zip: ^1.15.0
-    nodejs-file-downloader: ^4.10.2
+    nodejs-file-downloader: ^4.10.6
     npm-run-all: ^4.1.5
     openapi-typescript-codegen: ^0.12.5
     pino-pretty: ^7.5.2
@@ -12995,13 +12994,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"faker@npm:^5.5.3":
-  version: 5.5.3
-  resolution: "faker@npm:5.5.3"
-  checksum: 684fd64c8d3897e54248f95b4f6319f75d97691b8500cd13adf4af2c28f9204f766c1d1aaa6b41338f0beaaa87256c3132f8708a1a8f189d122b92f6b98081c3
-  languageName: node
-  linkType: hard
-
 "fast-copy@npm:^2.1.3":
   version: 2.1.3
   resolution: "fast-copy@npm:2.1.3"
@@ -18542,15 +18534,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodejs-file-downloader@npm:^4.10.2":
-  version: 4.10.2
-  resolution: "nodejs-file-downloader@npm:4.10.2"
+"nodejs-file-downloader@npm:^4.10.6":
+  version: 4.10.6
+  resolution: "nodejs-file-downloader@npm:4.10.6"
   dependencies:
     follow-redirects: ^1.15.1
     https-proxy-agent: ^5.0.0
     mime-types: ^2.1.27
     sanitize-filename: ^1.6.3
-  checksum: 0e5a8724eb48965ad529d308bb60341a01471918cdd73e7cd47efe442f22a635864cdc083d5af59bf7d025edaa4bf5264be34f1ac2e27d75ade13b6452d93827
+  checksum: df46d997cb77baa38753a38ccd8e970c285851f76c7f0233be2a41a122d848de50118cc99966202bd03555edcf326b334586a4e29514fb8d4c30f8910a78749d
   languageName: node
   linkType: hard
 

@@ -1,12 +1,16 @@
 import console from 'electron-log';
 import tempfile from 'tempfile';
+import Downloader from 'nodejs-file-downloader';
 import StreamZip from 'node-stream-zip';
+
 import { join } from 'path';
-import { fileSync } from 'tmp';
 import { writeFile } from 'fs/promises';
+import { ensureDir, copy } from 'fs-extra';
+import { fileSync, dirSync } from 'tmp';
 
 import { Zip } from '@recative/extension-sdk';
 import { DB_CONFIG } from '@recative/studio-definitions';
+import { IResourceFile } from '@recative/definitions';
 
 import { cleanupLoki } from './utils';
 import { getBuildPath } from './setting';
@@ -14,9 +18,11 @@ import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
 import { getStorage, ensureStorage } from './authService';
 
-import { getWorkspace, setupWorkspace } from '../workspace';
 import { getReleasedDb } from '../../utils/getReleasedDb';
+import { getResourceFilePath } from '../../utils/getResourceFile';
 import { ReleaseNotFoundError } from '../../utils/errors/ReleaseNotFoundError';
+import { getWorkspace, setupWorkspace } from '../workspace';
+import { getResourceProcessorInstances } from '../../utils/getResourceProcessorInstances';
 import { getDb, saveAllDatabase, setupDb } from '../db';
 import { closeDb } from './project';
 import { lockDb } from './lock';
@@ -184,9 +190,8 @@ export const recoverBackup = async (storageId: string) => {
   recoverStatus.status = 'working';
   recoverStatus.message = 'Recovering Backup...';
 
-  const workspace = getWorkspace();
   const { dbPath, mediaWorkspacePath, codeRepositoryPath, readonly } =
-    workspace;
+    getWorkspace();
 
   await lockDb();
 
@@ -226,7 +231,6 @@ export const recoverBackup = async (storageId: string) => {
     );
 
     recoverStatus.message = 'Database recovered...';
-    recoverStatus.status = 'success';
   } catch (e) {
     console.error(e);
     const errorCode = e instanceof Error ? e.name : 'Unknown Error';
@@ -250,6 +254,70 @@ export const recoverBackup = async (storageId: string) => {
     await setupWorkspace(mediaWorkspacePath, codeRepositoryPath, readonly);
     await setupDb(dbPath);
   }
+
+  const db = await getDb();
+  const resourceFiles = db.resource.resources.find({
+    removed: false,
+    type: 'file',
+  }) as IResourceFile[];
+
+  const directory = dirSync().name;
+  ensureDir(directory);
+
+  const resourceProcessorInstances = Object.entries(
+    await getResourceProcessorInstances('')
+  );
+
+  recoverStatus.message = `Recovering media file`;
+
+  await Promise.allSettled(
+    resourceFiles.map(async (x) => {
+      const urls = Object.values(x.url).filter((y) => y.startsWith('http'));
+      const fileName = `${x.id}.resource`;
+
+      for (let i = 0; i < urls.length; i += 1) {
+        try {
+          const url = urls[i];
+
+          if (typeof url !== 'string') continue;
+
+          const downloader = new Downloader({ url, directory, fileName });
+          await downloader.download();
+
+          await copy(
+            join(directory, fileName),
+            await getResourceFilePath(x, false, false)
+          );
+
+          let generatedThumbnail: null | Buffer | string = null;
+          for (let j = 0; j < resourceProcessorInstances.length; j += 1) {
+            const [, processor] = resourceProcessorInstances[j];
+            const thumbnail = await processor.generateThumbnail(x);
+
+            if (thumbnail) {
+              generatedThumbnail = thumbnail;
+              break;
+            }
+          }
+
+          const thumbnailPath = await getResourceFilePath(x, true, false);
+
+          if (generatedThumbnail) {
+            if (typeof generatedThumbnail === 'string') {
+              await copy(thumbnailPath, thumbnailPath);
+            } else if (generatedThumbnail instanceof Buffer) {
+              await writeFile(thumbnailPath, generatedThumbnail);
+            }
+          }
+          break;
+        } catch (e) {
+          continue;
+        }
+      }
+    })
+  );
+
+  recoverStatus.status = 'success';
 };
 
 export const uploadDatabaseBackup = async (
