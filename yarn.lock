@@ -5179,6 +5179,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@recative/atlas@npm:^0.0.0-dev.1":
+  version: 0.0.0-dev.1
+  resolution: "@recative/atlas@npm:0.0.0-dev.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fatlas%2F0.0.0-dev.1%2F32510aea8d787ff3cfb2364cd42a4aa3369be6a4"
+  checksum: 806153a0804a60ff6a4e6f49744291512555a149df79ad4e8dade2be7b050a18be19afdd9f3790374abb2575d3ab0b4c9a05bd74de5c66b4661158fe92a9a222
+  languageName: node
+  linkType: hard
+
 "@recative/atlas@npm:^0.0.1":
   version: 0.0.1
   resolution: "@recative/atlas@npm:0.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fatlas%2F0.0.1%2F95d05aea11e12c591df689556eca1112ed489b9a"
@@ -5396,6 +5403,15 @@ __metadata:
 "@recative/extension-sdk@workspace:^, @recative/extension-sdk@workspace:packages/extension-sdk":
   version: 0.0.0-use.local
   resolution: "@recative/extension-sdk@workspace:packages/extension-sdk"
+  languageName: unknown
+  linkType: soft
+
+"@recative/extension-texture@workspace:packages/extension-texture":
+  version: 0.0.0-use.local
+  resolution: "@recative/extension-texture@workspace:packages/extension-texture"
+  dependencies:
+    "@napi-rs/canvas": ^0.1.25
+    "@recative/atlas": ^0.0.0-dev.1
   languageName: unknown
   linkType: soft
 

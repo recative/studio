@@ -6,8 +6,9 @@ import polyVVodExtension from '@recative/extension-polyv-vod';
 
 import avExtension from '@recative/extension-av';
 import atlasExtension from '@recative/extension-atlas';
-import offlineBundleExtension from '@recative/extension-offline-bundle';
+import textureExtension from '@recative/extension-texture';
 import audioBackendsExtension from '@recative/extension-audio-backends';
+import offlineBundleExtension from '@recative/extension-offline-bundle';
 
 import webBundlerExtension from '@recative/extension-web';
 import rawBundlerExtension from '@recative/extension-raw';
@@ -35,4 +36,5 @@ export const extensions = [
   dbFixerExtension,
   crowdinExtension,
   resourceExporterExtension,
+  textureExtension,
 ] as ExtensionManifest[];

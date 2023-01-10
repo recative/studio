@@ -18,6 +18,7 @@ import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
 import { getStorage, ensureStorage } from './authService';
 
+import { TaskQueue } from '../../utils/uploadTaskQueue';
 import { fileExists } from '../../utils/fileExists';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../utils/getResourceFile';
@@ -192,8 +193,13 @@ export const recoverBackup = async (storageId: string) => {
   recoverStatus.status = 'working';
   recoverStatus.message = 'Recovering Backup...';
 
-  const { dbPath, mediaWorkspacePath, codeRepositoryPath, readonly } =
-    getWorkspace();
+  const {
+    dbPath,
+    mediaPath,
+    mediaWorkspacePath,
+    codeRepositoryPath,
+    readonly,
+  } = getWorkspace();
 
   await lockDb();
 
@@ -263,6 +269,23 @@ export const recoverBackup = async (storageId: string) => {
     type: 'file',
   }) as IResourceFile[];
 
+  const allPostProcessedFiles = db.resource.postProcessed.find({
+    type: 'file',
+    removed: false,
+  });
+
+  const postProcessedFile = allPostProcessedFiles.filter((x) =>
+    x.postProcessRecord.mediaBundleId.includes(
+      Math.max(
+        ...allPostProcessedFiles.flatMap(
+          (f) => f.postProcessRecord.mediaBundleId
+        )
+      )
+    )
+  );
+
+  const totalTasks = postProcessedFile.length + resourceFiles.length;
+
   const directory = dirSync().name;
   ensureDir(directory);
 
@@ -272,8 +295,17 @@ export const recoverBackup = async (storageId: string) => {
 
   recoverStatus.message = `Recovering media file`;
 
-  await Promise.allSettled(
-    resourceFiles.map(async (x) => {
+  // Initialize the task queue
+  const taskQueue = new TaskQueue({
+    concurrent: 3,
+    interval: 50,
+    start: false,
+  });
+
+  ensureDir(join(mediaPath, 'post-processed'));
+
+  [...postProcessedFile, ...resourceFiles].forEach((x) => {
+    taskQueue.enqueue(async () => {
       const urls = Object.values(x.url).filter((y) => y.startsWith('http'));
       const fileName = `${x.id}.resource`;
 
@@ -293,8 +325,9 @@ export const recoverBackup = async (storageId: string) => {
           }
 
           const thumbnailPath = await getResourceFilePath(x, true, false);
+          const thumbnailExists = await fileExists(thumbnailPath);
 
-          if (!(await fileExists(thumbnailPath))) {
+          if (!thumbnailExists) {
             let generatedThumbnail: null | Buffer | string = null;
             for (let j = 0; j < resourceProcessorInstances.length; j += 1) {
               const [, processor] = resourceProcessorInstances[j];
@@ -308,20 +341,29 @@ export const recoverBackup = async (storageId: string) => {
 
             if (generatedThumbnail) {
               if (typeof generatedThumbnail === 'string') {
-                await copy(thumbnailPath, thumbnailPath);
-              } else if (generatedThumbnail instanceof Buffer) {
+                await copy(generatedThumbnail, thumbnailPath);
+              } else if (Buffer.isBuffer(generatedThumbnail)) {
                 await writeFile(thumbnailPath, generatedThumbnail);
               }
             }
           }
+
           break;
         } catch (e) {
           continue;
+        } finally {
+          const progress = ((totalTasks - taskQueue.size) / totalTasks) * 100;
+          recoverStatus.message = `Recovering media file (${Math.round(
+            progress
+          )}%) ...`;
         }
       }
-    })
-  );
+    });
+  });
 
+  await taskQueue.run();
+
+  recoverStatus.message = 'Recover success';
   recoverStatus.status = 'success';
 };
 

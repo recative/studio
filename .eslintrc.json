@@ -37,6 +37,7 @@
         ],
         "no-bitwise": "off",
         "no-continue": "off",
+        "no-labels": "off",
         "no-await-in-loop": "off",
         "no-underscore-dangle": "off",
         "no-restricted-syntax": "off",
