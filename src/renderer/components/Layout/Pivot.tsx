@@ -348,13 +348,6 @@ export const InternalPivot: React.FC<IPivotProps> = ({
             Login
           </PivotButton>
         )}
-        <PivotButton
-          startEnhancer={<PermissionIconOutline width={20} />}
-          to="/downloading-backup"
-          disabled={disabled}
-        >
-          DOWNLOADING
-        </PivotButton>
       </Tab>
       <Tab title={<TabTitle>Help</TabTitle>} overrides={PIVOT_TAB_OVERRIDES}>
         <Button
