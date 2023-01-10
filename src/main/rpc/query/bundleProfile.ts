@@ -5,7 +5,10 @@ import { stat } from 'fs/promises';
 import { remove } from 'fs-extra';
 
 import { Zip } from '@recative/extension-sdk';
-import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
+import {
+  TerminalMessageLevel as Level,
+  TerminalMessageLevel,
+} from '@recative/studio-definitions';
 import type { IBundleProfile } from '@recative/extension-sdk';
 
 import { dumpPlayerConfigs } from './publishPlayerBundle';
@@ -102,7 +105,12 @@ export const createBundles = async <Dry extends boolean>(
   const tasks = profiles.map((profileId) => {
     const profile = bundleProfiles.find((x) => x.id === profileId);
     if (!profile) {
-      throw new TypeError(`Profile ${profileId} not found`);
+      logToTerminal(
+        terminalId,
+        `Profile ${profileId} not found, will skip it`,
+        TerminalMessageLevel.Warning
+      );
+      return '';
     }
 
     const taskName = `Bundling ${profile.label}`;
@@ -111,7 +119,7 @@ export const createBundles = async <Dry extends boolean>(
     return taskName;
   });
 
-  newTerminalSession(terminalId, tasks);
+  newTerminalSession(terminalId, tasks.filter(Boolean));
 
   const buildPath = await getBuildPath();
 
