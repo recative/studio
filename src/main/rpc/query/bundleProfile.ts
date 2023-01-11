@@ -133,7 +133,13 @@ export const createBundles = async <Dry extends boolean>(
 
     const taskName = profileIdToTaskNameMap.get(profileId);
     if (!taskName) {
-      throw new TypeError(`Task name of profile ${profileId} not found`);
+      logToTerminal(
+        terminalId,
+        `Task name of profile ${profileId} not found`,
+        TerminalMessageLevel.Warning
+      );
+
+      continue;
     }
 
     const profile = bundleProfiles.find((x) => x.id === profileId);
