@@ -102,24 +102,27 @@ export const createBundles = async <Dry extends boolean>(
   }
 
   const profileIdToTaskNameMap = new Map<string, string>();
-  const tasks = profiles.map((profileId) => {
-    const profile = bundleProfiles.find((x) => x.id === profileId);
-    if (!profile) {
-      logToTerminal(
-        terminalId,
-        `Profile ${profileId} not found, will skip it`,
-        TerminalMessageLevel.Warning
-      );
-      return '';
-    }
 
-    const taskName = `Bundling ${profile.label}`;
-    profileIdToTaskNameMap.set(profileId, taskName);
+  if (terminalId === 'createBundles') {
+    const tasks = profiles.map((profileId) => {
+      const profile = bundleProfiles.find((x) => x.id === profileId);
+      if (!profile) {
+        logToTerminal(
+          terminalId,
+          `Profile ${profileId} not found, will skip it`,
+          TerminalMessageLevel.Warning
+        );
+        return '';
+      }
 
-    return taskName;
-  });
+      const taskName = `Bundling ${profile.label}`;
+      profileIdToTaskNameMap.set(profileId, taskName);
 
-  newTerminalSession(terminalId, tasks.filter(Boolean));
+      return taskName;
+    });
+
+    newTerminalSession(terminalId, tasks.filter(Boolean));
+  }
 
   const buildPath = await getBuildPath();
 
