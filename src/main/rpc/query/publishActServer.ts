@@ -10,7 +10,7 @@ import { fileSync, dirSync } from 'tmp';
 
 import { Zip } from '@recative/extension-sdk';
 import { DB_CONFIG } from '@recative/studio-definitions';
-import { IResourceFile } from '@recative/definitions';
+import { IResourceFile, IResourceGroup } from '@recative/definitions';
 
 import { cleanupLoki } from './utils';
 import { getBuildPath } from './setting';
@@ -362,6 +362,28 @@ export const recoverBackup = async (storageId: string) => {
   });
 
   await taskQueue.run();
+
+  recoverStatus.message = 'Updating thumbnails';
+  const groups = db.resource.resources.find({
+    type: 'group',
+    removed: false,
+  }) as IResourceGroup[];
+
+  for (let i = 0; i < groups.length; i += 1) {
+    const group = groups[i];
+    const firstFile = db.resource.resources.findOne({
+      resourceGroupId: group.id,
+      removed: false,
+    });
+
+    if (!firstFile) {
+      (group as any).thumbnailSrc = undefined;
+    } else {
+      (group as any).thumbnailSrc = firstFile.thumbnailSrc;
+    }
+  }
+
+  db.resource.resources.update(groups);
 
   recoverStatus.message = 'Recover success';
   recoverStatus.status = 'success';
