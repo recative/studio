@@ -38,7 +38,13 @@ const INITIAL_FORM_VALUE = {
   permissions: [] as string[],
 };
 
-export const AddTokenModal: React.FC = () => {
+interface IAddTokenModalProps {
+  onDataRefreshRequest: () => void;
+}
+
+export const AddTokenModal: React.FC<IAddTokenModalProps> = ({
+  onDataRefreshRequest,
+}) => {
   const [isOpen, , , onClose] = useAddTokenModal();
 
   const [clonedConfig, valueChangeCallbacks, ,] =
@@ -69,6 +75,7 @@ export const AddTokenModal: React.FC = () => {
     );
 
     onClose();
+    onDataRefreshRequest();
   });
 
   return (
@@ -84,6 +91,16 @@ export const AddTokenModal: React.FC = () => {
       <ModalHeader>Add Token</ModalHeader>
       <ModalBody>
         <RecativeBlock minWidth="400px">
+          <FormControl
+            label="Notes"
+            caption="Human readable notes for the permission identity"
+          >
+            <Input
+              size={INPUT_SIZE.mini}
+              value={clonedConfig.notes}
+              onChange={handleNotesChange}
+            />
+          </FormControl>
           <FormControl label="Expires At" caption="When will the token expires">
             <DatePicker
               size={INPUT_SIZE.mini}
@@ -104,16 +121,6 @@ export const AddTokenModal: React.FC = () => {
               valueKey="id"
               onChange={handlePermissionsChange}
               value={permissionValues}
-            />
-          </FormControl>
-          <FormControl
-            label="Notes"
-            caption="Human readable notes for the permission identity"
-          >
-            <Input
-              size={INPUT_SIZE.mini}
-              value={clonedConfig.notes}
-              onChange={handleNotesChange}
             />
           </FormControl>
         </RecativeBlock>

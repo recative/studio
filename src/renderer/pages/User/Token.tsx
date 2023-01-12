@@ -45,10 +45,14 @@ const InternalToken: React.FC = () => {
 
   const databaseLocked = useDatabaseLocked();
 
+  const refreshTable = useEvent(() => {
+    setKey(Math.random());
+  });
+
   const handleRemoveTokenModalSubmit = useEvent(async () => {
     if (selectedToken) {
       await server.deleteToken(selectedToken);
-      setKey(Math.random());
+      refreshTable();
     }
   });
 
@@ -92,7 +96,7 @@ const InternalToken: React.FC = () => {
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
-      <AddTokenModal />
+      <AddTokenModal onDataRefreshRequest={refreshTable} />
       <ConfirmRemoveTokenModal
         onSubmit={handleRemoveTokenModalSubmit}
         onCancel={null}
