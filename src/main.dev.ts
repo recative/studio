@@ -2,18 +2,23 @@
 
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import path from 'path';
-import { app, BrowserWindow, shell } from 'electron';
-import { autoUpdater } from 'electron-updater';
+
 import log from 'electron-log';
+import path from 'path';
+
+import { setAutoFreeze } from 'immer';
+import { autoUpdater } from 'electron-updater';
+import { app, BrowserWindow, shell } from 'electron';
+
 import MenuBuilder from './menu';
 
+import { cleanupDb } from './main/rpc/db';
 import { setMainWindow } from './main/rpc/window/mainWindow';
 import { installDevTools } from './main/devtools';
 import { initializeServer } from './main/rpc';
-import { cleanupDb } from './main/rpc/db';
 import { registerProtocols, initializeProtocols } from './main/protocols';
 
+setAutoFreeze(false);
 initializeProtocols();
 
 app.commandLine.appendSwitch('ignore-certificate-errors');
