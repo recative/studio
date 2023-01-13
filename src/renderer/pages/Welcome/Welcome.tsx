@@ -34,6 +34,7 @@ import { useRecentProjects } from 'utils/hooks/useRecentProjects';
 import type { IRecentProject } from 'utils/hooks/useRecentProjects';
 
 import { WORKSPACE_CONFIGURATION } from 'stores/ProjectDetail';
+import { useEvent } from 'utils/hooks/useEvent';
 
 const navigationButtonIconStyle: StyleObject = {
   marginRight: '8px',
@@ -120,9 +121,9 @@ interface IRecentProjectButtonAdditionalProps {
   onClick: (project: IRecentProject) => void;
 }
 
-const RecentProjectButton: React.VFC<
-  IRecentProject & IRecentProjectButtonAdditionalProps
-> = ({ onClick, id, label, workspacePath, repositoryPath }) => {
+const RecentProjectButton: React.FC<
+  IRecentProject & IRecentProjectButtonAdditionalProps & { color: string }
+> = ({ onClick, id, label, workspacePath, repositoryPath, color }) => {
   const [css] = useStyletron();
 
   const project = React.useMemo(
@@ -158,7 +159,7 @@ const RecentProjectButton: React.VFC<
       }}
     >
       <RecativeBlock maxWidth="-webkit-fill-available">
-        <RecativeBlock display="flex" alignItems="center">
+        <RecativeBlock display="flex" alignItems="center" color={color}>
           <SeriesIconOutline width={20} />
           <RecativeBlock marginLeft="8px">{label}</RecativeBlock>
         </RecativeBlock>
@@ -222,36 +223,36 @@ const NavigationButton: React.FC<INavigationButton> = ({
 };
 
 const useRecentProjectClickCallback = (
-  recentProjects: Record<string, IRecentProject>,
+  recentProjects: IRecentProject[],
   readonly: boolean
 ) => {
+  const { recentProjectsClicked } = useRecentProjects();
   const navigate = useNavigate();
   const [, setWorkspaceConfiguration] = useAtom(WORKSPACE_CONFIGURATION);
 
-  const handleSubmitProject = React.useCallback(
-    async (project: IRecentProject) => {
-      const result = await server.setupStudio(
-        project.workspacePath,
-        project.repositoryPath,
-        readonly
-      );
+  const handleSubmitProject = useEvent(async (project: IRecentProject) => {
+    recentProjectsClicked(project.workspacePath, project.repositoryPath);
 
-      if (!(await server.ifDbLocked())) {
-        await server.lockDb();
-        await server.migration();
-      }
+    const result = await server.setupStudio(
+      project.workspacePath,
+      project.repositoryPath,
+      readonly
+    );
 
-      setWorkspaceConfiguration(result);
-      navigate(`/resource`, { replace: true });
-    },
-    [navigate, setWorkspaceConfiguration, readonly]
-  );
+    if (!(await server.ifDbLocked())) {
+      await server.lockDb();
+      await server.migration();
+    }
+
+    setWorkspaceConfiguration(result);
+    navigate(`/resource`, { replace: true });
+  });
 
   const handleSubmitProjects = React.useMemo(() => {
     const result: Record<string, typeof handleSubmitProject> = {};
 
-    Object.entries(recentProjects).forEach(([id, project]) => {
-      result[id] = () => handleSubmitProject(project);
+    recentProjects.forEach((project) => {
+      result[project.id] = () => handleSubmitProject(project);
     });
 
     return result;
