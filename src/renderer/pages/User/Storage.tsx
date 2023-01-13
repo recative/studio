@@ -22,9 +22,11 @@ import {
 const Actions: React.FC<IStorageListActionProps> = ({ id }) => {
   return (
     <RecativeBlock>
-      <SmallIconButton title="Recover Backup">
-        <BackupRecoverIconOutline width={16} />
-      </SmallIconButton>
+      {id.endsWith('/db') && (
+        <SmallIconButton title="Recover Backup">
+          <BackupRecoverIconOutline width={16} />
+        </SmallIconButton>
+      )}
     </RecativeBlock>
   );
 };
