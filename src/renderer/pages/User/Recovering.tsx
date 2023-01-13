@@ -30,7 +30,7 @@ const InternalRecovering: React.FC = () => {
   useInterval(recoverStatusActions.execute, 500);
 
   return (
-    <PivotLayout disabled={recoverStatus.status === 'loading'}>
+    <PivotLayout disabled={recoverStatus.result?.status === 'working'}>
       <ContentContainer className={css(contentContainerStyles)} width={600}>
         <RecativeBlock
           height="-webkit-fill-available"
