@@ -56,6 +56,7 @@ const footerStyles: StyleObject = {
 };
 
 interface IPivotLayoutProps {
+  disabled?: boolean;
   footer?: React.ReactNode;
   additionalTabs?: React.ReactNode;
   tabColors?: ColorDefinition[];
@@ -115,6 +116,7 @@ export const PivotLayout: React.FC<IPivotLayoutProps> = ({
   footer,
   additionalTabs,
   tabColors,
+  disabled,
 }) => {
   const [css, theme] = useStyletron();
 
@@ -132,7 +134,11 @@ export const PivotLayout: React.FC<IPivotLayoutProps> = ({
         className={css(pivotContainerStyles)}
         backgroundColor={theme.colors.backgroundPrimary}
       >
-        <Pivot additionalTabs={additionalTabs} tabColors={tabColors} />
+        <Pivot
+          additionalTabs={additionalTabs}
+          tabColors={tabColors}
+          disabled={disabled}
+        />
       </RecativeBlock>
     </RecativeBlock>
   );

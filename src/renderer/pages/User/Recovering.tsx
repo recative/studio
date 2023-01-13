@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-import { useNavigate } from 'react-router';
 import { useStyletron } from 'baseui';
 
 import { Spinner } from 'baseui/spinner';
@@ -23,7 +22,6 @@ const contentContainerStyles = {
 
 const InternalRecovering: React.FC = () => {
   const [css] = useStyletron();
-  const navigate = useNavigate();
 
   const [recoverStatus, recoverStatusActions] = useAsync(() => {
     return server.getRecoverBackupStatus();
@@ -32,7 +30,7 @@ const InternalRecovering: React.FC = () => {
   useInterval(recoverStatusActions.execute, 500);
 
   return (
-    <PivotLayout>
+    <PivotLayout disabled={recoverStatus.status === 'loading'}>
       <ContentContainer className={css(contentContainerStyles)} width={600}>
         <RecativeBlock
           height="-webkit-fill-available"
