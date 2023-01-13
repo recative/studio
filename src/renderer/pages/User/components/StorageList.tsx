@@ -13,7 +13,7 @@ export interface IPermissionListProps {
   Actions?: React.FC<IStorageListActionProps>;
 }
 
-const storageKeys = ['key', 'permissions', 'permissionCount', 'notes'] as const;
+const storageKeys = ['key', 'permissions', 'notes'] as const;
 
 const columnConfigs: IColumnConfig<TokenKeys>[] = [
   {
@@ -27,12 +27,6 @@ const columnConfigs: IColumnConfig<TokenKeys>[] = [
     order: 1,
     width: 'min-content',
     content: 'Permissions',
-  },
-  {
-    id: 'permissionCount',
-    order: 2,
-    width: 'min-content',
-    content: 'Count',
   },
   {
     id: 'notes',
@@ -58,8 +52,9 @@ export const StorageList: React.FC<IPermissionListProps> = ({ Actions }) => {
       storages.result?.map((storage) => ({
         id: storage.key,
         key: storage.key,
-        permissions: storage.need_permissions?.length ?? 0,
-        permissionCount: storage.need_permission_count,
+        permissions: `${storage.need_permission_count}/${
+          storage.need_permissions?.length ?? 0
+        }`,
         notes: storage.comment,
       })),
     [storages.result]
