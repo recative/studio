@@ -124,6 +124,11 @@ export const uploadMediaBundle = async (
       const shortServiceLabel = labelSegments[labelSegments.length - 1];
       // Upload resource file
       allResources.forEach(({ resourceType, resourceRecord }) => {
+        const tags = resourceRecord.tags.map((x) => {
+          if (x.endsWith('!')) return x.slice(0, -1);
+          return x;
+        });
+
         // If the file is already available on the CDN, skip uploading.
         if (resourceRecord.url[serviceProviderLabel]) {
           skippedFiles += 1;
@@ -137,7 +142,7 @@ export const uploadMediaBundle = async (
         for (let i = 0; i < fileCategory.length; i += 1) {
           const category = fileCategory[i];
 
-          if (resourceRecord.tags.indexOf(category) !== -1) {
+          if (tags.indexOf(category) !== -1) {
             needUpload = true;
             break;
           }
