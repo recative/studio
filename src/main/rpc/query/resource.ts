@@ -224,7 +224,7 @@ export const markResourceRecordAsRemoved = async (itemId: string) => {
 
   if (!item) {
     console.warn(`${itemId} not found, unable to remove the resource`);
-    return;
+    return [];
   }
 
   if (item.type === 'group') {
@@ -242,6 +242,8 @@ export const markResourceRecordAsRemoved = async (itemId: string) => {
   if (item.resourceGroupId) {
     return removeFileFromGroup(item);
   }
+
+  return [];
 };
 
 export const forceRemoveResourceFile = async (itemId: string) => {
@@ -282,7 +284,7 @@ export const removeResources = async (itemIds: string[], hard: boolean) => {
 export const addFileToGroup = async (
   resource: IResourceFile,
   groupId: string
-) => {
+): Promise<Set<string>> => {
   const db = await getDb();
 
   const resourceDb = db.resource.resources;
@@ -300,6 +302,19 @@ export const addFileToGroup = async (
 
   if (!targetFile) {
     throw new Error('File not found');
+  }
+
+  if (targetFile.managedBy) {
+    const managerFile = resourceDb.findOne({
+      id: targetFile.managedBy,
+      type: 'file',
+    }) as IResourceFile | undefined;
+
+    if (!managerFile) {
+      throw new TypeError(`Manager file not found`);
+    }
+
+    return addFileToGroup(managerFile, groupId);
   }
 
   if (!targetGroup) {
