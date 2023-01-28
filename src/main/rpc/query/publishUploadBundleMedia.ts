@@ -124,7 +124,7 @@ export const uploadMediaBundle = async (
       const shortServiceLabel = labelSegments[labelSegments.length - 1];
       // Upload resource file
       allResources.forEach(({ resourceType, resourceRecord }) => {
-        const tags = resourceRecord.tags.map((x) => {
+        const tags = resourceRecord.tags.filter(Boolean).map((x) => {
           if (x.endsWith('!')) return x.slice(0, -1);
           return x;
         });
