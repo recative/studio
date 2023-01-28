@@ -244,21 +244,9 @@ const useFileIdToFileMap = (
     (fileId: string | string[]) => {
       setFileIdToFileMap((draft) => {
         const batchRemove = (x: Set<string>) => {
-          const managedFiles = new Set<string>();
-
           x.forEach((removedFileId) => {
-            const resource = draft[removedFileId];
-
-            if (resource.managedBy) {
-              managedFiles.add(resource.managedBy);
-            }
-
             delete draft[removedFileId];
           });
-
-          if (managedFiles.size) {
-            batchRemove(managedFiles);
-          }
         };
 
         batchRemove(new Set(Array.isArray(fileId) ? fileId : [fileId]));
@@ -780,8 +768,8 @@ const InternalEditResourceGroupModal: React.FC<
 
   const handleRemoveResourceFile = React.useCallback(
     async (resourceFile: IEditableResourceFile) => {
-      await server.removeFileFromGroup(resourceFile);
-      handleRemoveFile(resourceFile.id);
+      const removedFileIds = await server.removeFileFromGroup(resourceFile);
+      removedFileIds.map(handleRemoveFile);
     },
     [handleRemoveFile]
   );

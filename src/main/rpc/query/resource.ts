@@ -151,14 +151,17 @@ export const searchFileResources = async (query = '', limit = 40) => {
   return uniqBy(searchResult, 'id');
 };
 
-export const removeFileFromGroup = async (resource: IResourceFile) => {
+export const removeFileFromGroup = async (
+  resource: IResourceFile,
+  removedFileIds = [] as string[]
+) => {
   const db = await getDb();
 
   const resourceDb = db.resource.resources;
 
   // Remove item from original group.
   if (!resource.resourceGroupId) {
-    return;
+    return removedFileIds;
   }
 
   const targetFile = resourceDb.findOne({ id: resource.id, type: 'file' }) as
@@ -169,8 +172,10 @@ export const removeFileFromGroup = async (resource: IResourceFile) => {
     throw new Error('File not found');
   }
 
+  removedFileIds.push(resource.id);
+
   if (!targetFile?.resourceGroupId) {
-    return;
+    return removedFileIds;
   }
 
   const originalGroup = resourceDb.findOne({
@@ -183,7 +188,7 @@ export const removeFileFromGroup = async (resource: IResourceFile) => {
 
   if (!originalGroup) {
     console.warn('Group not found');
-    return;
+    return removedFileIds;
   }
 
   originalGroup.files = originalGroup.files.filter(
@@ -198,8 +203,12 @@ export const removeFileFromGroup = async (resource: IResourceFile) => {
   }) as IResourceFile[];
 
   await Promise.all(
-    managedFiles.map((managedFile) => removeFileFromGroup(managedFile))
+    managedFiles.map((managedFile) =>
+      removeFileFromGroup(managedFile, removedFileIds)
+    )
   );
+
+  return removedFileIds;
 };
 
 const removeResourceRecordUpdater = (document: IResourceItem) => {
@@ -231,7 +240,7 @@ export const markResourceRecordAsRemoved = async (itemId: string) => {
   );
 
   if (item.resourceGroupId) {
-    await removeFileFromGroup(item);
+    return removeFileFromGroup(item);
   }
 };
 
