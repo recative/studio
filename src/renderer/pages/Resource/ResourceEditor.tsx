@@ -10,7 +10,6 @@ import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { Banner } from 'baseui/banner';
 import { LabelLarge } from 'baseui/typography';
 import { FormControl } from 'baseui/form-control';
 import { LABEL_PLACEMENT } from 'baseui/checkbox';
@@ -33,14 +32,15 @@ import {
   useOnChangeEventWrapperForBaseUiSelectWithMultipleValue,
   useOnChangeEventWrapperForBaseUiSelectWithSingleValue,
 } from 'utils/hooks/useFormChangeCallbacks';
+import { Hint, HintParagraph } from 'pages/Setting/components/Hint';
 
 import {
+  tagIdMap,
   LabelType,
   tagsByType,
   typeNameMap,
-  tagIdMap,
-  emptyResourceTag,
   PreloadLevel,
+  emptyResourceTag,
 } from '@recative/definitions';
 import type {
   IResourceTag,
@@ -161,7 +161,7 @@ const InternalFormTagItem: React.FC<IFormItemProps> = ({
   return (
     <RecativeBlock>
       <FormControl label={typeNameMap[typeId]}>
-        <Select
+        <Select<IResourceTag | IGroupTypeResourceTag>
           value={value}
           options={options}
           creatable={custom}
@@ -346,19 +346,6 @@ const useExtensionSettings = (
   return [getValue, setValue] as const;
 };
 
-const LockBannerArtWork = {
-  icon: () => <LockIconOutline width={28} />,
-} as const;
-
-const LockBannerOverride = {
-  Root: {
-    style: {
-      marginLeft: 0,
-      marginRight: 0,
-    },
-  },
-} as const;
-
 const InternalResourceEditor: React.ForwardRefRenderFunction<
   IResourceEditorRef,
   IResourceEditorProps
@@ -456,13 +443,11 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
             />
           </RecativeBlock>
           {!!file.managedBy && (
-            <Banner
-              title="File Locked"
-              artwork={LockBannerArtWork}
-              overrides={LockBannerOverride}
-            >
-              This is a managed file, you can not update it manually.
-            </Banner>
+            <Hint Artwork={LockIconOutline}>
+              <HintParagraph>
+                This is a managed file, you can not update it manually.
+              </HintParagraph>
+            </Hint>
           )}
           <LabelLarge className={css(groupLabelStyles)}>Metadata</LabelLarge>
           <FormControl label="ID">
