@@ -378,6 +378,7 @@ const InternalResource: React.FC = () => {
                 <ResourceItem
                   id={item.id}
                   isGroup={item.type === 'group'}
+                  isManaged={item.type === 'file' && !!item.managedBy}
                   fileName={item.label}
                   thumbnailSrc={item.thumbnailSrc}
                 />

@@ -4,15 +4,17 @@ import cn from 'classnames';
 import { useStyletron } from 'baseui';
 import type { StyleObject } from 'styletron-react';
 
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { LabelSmall } from 'baseui/typography';
 
 import { Pattern } from 'components/Pattern/Pattern';
 import { GroupIcon } from 'components/Icons/GroupIcon';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
+import { ManagedResourceIcon } from 'components/Icons/ManagedResourceIcon';
 
 export interface IResourceProps {
   id: string;
   isGroup: boolean;
+  isManaged: boolean;
   thumbnailSrc?: string | null;
   fileName: string;
 }
@@ -47,6 +49,7 @@ const labelStyles: StyleObject = {
 export const InternalResource: React.FC<IResourceProps> = ({
   id,
   isGroup,
+  isManaged,
   thumbnailSrc,
   fileName,
 }) => {
@@ -86,6 +89,16 @@ export const InternalResource: React.FC<IResourceProps> = ({
                 color={theme.colors.buttonDisabledText}
               >
                 <GroupIcon height={14} />
+              </RecativeBlock>
+            )}
+            {isManaged && (
+              <RecativeBlock
+                marginLeft="4px"
+                transform="translateY(2px)"
+                display="inline-block"
+                color={theme.colors.buttonDisabledText}
+              >
+                <ManagedResourceIcon height={14} />
               </RecativeBlock>
             )}
           </LabelSmall>
