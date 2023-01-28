@@ -213,11 +213,13 @@ const useFileIdToFileMap = (
       ).filter(Boolean);
 
       if (!queriedFiles.length) {
-        throw new Error('File not found');
+        throw new TypeError(
+          `File not found: "${formattedFileIds.join(', ')}".`
+        );
       }
 
       if (queriedFiles.find((x) => x === null)) {
-        throw new TypeError(`Query contains empty result`);
+        throw new TypeError(`Query contains empty result.`);
       }
 
       if (queriedFiles.find((x) => x?.type !== 'file')) {
