@@ -21,7 +21,10 @@ const listItemStyles: StyleObject = {
 };
 
 const thumbnailContainerStyles: StyleObject = {
+  width: '60px',
+  height: '40px',
   lineHeight: '0',
+  overflow: 'hidden',
 };
 
 const thumbnailStyles: StyleObject = {
