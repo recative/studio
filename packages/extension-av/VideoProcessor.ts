@@ -33,7 +33,7 @@ export class VideoProcessor extends ResourceProcessor<
   ) {
     if (
       newGroup.tags.includes(videoGroupResourceTag.id) ||
-      `${newGroup.tags.includes(videoGroupResourceTag.id)}!`
+      (newGroup.tags as string[]).includes(`${videoGroupResourceTag.id}!`)
     ) {
       const videoFile = files.find(
         (x) =>

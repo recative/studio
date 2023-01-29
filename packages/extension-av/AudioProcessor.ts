@@ -60,7 +60,7 @@ export class AudioProcessor extends ResourceProcessor<
 
       if (
         !resource.tags.includes(audioCategoryTag.id) &&
-        !`${!resource.tags.includes(audioCategoryTag.id)}!`
+        !resource.tags.includes(`${audioCategoryTag.id}!`)
       ) {
         resource.tags.push(audioCategoryTag.id);
       }
