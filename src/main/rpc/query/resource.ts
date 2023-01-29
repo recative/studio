@@ -142,6 +142,7 @@ export const searchFileResources = async (query = '', limit = 40) => {
         },
         {
           type: 'file',
+          removed: false,
         },
       ],
     })
@@ -153,6 +154,7 @@ export const searchFileResources = async (query = '', limit = 40) => {
 
 export const removeFileFromGroup = async (
   resource: IResourceFile,
+  removeManagedFiles = false,
   removedFileIds = [] as string[]
 ) => {
   const db = await getDb();
@@ -197,16 +199,18 @@ export const removeFileFromGroup = async (
 
   resourceDb.update(originalGroup);
 
-  const managedFiles = resourceDb.find({
-    type: 'file',
-    managedBy: resource.id,
-  }) as IResourceFile[];
+  if (removeManagedFiles) {
+    const managedFiles = resourceDb.find({
+      type: 'file',
+      managedBy: resource.id,
+    }) as IResourceFile[];
 
-  await Promise.all(
-    managedFiles.map((managedFile) =>
-      removeFileFromGroup(managedFile, removedFileIds)
-    )
-  );
+    await Promise.all(
+      managedFiles.map((managedFile) =>
+        removeFileFromGroup(managedFile, removeManagedFiles, removedFileIds)
+      )
+    );
+  }
 
   return removedFileIds;
 };
@@ -224,7 +228,7 @@ export const markResourceRecordAsRemoved = async (itemId: string) => {
 
   if (!item) {
     console.warn(`${itemId} not found, unable to remove the resource`);
-    return [];
+    return null;
   }
 
   if (item.type === 'group') {
@@ -240,10 +244,10 @@ export const markResourceRecordAsRemoved = async (itemId: string) => {
   );
 
   if (item.resourceGroupId) {
-    return removeFileFromGroup(item);
+    return removeFileFromGroup(item, true);
   }
 
-  return [];
+  return null;
 };
 
 export const forceRemoveResourceFile = async (itemId: string) => {
@@ -283,8 +287,13 @@ export const removeResources = async (itemIds: string[], hard: boolean) => {
 
 export const addFileToGroup = async (
   resource: IResourceFile,
-  groupId: string
+  groupId: string,
+  bypassManagedByCheck = false
 ): Promise<Set<string>> => {
+  if (resource.resourceGroupId === groupId) {
+    return new Set();
+  }
+
   const db = await getDb();
 
   const resourceDb = db.resource.resources;
@@ -304,7 +313,15 @@ export const addFileToGroup = async (
     throw new Error('File not found');
   }
 
-  if (targetFile.managedBy) {
+  if ((resource as IResourceItem).type === 'group') {
+    throw new TypeError(`Resource could not be a group.`);
+  }
+
+  if (
+    targetFile.managedBy &&
+    targetFile.managedBy !== targetFile.id &&
+    !bypassManagedByCheck
+  ) {
     const managerFile = resourceDb.findOne({
       id: targetFile.managedBy,
       type: 'file',
@@ -321,10 +338,14 @@ export const addFileToGroup = async (
     throw new Error('Group not found');
   }
 
-  await removeFileFromGroup(resource);
+  if (resource.resourceGroupId && resource.resourceGroupId !== groupId) {
+    await removeFileFromGroup(resource, false);
+  }
 
   targetFile.resourceGroupId = groupId;
   resourceDb.update(targetFile);
+
+  resourceAdded.add(targetFile.id);
 
   targetGroup.files = [
     ...targetGroup.files.filter((r) => r !== resource.id),
@@ -332,16 +353,26 @@ export const addFileToGroup = async (
   ];
   resourceDb.update(targetGroup);
 
-  const managedFiles = resourceDb.find({
-    type: 'file',
-    managedBy: resource.id,
-  }) as IResourceFile[];
+  const managedFiles = (
+    resourceDb.find({
+      type: 'file',
+      managedBy: resource.id,
+    }) as IResourceFile[]
+  ).filter((x) => x.id !== resource.id);
 
   managedFiles.forEach((x) => resourceAdded.add(x.id));
 
-  const operatedManagedFiles = await Promise.all(
-    managedFiles.map((managedFile) => addFileToGroup(managedFile, groupId))
-  );
+  const operatedManagedFiles = (
+    await Promise.all(
+      managedFiles.map(async (managedFile) => {
+        if (managedFile.resourceGroupId !== groupId) {
+          return addFileToGroup(managedFile, groupId, true);
+        }
+
+        return new Set<string>();
+      })
+    )
+  ).filter(Boolean);
 
   operatedManagedFiles.forEach((set) =>
     set.forEach((x) => resourceAdded.add(x))
@@ -352,22 +383,18 @@ export const addFileToGroup = async (
 
 export const getResource = async (
   resourceId: string,
-  excludeRemoved = true,
   bundleReleaseId?: number
 ) => {
   const db = await getReleasedDb(bundleReleaseId);
 
   const resource = (db.resource.resources.findOne({
     id: resourceId,
-    removed: excludeRemoved ? false : undefined,
   }) ??
     db.resource.postProcessed.findOne({
       id: resourceId,
     })) as IResourceItem;
 
-  if (!resource) return null;
-
-  return resource;
+  return resource ?? null;
 };
 
 const updateManagedResources = async (item: IResourceItem) => {
@@ -978,7 +1005,7 @@ export const importFile = async (
     const replacedFileGroupId = replacedFile.resourceGroupId;
 
     await markResourceRecordAsRemoved(replaceFileId);
-    await removeFileFromGroup(replacedFile);
+    await removeFileFromGroup(replacedFile, true);
 
     if (replacedFileGroupId) {
       preprocessedFiles = preprocessedFiles.filter((x) => x.type === 'file');
