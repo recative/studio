@@ -29,10 +29,12 @@ import { Uploader } from './components/Uploader';
 import { SidePanel } from './components/SidePanel';
 import { SELECTED_TAGS } from './components/ResourceTree';
 import { ErrorMergeModal } from './components/ErrorMergeModal';
+import { SEARCH_TERM_ATOM } from './components/SearchBar';
 import { ReplaceFileModal } from './components/ReplaceFileModal';
 import { ConfirmSplitModal } from './components/ConfirmSplitModal';
 import { ConfirmRemoveModal } from './components/ConfirmRemoveModal';
 import { GroupTypeSelectionModal } from './components/GroupTypeSelectionModal';
+import { AlreadyInGroupAlertModal } from './components/AlreadyInGroupAlertModal';
 import { EraseURLModal, useEraseURLModal } from './components/EraseURLModal';
 import { BatchEditModal, useBatchEditModal } from './components/BatchEditModal';
 import {
@@ -49,10 +51,8 @@ import {
 } from './components/EditResourceGroupModal';
 
 import { getSelectedId } from './utils/getSelectedId';
-import { useMergeResourcesCallback } from './hooks/useMergeResourceCallback';
-
 import { useAdditionalTabs } from './hooks/useAdditionalTabs';
-import { SEARCH_TERM_ATOM } from './components/SearchBar';
+import { useMergeResourcesCallback } from './hooks/useMergeResourceCallback';
 
 const TAB_COLORS = [{ key: 'resource', color: '#01579B' }];
 
@@ -390,6 +390,7 @@ const InternalResource: React.FC = () => {
       <EraseURLModal />
       <ErrorMergeModal />
       <FixResourceLinkModal />
+      <AlreadyInGroupAlertModal onCancel={null} onSubmit={null} />
       <BatchEditModal onRefreshResourceListRequest={updateResources} />
       <ReplaceFileModal onRefreshResourceListRequest={updateResources} />
       <ConfirmSplitModal onRefreshResourceListRequest={updateResources} />

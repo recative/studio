@@ -65,7 +65,10 @@ import type {
   IEditableResourceFile,
 } from '@recative/definitions';
 
+import { useEvent } from 'utils/hooks/useEvent';
+
 import { useEditableResourceDefinition } from '../hooks/useEditableResourceDefinition';
+import { mergeFileConfigurationToManagedFile } from '../utils/mergeFileConfigurationToManagedFile';
 import { ResourceEditor, IEditableResourceGroup } from '../ResourceEditor';
 import { mergeGroupConfigurationToIndividualFile } from '../utils/mergeGroupConfigurationToIndividualFile';
 
@@ -75,7 +78,7 @@ import {
   ReplaceFileModalForGroupModal,
   useReplaceFileModalForGroupModal,
 } from './ReplaceFileModalForGroupModal';
-import { mergeFileConfigurationToManagedFile } from '../utils/mergeFileConfigurationToManagedFile';
+import { useAlreadyInGroupAlertModal } from './AlreadyInGroupAlertModal';
 
 const CONTEXT_MENU_ID = nanoid();
 
@@ -204,43 +207,40 @@ const useFileIdToFileMap = (
     });
   }, [setFileIdToFileMap, files]);
 
-  const handleAddFile = React.useCallback(
-    async (fileId: string | string[]) => {
-      const formattedFileIds = Array.isArray(fileId) ? fileId : [fileId];
+  const handleAddFile = useEvent(async (fileId: string | string[]) => {
+    const formattedFileIds = Array.isArray(fileId) ? fileId : [fileId];
 
-      const queriedFiles = (
-        await Promise.all(formattedFileIds.map((x) => server.getResource(x)))
-      ).filter(Boolean);
+    if (!formattedFileIds.length) return;
 
-      if (!queriedFiles.length) {
-        throw new TypeError(
-          `File not found: "${formattedFileIds.join(', ')}".`
-        );
+    const queriedFiles = (
+      await Promise.all(formattedFileIds.map((x) => server.getResource(x)))
+    ).filter(Boolean);
+
+    if (!queriedFiles.length) {
+      throw new TypeError(`File not found: "${formattedFileIds.join(', ')}".`);
+    }
+
+    if (queriedFiles.find((x) => x === null)) {
+      throw new TypeError(`Query contains empty result.`);
+    }
+
+    if (queriedFiles.find((x) => x?.type !== 'file')) {
+      throw new TypeError(
+        'Files included items that is not a file, this is not allowed.'
+      );
+    }
+
+    setFileIdToFileMap((draft) => {
+      for (let i = 0; i < queriedFiles.length; i += 1) {
+        const queriedFile = queriedFiles[i] as IResourceFile;
+
+        draft[queriedFile.id] = {
+          ...queriedFile,
+          dirty: false,
+        };
       }
-
-      if (queriedFiles.find((x) => x === null)) {
-        throw new TypeError(`Query contains empty result.`);
-      }
-
-      if (queriedFiles.find((x) => x?.type !== 'file')) {
-        throw new TypeError(
-          'Files included items that is not a file, this is not allowed.'
-        );
-      }
-
-      setFileIdToFileMap((draft) => {
-        for (let i = 0; i < queriedFiles.length; i += 1) {
-          const queriedFile = queriedFiles[i] as IResourceFile;
-
-          draft[queriedFile.id] = {
-            ...queriedFile,
-            dirty: false,
-          };
-        }
-      });
-    },
-    [setFileIdToFileMap]
-  );
+    });
+  });
 
   const handleRemoveFile = React.useCallback(
     (fileId: string | string[]) => {
@@ -755,22 +755,32 @@ const InternalEditResourceGroupModal: React.FC<
     handleModalClose();
   }, [handleGroupModalSubmit, handleModalClose]);
 
-  const handleAddResourceFile = React.useCallback(
+  const [, , openAlreadyInGroupAlertModal] = useAlreadyInGroupAlertModal();
+
+  const handleAddResourceFile = useEvent(
     async (resourceFile: IResourceFile) => {
       if (!group) {
         throw new TypeError(
           `Resource item is not a group, this is not allowed`
         );
       }
+
+      if (resourceFile.id === group.id) {
+        openAlreadyInGroupAlertModal(null);
+        return;
+      }
+
       const resourceIds = await server.addFileToGroup(resourceFile, group.id);
       handleAddFile([...resourceIds]);
-    },
-    [group, handleAddFile]
+    }
   );
 
   const handleRemoveResourceFile = React.useCallback(
     async (resourceFile: IEditableResourceFile) => {
-      const removedFileIds = await server.removeFileFromGroup(resourceFile);
+      const removedFileIds = await server.removeFileFromGroup(
+        resourceFile,
+        true
+      );
       removedFileIds.map(handleRemoveFile);
     },
     [handleRemoveFile]
