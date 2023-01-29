@@ -97,6 +97,7 @@ export const addEmptyAsset = async (episodeId: string) => {
     episodeId,
     contentId: '',
     contentExtensionId: '',
+    extensionConfigurations: {},
     order: 0,
     notes: '',
     createTime: Date.now(),
@@ -223,6 +224,7 @@ export const getClientSideAssetList = async (
           triggers: asset.triggers,
           spec: {
             contentExtensionId: asset.contentExtensionId,
+            extensionConfigurations: {},
             ...injectedActPoint,
           },
           preloadDisabled: asset.preloadDisabled,
