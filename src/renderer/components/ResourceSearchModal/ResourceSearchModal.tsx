@@ -6,17 +6,11 @@ import { useDebouncedCallback } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 import type { StyleObject } from 'styletron-react';
 
-import { RecativeBlock } from 'components/Block/RecativeBlock';
+import type { IResourceItem, IActPoint } from '@recative/definitions';
+
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
-import {
-  Modal,
-  ModalBody,
-  ModalHeader,
-  // ModalFooter,
-  ROLE,
-  SIZE,
-} from 'baseui/modal';
+import { Modal, ModalBody, ModalHeader, ROLE, SIZE } from 'baseui/modal';
 
 import type { InputOverrides } from 'baseui/input';
 import type { ModalOverrides } from 'baseui/modal';
@@ -24,13 +18,10 @@ import type { ButtonProps, ButtonOverrides } from 'baseui/button';
 
 import { SelectOption } from 'components/Input/AssetSelect';
 import { ResourceItem } from 'components/Resource/ResourceItem';
-
-// import { AddIconOutline } from 'components/Icons/AddIconOutline';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { SearchIconOutline } from 'components/Icons/SearchIconOutline';
 
 import { server } from 'utils/rpc';
-
-import type { IResourceItem, IActPoint } from '@recative/definitions';
 
 export enum ResourceSearchMode {
   Texture,
@@ -239,10 +230,8 @@ export const ResourceSearchButton: React.FC<
   );
 };
 
-export const ResourceSearchModal: React.FC = () => {
+export const ResourceSearchModal: React.FC = React.memo(() => {
   const [css] = useStyletron();
-
-  // const [] = useAtom(RESOURCE_SEARCH_REQUEST_ID);
 
   const { resourceSearchModalIsOpen, handleResourceSearchModalClose } =
     useModalStatus();
@@ -283,14 +272,6 @@ export const ResourceSearchModal: React.FC = () => {
           ))}
         </RecativeBlock>
       </ModalBody>
-      {/* <ModalFooter>
-        <Button
-          kind={BUTTON_KIND.tertiary}
-          startEnhancer={<AddIconOutline width={20} />}
-        >
-          Add Resource
-        </Button>
-      </ModalFooter> */}
     </Modal>
   );
-};
+});
