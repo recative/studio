@@ -66,6 +66,7 @@ export const InternalResource: React.FC<IResourceProps> = ({
         >
           <Thumbnail
             id={id}
+            noAnimation
             imageClassName={css(thumbnailStyle)}
             size={ThumbnailSize.Large}
             src={thumbnailSrc}

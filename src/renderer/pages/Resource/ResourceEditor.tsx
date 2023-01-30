@@ -86,10 +86,11 @@ interface SelectOption<Id = string> {
 }
 
 const previewStyles: StyleObject = {
-  width: '100%',
-  height: '25vh',
+  width: '100% !important',
+  height: '25vh !important',
   background: '#f1f1f1',
-  objectFit: 'contain',
+  // @ts-ignore
+  objectFit: 'contain !important',
 };
 
 const groupLabelStyles: StyleObject = {

@@ -21,6 +21,7 @@ export interface IThumbnailProps {
   imageClassName?: string;
   patternClassName?: string;
   brokenClassName?: string;
+  noAnimation?: boolean;
   id: string;
   src?: string | null;
   label: string;
@@ -33,10 +34,15 @@ const SIZES: Record<ThumbnailSize, [number, number]> = {
   [ThumbnailSize.Small]: [40, 20],
 };
 
-const thumbnailStyles: StyleObject = {
+const imageStyle: StyleObject = {
+  opacity: 0,
+  transform: 'translateY(5%)',
+  objectFit: 'cover',
+};
+
+const mediumStyle: StyleObject = {
   width: `${SIZES.medium[0]}px`,
   height: `${SIZES.medium[1]}px`,
-  objectFit: 'cover',
 };
 
 const largeStyle: StyleObject = {
@@ -49,6 +55,26 @@ const smallStyle: StyleObject = {
   height: `${SIZES.small[1]}px`,
 };
 
+const loadedStyle: StyleObject = {
+  animationDuration: '300ms',
+  animationFillMode: 'forwards',
+  animationName: {
+    from: {
+      opacity: 0,
+      transform: 'translateY(5%)',
+    },
+    to: {
+      opacity: 1,
+      transform: 'translateY(0)',
+    },
+  } as unknown as string,
+};
+
+const noAnimationStyle: StyleObject = {
+  opacity: 1,
+  transform: 'translateY(0)',
+};
+
 export const Thumbnail: React.FC<IThumbnailProps> = React.memo(
   ({
     className,
@@ -59,18 +85,26 @@ export const Thumbnail: React.FC<IThumbnailProps> = React.memo(
     label,
     src,
     size = ThumbnailSize.Medium,
+    noAnimation,
   }) => {
     const [css] = useStyletron();
     const [broken, setBroken] = React.useState(false);
+    const [loaded, setLoaded] = React.useState(false);
 
     const handleImageLoadingError = useEvent(() => {
       setBroken(true);
     });
 
+    const handleImageLoaded = useEvent(() => {
+      if (!noAnimation) setLoaded(true);
+    });
+
     if (broken) {
       return (
         <Broken
-          className={cn(className, brokenClassName)}
+          className={cn(className, brokenClassName, {
+            [css(loadedStyle)]: !noAnimation,
+          })}
           width={SIZES[size][0]}
           height={SIZES[size][1]}
           val={id}
@@ -82,17 +116,21 @@ export const Thumbnail: React.FC<IThumbnailProps> = React.memo(
       return (
         <img
           className={cn(
-            css(thumbnailStyles),
+            css(imageStyle),
             {
               [css(largeStyle)]: size === 'large',
               [css(smallStyle)]: size === 'small',
+              [css(mediumStyle)]: size === 'medium',
+              [css(loadedStyle)]: loaded && !noAnimation,
+              [css(noAnimationStyle)]: noAnimation,
             },
             className,
             imageClassName
           )}
-          src={src || ''}
+          src={src}
           alt={`Thumbnail of ${label}`}
           onError={handleImageLoadingError}
+          onLoad={handleImageLoaded}
           loading="lazy"
         />
       );
@@ -100,7 +138,9 @@ export const Thumbnail: React.FC<IThumbnailProps> = React.memo(
 
     return (
       <Pattern
-        className={cn(className, patternClassName)}
+        className={cn(className, patternClassName, {
+          [css(loadedStyle)]: !noAnimation,
+        })}
         width={SIZES[size][0]}
         height={SIZES[size][1]}
         val={id}
