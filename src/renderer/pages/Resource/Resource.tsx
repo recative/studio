@@ -281,10 +281,6 @@ const InternalResource: React.FC = () => {
 
   const { controlPressed, handleSelectoSelect } = useKeyboardShortcut();
 
-  const onContainerScroll = React.useCallback(() => {
-    selectoRef.current?.selecto.checkScroll();
-  }, []);
-
   const $scroller = scrollerRef.current;
 
   const scrollOptions = React.useMemo(
@@ -300,11 +296,12 @@ const InternalResource: React.FC = () => {
   );
 
   const layoutBooster = useConstant(
-    () => new LayoutBooster('.resource-list>div', '.resource-list', 160, 16)
+    () => new LayoutBooster(SELECTABLE_TARGETS[0], '.scroll-container', 160, 16)
   );
 
   const getElementPoints = useEvent((target: HTMLElement | SVGElement) => {
     const info = layoutBooster.getElementRect(target);
+
     return [info.pos1, info.pos2, info.pos4, info.pos3];
   });
 
@@ -318,6 +315,11 @@ const InternalResource: React.FC = () => {
       event.direction[1] * 10
     );
 
+    layoutBooster.handleContainerScroll();
+  });
+
+  const onContainerScroll = useEvent(() => {
+    selectoRef.current?.selecto.checkScroll();
     layoutBooster.handleContainerScroll();
   });
 
@@ -383,7 +385,7 @@ const InternalResource: React.FC = () => {
           />
         </RecativeBlock>
         <div
-          className={css(SCROLL_CONTAINER_STYLES)}
+          className={cn(css(SCROLL_CONTAINER_STYLES), 'scroll-container')}
           ref={scrollerRef}
           onScroll={onContainerScroll}
         >
