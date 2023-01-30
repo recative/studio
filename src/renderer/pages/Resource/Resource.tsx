@@ -276,7 +276,7 @@ const InternalResource: React.FC = () => {
 
   const { resources, updateResources, showSpinner } = useResources(searchTerm);
 
-  const selectoRef = React.useRef<Selecto | null>(null);
+  const selectoRef = React.useRef<{ selecto: Selecto } | null>(null);
   const scrollerRef = React.useRef<HTMLDivElement>(null);
 
   const { controlPressed, handleSelectoSelect } = useKeyboardShortcut();
@@ -309,7 +309,7 @@ const InternalResource: React.FC = () => {
   });
 
   if (selectoRef.current) {
-    selectoRef.current.getElementPoints = getElementPoints;
+    selectoRef.current.selecto.getElementPoints = getElementPoints;
   }
 
   const onSelectoScroll = useEvent((event: OnScroll) => {
