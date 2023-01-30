@@ -1,8 +1,9 @@
 import * as React from 'react';
 import cn from 'classnames';
-import Selecto from 'react-selecto';
+import Selecto from 'selecto';
 import type { OnSelect, OnScroll } from 'react-selecto';
 
+import useConstant from 'use-constant';
 import { useAtom } from 'jotai';
 import { useStyletron } from 'baseui';
 import { useDebouncedCallback } from '@react-hookz/web';
@@ -22,6 +23,7 @@ import { FixIconOutline } from 'components/Icons/FixIconOutline';
 import { EraserIconOutline } from 'components/Icons/EraserIconOutline';
 
 import { server } from 'utils/rpc';
+import { useEvent } from 'utils/hooks/useEvent';
 import { useKeyPressed } from 'utils/hooks/useKeyPressed';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 
@@ -53,6 +55,7 @@ import {
 import { getSelectedId } from './utils/getSelectedId';
 import { useAdditionalTabs } from './hooks/useAdditionalTabs';
 import { useMergeResourcesCallback } from './hooks/useMergeResourceCallback';
+import { LayoutBooster } from './utils/LayoutBooster';
 
 const TAB_COLORS = [{ key: 'resource', color: '#01579B' }];
 
@@ -273,15 +276,9 @@ const InternalResource: React.FC = () => {
 
   const { resources, updateResources, showSpinner } = useResources(searchTerm);
 
-  const selectoRef = React.useRef<Selecto>(null);
   const scrollerRef = React.useRef<HTMLDivElement>(null);
 
-  const { controlPressed, shiftPressed, handleSelectoSelect } =
-    useKeyboardShortcut();
-
-  const onContainerScroll = React.useCallback(() => {
-    selectoRef.current?.checkScroll?.();
-  }, []);
+  const { controlPressed, handleSelectoSelect } = useKeyboardShortcut();
 
   const $scroller = scrollerRef.current;
 
@@ -297,12 +294,66 @@ const InternalResource: React.FC = () => {
     [$scroller]
   );
 
-  const onSelectoScroll = React.useCallback((event: OnScroll) => {
+  const layoutBooster = useConstant(
+    () => new LayoutBooster('.resource-list>div', '.resource-list', 120, 10)
+  );
+
+  const onSelectoScroll = useEvent((event: OnScroll) => {
     scrollerRef.current?.scrollBy(
       event.direction[0] * 10,
       event.direction[1] * 10
     );
-  }, []);
+
+    layoutBooster.handleContainerScroll();
+  });
+
+  const selecto = useConstant(() => {
+    const result = new Selecto({
+      ratio: 0,
+      hitRate: 0,
+      selectByClick: true,
+      selectFromInside: true,
+      dragContainer: '.resource-list',
+      continueSelect: controlPressed,
+      selectableTargets: SELECTABLE_TARGETS,
+      scrollOptions,
+      getElementRect: layoutBooster.getElementRect,
+    });
+
+    result.getElementPoints = (target: HTMLElement | SVGElement) => {
+      const info = layoutBooster.getElementRect(target);
+      return [info.pos1, info.pos2, info.pos4, info.pos3];
+    };
+
+    return result;
+  });
+
+  const onContainerScroll = useEvent(() => {
+    selecto.checkScroll?.();
+  });
+
+  React.useEffect(() => {
+    selecto.on('selectEnd', handleSelectoSelect);
+    selecto.on('scroll', onSelectoScroll);
+
+    return () => {
+      selecto.off('selectEnd', handleSelectoSelect);
+      selecto.off('scroll', onSelectoScroll);
+    };
+  });
+
+  React.useEffect(() => {
+    layoutBooster.updateContainerSize();
+    layoutBooster.updateElement();
+  }, [layoutBooster]);
+
+  React.useEffect(() => {
+    window.addEventListener('resize', layoutBooster.handleContainerScroll);
+
+    return () => {
+      window.removeEventListener('resize', layoutBooster.handleContainerScroll);
+    };
+  }, [layoutBooster.handleContainerScroll]);
 
   return (
     <PivotLayout
@@ -357,26 +408,14 @@ const InternalResource: React.FC = () => {
           ref={scrollerRef}
           onScroll={onContainerScroll}
         >
-          <Selecto
-            ref={selectoRef}
-            ratio={0}
-            hitRate={0}
-            selectByClick
-            selectFromInside
-            dragContainer=".resource-list"
-            continueSelect={controlPressed}
-            selectableTargets={SELECTABLE_TARGETS}
-            onSelectEnd={handleSelectoSelect}
-            onScroll={onSelectoScroll}
-            scrollOptions={scrollOptions}
-          />
           <RecativeBlock
             className={cn('resource-list', css(CONTENT_CONTAINER_STYLES))}
           >
-            {resources?.map((item) => (
+            {resources?.map((item, index) => (
               <div key={item.id} onDoubleClick={handleOpenEditModal}>
                 <ResourceItem
                   id={item.id}
+                  index={index}
                   isGroup={item.type === 'group'}
                   isManaged={item.type === 'file' && !!item.managedBy}
                   fileName={item.label}

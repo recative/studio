@@ -13,6 +13,7 @@ import { Thumbnail, ThumbnailSize } from 'components/Thumbnail/Thumbnail';
 
 export interface IResourceProps {
   id: string;
+  index: number;
   isGroup: boolean;
   isManaged: boolean;
   thumbnailSrc?: string | null;
@@ -34,10 +35,10 @@ const resourceItemStyles: StyleObject = {
 };
 
 const labelStyles: StyleObject = {
-  marginTop: '8px',
-  marginBottom: '8px',
-  marginLeft: '4px',
-  marginRight: '4px',
+  paddingTop: '8px',
+  paddingBottom: '8px',
+  paddingLeft: '4px',
+  paddingRight: '4px',
   lineHeight: '1.55em',
   textAlign: 'center',
   wordBreak: 'break-all',
@@ -46,6 +47,7 @@ const labelStyles: StyleObject = {
 
 export const InternalResource: React.FC<IResourceProps> = ({
   id,
+  index,
   isGroup,
   isManaged,
   thumbnailSrc,
@@ -58,12 +60,9 @@ export const InternalResource: React.FC<IResourceProps> = ({
       <RecativeBlock
         className={cn('explorer-item', css(resourceItemStyles))}
         data-resource-id={id}
+        data-index={index}
       >
-        <RecativeBlock
-          className="explorer-item-content"
-          display="flex"
-          flexDirection="column"
-        >
+        <RecativeBlock className="explorer-item-content">
           <Thumbnail
             id={id}
             noAnimation
