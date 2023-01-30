@@ -5723,7 +5723,6 @@ __metadata:
     runtypes: ^6.5.0
     sass: ^1.49.9
     sass-loader: ^12.6.0
-    selecto: ^1.22.0
     selfsigned: ^1.10.11
     source-map-support: 0.5.19
     stream-chain: ^2.2.5
@@ -22087,7 +22086,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"selecto@npm:^1.22.0, selecto@npm:~1.22.0":
+"selecto@npm:~1.22.0":
   version: 1.22.0
   resolution: "selecto@npm:1.22.0"
   dependencies:

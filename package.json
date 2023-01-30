@@ -325,7 +325,6 @@
     "react-vis-timeline": "^2.0.3",
     "regenerator-runtime": "^0.13.5",
     "runtypes": "^6.5.0",
-    "selecto": "^1.22.0",
     "selfsigned": "^1.10.11",
     "source-map-support": "0.5.19",
     "stream-chain": "^2.2.5",

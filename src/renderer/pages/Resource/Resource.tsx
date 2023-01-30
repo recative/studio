@@ -1,6 +1,6 @@
 import * as React from 'react';
 import cn from 'classnames';
-import Selecto from 'selecto';
+import Selecto from 'react-selecto';
 import type { OnSelect, OnScroll } from 'react-selecto';
 
 import useConstant from 'use-constant';
@@ -276,9 +276,14 @@ const InternalResource: React.FC = () => {
 
   const { resources, updateResources, showSpinner } = useResources(searchTerm);
 
+  const selectoRef = React.useRef<Selecto | null>(null);
   const scrollerRef = React.useRef<HTMLDivElement>(null);
 
   const { controlPressed, handleSelectoSelect } = useKeyboardShortcut();
+
+  const onContainerScroll = React.useCallback(() => {
+    selectoRef.current?.checkScroll?.();
+  }, []);
 
   const $scroller = scrollerRef.current;
 
@@ -298,6 +303,15 @@ const InternalResource: React.FC = () => {
     () => new LayoutBooster('.resource-list>div', '.resource-list', 120, 10)
   );
 
+  const getElementPoints = useEvent((target: HTMLElement | SVGElement) => {
+    const info = layoutBooster.getElementRect(target);
+    return [info.pos1, info.pos2, info.pos4, info.pos3];
+  });
+
+  if (selectoRef.current) {
+    selectoRef.current.getElementPoints = getElementPoints;
+  }
+
   const onSelectoScroll = useEvent((event: OnScroll) => {
     scrollerRef.current?.scrollBy(
       event.direction[0] * 10,
@@ -305,41 +319,6 @@ const InternalResource: React.FC = () => {
     );
 
     layoutBooster.handleContainerScroll();
-  });
-
-  const selecto = useConstant(() => {
-    const result = new Selecto({
-      ratio: 0,
-      hitRate: 0,
-      selectByClick: true,
-      selectFromInside: true,
-      dragContainer: '.resource-list',
-      continueSelect: controlPressed,
-      selectableTargets: SELECTABLE_TARGETS,
-      scrollOptions,
-      getElementRect: layoutBooster.getElementRect,
-    });
-
-    result.getElementPoints = (target: HTMLElement | SVGElement) => {
-      const info = layoutBooster.getElementRect(target);
-      return [info.pos1, info.pos2, info.pos4, info.pos3];
-    };
-
-    return result;
-  });
-
-  const onContainerScroll = useEvent(() => {
-    selecto.checkScroll?.();
-  });
-
-  React.useEffect(() => {
-    selecto.on('selectEnd', handleSelectoSelect);
-    selecto.on('scroll', onSelectoScroll);
-
-    return () => {
-      selecto.off('selectEnd', handleSelectoSelect);
-      selecto.off('scroll', onSelectoScroll);
-    };
   });
 
   React.useEffect(() => {
@@ -408,6 +387,20 @@ const InternalResource: React.FC = () => {
           ref={scrollerRef}
           onScroll={onContainerScroll}
         >
+          <Selecto
+            ref={selectoRef}
+            ratio={0}
+            hitRate={0}
+            selectByClick
+            selectFromInside
+            dragContainer=".resource-list"
+            continueSelect={controlPressed}
+            selectableTargets={SELECTABLE_TARGETS}
+            onSelectEnd={handleSelectoSelect}
+            onScroll={onSelectoScroll}
+            scrollOptions={scrollOptions}
+            getElementRect={layoutBooster.getElementRect}
+          />
           <RecativeBlock
             className={cn('resource-list', css(CONTENT_CONTAINER_STYLES))}
           >
