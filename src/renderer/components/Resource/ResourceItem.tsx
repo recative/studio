@@ -1,5 +1,4 @@
 import * as React from 'react';
-import cn from 'classnames';
 
 import { useStyletron } from 'baseui';
 
@@ -12,7 +11,7 @@ import { Tag, VARIANT } from 'baseui/tag';
 import { ListItemLabel, LabelOverrides } from 'baseui/list';
 
 import { ManagedResourceIcon } from 'components/Icons/ManagedResourceIcon';
-import { Pattern } from '../Pattern/Pattern';
+import { Thumbnail, ThumbnailSize } from 'components/Thumbnail/Thumbnail';
 
 const listItemStyles: StyleObject = {
   maxWidth: '280px',
@@ -25,17 +24,6 @@ const thumbnailContainerStyles: StyleObject = {
   height: '40px',
   lineHeight: '0',
   overflow: 'hidden',
-};
-
-const thumbnailStyles: StyleObject = {
-  width: '60px',
-  height: '40px',
-  objectFit: 'cover',
-};
-
-const thumbnailNoVariantStyles: StyleObject = {
-  width: '40px',
-  height: '20px',
 };
 
 const tagOverrides = {
@@ -103,18 +91,16 @@ const InternalResourceItem: React.FC<IResourceItemProps> = ({
   return (
     <RecativeBlock className={css(listItemStyles)}>
       <RecativeBlock className={css(thumbnailContainerStyles)}>
-        {thumbnailSrc ? (
-          <img
-            className={cn(css(thumbnailStyles), {
-              [css(thumbnailNoVariantStyles)]:
-                variant === ResourceItemVariant.NoTags,
-            })}
-            src={thumbnailSrc || ''}
-            alt={`Thumbnail of ${label}`}
-          />
-        ) : (
-          <Pattern width={60} height={40} val={id} />
-        )}
+        <Thumbnail
+          id={id}
+          size={
+            variant === ResourceItemVariant.NoTags
+              ? ThumbnailSize.Small
+              : ThumbnailSize.Medium
+          }
+          src={thumbnailSrc}
+          label={label}
+        />
       </RecativeBlock>
       <RecativeBlock marginLeft="4px">
         <ListItemLabel overrides={listItemOverrides}>

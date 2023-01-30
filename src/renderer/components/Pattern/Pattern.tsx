@@ -1,26 +1,26 @@
 import * as React from 'react';
 import { h32 } from 'xxhashjs';
 
-type ColorScheme = [string, string];
+type ColorScheme = [string, string, string, string, string];
 
-const COLOR_SCHEME: Record<string, ColorScheme> = {
-  '0': ['D32F2F', 'C62828'],
-  '1': ['D81B60', 'C2185B'],
-  '2': ['9C27B0', '8E24AA'],
-  '3': ['5E35B1', '512DA8'],
-  '4': ['3F51B5', '3949AB'],
-  '5': ['1976D2', '1565C0'],
-  '6': ['00796B', '00695C'],
-  '7': ['388E3C', '2E7D32'],
-  '8': ['795548', '6D4C41'],
-  '9': ['546E7A', '455A64'],
-  a: ['FB8C00', 'F57C00'],
-  b: ['007B13', '00600f'],
-  c: ['7CB342', '689F38'],
-  d: ['E64A19', 'D84315'],
+export const COLOR_SCHEME: Record<string, ColorScheme> = {
+  '0': ['D32F2F', 'C62828', 'EF9A9A', 'FFCDD2', 'F8BBD0'],
+  '1': ['D81B60', 'C2185B', 'F48FB1', 'F8BBD0', 'FCE4EC'],
+  '2': ['9C27B0', '8E24AA', 'CE93D8', 'E1BEE7', 'F3E5F5'],
+  '3': ['5E35B1', '512DA8', 'B39DDB', 'D1C4E9', 'EDE7F6'],
+  '4': ['3F51B5', '3949AB', '9FA8DA', 'C5CAE9', 'E8EAF6'],
+  '5': ['1976D2', '1565C0', '90CAF9', 'BBDEFB', 'E3F2FD'],
+  '6': ['00796B', '00695C', '80CBC4', 'B2DFDB', 'E0F2F1'],
+  '7': ['388E3C', '2E7D32', 'A5D6A7', 'C8E6C9', 'E8F5E9'],
+  '8': ['795548', '6D4C41', 'BCAAA4', 'D7CCC8', 'EFEBE9'],
+  '9': ['546E7A', '455A64', 'B0BEC5', 'CFD8DC', 'ECEFF1'],
+  a: ['FB8C00', 'F57C00', 'FFCC80', 'FFE0B2', 'FFF3E0'],
+  b: ['4F7D88', '365A63', '67B6CE', 'A5D2E0', 'DEEDF1'],
+  c: ['7CB342', '689F38', 'C5E1A5', 'DCEDC8', 'F1F8E9'],
+  d: ['E64A19', 'D84315', 'FFAB91', 'FFCCBC', 'FBE9E7'],
 };
 
-const COLOR_SCHEME_COUNT = Object.keys(COLOR_SCHEME).length;
+export const COLOR_SCHEME_COUNT = Object.keys(COLOR_SCHEME).length;
 
 // Pattern comes from:
 // * https://philiprogers.com/svgpatterns/
@@ -104,40 +104,37 @@ interface IPatternProps {
   val: string;
 }
 
-export const Pattern: React.FC<IPatternProps> = ({
-  className,
-  width,
-  height,
-  val,
-}) => {
-  const backgroundImage = React.useMemo(() => {
-    const hash = h32(val, 0);
-    const hashForColor = hash.toString(COLOR_SCHEME_COUNT);
-    const color = COLOR_SCHEME[hashForColor[0]];
+export const Pattern: React.FC<IPatternProps> = React.memo(
+  ({ className, width, height, val }) => {
+    const backgroundImage = React.useMemo(() => {
+      const hash = h32(val, 0);
+      const hashForColor = hash.toString(COLOR_SCHEME_COUNT);
+      const color = COLOR_SCHEME[hashForColor[0]];
 
-    const trimmedHash = hashForColor.substring(1);
-    const hashForPattern = Number.parseInt(
-      trimmedHash,
-      COLOR_SCHEME_COUNT
-    ).toString(PATTERN_COUNT);
+      const trimmedHash = hashForColor.substring(1);
+      const hashForPattern = Number.parseInt(
+        trimmedHash,
+        COLOR_SCHEME_COUNT
+      ).toString(PATTERN_COUNT);
 
-    const pattern = PATTERN[hashForPattern[0]];
+      const pattern = PATTERN[hashForPattern[0]];
 
-    const encodedSvg = pattern(color[0], color[1]).replace(/\n/g, '');
-    const result = `url("data:image/svg+xml;utf8,${encodedSvg}")`;
+      const encodedSvg = pattern(color[0], color[1]).replace(/\n/g, '');
+      const result = `url("data:image/svg+xml;utf8,${encodedSvg}")`;
 
-    return result;
-  }, [val]);
+      return result;
+    }, [val]);
 
-  return (
-    <div
-      className={className}
-      style={{
+    const style = React.useMemo(
+      () => ({
         backgroundImage,
         minWidth: width ?? 50,
         minHeight: height ?? 50,
         display: 'inline-block',
-      }}
-    />
-  );
-};
+      }),
+      [backgroundImage, height, width]
+    );
+
+    return <div className={className} style={style} />;
+  }
+);

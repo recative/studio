@@ -6,10 +6,10 @@ import type { StyleObject } from 'styletron-react';
 
 import { LabelSmall } from 'baseui/typography';
 
-import { Pattern } from 'components/Pattern/Pattern';
 import { GroupIcon } from 'components/Icons/GroupIcon';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { ManagedResourceIcon } from 'components/Icons/ManagedResourceIcon';
+import { Thumbnail, ThumbnailSize } from 'components/Thumbnail/Thumbnail';
 
 export interface IResourceProps {
   id: string;
@@ -20,8 +20,6 @@ export interface IResourceProps {
 }
 
 const thumbnailStyle: StyleObject = {
-  width: '160px',
-  height: '120px',
   minHeight: '120px',
   display: 'block',
   pointerEvents: 'none',
@@ -66,19 +64,13 @@ export const InternalResource: React.FC<IResourceProps> = ({
           display="flex"
           flexDirection="column"
         >
-          {!thumbnailSrc && (
-            <Pattern className={css(thumbnailStyle)} val={id} />
-          )}
-          {thumbnailSrc && (
-            <img
-              className={css(thumbnailStyle)}
-              alt={`Thumbnail of ${fileName}`}
-              src={thumbnailSrc}
-              width={160}
-              height={120}
-              loading="lazy"
-            />
-          )}
+          <Thumbnail
+            id={id}
+            imageClassName={css(thumbnailStyle)}
+            size={ThumbnailSize.Large}
+            src={thumbnailSrc}
+            label={fileName}
+          />
           <LabelSmall className={css(labelStyles)}>
             {fileName}
             {isGroup && (

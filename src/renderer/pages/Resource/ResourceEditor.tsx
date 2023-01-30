@@ -19,9 +19,11 @@ import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { Select } from 'components/Select/Select';
 import { Toggle } from 'components/Toggle/Toggle';
 import { NotFound } from 'components/Illustrations/NotFound';
+import { Thumbnail } from 'components/Thumbnail/Thumbnail';
 import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { LockIconOutline } from 'components/Icons/LockIconOutline';
 import { ExtensionConfiguration } from 'components/ExtensionConfiguration/ExtensionConfiguration';
+
 import type { ISelectProps } from 'components/Select/Select';
 
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
@@ -436,10 +438,11 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
       {file.type !== 'group' && (
         <>
           <RecativeBlock>
-            <img
+            <Thumbnail
               className={css(previewStyles)}
-              src={file?.thumbnailSrc || ''}
-              alt={file?.label}
+              id={file?.id}
+              label={file?.label}
+              src={file?.thumbnailSrc}
             />
           </RecativeBlock>
           {!!file.managedBy && (
