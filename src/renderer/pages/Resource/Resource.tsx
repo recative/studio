@@ -282,7 +282,7 @@ const InternalResource: React.FC = () => {
   const { controlPressed, handleSelectoSelect } = useKeyboardShortcut();
 
   const onContainerScroll = React.useCallback(() => {
-    selectoRef.current?.checkScroll?.();
+    selectoRef.current?.selecto.checkScroll();
   }, []);
 
   const $scroller = scrollerRef.current;
@@ -300,7 +300,7 @@ const InternalResource: React.FC = () => {
   );
 
   const layoutBooster = useConstant(
-    () => new LayoutBooster('.resource-list>div', '.resource-list', 120, 10)
+    () => new LayoutBooster('.resource-list>div', '.resource-list', 160, 16)
   );
 
   const getElementPoints = useEvent((target: HTMLElement | SVGElement) => {
@@ -323,8 +323,8 @@ const InternalResource: React.FC = () => {
 
   React.useEffect(() => {
     layoutBooster.updateContainerSize();
-    layoutBooster.updateElement();
-  }, [layoutBooster]);
+    layoutBooster.updateElements();
+  }, [layoutBooster, resources]);
 
   React.useEffect(() => {
     window.addEventListener('resize', layoutBooster.handleContainerScroll);
@@ -388,6 +388,7 @@ const InternalResource: React.FC = () => {
           onScroll={onContainerScroll}
         >
           <Selecto
+            // @ts-ignore: The type definition provided by Selecto is incorrect
             ref={selectoRef}
             ratio={0}
             hitRate={0}

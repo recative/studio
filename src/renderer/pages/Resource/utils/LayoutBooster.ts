@@ -52,7 +52,7 @@ export class LayoutBooster {
     this.containerScrollLeft = $container.scrollLeft;
   };
 
-  updateElement = () => {
+  updateElements = () => {
     const $$elements = document.querySelectorAll(this.elementSelector);
 
     const elementHeights = new Array<number>($$elements.length).fill(0);
