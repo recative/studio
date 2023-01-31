@@ -57,6 +57,8 @@ const HTML_KEYS = [
   'inputMode',
   'is',
   'children',
+  'onClick',
+  'onDoubleClick',
 ] as const;
 
 const InternalBlock: React.ForwardRefRenderFunction<

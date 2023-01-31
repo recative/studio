@@ -72,8 +72,6 @@ const MAIN_CONTAINER_STYLES: StyleObject = {
 };
 
 const CONTENT_CONTAINER_STYLES: StyleObject = {
-  display: 'flex',
-  flexWrap: 'wrap',
   maxWidth: '100vw',
   userSelect: 'none',
 };
@@ -408,7 +406,11 @@ const InternalResource: React.FC = () => {
             className={cn('resource-list', css(CONTENT_CONTAINER_STYLES))}
           >
             {resources?.map((item, index) => (
-              <div key={item.id} onDoubleClick={handleOpenEditModal}>
+              <RecativeBlock
+                display="inline-block !important"
+                key={item.id}
+                onDoubleClick={handleOpenEditModal}
+              >
                 <ResourceItem
                   id={item.id}
                   index={index}
@@ -417,7 +419,7 @@ const InternalResource: React.FC = () => {
                   fileName={item.label}
                   thumbnailSrc={item.thumbnailSrc}
                 />
-              </div>
+              </RecativeBlock>
             ))}
           </RecativeBlock>
         </div>

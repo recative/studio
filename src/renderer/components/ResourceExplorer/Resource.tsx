@@ -30,11 +30,12 @@ const thumbnailStyle: StyleObject = {
 
 const resourceItemStyles: StyleObject = {
   width: '160px',
-  margin: '8px',
+  padding: '8px',
   transition: 'transform 300ms',
 };
 
 const labelStyles: StyleObject = {
+  maxWidth: '160px',
   paddingTop: '8px',
   paddingBottom: '8px',
   paddingLeft: '4px',

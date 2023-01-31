@@ -6,15 +6,25 @@ export class LayoutBooster {
     public readonly gap: number
   ) {}
 
+  protected containerX = 0;
+
+  protected containerY = 0;
+
   protected containerLeft = 0;
 
   protected containerTop = 0;
 
   protected containerWidth = 0;
 
+  protected elementGridCached = false;
+
   protected cols = 0;
 
   protected rows = 0;
+
+  protected columnXAnchors: number[] = [];
+
+  protected columnYAnchors: number[] = [];
 
   protected elementHeights: number[] = [];
 
@@ -33,11 +43,40 @@ export class LayoutBooster {
 
     const containerBoundingRect = $container.getBoundingClientRect();
 
+    this.containerX = containerBoundingRect.x;
+    this.containerY = containerBoundingRect.y;
     this.containerLeft = containerBoundingRect.left;
     this.containerTop = containerBoundingRect.top;
     this.containerWidth = containerBoundingRect.width;
 
+    this.elementGridCached = false;
+
     this.cols = Math.floor(this.containerWidth / (this.gridWidth + this.gap));
+  };
+
+  updateGridAnchors = () => {
+    const $$elements = document.querySelectorAll(this.elementSelector);
+
+    this.rows = Math.ceil($$elements.length / this.cols);
+
+    const columnXAnchors = new Array<number>(this.cols).fill(-1);
+    const columnYAnchors = new Array<number>(this.rows).fill(-1);
+
+    for (let i = 0; i < this.cols; i += 1) {
+      if (i >= $$elements.length) break;
+      columnXAnchors[i] = $$elements[i].getBoundingClientRect().x;
+    }
+
+    for (let i = 0; i < this.rows; i += 1) {
+      const fIndex = i * this.cols;
+      if (fIndex >= $$elements.length) break;
+      columnYAnchors[i] = $$elements[fIndex].getBoundingClientRect().y;
+    }
+
+    this.columnXAnchors = columnXAnchors;
+    this.columnYAnchors = columnYAnchors;
+
+    this.elementGridCached = true;
   };
 
   handleContainerScroll = () => {
@@ -58,7 +97,7 @@ export class LayoutBooster {
     const elementHeights = new Array<number>($$elements.length).fill(0);
 
     for (let i = 0; i < $$elements.length; i += 1) {
-      elementHeights[i] = $$elements[i].clientHeight;
+      elementHeights[i] = $$elements[i].getBoundingClientRect().height;
     }
 
     this.elementHeights = elementHeights;
@@ -77,6 +116,10 @@ export class LayoutBooster {
     }
 
     this.rowHeights = rowHeights;
+
+    if (!this.elementGridCached) {
+      this.updateGridAnchors();
+    }
   };
 
   getFastBoundingClientRect = ($element: HTMLElement | SVGElement) => {
@@ -92,21 +135,15 @@ export class LayoutBooster {
     const elementRow = Math.floor(elementIndex / this.cols);
     const elementCol = elementIndex % this.cols;
 
-    let accumulatedHeight = this.gap;
-
-    for (let i = 0; i < elementRow - 1; i += 1) {
-      accumulatedHeight += this.rowHeights[i];
-      accumulatedHeight += this.gap;
+    if (!this.elementGridCached) {
+      this.updateGridAnchors();
     }
 
     return {
       width: this.gridWidth,
       height: this.elementHeights[elementIndex],
-      left:
-        this.containerLeft -
-        this.containerScrollLeft +
-        elementCol * (this.gridWidth + this.gap),
-      top: this.containerTop - this.containerScrollTop + accumulatedHeight,
+      left: this.columnXAnchors[elementCol] - this.containerScrollLeft,
+      top: this.columnYAnchors[elementRow] - this.containerScrollTop,
     };
   };
 
