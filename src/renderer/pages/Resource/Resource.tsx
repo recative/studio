@@ -79,6 +79,7 @@ const CONTENT_CONTAINER_STYLES: StyleObject = {
 
 const SCROLL_CONTAINER_STYLES: StyleObject = {
   gridArea: 'main',
+  width: '100%',
   maxHeight: '100%',
   overflowY: 'auto',
 };
@@ -334,32 +335,31 @@ const InternalResource: React.FC = () => {
     layoutBooster.handleContainerScroll();
   });
 
-  React.useEffect(() => {
-    layoutBooster.updateContainerSize();
-    layoutBooster.updateElements();
-  }, [layoutBooster, resources]);
+  React.useEffect(() => {}, [layoutBooster, resources]);
 
-  React.useEffect(() => {
-    window.addEventListener('resize', layoutBooster.updateGridAnchors);
+  const handleWindowResize = useDebouncedCallback(
+    () => {
+      layoutBooster.updateContainerSize();
+      layoutBooster.updateElements();
 
-    return () => {
-      window.removeEventListener('resize', layoutBooster.updateGridAnchors);
-    };
-  }, [layoutBooster.updateGridAnchors]);
+      const painter = dragAreaPainterRef.current;
 
-  React.useEffect(() => {
-    const painter = dragAreaPainterRef.current;
-
-    if (painter) {
-      window.addEventListener('resize', painter.syncCanvasSize);
-    }
-
-    return () => {
       if (painter) {
-        window.removeEventListener('resize', layoutBooster.updateGridAnchors);
+        painter.syncCanvasSize();
       }
+    },
+    [layoutBooster],
+    300,
+    500
+  );
+
+  React.useEffect(() => {
+    window.addEventListener('resize', handleWindowResize);
+
+    return () => {
+      window.removeEventListener('resize', handleWindowResize);
     };
-  }, [layoutBooster.updateGridAnchors]);
+  }, [handleWindowResize]);
 
   return (
     <PivotLayout
