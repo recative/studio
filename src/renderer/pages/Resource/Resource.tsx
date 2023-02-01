@@ -335,8 +335,6 @@ const InternalResource: React.FC = () => {
     layoutBooster.handleContainerScroll();
   });
 
-  React.useEffect(() => {}, [layoutBooster, resources]);
-
   const handleWindowResize = useDebouncedCallback(
     () => {
       layoutBooster.updateContainerSize();
@@ -352,6 +350,11 @@ const InternalResource: React.FC = () => {
     300,
     500
   );
+
+  React.useEffect(() => {
+    handleWindowResize();
+    layoutBooster.updateElements();
+  }, [handleWindowResize, layoutBooster, resources]);
 
   React.useEffect(() => {
     window.addEventListener('resize', handleWindowResize);

@@ -1,3 +1,9 @@
+const numberFix = (x: number, fallbackValue = 0) => {
+  if (Number.isNaN(x)) return fallbackValue;
+  if (!Number.isFinite) return fallbackValue;
+  return x;
+};
+
 export class LayoutBooster {
   constructor(
     public readonly elementSelector: string,
@@ -14,7 +20,7 @@ export class LayoutBooster {
 
   protected containerTop = 0;
 
-  protected containerWidth = 0;
+  protected containerWidth = -1;
 
   protected elementGridCached = false;
 
@@ -51,13 +57,29 @@ export class LayoutBooster {
 
     this.elementGridCached = false;
 
-    this.cols = Math.floor(this.containerWidth / (this.gridWidth + this.gap));
+    this.cols = numberFix(
+      Math.floor(this.containerWidth / (this.gridWidth + this.gap)),
+      1
+    );
   };
 
   updateGridAnchors = () => {
     const $$elements = document.querySelectorAll(this.elementSelector);
 
-    this.rows = Math.ceil($$elements.length / this.cols);
+    this.elementGridCached = true;
+
+    if (this.containerWidth === -1) {
+      this.updateContainerSize();
+    }
+
+    if (this.cols === 0) {
+      this.columnXAnchors = new Array<number>(0).fill(0);
+      this.columnYAnchors = new Array<number>(0).fill(0);
+
+      return;
+    }
+
+    this.rows = numberFix(Math.ceil($$elements.length / this.cols), 0);
 
     const columnXAnchors = new Array<number>(this.cols).fill(-1);
     const columnYAnchors = new Array<number>(this.rows).fill(-1);
@@ -75,8 +97,6 @@ export class LayoutBooster {
 
     this.columnXAnchors = columnXAnchors;
     this.columnYAnchors = columnYAnchors;
-
-    this.elementGridCached = true;
   };
 
   handleContainerScroll = () => {
@@ -102,7 +122,7 @@ export class LayoutBooster {
 
     this.elementHeights = elementHeights;
 
-    this.rows = Math.ceil($$elements.length / this.cols);
+    this.rows = numberFix(Math.ceil($$elements.length / this.cols), 0);
 
     const rowHeights = new Array<number>(this.rows).fill(0);
 
