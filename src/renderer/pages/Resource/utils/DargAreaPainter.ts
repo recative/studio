@@ -36,8 +36,6 @@ export class DragAreaPainter {
     $container.appendChild(this.$canvas);
 
     selecto.target = this;
-
-    console.log(this);
   }
 
   get parentNode() {
@@ -146,7 +144,6 @@ export class DragAreaPainter {
     this.context.lineWidth = 1 * ratio;
     this.context.fillRect(x * ratio, y * ratio, w * ratio, h * ratio);
     this.context.strokeRect(x * ratio, y * ratio, w * ratio, h * ratio);
-    console.log('drawing', x, y, w, h);
   };
 
   syncClear = () => {
@@ -156,6 +153,8 @@ export class DragAreaPainter {
       this.$canvas.width * window.devicePixelRatio,
       this.$canvas.height * window.devicePixelRatio
     );
+    this.styleSet.set('width', '0px');
+    this.styleSet.set('height', '0px');
   };
 
   syncCanvasSize = () => {
