@@ -338,7 +338,7 @@ const InternalResource: React.FC = () => {
   const handleWindowResize = useDebouncedCallback(
     () => {
       layoutBooster.updateContainerSize();
-      layoutBooster.updateElements();
+      layoutBooster.updateGridAnchors();
 
       const painter = dragAreaPainterRef.current;
 
