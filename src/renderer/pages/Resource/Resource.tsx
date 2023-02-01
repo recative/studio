@@ -56,6 +56,7 @@ import { getSelectedId } from './utils/getSelectedId';
 import { useAdditionalTabs } from './hooks/useAdditionalTabs';
 import { useMergeResourcesCallback } from './hooks/useMergeResourceCallback';
 import { LayoutBooster } from './utils/LayoutBooster';
+import { DragAreaPainter } from './utils/DargAreaPainter';
 
 const TAB_COLORS = [{ key: 'resource', color: '#01579B' }];
 
@@ -303,8 +304,20 @@ const InternalResource: React.FC = () => {
     return [info.pos1, info.pos2, info.pos4, info.pos3];
   });
 
+  const dragAreaPainterRef = React.useRef<DragAreaPainter | null>(null);
+
   if (selectoRef.current) {
     selectoRef.current.selecto.getElementPoints = getElementPoints;
+  }
+
+  if (!dragAreaPainterRef.current && selectoRef.current) {
+    dragAreaPainterRef.current = new DragAreaPainter(
+      // @ts-ignore: The typing provided by selecto is incorrect.
+      selectoRef.current.selecto,
+      '.scroll-container'
+    );
+
+    dragAreaPainterRef.current.syncCanvasSize();
   }
 
   const onSelectoScroll = useEvent((event: OnScroll) => {
@@ -327,12 +340,26 @@ const InternalResource: React.FC = () => {
   }, [layoutBooster, resources]);
 
   React.useEffect(() => {
-    window.addEventListener('resize', layoutBooster.handleContainerScroll);
+    window.addEventListener('resize', layoutBooster.updateGridAnchors);
 
     return () => {
-      window.removeEventListener('resize', layoutBooster.handleContainerScroll);
+      window.removeEventListener('resize', layoutBooster.updateGridAnchors);
     };
-  }, [layoutBooster.handleContainerScroll]);
+  }, [layoutBooster.updateGridAnchors]);
+
+  React.useEffect(() => {
+    const painter = dragAreaPainterRef.current;
+
+    if (painter) {
+      window.addEventListener('resize', painter.syncCanvasSize);
+    }
+
+    return () => {
+      if (painter) {
+        window.removeEventListener('resize', layoutBooster.updateGridAnchors);
+      }
+    };
+  }, [layoutBooster.updateGridAnchors]);
 
   return (
     <PivotLayout
