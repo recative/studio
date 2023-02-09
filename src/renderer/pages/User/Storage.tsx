@@ -16,6 +16,7 @@ import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 
+import { SelectSyncModeModal } from './components/SelectSyncModeModal';
 import { IStorageListActionProps, StorageList } from './components/StorageList';
 import {
   ConfirmCreateBackupModal,
@@ -91,6 +92,7 @@ const InternalStorage: React.FC = () => {
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
+      <SelectSyncModeModal />
       <ConfirmCreateBackupModal />
     </PivotLayout>
   );
