@@ -1,22 +1,56 @@
-import { readJsonSync } from 'fs-extra';
+import { cleanupLoki } from './cleanupLoki';
 
-import type { LokiDbFile, IResourceItem } from '@recative/definitions';
+export enum JoinMode {
+  KeepOld = 'keepOld',
+  KeepNew = 'keepNew',
+}
 
-export const mergeResourceList = async (
-  // @ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  fileA: LokiDbFile<IResourceItem>,
-  // @ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  fileB: LokiDbFile<IResourceItem>
+export const mergeResourceList = async <
+  T extends Record<string, unknown>,
+  K extends keyof T
+>(
+  to: Collection<T>,
+  from: Collection<T>,
+  joinKey: K,
+  joinMode: JoinMode
 ) => {
-  // This method have to be re-implemented.
-};
+  const addedDocumentSet = new Set<T>();
+  const commonDocumentSet = new Set<T>();
 
-export const mergeResourceListFile = async (pathA: string, pathB: string) => {
-  const [fileA, fileB] = await Promise.all<
-    [LokiDbFile<IResourceItem>, LokiDbFile<IResourceItem>]
-  >([readJsonSync(pathA), readJsonSync(pathB)]);
+  const toIdSet = new Set<T[K]>();
 
-  return mergeResourceList(fileA, fileB);
+  for (let i = 0; i < to.data.length; i += 1) {
+    toIdSet.add(to.data[i][joinKey]);
+  }
+
+  for (let i = 0; i < from.data.length; i += 1) {
+    const fromId = from.data[i][joinKey];
+
+    if (toIdSet.has(fromId)) {
+      commonDocumentSet.add(from.data[i]);
+    } else {
+      addedDocumentSet.add(from.data[i]);
+    }
+  }
+
+  const addedDocuments: T[] = [...addedDocumentSet].map((x) =>
+    JSON.parse(JSON.stringify(cleanupLoki(x)))
+  );
+
+  from.insert(addedDocuments);
+
+  if (joinMode === JoinMode.KeepNew) {
+    addedDocumentSet.forEach((d) => {
+      from.findAndUpdate(
+        // @ts-ignore: This is intended
+        { [joinKey]: d[joinKey] },
+        (x) => {
+          const nextData = JSON.parse(JSON.stringify(cleanupLoki(d)));
+          return Object.assign(x, nextData);
+        }
+      );
+    });
+  }
+
+  return to;
 };
