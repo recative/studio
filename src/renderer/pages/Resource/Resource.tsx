@@ -293,9 +293,13 @@ const InternalResource: React.FC = () => {
   });
 
   const handleWindowResize = useDebouncedCallback(
-    () => {
+    (updateElements = false) => {
       layoutBooster.updateContainerSize();
       layoutBooster.updateGridAnchors();
+
+      if (updateElements) {
+        layoutBooster.updateElements();
+      }
 
       const painter = dragAreaPainterRef.current;
 
@@ -309,9 +313,8 @@ const InternalResource: React.FC = () => {
   );
 
   React.useEffect(() => {
-    handleWindowResize();
-    layoutBooster.updateElements();
-  }, [handleWindowResize, layoutBooster, resources]);
+    handleWindowResize(true);
+  }, [handleWindowResize, resources]);
 
   React.useEffect(() => {
     window.addEventListener('resize', handleWindowResize);

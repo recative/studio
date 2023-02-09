@@ -4,6 +4,8 @@ const numberFix = (x: number, fallbackValue = 0) => {
   return x;
 };
 
+const ROW_TOLERANCE = 20;
+
 export class LayoutBooster {
   constructor(
     public readonly elementSelector: string,
@@ -79,7 +81,22 @@ export class LayoutBooster {
       return;
     }
 
-    this.rows = numberFix(Math.ceil($$elements.length / this.cols), 0);
+    let cols = 0;
+    const lastY: number | null = null;
+
+    for (let i = 0; i < $$elements.length; i += 1) {
+      if (
+        lastY !== null &&
+        lastY - $$elements[i].getBoundingClientRect().y > ROW_TOLERANCE
+      ) {
+        break;
+      }
+
+      cols += 1;
+    }
+
+    this.cols = cols;
+    this.rows = numberFix(Math.ceil($$elements.length / cols), 0);
 
     const columnXAnchors = new Array<number>(this.cols).fill(-1);
     const columnYAnchors = new Array<number>(this.rows).fill(-1);
