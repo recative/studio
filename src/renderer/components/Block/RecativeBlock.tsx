@@ -57,6 +57,9 @@ const HTML_KEYS = [
   'inputMode',
   'is',
   'children',
+  'error',
+  'positive',
+  'disabled',
   'onClick',
   'onDoubleClick',
 ] as const;

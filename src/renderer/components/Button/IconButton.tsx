@@ -6,7 +6,7 @@ import type { ButtonProps } from 'baseui/button';
 
 import { IconButtonOverrides } from 'styles/Button';
 
-export const IconButton: React.VFC<ButtonProps> = ({
+export const IconButton: React.FC<ButtonProps> = ({
   overrides,
   children,
   ...props

@@ -48,6 +48,7 @@
     "codemirror",
     "compat",
     "Contexify",
+    "csstype",
     "datepicker",
     "dbref",
     "DCEDC",
