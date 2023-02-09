@@ -5,7 +5,7 @@ export enum JoinMode {
   KeepNew = 'keepNew',
 }
 
-export const mergeResourceList = async <
+export const mergeCollection = async <
   T extends Record<string, unknown>,
   K extends keyof T
 >(
