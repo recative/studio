@@ -30,33 +30,27 @@ import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 import { Uploader } from './components/Uploader';
 import { SidePanel } from './components/SidePanel';
 import { SELECTED_TAGS } from './components/ResourceTree';
+import { BatchEditModal } from './components/BatchEditModal';
 import { ErrorMergeModal } from './components/ErrorMergeModal';
 import { SEARCH_TERM_ATOM } from './components/SearchBar';
 import { ReplaceFileModal } from './components/ReplaceFileModal';
 import { ConfirmSplitModal } from './components/ConfirmSplitModal';
 import { ConfirmRemoveModal } from './components/ConfirmRemoveModal';
+import { EditResourceFileModal } from './components/EditResourceFileModal';
+import { EditResourceGroupModal } from './components/EditResourceGroupModal';
 import { GroupTypeSelectionModal } from './components/GroupTypeSelectionModal';
 import { AlreadyInGroupAlertModal } from './components/AlreadyInGroupAlertModal';
 import { EraseURLModal, useEraseURLModal } from './components/EraseURLModal';
-import { BatchEditModal, useBatchEditModal } from './components/BatchEditModal';
 import {
   useFixResourceModal,
   FixResourceLinkModal,
 } from './components/FixResourceLinkModal';
-import {
-  EditResourceFileModal,
-  useEditResourceFileModal,
-} from './components/EditResourceFileModal';
-import {
-  EditResourceGroupModal,
-  useEditResourceGroupModal,
-} from './components/EditResourceGroupModal';
 
-import { getSelectedId } from './utils/getSelectedId';
 import { useAdditionalTabs } from './hooks/useAdditionalTabs';
 import { useMergeResourcesCallback } from './hooks/useMergeResourceCallback';
 import { LayoutBooster } from './utils/LayoutBooster';
 import { DragAreaPainter } from './utils/DargAreaPainter';
+import { useOpenEditModalCallback } from './hooks/useOpenEditModalCallback';
 
 const TAB_COLORS = [{ key: 'resource', color: '#01579B' }];
 
@@ -89,42 +83,6 @@ const TREE_CONTAINER_STYLES: StyleObject = {
 };
 
 const SELECTABLE_TARGETS = ['.explorer-item'];
-
-const useEditModalCallback = (handleOpenBatchEditModal: () => void) => {
-  const [, , openEditResourceFileModal] = useEditResourceFileModal();
-  const [, , openEditResourceGroupModal] = useEditResourceGroupModal();
-
-  const handleOpenEditModal = React.useCallback(async () => {
-    const selectedResourceIds = getSelectedId();
-
-    if (selectedResourceIds.length !== 1) {
-      handleOpenBatchEditModal();
-      return;
-    }
-
-    const selectedResourceId = selectedResourceIds[0];
-
-    if (!selectedResourceId) return;
-
-    const queryResult = await server.getResource(selectedResourceId);
-
-    if (!queryResult) return;
-
-    if (queryResult.type === 'group') {
-      openEditResourceGroupModal(selectedResourceId);
-    } else if (queryResult.type === 'file') {
-      openEditResourceFileModal(selectedResourceId);
-    }
-  }, [
-    handleOpenBatchEditModal,
-    openEditResourceFileModal,
-    openEditResourceGroupModal,
-  ]);
-
-  return {
-    handleOpenEditModal,
-  };
-};
 
 const getIndexMap = () => {
   const allElements = document.querySelectorAll(SELECTABLE_TARGETS[0]);
@@ -264,11 +222,10 @@ const InternalResource: React.FC = () => {
 
   const [, , openFixLinkModal] = useFixResourceModal();
   const [, , openEraseURLModal] = useEraseURLModal();
-  const [, , openBatchEditModal] = useBatchEditModal();
 
   const { handleFileUploadFinished } = useMergeResourcesCallback();
 
-  const { handleOpenEditModal } = useEditModalCallback(openBatchEditModal);
+  const handleOpenEditModal = useOpenEditModalCallback();
 
   const databaseLocked = useDatabaseLocked();
 

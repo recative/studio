@@ -27,7 +27,6 @@ import { ModalManager } from 'utils/hooks/useModalManager';
 
 import { BatchEditOperation } from './BatchEditOperation';
 import { IEditOperation } from '../../../../utils/BatchEditTypes';
-import { getSelectedId } from '../utils/getSelectedId';
 
 export interface IBatchEditModalProps {
   onRefreshResourceListRequest: () => void;
@@ -43,39 +42,26 @@ const LI_OVERRIDES = {
   Root: { style: { width: '100%' } },
 };
 
-export const useBatchEditModal = ModalManager<void, null>(null);
+export const useBatchEditModal = ModalManager<string[], null>(null);
 
 export const BatchEditModal: React.FC<IBatchEditModalProps> = ({
   onRefreshResourceListRequest,
 }) => {
-  const [isOpen, , , onClose] = useBatchEditModal();
-  const [showBatchEditModal, setShowBatchEditModal] = React.useState(false);
+  const [isOpen, selectedId, , onClose] = useBatchEditModal();
 
-  const [selectedResources, setSelectedResources] = React.useState<string[]>(
-    []
-  );
-
-  React.useLayoutEffect(() => {
-    if (showBatchEditModal) {
-      setSelectedResources(getSelectedId());
-    }
-  }, [showBatchEditModal]);
-
-  const handleBatchEditModalSubmit = React.useCallback(
-    async (x: IEditOperation[]) => {
-      await server.batchUpdateResource(selectedResources, x);
-      setShowBatchEditModal(false);
-      onRefreshResourceListRequest();
-    },
-    [onRefreshResourceListRequest, selectedResources]
-  );
+  const handleBatchEditModalSubmit = useEvent(async (x: IEditOperation[]) => {
+    if (!selectedId) return;
+    await server.batchUpdateResource(selectedId, x);
+    onClose();
+    onRefreshResourceListRequest();
+  });
 
   const [css] = useStyletron();
   // const databaseLocked = useDatabaseLocked();
   const databaseLocked = false;
   const [operations, setOperations] = React.useState<IEditOperation[]>([]);
 
-  const handleAddOperation = React.useCallback(() => {
+  const handleAddOperation = useEvent(() => {
     setOperations((prev) => [
       ...prev,
       {
@@ -88,13 +74,13 @@ export const BatchEditModal: React.FC<IBatchEditModalProps> = ({
         isJson: false,
       },
     ]);
-  }, []);
+  });
 
-  const handleRemoveOperation = React.useCallback((operationId: string) => {
+  const handleRemoveOperation = useEvent((operationId: string) => {
     setOperations((prev) => prev.filter((x) => x.operationId !== operationId));
-  }, []);
+  });
 
-  const handleEditOperation = React.useCallback(
+  const handleEditOperation = useEvent(
     (
       id: string,
       operation: IEditOperation | ((value: IEditOperation) => IEditOperation)
@@ -115,8 +101,7 @@ export const BatchEditModal: React.FC<IBatchEditModalProps> = ({
       });
 
       return null;
-    },
-    [operations]
+    }
   );
 
   const handleSubmit = useEvent(() => {
