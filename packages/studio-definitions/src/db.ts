@@ -21,6 +21,7 @@ export interface ICollectionDbConfigItem<T> {
   type: 'collection';
   autoupdate: boolean;
   indices: string[];
+  key: string;
   __makeLinterHappy?: T;
 }
 
@@ -68,11 +69,13 @@ export const DB_CONFIG = {
         type: 'collection',
         autoupdate: true,
         indices: ['id', 'label', 'type', 'resourceGroupId', 'importTime'],
+        key: 'id',
       }),
       postProcessed: asCollection<PostProcessedResourceItemForUpload>({
         type: 'collection',
         autoupdate: true,
         indices: ['id', 'label', 'type', 'resourceGroupId', 'importTime'],
+        key: 'id',
       }),
       files: asCollection<IResourceFile>({
         type: 'view',
@@ -97,6 +100,7 @@ export const DB_CONFIG = {
         type: 'collection',
         autoupdate: true,
         indices: ['id', 'slug', 'notes', 'createTime', 'updateTime'],
+        key: 'id',
       }),
     },
   },
@@ -113,6 +117,7 @@ export const DB_CONFIG = {
           'secondLevelPath',
           'fullPath',
         ],
+        key: 'id',
       }),
     },
   },
@@ -131,10 +136,12 @@ export const DB_CONFIG = {
           'createTime',
           'updateTime',
         ],
+        key: 'id',
       }),
       episodes: asCollection<IEpisode>({
         type: 'collection',
         autoupdate: true,
+        key: 'id',
         indices: ['id', 'label', 'order', 'largeCoverResourceId', 'createTime'],
       }),
     },
@@ -146,11 +153,13 @@ export const DB_CONFIG = {
         type: 'collection',
         autoupdate: true,
         indices: ['id', 'committer', 'commitTime', 'notes'],
+        key: 'id',
       }),
       codeReleases: asCollection<ISimpleRelease>({
         type: 'collection',
         autoupdate: true,
         indices: ['id', 'committer', 'commitTime', 'notes'],
+        key: 'id',
       }),
       bundleReleases: asCollection<IBundleRelease>({
         type: 'collection',
@@ -163,6 +172,7 @@ export const DB_CONFIG = {
           'commitTime',
           'notes',
         ],
+        key: 'id',
       }),
     },
   },
@@ -173,6 +183,7 @@ export const DB_CONFIG = {
         type: 'collection',
         autoupdate: true,
         indices: [],
+        key: 'id',
       }),
     },
   },
@@ -183,11 +194,13 @@ export const DB_CONFIG = {
         type: 'collection',
         autoupdate: true,
         indices: ['key', 'value'],
+        key: 'key',
       }),
       bundleProfiles: asCollection<IBundleProfile>({
         type: 'collection',
         autoupdate: true,
         indices: ['id', 'label', 'packageId'],
+        key: 'id',
       }),
     },
   },
