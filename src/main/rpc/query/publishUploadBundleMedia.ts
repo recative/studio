@@ -4,6 +4,7 @@ import { join } from 'path';
 import { readFile } from 'fs/promises';
 
 import { Category } from '@recative/definitions';
+import { OpenPromise } from '@recative/open-promise';
 import { TerminalMessageLevel as Level } from '@recative/extension-sdk';
 import type { IResourceFile, IResourceItem } from '@recative/definitions';
 import type { PostProcessedResourceItemForUpload } from '@recative/extension-sdk';
@@ -232,11 +233,14 @@ export const uploadMediaBundle = async (
     }
   );
 
+  const finalPromise = new OpenPromise<void>();
+
   taskQueue.on('end', () => {
     logToTerminal(`:: Upload Task Summary`, Level.Info);
     logToTerminal(`:: :: Finished: ${finishedFiles}`, Level.Info);
     logToTerminal(`:: :: Skipped: ${skippedFiles}`, Level.Warning);
+    finalPromise.resolve();
   });
 
-  return taskQueue;
+  return finalPromise;
 };
