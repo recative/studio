@@ -28,7 +28,7 @@ import type {
   IPostProcessedResourceFileForImport,
 } from '@recative/extension-sdk';
 
-import { cleanupLoki } from './utils';
+import { cleanupLoki } from './utils/cleanupLoki';
 import { importedFileToFile } from './utils/importedFileToFile';
 
 import { getDb } from '../db';

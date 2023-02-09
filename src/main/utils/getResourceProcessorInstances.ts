@@ -28,7 +28,7 @@ import { Category, IResourceFile } from '@recative/definitions';
 
 import { getDb } from '../rpc/db';
 import { extensions } from '../extensions';
-import { cleanupLoki } from '../rpc/query/utils';
+import { cleanupLoki } from '../rpc/query/utils/cleanupLoki';
 import { getWorkspace } from '../rpc/workspace';
 import { logToTerminal } from '../rpc/query/terminal';
 

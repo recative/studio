@@ -6,7 +6,7 @@ import type {
 } from '@recative/extension-sdk';
 import type { IResourceFile } from '@recative/definitions';
 
-import { cleanupLoki } from './utils';
+import { cleanupLoki } from './utils/cleanupLoki';
 import { logToTerminal } from './terminal';
 
 import { getDb } from '../db';

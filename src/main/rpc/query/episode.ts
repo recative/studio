@@ -25,7 +25,7 @@ import { getResourceProcessorInstances } from '../../utils/getResourceProcessorI
 
 import type { ProfileConfig } from '../../dataGenerationProfiles';
 
-import { cleanupLoki } from './utils';
+import { cleanupLoki } from './utils/cleanupLoki';
 import { getClientSideAssetList } from './asset';
 
 export const getResourceAndActPoints = async (itemIds: string[]) => {

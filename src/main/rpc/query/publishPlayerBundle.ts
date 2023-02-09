@@ -10,7 +10,7 @@ import type {
   PostProcessedResourceItemForUpload,
 } from '@recative/extension-sdk';
 
-import { cleanupLoki } from './utils';
+import { cleanupLoki } from './utils/cleanupLoki';
 import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
 

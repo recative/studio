@@ -4,7 +4,7 @@ import type {
 } from '@recative/extension-sdk';
 
 import { getDb } from '../rpc/db';
-import { cleanupLoki } from '../rpc/query/utils';
+import { cleanupLoki } from '../rpc/query/utils/cleanupLoki';
 
 export const updatePostProcessedFileDefinition = async (
   resource:

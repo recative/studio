@@ -6,7 +6,7 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 import { cleanUpResourceListForClient } from '@recative/definitions';
 import type { IResourceFile } from '@recative/definitions';
 
-import { cleanupLoki } from '../../rpc/query';
+import { cleanupLoki } from '../../rpc/query/utils/cleanupLoki';
 import { getDbFromRequest } from '../utils/getDbFromRequest';
 import { getResourceFilePath } from '../../utils/getResourceFile';
 

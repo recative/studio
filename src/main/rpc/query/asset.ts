@@ -22,7 +22,7 @@ import type { ProfileConfig } from '../../dataGenerationProfiles';
 
 import { noNulls } from '../../../utils/noNulls';
 import { getActPoint } from './actPoint';
-import { cleanupLoki } from './utils';
+import { cleanupLoki } from './utils/cleanupLoki';
 
 export const searchAssetResources = async (query = '', limit = 40) => {
   const db = await getDb();

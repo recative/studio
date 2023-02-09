@@ -12,7 +12,7 @@ import { Zip } from '@recative/extension-sdk';
 import { DB_CONFIG } from '@recative/studio-definitions';
 import { IResourceFile, IResourceGroup } from '@recative/definitions';
 
-import { cleanupLoki } from './utils';
+import { cleanupLoki } from './utils/cleanupLoki';
 import { getBuildPath } from './setting';
 import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
