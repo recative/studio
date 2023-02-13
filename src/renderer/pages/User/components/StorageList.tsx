@@ -4,6 +4,7 @@ import { useAsync } from '@react-hookz/web';
 
 import { server } from 'utils/rpc';
 import { GridTable, IColumnConfig } from 'components/GridTable/GridTable';
+import { StorageKey } from './StorageKey';
 
 export interface IStorageListActionProps {
   id: string;
@@ -13,11 +14,11 @@ export interface IPermissionListProps {
   Actions?: React.FC<IStorageListActionProps>;
 }
 
-const storageKeys = ['key', 'permissions', 'notes'] as const;
+const storageKeys = ['formattedKey', 'permissions', 'notes'] as const;
 
 const columnConfigs: IColumnConfig<TokenKeys>[] = [
   {
-    id: 'key',
+    id: 'formattedKey',
     order: 0,
     width: 'max-content',
     content: 'Key',
@@ -47,11 +48,14 @@ export const StorageList: React.FC<IPermissionListProps> = ({ Actions }) => {
     storagesActions.execute();
   }, [storagesActions]);
 
+  console.log(storages.result);
+
   const data = React.useMemo(
     () =>
       storages.result?.map((storage) => ({
         id: storage.key,
         key: storage.key,
+        formattedKey: StorageKey(storage),
         permissions: `${storage.need_permission_count}/${
           storage.need_permissions?.length ?? 0
         }`,
