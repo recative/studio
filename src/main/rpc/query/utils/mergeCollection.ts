@@ -3,6 +3,7 @@ import { cleanupLoki } from './cleanupLoki';
 export enum JoinMode {
   KeepOld = 'keepOld',
   KeepNew = 'keepNew',
+  replaceOld = 'replaceOld',
 }
 
 export const mergeCollection = async <
@@ -14,6 +15,10 @@ export const mergeCollection = async <
   joinKey: K,
   joinMode: JoinMode
 ) => {
+  if (joinMode === JoinMode.replaceOld) {
+    throw new TypeError(`Unable to merge the database with this mode`);
+  }
+
   const addedDocumentSet = new Set<T>();
   const commonDocumentSet = new Set<T>();
 

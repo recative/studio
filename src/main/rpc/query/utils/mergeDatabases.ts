@@ -1,3 +1,9 @@
+import StreamZip from 'node-stream-zip';
+
+import { copy } from 'fs-extra';
+import { join } from 'path';
+import { dirSync } from 'tmp';
+
 import { DB_CONFIG } from '@recative/studio-definitions';
 
 import type {
@@ -7,6 +13,27 @@ import type {
 
 import { getDb, saveAllDatabase } from 'rpc/db';
 import { JoinMode, mergeCollection } from './mergeCollection';
+
+export const extractDb = async (filePath: string) => {
+  const dbPath = dirSync().name;
+
+  const newZip = new StreamZip.async({ file: filePath });
+  await Promise.all(
+    Object.values(DB_CONFIG).map(({ file }) => {
+      return newZip.extract(file, join(dbPath, file));
+    })
+  );
+
+  return dbPath;
+};
+
+export const replaceDatabase = async (toDbPath: string, fromDbPath: string) => {
+  await Promise.all(
+    Object.values(DB_CONFIG).map(({ file }) => {
+      return copy(join(fromDbPath, file), join(toDbPath, file));
+    })
+  );
+};
 
 export const mergeDatabase = async (
   toDbPath: string,

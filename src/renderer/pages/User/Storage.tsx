@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import { useNavigate } from 'react-router';
-
 import { HeadingXXLarge } from 'baseui/typography';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 
@@ -12,11 +10,13 @@ import { ContentContainer } from 'components/Layout/ContentContainer';
 import { UploadBackupIconOutline } from 'components/Icons/UploadBackupIconOutline';
 import { BackupRecoverIconOutline } from 'components/Icons/BackupRecoverIconOutline';
 
-import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 
-import { SelectSyncModeModal } from './components/SelectSyncModeModal';
+import {
+  SelectSyncModeModal,
+  useSelectSyncModeModal,
+} from './components/SelectSyncModeModal';
 import { IStorageListActionProps, StorageList } from './components/StorageList';
 import {
   ConfirmCreateBackupModal,
@@ -24,11 +24,10 @@ import {
 } from './components/ConfirmCreateBackupModal';
 
 const Actions: React.FC<IStorageListActionProps> = ({ id }) => {
-  const navigate = useNavigate();
+  const [, , openSelectSyncModeModal] = useSelectSyncModeModal();
 
   const handleRecoverBackupClick = useEvent(() => {
-    server.recoverBackup(id);
-    navigate('/downloading-backup');
+    openSelectSyncModeModal(id);
   });
 
   return (

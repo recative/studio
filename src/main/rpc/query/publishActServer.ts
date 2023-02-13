@@ -30,6 +30,12 @@ import { getDb, saveAllDatabase, setupDb } from '../db';
 import { lockDb } from './lock';
 import { closeDb } from './project';
 import { uploadMediaBundle } from './publishUploadBundleMedia';
+import {
+  extractDb,
+  mergeDatabase,
+  replaceDatabase,
+} from './utils/mergeDatabases';
+import { JoinMode } from './utils/mergeCollection';
 
 const createDatabaseBackup = async (output: string | Zip) => {
   const zip = output instanceof Zip ? output : new Zip(output);
@@ -189,7 +195,7 @@ const recoverStatus = {
 
 export const getRecoverBackupStatus = () => recoverStatus;
 
-export const recoverBackup = async (storageId: string) => {
+export const recoverBackup = async (storageId: string, joinMode: JoinMode) => {
   recoverStatus.status = 'working';
   recoverStatus.message = 'Recovering Backup...';
 
@@ -231,12 +237,13 @@ export const recoverBackup = async (storageId: string) => {
 
   try {
     await closeDb();
-    const newZip = new StreamZip.async({ file: filePath });
-    await Promise.all(
-      Object.values(DB_CONFIG).map(({ file }) => {
-        return newZip.extract(file, join(dbPath, file));
-      })
-    );
+
+    const extractedDbPath = await extractDb(filePath);
+    if (joinMode === JoinMode.replaceOld) {
+      await replaceDatabase(dbPath, extractedDbPath);
+    } else {
+      await mergeDatabase(dbPath, extractedDbPath, joinMode);
+    }
 
     recoverStatus.message = 'Database recovered...';
   } catch (e) {

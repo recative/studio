@@ -22,8 +22,10 @@ import { MergeModeReplaceIconOutline } from 'components/Icons/MergeModeReplaceIc
 import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
 import { ModalManager } from 'utils/hooks/useModalManager';
+import { JoinMode } from 'rpc/query/utils/mergeCollection';
+import { useNavigate } from 'react-router';
 
-export const useSelectSyncModeModal = ModalManager<void, null>(null);
+export const useSelectSyncModeModal = ModalManager<string, null>(null);
 
 interface IReplaceIconContentProps {
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -56,13 +58,25 @@ const buttonStyles = {
   flex: '1 1 0',
 };
 
+const JOIN_MODES = [
+  JoinMode.KeepNew,
+  JoinMode.KeepOld,
+  JoinMode.replaceOld,
+] as const;
+
 export const SelectSyncModeModal: React.FC = () => {
   const [css] = useStyletron();
+  const navigate = useNavigate();
   const [selected, setSelected] = React.useState<number>(-1);
 
-  const [isOpen, , , onClose] = useSelectSyncModeModal();
+  const [isOpen, storageId, , onClose] = useSelectSyncModeModal();
 
-  const handleSubmit = useEvent(() => {});
+  const handleSubmit = useEvent(() => {
+    if (!storageId) return;
+
+    server.recoverBackup(storageId, JOIN_MODES[selected]);
+    navigate('/downloading-backup');
+  });
 
   const handleModeChange = useEvent((_, index: number) => {
     setSelected(index);
