@@ -4,6 +4,7 @@ import { join } from 'path';
 import StreamZip from 'node-stream-zip';
 
 import { Category } from '@recative/definitions';
+import { OpenPromise } from '@recative/open-promise';
 import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
 
 import { logToTerminal } from './terminal';
@@ -81,5 +82,17 @@ export const uploadCodeBundle = async (
     });
   });
 
-  return taskQueue;
+  const finalPromise = new OpenPromise<void>();
+
+  taskQueue.on('end', () => {
+    finalPromise.resolve();
+  });
+
+  if (taskQueue.isEmpty) {
+    return Promise.resolve(0);
+  }
+
+  taskQueue.run();
+
+  return 0;
 };

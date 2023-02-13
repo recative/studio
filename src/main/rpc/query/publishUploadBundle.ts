@@ -100,27 +100,14 @@ export const uploadBundle = async (
         terminalId
       );
 
-      logToTerminal(
-        terminalId,
-        `Media task queue length ${mediaTaskQueue.size}`
-      );
-
-      if (mediaTaskQueue.size === 0) {
-        return;
-      }
-
-      await mediaTaskQueue.run();
+      logToTerminal(terminalId, `Media task queue length ${mediaTaskQueue}`);
     }
   })();
 
   await wrapTaskFunction(terminalId, 'Uploading Code Files', async () => {
     if (codeBundle) {
       const codeReleaseId = targetRelease.codeBuildId;
-      const codeTaskQueue = await uploadCodeBundle(codeReleaseId, terminalId);
-      if (codeTaskQueue.size === 0) {
-        return;
-      }
-      await codeTaskQueue.run();
+      await uploadCodeBundle(codeReleaseId, terminalId);
     }
   })();
 

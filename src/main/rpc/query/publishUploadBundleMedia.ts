@@ -242,5 +242,11 @@ export const uploadMediaBundle = async (
     finalPromise.resolve();
   });
 
-  return finalPromise;
+  if (taskQueue.isEmpty) {
+    return Promise.resolve(0);
+  }
+
+  taskQueue.run();
+
+  return finishedFiles;
 };
