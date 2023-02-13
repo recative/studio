@@ -4,15 +4,15 @@ import { copy } from 'fs-extra';
 import { join } from 'path';
 import { dirSync } from 'tmp';
 
-import { DB_CONFIG } from '@recative/studio-definitions';
+import { JoinMode, DB_CONFIG } from '@recative/studio-definitions';
 
 import type {
   IViewDbConfigItem,
   ICollectionDbConfigItem,
 } from '@recative/studio-definitions';
 
-import { getDb, saveAllDatabase } from 'rpc/db';
-import { JoinMode, mergeCollection } from './mergeCollection';
+import { getDb, saveAllDatabase } from '../../db';
+import { mergeCollection } from './mergeCollection';
 
 export const extractDb = async (filePath: string) => {
   const dbPath = dirSync().name;
