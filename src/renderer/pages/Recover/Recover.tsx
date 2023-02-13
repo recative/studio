@@ -4,6 +4,8 @@ import { useAsync } from '@react-hookz/web';
 import { useNavigate } from 'react-router';
 import { useLocalStorage } from 'react-use';
 
+import { JoinMode } from '@recative/studio-definitions';
+
 import { FormControl } from 'baseui/form-control';
 import { ParagraphSmall } from 'baseui/typography';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
@@ -14,6 +16,7 @@ import { ToasterContainer, PLACEMENT, toaster } from 'baseui/toast';
 
 import { Select } from 'components/Select/Select';
 import { FileInput } from 'components/Input/FileInput';
+import { StorageKey } from 'pages/User/components/StorageKey';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { server } from 'utils/rpc';
@@ -153,9 +156,15 @@ export const Recover: React.FC = () => {
     }
 
     await server.setupWorkspace(mediaWorkspacePath[0], codeRepositoryPath[0]);
-    server.recoverBackup(recoverValue.backupKey);
+    server.recoverBackup(recoverValue.backupKey, JoinMode.replaceOld);
     navigate('/downloading-backup');
   });
+
+  const getLabel = useEvent(({ option }: any) => (
+    <RecativeBlock marginTop="-4px" marginBottom="4px">
+      <StorageKey {...option} />
+    </RecativeBlock>
+  ));
 
   return (
     <GuideFormLayout
@@ -248,6 +257,7 @@ export const Recover: React.FC = () => {
               valueKey="key"
               placeholder="Choose a backup"
               maxDropdownHeight="300px"
+              OptionLabel={getLabel}
               size={SELECT_SIZE.compact}
               value={selectedRelease}
               onChange={handleSelectChange}

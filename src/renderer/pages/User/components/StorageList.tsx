@@ -48,8 +48,6 @@ export const StorageList: React.FC<IPermissionListProps> = ({ Actions }) => {
     storagesActions.execute();
   }, [storagesActions]);
 
-  console.log(storages.result);
-
   const data = React.useMemo(
     () =>
       storages.result?.map((storage) => ({
