@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { JoinMode } from '@recative/studio-definitions';
+
 import { useStyletron } from 'baseui';
 
 import {
@@ -22,7 +24,6 @@ import { MergeModeReplaceIconOutline } from 'components/Icons/MergeModeReplaceIc
 import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
 import { ModalManager } from 'utils/hooks/useModalManager';
-import { JoinMode } from 'rpc/query/utils/mergeCollection';
 import { useNavigate } from 'react-router';
 
 export const useSelectSyncModeModal = ModalManager<string, null>(null);
@@ -76,6 +77,7 @@ export const SelectSyncModeModal: React.FC = () => {
 
     server.recoverBackup(storageId, JOIN_MODES[selected]);
     navigate('/downloading-backup');
+    onClose();
   });
 
   const handleModeChange = useEvent((_, index: number) => {

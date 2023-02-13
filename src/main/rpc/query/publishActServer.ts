@@ -9,7 +9,7 @@ import { ensureDir, copy } from 'fs-extra';
 import { fileSync, dirSync } from 'tmp';
 
 import { Zip } from '@recative/extension-sdk';
-import { DB_CONFIG } from '@recative/studio-definitions';
+import { DB_CONFIG, JoinMode } from '@recative/studio-definitions';
 import { IResourceFile, IResourceGroup } from '@recative/definitions';
 
 import { cleanupLoki } from './utils/cleanupLoki';
@@ -35,7 +35,6 @@ import {
   mergeDatabase,
   replaceDatabase,
 } from './utils/mergeDatabases';
-import { JoinMode } from './utils/mergeCollection';
 
 const createDatabaseBackup = async (output: string | Zip) => {
   const zip = output instanceof Zip ? output : new Zip(output);

@@ -1,10 +1,6 @@
-import { cleanupLoki } from './cleanupLoki';
+import { JoinMode } from '@recative/studio-definitions';
 
-export enum JoinMode {
-  KeepOld = 'keepOld',
-  KeepNew = 'keepNew',
-  replaceOld = 'replaceOld',
-}
+import { cleanupLoki } from './cleanupLoki';
 
 export const mergeCollection = async <
   T extends Record<string, unknown>,
