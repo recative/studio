@@ -86,5 +86,6 @@ export class PromiseQueue {
     this.stopped = true;
 
     this.finalPromise.resolve();
+    return this.finalPromise;
   };
 }

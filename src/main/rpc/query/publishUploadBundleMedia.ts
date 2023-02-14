@@ -108,124 +108,135 @@ export const uploadMediaBundle = async (
 
   let skippedFiles = 0;
   let finishedFiles = 0;
+
   // Upload files
-  uploaderInstances.forEach(
-    ([serviceProviderLabel, { uploader, fileCategory }]) => {
-      logToTerminal(
-        terminalId,
-        `:: Initializing ${serviceProviderLabel}`,
-        Level.Info
-      );
-      const labelSegments = serviceProviderLabel.split('/');
-      const shortServiceLabel = labelSegments[labelSegments.length - 1];
-      // Upload resource file
-      allResources.forEach(({ resourceType, resourceRecord }) => {
-        const tags = resourceRecord.tags.filter(Boolean).map((x) => {
-          if (x.endsWith('!')) return x.slice(0, -1);
-          return x;
-        });
+  const l = uploaderInstances.length;
+  for (let i = 0; i < l; i += 1) {
+    const [serviceProviderLabel, { uploader, fileCategory }] =
+      uploaderInstances[i];
 
-        // If the file is already available on the CDN, skip uploading.
-        if (resourceRecord.url[serviceProviderLabel]) {
-          skippedFiles += 1;
-          return;
+    logToTerminal(
+      terminalId,
+      `:: Initializing ${serviceProviderLabel}`,
+      Level.Info
+    );
+    const labelSegments = serviceProviderLabel.split('/');
+    const shortServiceLabel = labelSegments[labelSegments.length - 1];
+
+    // Upload resource file
+    const l0 = allResources.length;
+
+    for (let j = 0; j < l0; j += 1) {
+      const { resourceType, resourceRecord } = allResources[j];
+
+      const tags = resourceRecord.tags.filter(Boolean).map((x) => {
+        if (x.endsWith('!')) return x.slice(0, -1);
+        return x;
+      });
+
+      // If the file is already available on the CDN, skip uploading.
+      if (resourceRecord.url[serviceProviderLabel]) {
+        skippedFiles += 1;
+        return;
+      }
+
+      // We're checking if the file should be uploaded to the CDN based on the
+      // category tag.
+      let needUpload = false;
+
+      const l1 = fileCategory.length;
+      for (let k = 0; k < l1; k += 1) {
+        const category = fileCategory[k];
+
+        if (tags.indexOf(category) !== -1) {
+          needUpload = true;
+          break;
+        }
+      }
+
+      if (!needUpload) {
+        // If the category of this resource is not in the list of acceptable
+        // file category, skip uploading.
+        // console.log(
+        //   'Do not need to upload this file, since it is not in the list of acceptable file category'
+        // );
+        return;
+      }
+
+      // This is intended
+      // eslint-disable-next-line @typescript-eslint/no-loop-func
+      taskQueue.enqueue(async () => {
+        if (!resourceRecord.url) {
+          resourceRecord.url = {};
         }
 
-        // We're checking if the file should be uploaded to the CDN based on the
-        // category tag.
-        let needUpload = false;
+        try {
+          logToTerminal(
+            terminalId,
+            `:: :: [${resourceRecord.id.substring(
+              0,
+              5
+            )}] [${shortServiceLabel}] Uploading ${resourceRecord.label}`,
+            Level.Info
+          );
 
-        for (let i = 0; i < fileCategory.length; i += 1) {
-          const category = fileCategory[i];
+          const path = join(seriesId, 'resource');
 
-          if (tags.indexOf(category) !== -1) {
-            needUpload = true;
-            break;
-          }
-        }
+          const file = await readFile(
+            await getResourceFilePath(resourceRecord)
+          );
+          const url = await uploader.upload(file, resourceRecord, path);
 
-        if (!needUpload) {
-          // If the category of this resource is not in the list of acceptable
-          // file category, skip uploading.
-          // console.log(
-          //   'Do not need to upload this file, since it is not in the list of acceptable file category'
-          // );
-          return;
-        }
+          resourceRecord.url = {
+            ...resourceRecord.url,
+            [serviceProviderLabel]: url,
+          };
 
-        taskQueue.enqueue(async () => {
-          if (!resourceRecord.url) {
-            resourceRecord.url = {};
-          }
+          finishedFiles += 1;
 
-          try {
-            logToTerminal(
-              terminalId,
-              `:: :: [${resourceRecord.id.substring(
-                0,
-                5
-              )}] [${shortServiceLabel}] Uploading ${resourceRecord.label}`,
-              Level.Info
-            );
+          const find = {
+            id: resourceRecord.id,
+          };
 
-            const path = join(seriesId, 'resource');
+          const update = <
+            T extends PostProcessedResourceItemForUpload | IResourceItem
+          >(
+            x: T
+          ) => {
+            if (x.type === 'group') return x;
 
-            const file = await readFile(
-              await getResourceFilePath(resourceRecord)
-            );
-            const url = await uploader.upload(file, resourceRecord, path);
-
-            resourceRecord.url = {
-              ...resourceRecord.url,
+            x.url = {
+              ...x.url,
               [serviceProviderLabel]: url,
             };
 
-            finishedFiles += 1;
+            return x;
+          };
 
-            const find = {
-              id: resourceRecord.id,
-            };
-
-            const update = <
-              T extends PostProcessedResourceItemForUpload | IResourceItem
-            >(
-              x: T
-            ) => {
-              if (x.type === 'group') return x;
-
-              x.url = {
-                ...x.url,
-                [serviceProviderLabel]: url,
-              };
-
-              return x;
-            };
-
-            if (resourceType === 'postProcessed') {
-              db0.resource.postProcessed.findAndUpdate(find, update);
-            } else {
-              db0.resource.resources.findAndUpdate(find, update);
-            }
-          } catch (error) {
-            console.error(error);
-            logToTerminal(
-              terminalId,
-              `:: :: [${resourceRecord.id.substring(0, 5)}] ${
-                resourceRecord.label
-              } failed, ${
-                error instanceof Error ? error.message : 'unknown error'
-              }`,
-              Level.Error
-            );
-
-            taskQueue.stop();
-
-            throw error;
+          if (resourceType === 'postProcessed') {
+            db0.resource.postProcessed.findAndUpdate(find, update);
+          } else {
+            db0.resource.resources.findAndUpdate(find, update);
           }
-        });
+        } catch (error) {
+          console.error(error);
+          logToTerminal(
+            terminalId,
+            `:: :: [${resourceRecord.id.substring(0, 5)}] ${
+              resourceRecord.label
+            } failed, ${
+              error instanceof Error ? error.message : 'unknown error'
+            }`,
+            Level.Error
+          );
+
+          taskQueue.stop();
+
+          throw error;
+        }
       });
     }
-  );
+  }
 
   await taskQueue.run();
 
