@@ -2,8 +2,10 @@ import * as React from 'react';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { DatabaseIconOutline } from 'components/Icons/DatabaseIconOutline';
-import { DatabaseIconCode } from 'components/Icons/DatabaseIconCode';
-import { DatabaseIconMetadata } from 'components/Icons/DatabaseIconMetadata';
+import { StorageIconCodeOutline } from 'components/Icons/StorageIconCodeOutline';
+import { StorageIconMetadataOutline } from 'components/Icons/StorageIconMetadataOutline';
+
+import { parseStorageKey, StorageType } from '../utils/parseStorageKey';
 
 export interface IStorageKeyProps {
   key: string;
@@ -11,77 +13,67 @@ export interface IStorageKeyProps {
   comment: string;
 }
 
-export const StorageKey: React.FC<IStorageKeyProps> = (props) => {
+interface IComplexRowProps {
+  title: string;
+  value: string;
+  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+}
+
+const ComplexRow: React.FC<IComplexRowProps> = ({ title, value, Icon }) => {
+  return (
+    <RecativeBlock display="flex" marginTop="8px">
+      <Icon width={16} />
+      <RecativeBlock marginLeft="8px">
+        <RecativeBlock lineHeight="1em" fontSize="0.6em" marginBottom="4px">
+          {title}
+        </RecativeBlock>
+        <RecativeBlock lineHeight="1em">{value}</RecativeBlock>
+      </RecativeBlock>
+    </RecativeBlock>
+  );
+};
+
+export const StorageKey: React.FC<IStorageKeyProps> = React.memo((props) => {
   const { key, id, comment } = props;
 
-  const internalKey = key ?? id;
+  const parsedKey = React.useMemo(
+    () => parseStorageKey(key ?? id, comment),
+    [key, id, comment]
+  );
 
-  if (!internalKey) {
+  if (parsedKey.type === StorageType.Invalid) {
     return <RecativeBlock>Invalid</RecativeBlock>;
   }
 
-  const splitedKey = internalKey.split('/');
-
-  if (internalKey.startsWith(`@`) && internalKey.endsWith('/db')) {
-    const dateKey = Number.parseFloat(splitedKey[1]);
-
+  if (parsedKey.type === StorageType.Database) {
     return (
-      <RecativeBlock display="flex" marginTop="8px">
-        <DatabaseIconOutline width={16} />
-        <RecativeBlock marginLeft="8px">
-          <RecativeBlock lineHeight="1em" fontSize="0.6em" marginBottom="4px">
-            {splitedKey[0]}
-          </RecativeBlock>
-          <RecativeBlock lineHeight="1em">
-            {dateKey > 10000
-              ? new Date(dateKey).toLocaleString()
-              : `Release ${splitedKey[1]}`}
-          </RecativeBlock>
-        </RecativeBlock>
-      </RecativeBlock>
+      <ComplexRow
+        Icon={DatabaseIconOutline}
+        title={parsedKey.seriesId}
+        value={parsedKey.title}
+      />
     );
   }
 
-  if (
-    internalKey.startsWith(`@`) &&
-    internalKey.endsWith('/interfaceComponent')
-  ) {
+  if (parsedKey.type === StorageType.Code) {
     return (
-      <RecativeBlock display="flex" marginTop="8px">
-        <DatabaseIconCode width={16} />
-        <RecativeBlock marginLeft="8px">
-          <RecativeBlock lineHeight="1em" fontSize="0.6em" marginBottom="4px">
-            {splitedKey[0]}
-          </RecativeBlock>
-          <RecativeBlock lineHeight="1em">Interface Component</RecativeBlock>
-        </RecativeBlock>
-      </RecativeBlock>
+      <ComplexRow
+        Icon={StorageIconCodeOutline}
+        title={parsedKey.seriesId}
+        value={parsedKey.title}
+      />
     );
   }
 
-  if (
-    internalKey.startsWith(`@`) &&
-    splitedKey.length === 3 &&
-    (comment.startsWith('Client side metadata for ') ||
-      comment.startsWith('Client side abstract for '))
-  ) {
-    const fileName = comment.replace('Client side metadata for ', '');
-
+  if (parsedKey.type === StorageType.Metadata) {
     return (
-      <RecativeBlock display="flex" marginTop="8px">
-        <DatabaseIconMetadata width={16} />
-        <RecativeBlock marginLeft="8px">
-          <RecativeBlock lineHeight="1em" fontSize="0.6em" marginBottom="4px">
-            {splitedKey[0]}
-          </RecativeBlock>
-          <RecativeBlock lineHeight="1em">
-            [{splitedKey[1]}]{' '}
-            {fileName === 'undefined' ? splitedKey[2] : fileName}
-          </RecativeBlock>
-        </RecativeBlock>
-      </RecativeBlock>
+      <ComplexRow
+        Icon={StorageIconMetadataOutline}
+        title={parsedKey.seriesId}
+        value={`[${parsedKey.releaseId}] ${parsedKey.title}`}
+      />
     );
   }
 
-  return <RecativeBlock>{internalKey}</RecativeBlock>;
-};
+  return <RecativeBlock>{parsedKey.title}</RecativeBlock>;
+});

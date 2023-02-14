@@ -1,14 +1,23 @@
 import * as React from 'react';
 
+import {
+  Button,
+  KIND as BUTTON_KIND,
+  SIZE as BUTTON_SIZE,
+} from 'baseui/button';
 import { HeadingXXLarge } from 'baseui/typography';
-import { Button, KIND as BUTTON_KIND } from 'baseui/button';
+import { ButtonGroup, MODE } from 'baseui/button-group';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
 import { ContentContainer } from 'components/Layout/ContentContainer';
+import { DatabaseIconOutline } from 'components/Icons/DatabaseIconOutline';
+import { StorageIconCodeOutline } from 'components/Icons/StorageIconCodeOutline';
 import { UploadBackupIconOutline } from 'components/Icons/UploadBackupIconOutline';
 import { BackupRecoverIconOutline } from 'components/Icons/BackupRecoverIconOutline';
+import { StorageIconUnknownOutline } from 'components/Icons/StorageIconUnknownOutline';
+import { StorageIconMetadataOutline } from 'components/Icons/StorageIconMetadataOutline';
 
 import { useEvent } from 'utils/hooks/useEvent';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
@@ -46,8 +55,14 @@ const Actions: React.FC<IStorageListActionProps> = ({ id }) => {
 
 const InternalStorage: React.FC = () => {
   const databaseLocked = useDatabaseLocked();
+  const [storageIndex, setStorageIndex] = React.useState(2);
+
   const [, , handleOpenConfirmCreateBackupModal] =
     useConfirmCreateBackupModal();
+
+  const handleButtonIconClick = useEvent((_event: unknown, index: number) => {
+    setStorageIndex(index);
+  });
 
   return (
     <PivotLayout
@@ -78,7 +93,32 @@ const InternalStorage: React.FC = () => {
           paddingBottom="24px"
           overflow="clip"
         >
-          <HeadingXXLarge>Storage</HeadingXXLarge>
+          <RecativeBlock
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <HeadingXXLarge>Storage</HeadingXXLarge>
+            <ButtonGroup
+              mode={MODE.radio}
+              size={BUTTON_SIZE.mini}
+              selected={storageIndex}
+              onClick={handleButtonIconClick}
+            >
+              <Button title="Database Backup">
+                <DatabaseIconOutline width={12} />
+              </Button>
+              <Button title="Code">
+                <StorageIconCodeOutline width={12} />
+              </Button>
+              <Button title="Metadata">
+                <StorageIconMetadataOutline width={12} />
+              </Button>
+              <Button title="Unknown">
+                <StorageIconUnknownOutline width={12} />
+              </Button>
+            </ButtonGroup>
+          </RecativeBlock>
 
           <RecativeBlock
             gridArea="content"
