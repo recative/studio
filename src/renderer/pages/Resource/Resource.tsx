@@ -256,8 +256,6 @@ const InternalResource: React.FC = () => {
     () => new LayoutBooster(SELECTABLE_TARGETS[0], '.scroll-container', 160, 16)
   );
 
-  console.log(layoutBooster);
-
   const getElementPoints = useEvent((target: HTMLElement | SVGElement) => {
     const info = layoutBooster.getElementRect(target);
 
