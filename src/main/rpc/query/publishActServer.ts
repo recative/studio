@@ -18,8 +18,8 @@ import { logToTerminal } from './terminal';
 import { getEpisodeDetailList } from './episode';
 import { getStorage, ensureStorage } from './authService';
 
-import { TaskQueue } from '../../utils/uploadTaskQueue';
 import { fileExists } from '../../utils/fileExists';
+import { PromiseQueue } from '../../utils/PromiseQueue';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../utils/getResourceFile';
 import { ReleaseNotFoundError } from '../../utils/errors/ReleaseNotFoundError';
@@ -302,11 +302,7 @@ export const recoverBackup = async (storageId: string, joinMode: JoinMode) => {
   recoverStatus.message = `Recovering media file`;
 
   // Initialize the task queue
-  const taskQueue = new TaskQueue({
-    concurrent: 3,
-    interval: 50,
-    start: false,
-  });
+  const taskQueue = new PromiseQueue(3);
 
   ensureDir(join(mediaPath, 'post-processed'));
 
@@ -358,7 +354,7 @@ export const recoverBackup = async (storageId: string, joinMode: JoinMode) => {
         } catch (e) {
           continue;
         } finally {
-          const progress = ((totalTasks - taskQueue.size) / totalTasks) * 100;
+          const progress = ((totalTasks - taskQueue.length) / totalTasks) * 100;
           recoverStatus.message = `Recovering media file (${Math.round(
             progress
           )}%) ...`;

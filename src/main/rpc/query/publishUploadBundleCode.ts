@@ -4,16 +4,15 @@ import { join } from 'path';
 import StreamZip from 'node-stream-zip';
 
 import { Category } from '@recative/definitions';
-import { OpenPromise } from '@recative/open-promise';
 import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
 
+import { getBuildPath } from './setting';
 import { logToTerminal } from './terminal';
 
 import { getDb } from '../db';
 
-import { TaskQueue } from '../../utils/uploadTaskQueue';
+import { PromiseQueue } from '../../utils/PromiseQueue';
 import { getUploaderInstances } from '../../utils/getResourceProcessorInstances';
-import { getBuildPath } from './setting';
 
 /**
  * Deploy code bundle to remote server.
@@ -45,11 +44,7 @@ export const uploadCodeBundle = async (
   );
 
   // Initialize the task queue
-  const taskQueue = new TaskQueue({
-    concurrent: 3,
-    interval: 500,
-    start: false,
-  });
+  const taskQueue = new PromiseQueue(3);
 
   uploaderInstances.forEach(([serviceProviderLabel, { uploader }]) => {
     // Upload Code bundle.
@@ -82,17 +77,7 @@ export const uploadCodeBundle = async (
     });
   });
 
-  const finalPromise = new OpenPromise<void>();
-
-  taskQueue.on('end', () => {
-    finalPromise.resolve();
-  });
-
-  if (taskQueue.isEmpty) {
-    return Promise.resolve(0);
-  }
-
-  taskQueue.run();
+  await taskQueue.run();
 
   return 0;
 };

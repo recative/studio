@@ -4,7 +4,6 @@ import { join } from 'path';
 import { readFile } from 'fs/promises';
 
 import { Category } from '@recative/definitions';
-import { OpenPromise } from '@recative/open-promise';
 import { TerminalMessageLevel as Level } from '@recative/extension-sdk';
 import type { IResourceFile, IResourceItem } from '@recative/definitions';
 import type { PostProcessedResourceItemForUpload } from '@recative/extension-sdk';
@@ -14,7 +13,7 @@ import { logToTerminal } from './terminal';
 
 import { getDb } from '../db';
 
-import { TaskQueue } from '../../utils/uploadTaskQueue';
+import { PromiseQueue } from '../../utils/PromiseQueue';
 import { getReleasedDb } from '../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../utils/getResourceFile';
 import { getUploaderInstances } from '../../utils/getResourceProcessorInstances';
@@ -105,11 +104,7 @@ export const uploadMediaBundle = async (
   );
 
   // Initialize the task queue
-  const taskQueue = new TaskQueue({
-    concurrent: 1,
-    interval: 50,
-    start: false,
-  });
+  const taskQueue = new PromiseQueue(3);
 
   let skippedFiles = 0;
   let finishedFiles = 0;
@@ -224,7 +219,6 @@ export const uploadMediaBundle = async (
             );
 
             taskQueue.stop();
-            taskQueue.clear();
 
             throw error;
           }
@@ -233,20 +227,11 @@ export const uploadMediaBundle = async (
     }
   );
 
-  const finalPromise = new OpenPromise<void>();
+  await taskQueue.run();
 
-  taskQueue.on('end', () => {
-    logToTerminal(`:: Upload Task Summary`, Level.Info);
-    logToTerminal(`:: :: Finished: ${finishedFiles}`, Level.Info);
-    logToTerminal(`:: :: Skipped: ${skippedFiles}`, Level.Warning);
-    finalPromise.resolve();
-  });
-
-  if (taskQueue.isEmpty) {
-    return Promise.resolve(0);
-  }
-
-  taskQueue.run();
+  logToTerminal(`:: Upload Task Summary`, Level.Info);
+  logToTerminal(`:: :: Finished: ${finishedFiles}`, Level.Info);
+  logToTerminal(`:: :: Skipped: ${skippedFiles}`, Level.Warning);
 
   return finishedFiles;
 };
