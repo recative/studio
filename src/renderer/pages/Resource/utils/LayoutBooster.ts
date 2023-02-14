@@ -82,17 +82,16 @@ export class LayoutBooster {
     }
 
     let cols = 0;
-    const lastY: number | null = null;
+    let lastY: number | null = null;
 
     for (let i = 0; i < $$elements.length; i += 1) {
-      if (
-        lastY !== null &&
-        lastY - $$elements[i].getBoundingClientRect().y > ROW_TOLERANCE
-      ) {
+      const { y } = $$elements[i].getBoundingClientRect();
+      if (lastY !== null && Math.abs(lastY - y) > ROW_TOLERANCE) {
         break;
       }
 
       cols += 1;
+      lastY = y;
     }
 
     this.cols = cols;
@@ -187,6 +186,11 @@ export class LayoutBooster {
   getElementRect = ($element: HTMLElement | SVGElement) => {
     const { width, height, left, top } =
       this.getFastBoundingClientRect($element);
+
+    $element.dataset.boosterWidth = width.toString();
+    $element.dataset.boosterHeight = height.toString();
+    $element.dataset.boosterLeft = left.toString();
+    $element.dataset.boosterTop = top.toString();
 
     return {
       pos1: [left, top],
