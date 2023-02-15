@@ -62,6 +62,19 @@ export interface IResourceTagSelectorProps extends ButtonProps {
   onRemove?: (x: string) => void;
 }
 
+export const useEventWrappersForResourceTagSelector = (
+  o: string[] | undefined,
+  callback: ((x: string[]) => void) | undefined
+) => {
+  const onAdd = useEvent((x: string) => o && callback?.([...o, x]));
+
+  const onRemove = useEvent(
+    (x: string) => o && callback?.(o.filter((y) => y !== x))
+  );
+
+  return { onAdd, onRemove };
+};
+
 export const useResourceTagSelector = () => {
   const [value, setValue] = React.useState<string[]>([]);
 
@@ -167,20 +180,22 @@ export const ResourceTagSelector: React.FC<IResourceTagSelectorProps> =
           overrides={buttonOverrides}
           {...props}
         >
-          {value?.length ? (
-            value.map((x) => (
-              <ResourceTag key={x} value={x} onRemove={onRemove} />
-            ))
-          ) : (
-            <RecativeBlock
-              marginTop="2px"
-              marginBottom="2px"
-              paddingLeft="8px"
-              color={theme.colors.inputPlaceholder}
-            >
-              Select an tag
-            </RecativeBlock>
-          )}
+          <RecativeBlock marginTop="-2px" marginBottom="-2px">
+            {value?.length ? (
+              value.map((x) => (
+                <ResourceTag key={x} value={x} onRemove={onRemove} />
+              ))
+            ) : (
+              <RecativeBlock
+                marginTop="2px"
+                marginBottom="2px"
+                paddingLeft="8px"
+                color={theme.colors.inputPlaceholder}
+              >
+                Select an tag
+              </RecativeBlock>
+            )}
+          </RecativeBlock>
         </Button>
       </StatefulPopover>
     );

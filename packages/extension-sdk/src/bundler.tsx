@@ -7,6 +7,7 @@ export interface IBundleProfile {
   bundleExtensionId: string;
   constantFileName: string;
   offlineAvailability: string;
+  excludedResourceTags: string[];
   shellTemplateFileName: string;
   webRootTemplateFileName: string;
   extensionConfigurations: Record<string, string>;
