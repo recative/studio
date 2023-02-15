@@ -32,6 +32,13 @@ export const ifResourceIncludedInBundle = (
     return false;
   }
 
+  const l = resource.tags.length;
+  for (let i = 0; i < l; i += 1) {
+    if (profile.excludedResourceTags.indexOf(resource.tags[i]) > -1) {
+      return false;
+    }
+  }
+
   const resourceHasRedirectUrl = REDIRECT_URL_EXTENSION_ID in resource.url;
   const resourceHasRedirectKey = !!resource.redirectTo;
 
