@@ -1,11 +1,14 @@
 import fetch from 'node-fetch';
 import { h32 } from 'xxhashjs';
+import { join } from 'path';
 import { faker } from '@faker-js/faker';
+import { writeFile } from 'fs/promises';
 import { v4 as uuidV4 } from 'uuid';
 
 import { localStorage } from '../../utils/localStorage';
 
 import { getDb } from '../db';
+import { getWorkspace } from '../workspace';
 
 const HOST_KEY = '@recative/auth-service/host';
 const TOKEN_KEY = '@recative/auth-service/token';
@@ -364,6 +367,19 @@ export const syncPermissions = async () => {
       `Access permission for ${seriesLabel}`
     );
   }
+};
+
+export const syncInterfaceComponent = async (storageId: string) => {
+  const { assetsPath } = getWorkspace();
+
+  const containerComponentsPath = join(
+    assetsPath,
+    'components',
+    'containerComponents.js'
+  );
+
+  const storage = await getStorage(storageId);
+  await writeFile(containerComponentsPath, storage.value);
 };
 
 export const deletePermission = (permission: string) => {

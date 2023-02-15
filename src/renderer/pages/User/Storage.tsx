@@ -19,6 +19,7 @@ import { BackupRecoverIconOutline } from 'components/Icons/BackupRecoverIconOutl
 import { StorageIconUnknownOutline } from 'components/Icons/StorageIconUnknownOutline';
 import { StorageIconMetadataOutline } from 'components/Icons/StorageIconMetadataOutline';
 
+import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 
@@ -31,12 +32,27 @@ import {
   ConfirmCreateBackupModal,
   useConfirmCreateBackupModal,
 } from './components/ConfirmCreateBackupModal';
+import {
+  ConfirmSyncInterfaceComponentModal,
+  useConfirmSyncInterfaceComponentModal,
+} from './components/ConfirmSyncInterfaceComponentModal';
+import {
+  ConfirmSyncInterfaceComponentSuccessModal,
+  useConfirmSyncInterfaceComponentSuccessModal,
+} from './components/ConfirmSyncInterfaceComponentSuccessModal';
 
 const Actions: React.FC<IStorageListActionProps> = ({ id }) => {
   const [, , openSelectSyncModeModal] = useSelectSyncModeModal();
 
+  const [, , openConfirmSyncInterfaceComponentModal] =
+    useConfirmSyncInterfaceComponentModal();
+
   const handleRecoverBackupClick = useEvent(() => {
     openSelectSyncModeModal(id);
+  });
+
+  const handleSyncInterfaceComponentClick = useEvent(() => {
+    openConfirmSyncInterfaceComponentModal(id);
   });
 
   return (
@@ -45,6 +61,14 @@ const Actions: React.FC<IStorageListActionProps> = ({ id }) => {
         <SmallIconButton
           title="Recover Backup"
           onClick={handleRecoverBackupClick}
+        >
+          <BackupRecoverIconOutline width={16} />
+        </SmallIconButton>
+      )}
+      {id.endsWith('/interfaceComponent') && (
+        <SmallIconButton
+          title="Download Interface Component"
+          onClick={handleSyncInterfaceComponentClick}
         >
           <BackupRecoverIconOutline width={16} />
         </SmallIconButton>
@@ -59,10 +83,20 @@ const InternalStorage: React.FC = () => {
 
   const [, , handleOpenConfirmCreateBackupModal] =
     useConfirmCreateBackupModal();
-
+  const [, , handleOpenConfirmSyncInterfaceComponentSuccessModal] =
+    useConfirmSyncInterfaceComponentSuccessModal();
   const handleButtonIconClick = useEvent((_event: unknown, index: number) => {
     setStorageIndex(index);
   });
+
+  const handleConfirmSyncInterfaceComponentModal = useEvent(
+    async (key: string | null) => {
+      if (key) {
+        await server.syncInterfaceComponent(key);
+        handleOpenConfirmSyncInterfaceComponentSuccessModal(null);
+      }
+    }
+  );
 
   return (
     <PivotLayout
@@ -133,6 +167,14 @@ const InternalStorage: React.FC = () => {
       </ContentContainer>
       <SelectSyncModeModal />
       <ConfirmCreateBackupModal />
+      <ConfirmSyncInterfaceComponentModal
+        onCancel={null}
+        onSubmit={handleConfirmSyncInterfaceComponentModal}
+      />
+      <ConfirmSyncInterfaceComponentSuccessModal
+        onCancel={null}
+        onSubmit={null}
+      />
     </PivotLayout>
   );
 };
