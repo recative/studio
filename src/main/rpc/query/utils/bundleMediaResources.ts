@@ -2,11 +2,11 @@ import { Zip, IBundleProfile } from '@recative/extension-sdk';
 import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
 
 import { logToTerminal } from '../terminal';
+import { getResourceListOfEpisode } from '../episode';
 
 import { getReleasedDb } from '../../../utils/getReleasedDb';
 import { getResourceFilePath } from '../../../utils/getResourceFile';
 import { ifResourceIncludedInBundle } from '../../../dataGenerationProfiles/utils/ifResourceIncludedInBundle';
-import { getResourceListOfEpisode } from '../episode';
 
 /**
  * Find all not-deleted resource files, which don't have any episode, or
