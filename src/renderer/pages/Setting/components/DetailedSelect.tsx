@@ -19,7 +19,7 @@ export interface IDetailedSelectOption {
   id: string;
   label: string;
   description: string;
-  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  Icon: React.FC<React.SVGProps<SVGSVGElement>> | null;
 }
 
 export interface IDetailedSelectProps
@@ -63,9 +63,11 @@ const InternalDetailedSelect: React.FC<IDetailedSelectProps> = ({
 
       return (
         <RecativeBlock display="flex" alignItems="center">
-          <RecativeBlock>
-            <option.Icon width={32} />
-          </RecativeBlock>
+          {option.Icon && (
+            <RecativeBlock>
+              <option.Icon width={32} />
+            </RecativeBlock>
+          )}
           <RecativeBlock marginLeft={theme.sizing.scale500}>
             <LabelMedium>{option.label}</LabelMedium>
             <RecativeBlock className={descriptionContainerStyle}>
