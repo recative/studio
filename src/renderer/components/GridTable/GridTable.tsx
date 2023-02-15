@@ -27,6 +27,7 @@ export interface IGridTableProps<K extends string> {
   emptyHeader: string;
   emptyContent: string;
   Actions?: React.FC<IData<K>>;
+  renderers?: Partial<Record<K, React.FC<any>>>;
   loading?: boolean;
 }
 
@@ -52,12 +53,19 @@ const bodyStyle = {
 
 const DEFAULT_ACTIONS = () => <></>;
 
+export interface IRendererProps {
+  data: string | React.ReactNode;
+}
+
+const DEFAULT_RENDERERS: Record<string, React.FC<IRendererProps>> = {};
+
 export const GridTable = <K extends string>({
   data,
   loading,
   columns,
   emptyHeader,
   emptyContent,
+  renderers = DEFAULT_RENDERERS,
   Actions = DEFAULT_ACTIONS,
 }: IGridTableProps<K>) => {
   const [css, theme] = useStyletron();
@@ -112,14 +120,22 @@ export const GridTable = <K extends string>({
       {data?.map((row) => {
         return (
           <RecativeBlock key={row.id} className={css(bodyStyle)} role="row">
-            {sortedColumns.map((column) => (
-              <StyledBodyCell
-                key={`${column.id}-${row.id}`}
-                className={cellStyle}
-              >
-                {row[column.id]}
-              </StyledBodyCell>
-            ))}
+            {sortedColumns.map((column) => {
+              const Renderer = renderers[column.id] as React.FC<IRendererProps>;
+
+              return (
+                <StyledBodyCell
+                  key={`${column.id}-${row.id}`}
+                  className={cellStyle}
+                >
+                  {Renderer ? (
+                    <Renderer data={row[column.id]} />
+                  ) : (
+                    row[column.id]
+                  )}
+                </StyledBodyCell>
+              );
+            })}
 
             <StyledBodyCell className={cellStyle}>
               <Actions {...row} />

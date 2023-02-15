@@ -8,9 +8,9 @@ import { StorageIconMetadataOutline } from 'components/Icons/StorageIconMetadata
 import { parseStorageKey, StorageType } from '../utils/parseStorageKey';
 
 export interface IStorageKeyProps {
-  key: string;
+  key?: string;
   id?: string;
-  comment: string;
+  comment?: string;
 }
 
 interface IComplexRowProps {
@@ -33,13 +33,15 @@ const ComplexRow: React.FC<IComplexRowProps> = ({ title, value, Icon }) => {
   );
 };
 
-export const StorageKey: React.FC<IStorageKeyProps> = React.memo((props) => {
+const InternalStorageKey: React.FC<IStorageKeyProps> = (props) => {
   const { key, id, comment } = props;
 
   const parsedKey = React.useMemo(
     () => parseStorageKey(key ?? id, comment),
     [key, id, comment]
   );
+
+  console.log(parsedKey);
 
   if (parsedKey.type === StorageType.Invalid) {
     return <RecativeBlock>Invalid</RecativeBlock>;
@@ -76,4 +78,6 @@ export const StorageKey: React.FC<IStorageKeyProps> = React.memo((props) => {
   }
 
   return <RecativeBlock>{parsedKey.title}</RecativeBlock>;
-});
+};
+
+export const StorageKey = React.memo(InternalStorageKey);

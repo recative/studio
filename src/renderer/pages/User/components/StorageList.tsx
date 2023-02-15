@@ -2,8 +2,10 @@ import * as React from 'react';
 
 import { useAsync } from '@react-hookz/web';
 
-import { server } from 'utils/rpc';
 import { GridTable, IColumnConfig } from 'components/GridTable/GridTable';
+
+import { server } from 'utils/rpc';
+
 import { StorageKey } from './StorageKey';
 
 export interface IStorageListActionProps {
@@ -53,7 +55,13 @@ export const StorageList: React.FC<IPermissionListProps> = ({ Actions }) => {
       storages.result?.map((storage) => ({
         id: storage.key,
         key: storage.key,
-        formattedKey: StorageKey(storage),
+        formattedKey: (
+          <StorageKey
+            id={storage.key}
+            key={storage.key}
+            comment={storage.comment}
+          />
+        ),
         permissions: `${storage.need_permission_count}/${
           storage.need_permissions?.length ?? 0
         }`,

@@ -74,8 +74,8 @@ export const parseStorageKey = (
     key.startsWith(`@`) &&
     splitedKey.length === 3 &&
     comment &&
-    (key.startsWith('Client side metadata for ') ||
-      key.startsWith('Client side abstract for '))
+    (comment.startsWith('Client side metadata for ') ||
+      comment.startsWith('Client side abstract for '))
   ) {
     const fileName = comment
       .replace('Client side metadata for ', '')

@@ -27,7 +27,7 @@ export const uploadMediaBundle = async (
   mediaReleaseId: number | null,
   bundleReleaseId: number | undefined,
   terminalId: string
-) => {
+): Promise<number> => {
   const db0 = await getDb();
 
   logToTerminal(terminalId, 'Initializing the archived database');
@@ -137,7 +137,7 @@ export const uploadMediaBundle = async (
       // If the file is already available on the CDN, skip uploading.
       if (resourceRecord.url[serviceProviderLabel]) {
         skippedFiles += 1;
-        return;
+        continue;
       }
 
       // We're checking if the file should be uploaded to the CDN based on the
@@ -160,7 +160,7 @@ export const uploadMediaBundle = async (
         // console.log(
         //   'Do not need to upload this file, since it is not in the list of acceptable file category'
         // );
-        return;
+        continue;
       }
 
       // This is intended
