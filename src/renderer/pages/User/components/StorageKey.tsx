@@ -41,8 +41,6 @@ const InternalStorageKey: React.FC<IStorageKeyProps> = (props) => {
     [key, id, comment]
   );
 
-  console.log(parsedKey);
-
   if (parsedKey.type === StorageType.Invalid) {
     return <RecativeBlock>Invalid</RecativeBlock>;
   }

@@ -55,7 +55,7 @@ const Actions: React.FC<IStorageListActionProps> = ({ id }) => {
 
 const InternalStorage: React.FC = () => {
   const databaseLocked = useDatabaseLocked();
-  const [storageIndex, setStorageIndex] = React.useState(2);
+  const [storageIndex, setStorageIndex] = React.useState(0);
 
   const [, , handleOpenConfirmCreateBackupModal] =
     useConfirmCreateBackupModal();
@@ -126,7 +126,7 @@ const InternalStorage: React.FC = () => {
             position="relative"
           >
             <RecativeBlock width="100%" height="100%" position="absolute">
-              <StorageList Actions={Actions} />
+              <StorageList groupIndex={storageIndex} Actions={Actions} />
             </RecativeBlock>
           </RecativeBlock>
         </RecativeBlock>
