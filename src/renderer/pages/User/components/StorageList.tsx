@@ -5,9 +5,11 @@ import { useAsync } from '@react-hookz/web';
 import { GridTable, IColumnConfig } from 'components/GridTable/GridTable';
 
 import { server } from 'utils/rpc';
+import type { IStorage } from 'rpc/query';
 
 import { StorageKey } from './StorageKey';
 import { parseStorageKey, StorageType } from '../utils/parseStorageKey';
+import { MetadataGroupTable } from './MetadataGroupTable';
 
 export interface IStorageListActionProps {
   id: string;
@@ -62,34 +64,54 @@ export const StorageList: React.FC<IPermissionListProps> = ({
     storagesActions.execute();
   }, [storagesActions]);
 
-  const rawData = React.useMemo(
-    () =>
-      storages.result?.map((storage) => {
-        const parsedKey = parseStorageKey(storage.key, storage.comment);
+  const { rawData, metadataMap } = React.useMemo(() => {
+    const internalMetadataMap = new Map<string, IStorage[]>();
+    const internalRawData = storages.result?.map((storage) => {
+      const parsedKey = parseStorageKey(storage.key, storage.comment);
 
-        return {
-          id: storage.key,
-          key: storage.key,
-          formattedKey: (
-            <StorageKey
-              id={storage.key}
-              key={storage.key}
-              comment={storage.comment}
-            />
-          ),
-          permissions: `${storage.need_permission_count}/${
-            storage.need_permissions?.length ?? 0
-          }`,
-          notes: storage.comment,
-          parsedKey,
-        };
-      }),
-    [storages.result]
-  );
+      if (parsedKey.type === StorageType.Metadata) {
+        const { seriesId, releaseId } = parsedKey;
+
+        const groupKey = `${seriesId}:::${releaseId}`;
+
+        const value = internalMetadataMap.get(groupKey) ?? ([] as IStorage[]);
+        value.push(storage);
+        internalMetadataMap.set(groupKey, value);
+      }
+
+      return {
+        id: storage.key,
+        key: storage.key,
+        formattedKey: (
+          <StorageKey
+            id={storage.key}
+            key={storage.key}
+            comment={storage.comment}
+          />
+        ),
+        permissions: `${storage.need_permission_count}/${
+          storage.need_permissions?.length ?? 0
+        }`,
+        notes: storage.comment,
+        parsedKey,
+      };
+    });
+
+    return { rawData: internalRawData, metadataMap: internalMetadataMap };
+  }, [storages.result]);
 
   const filteredData = React.useMemo(() => {
     return rawData?.filter((x) => x.parsedKey.type === TYPES[groupIndex]);
   }, [groupIndex, rawData]);
+
+  if (groupIndex === 2) {
+    return (
+      <MetadataGroupTable
+        metadataGroup={metadataMap}
+        onRefreshEpisodeListRequest={storagesActions.execute}
+      />
+    );
+  }
 
   return (
     <GridTable

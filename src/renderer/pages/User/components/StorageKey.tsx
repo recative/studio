@@ -70,7 +70,7 @@ const InternalStorageKey: React.FC<IStorageKeyProps> = (props) => {
       <ComplexRow
         Icon={StorageIconMetadataOutline}
         title={parsedKey.seriesId}
-        value={`[${parsedKey.releaseId}] ${parsedKey.title}`}
+        value={`${parsedKey.title}`}
       />
     );
   }
