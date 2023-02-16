@@ -8,6 +8,8 @@ import { IAsset, IActPoint, IResourceItem } from '@recative/definitions';
 
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 
+import { floatDownAnimationStyle } from 'styles/animation';
+
 import { AssetTableUnit } from './AssetTableUnit';
 
 const tableStyle = {
@@ -62,6 +64,7 @@ export const AssetTable: React.FC<IAssetsProps> = ({
         role="grid"
         className={cn(
           css(tableStyle),
+          css(floatDownAnimationStyle),
           additionalTableStyle,
           gridTemplateRowStyles
         )}

@@ -9,6 +9,7 @@ import { Broken } from 'components/Pattern/Broken';
 import { Pattern } from 'components/Pattern/Pattern';
 
 import { useEvent } from 'utils/hooks/useEvent';
+import { floatDownAnimationStyle } from 'styles/animation';
 
 export enum ThumbnailSize {
   Medium = 'medium',
@@ -55,21 +56,6 @@ const smallStyle: StyleObject = {
   height: `${SIZES.small[1]}px`,
 };
 
-const loadedStyle: StyleObject = {
-  animationDuration: '300ms',
-  animationFillMode: 'forwards',
-  animationName: {
-    from: {
-      opacity: 0,
-      transform: 'translateY(5%)',
-    },
-    to: {
-      opacity: 1,
-      transform: 'translateY(0)',
-    },
-  } as unknown as string,
-};
-
 const noAnimationStyle: StyleObject = {
   opacity: 1,
   transform: 'translateY(0)',
@@ -103,7 +89,7 @@ export const Thumbnail: React.FC<IThumbnailProps> = React.memo(
       return (
         <Broken
           className={cn(className, brokenClassName, {
-            [css(loadedStyle)]: !noAnimation,
+            [css(floatDownAnimationStyle)]: !noAnimation,
           })}
           width={SIZES[size][0]}
           height={SIZES[size][1]}
@@ -121,7 +107,7 @@ export const Thumbnail: React.FC<IThumbnailProps> = React.memo(
               [css(largeStyle)]: size === 'large',
               [css(smallStyle)]: size === 'small',
               [css(mediumStyle)]: size === 'medium',
-              [css(loadedStyle)]: loaded && !noAnimation,
+              [css(floatDownAnimationStyle)]: loaded && !noAnimation,
               [css(noAnimationStyle)]: noAnimation,
             },
             className,
@@ -139,7 +125,7 @@ export const Thumbnail: React.FC<IThumbnailProps> = React.memo(
     return (
       <Pattern
         className={cn(className, patternClassName, {
-          [css(loadedStyle)]: !noAnimation,
+          [css(floatDownAnimationStyle)]: !noAnimation,
         })}
         width={SIZES[size][0]}
         height={SIZES[size][1]}
