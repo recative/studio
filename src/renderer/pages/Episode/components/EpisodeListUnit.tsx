@@ -11,9 +11,8 @@ import type {
   IResourceItem,
 } from '@recative/definitions';
 
+import { ExpandButton } from 'components/ExpandButton/ExpandButton';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { SmallIconButton } from 'components/Button/SmallIconButton';
-import { ArrowUpIconOutline } from 'components/Icons/ArrowUpIconOutline';
 
 import { useEvent } from 'utils/hooks/useEvent';
 
@@ -24,16 +23,6 @@ import { Id } from './Id';
 const bodyStyle = {
   display: 'contents',
 } as const;
-
-const rotatedExpandIcon = {
-  transform: 'rotate(90deg)',
-  transition: 'transform 300ms',
-};
-
-const notRotatedExpandIcon = {
-  transform: 'rotate(180deg)',
-  transition: 'transform 300ms',
-};
 
 interface IEpisodeListUnitProps {
   episode: IEpisode;
@@ -82,17 +71,7 @@ export const EpisodeListUnit: React.FC<IEpisodeListUnitProps> = ({
     <RecativeBlock key={episode.id} className={css(bodyStyle)} role="row">
       <StyledBodyCell className={cellStyle}>
         <RecativeBlock display="flex">
-          <SmallIconButton
-            title={expanded ? 'Expand' : 'Close'}
-            onClick={expanded ? close : open}
-          >
-            <ArrowUpIconOutline
-              width={12}
-              className={
-                expanded ? css(notRotatedExpandIcon) : css(rotatedExpandIcon)
-              }
-            />
-          </SmallIconButton>
+          <ExpandButton expanded={expanded} onClick={expanded ? close : open} />
           <RecativeBlock marginRight="4px">
             {episode.label.en ?? 'Unknown Episode'}
           </RecativeBlock>
