@@ -9,7 +9,18 @@ import type { StyleObject } from 'styletron-react';
 import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
-import { RecativeBlock } from 'components/Block/RecativeBlock';
+import {
+  tagIdMap,
+  LabelType,
+  typeNameMap,
+  PreloadLevel,
+} from '@recative/definitions';
+import type {
+  IResourceTag,
+  IEditableResourceFile,
+  IGroupTypeResourceTag,
+} from '@recative/definitions';
+
 import { LabelLarge } from 'baseui/typography';
 import { FormControl } from 'baseui/form-control';
 import { LABEL_PLACEMENT } from 'baseui/checkbox';
@@ -21,10 +32,9 @@ import { Toggle } from 'components/Toggle/Toggle';
 import { NotFound } from 'components/Illustrations/NotFound';
 import { Thumbnail } from 'components/Thumbnail/Thumbnail';
 import { EmptySpace } from 'components/EmptyState/EmptyState';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { LockIconOutline } from 'components/Icons/LockIconOutline';
 import { ExtensionConfiguration } from 'components/ExtensionConfiguration/ExtensionConfiguration';
-
-import type { ISelectProps } from 'components/Select/Select';
 
 import { useDatabaseLocked } from 'utils/hooks/useDatabaseLockChecker';
 import {
@@ -36,20 +46,9 @@ import {
 } from 'utils/hooks/useFormChangeCallbacks';
 import { Hint, HintParagraph } from 'pages/Setting/components/Hint';
 
-import {
-  tagIdMap,
-  LabelType,
-  tagsByType,
-  typeNameMap,
-  PreloadLevel,
-  emptyResourceTag,
-} from '@recative/definitions';
-import type {
-  IResourceTag,
-  IEditableResourceFile,
-  IGroupTypeResourceTag,
-} from '@recative/definitions';
 import { server } from 'utils/rpc';
+
+import { FormTagItem } from './components/FormTagItem';
 
 /**
  * This is a hack, while editing a resource group, we create an empty resource
@@ -71,14 +70,6 @@ export const editableResourceGroupProps: (keyof Partial<IEditableResourceFile>)[
     'episodeIds',
     'extensionConfigurations',
   ];
-
-interface IFormItemProps {
-  typeId: LabelType;
-  disabled?: boolean;
-  tagReference?: IResourceTag | IGroupTypeResourceTag;
-  custom?: boolean;
-  onTagChange: (typeId: LabelType, tagReference: IResourceTag) => void;
-}
 
 interface SelectOption<Id = string> {
   id: Id;
@@ -128,64 +119,12 @@ const PRELOAD_LEVELS = Object.entries(PRELOAD_LEVEL_MAP).map(
 
 const EMPTY_PRELOAD_TRIGGERS: SelectOption[] = [];
 
-const InternalFormTagItem: React.FC<IFormItemProps> = ({
-  disabled,
-  typeId,
-  custom,
-  tagReference,
-  onTagChange,
-}) => {
-  const tag = tagsByType[typeId];
-
-  const options = React.useMemo(() => [emptyResourceTag, ...tag], [tag]);
-
-  const handleChange: ISelectProps<
-    IResourceTag | IGroupTypeResourceTag
-  >['onChange'] = React.useCallback(
-    (params) => {
-      if (custom && params.value[0]?.type !== LabelType.MetaStatus) {
-        const createdTag = params.value[0]?.id || '';
-        return onTagChange(typeId, {
-          id: `${typeId}:${createdTag}`,
-          label: createdTag,
-          type: LabelType.Custom,
-        });
-      }
-      return onTagChange(typeId, params.value[0] as unknown as IResourceTag);
-    },
-    [custom, onTagChange, typeId]
-  );
-
-  const value = React.useMemo(
-    () => [tagReference || emptyResourceTag],
-    [tagReference]
-  );
-
-  return (
-    <RecativeBlock>
-      <FormControl label={typeNameMap[typeId]}>
-        <Select<IResourceTag | IGroupTypeResourceTag>
-          value={value}
-          options={options}
-          creatable={custom}
-          disabled={disabled}
-          size={SELECT_SIZE.mini}
-          onChange={handleChange}
-          filterOutSelected={false}
-        />
-      </FormControl>
-    </RecativeBlock>
-  );
-};
-
-const FormTagItem = React.memo(InternalFormTagItem);
-
 const useTagTypeToReferenceMap = (file?: IEditableResource | null) => {
   const tags = file?.tags.filter(Boolean).join(',,,');
 
   return React.useMemo(() => {
     const tagTypeToReferenceMap: Partial<
-      Record<LabelType, IResourceTag | IGroupTypeResourceTag>
+      Record<LabelType, (IResourceTag | IGroupTypeResourceTag)[]>
     > = {};
 
     tags?.split(',,,').forEach((tag) => {
@@ -201,7 +140,10 @@ const useTagTypeToReferenceMap = (file?: IEditableResource | null) => {
               type: LabelType.Custom,
             }
           : tagIdMap[tag];
-      tagTypeToReferenceMap[tagType] = tagReference;
+
+      const tagList = tagTypeToReferenceMap[tagType] ?? [];
+      tagList.push(tagReference);
+      tagTypeToReferenceMap[tagType] = tagList;
     });
 
     return tagTypeToReferenceMap;
@@ -210,22 +152,28 @@ const useTagTypeToReferenceMap = (file?: IEditableResource | null) => {
 
 const useResourceTagChangeCallback = (
   tagTypeToReferenceMap: Partial<
-    Record<LabelType, IResourceTag | IGroupTypeResourceTag>
+    Record<LabelType, (IResourceTag | IGroupTypeResourceTag)[]>
   >,
   onChange?: (x: IEditableResource) => void,
   setFile?: Updater<IEditableResource | null>
 ) => {
   const handleResourceTagChange = React.useCallback(
-    (type: LabelType, nextTagReference: IResourceTag) => {
+    (
+      type: LabelType,
+      nextTagReference: (IResourceTag | IGroupTypeResourceTag)[]
+    ) => {
       tagTypeToReferenceMap[type] = nextTagReference;
 
-      const nextTags = Object.values(tagTypeToReferenceMap).map((x) => x?.id);
+      const nextTags = new Set<string>();
+      Object.values(tagTypeToReferenceMap).forEach((x) =>
+        x.forEach((a) => nextTags.add(a.id))
+      );
 
       setFile?.((draft) => {
         if (draft) {
           const result: IEditableResource = {
             ...draft,
-            tags: nextTags,
+            tags: Array.from(nextTags),
           };
           onChange?.(result);
           return result;
@@ -479,19 +427,18 @@ const InternalResourceEditor: React.ForwardRefRenderFunction<
                   disabled={databaseLocked || !!file.managedBy}
                   typeId={_typeId as unknown as LabelType}
                   onTagChange={handleResourceTagChange}
-                  tagReference={
-                    tagTypeToReferenceMap[_typeId as unknown as LabelType]
-                  }
+                  value={tagTypeToReferenceMap[_typeId as unknown as LabelType]}
                 />
               ))}
           </RecativeBlock>
           <RecativeBlock>
             <FormTagItem
-              custom
+              creatable
+              isCustom
               disabled={databaseLocked || !!file.managedBy}
               typeId={LabelType.Custom}
               onTagChange={handleResourceTagChange}
-              tagReference={tagTypeToReferenceMap[LabelType.Custom]}
+              value={tagTypeToReferenceMap[LabelType.Custom]}
             />
           </RecativeBlock>
         </>

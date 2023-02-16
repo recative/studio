@@ -37,7 +37,7 @@ export interface ISelectProps<T extends Option | Readonly<Option>>
     'onChange' | 'options' | 'value' | 'getOptionLabel' | 'getValueLabel'
   > {
   readonly options: T[] | undefined;
-  readonly value?: ReadonlyArray<T> | string[] | string | null;
+  readonly value?: Array<T> | ReadonlyArray<T> | string[] | string | null;
   readonly onChange: (
     value: Omit<OnChangeParams, 'value'> & { value: ReadonlyArray<T> }
   ) => void;
