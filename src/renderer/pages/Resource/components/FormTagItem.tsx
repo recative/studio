@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { FormControl } from 'baseui/form-control';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
+import { VARIANT as TAG_VARIANT, SIZE as TAG_SIZE } from 'baseui/tag';
 
 import { Select } from 'components/Select/Select';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
@@ -9,10 +10,10 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 import type { ISelectProps } from 'components/Select/Select';
 
 import {
+  labelColorMap,
   LabelType,
   tagsByType,
   typeNameMap,
-  emptyResourceTag,
 } from '@recative/definitions';
 import type {
   IResourceTag,
@@ -30,6 +31,29 @@ interface IFormItemProps {
     tagReference: (IResourceTag | IGroupTypeResourceTag)[]
   ) => void;
 }
+
+export const tagOverrides = {
+  Root: {
+    style: {
+      height: '20px',
+      paddingLeft: '4px',
+      paddingRight: '4px',
+      paddingTop: '0',
+      paddingBottom: '0',
+      marginTop: '4px',
+      marginBottom: '4px',
+      marginLeft: '2px',
+      marginRight: '2px',
+      borderRadius: '0',
+    },
+  },
+  Text: {
+    style: {
+      fontSize: '10px',
+      lineHeight: '12px',
+    },
+  },
+};
 
 const InternalFormTagItem: React.FC<IFormItemProps> = ({
   disabled,
@@ -78,6 +102,16 @@ const InternalFormTagItem: React.FC<IFormItemProps> = ({
           disabled={disabled}
           size={SELECT_SIZE.mini}
           onChange={handleChange}
+          overrides={{
+            Tag: {
+              props: {
+                variant: TAG_VARIANT.light,
+                size: TAG_SIZE.small,
+                kind: labelColorMap[typeId],
+                overrides: tagOverrides,
+              },
+            },
+          }}
           filterOutSelected={false}
         />
       </FormControl>
