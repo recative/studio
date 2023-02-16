@@ -399,6 +399,7 @@ const InternalResource: React.FC = () => {
               <RecativeBlock
                 display="inline-block !important"
                 key={item.id}
+                verticalAlign="top"
                 onDoubleClick={handleOpenEditModal}
               >
                 <ResourceItem
