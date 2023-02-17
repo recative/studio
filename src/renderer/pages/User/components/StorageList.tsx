@@ -61,7 +61,7 @@ export const StorageList: React.FC<IPermissionListProps> = ({
   });
 
   React.useEffect(() => {
-    storagesActions.execute();
+    void storagesActions.execute();
   }, [storagesActions]);
 
   const { rawData, metadataMap } = React.useMemo(() => {

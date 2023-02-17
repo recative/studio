@@ -20,7 +20,7 @@ export const extractDbBackupToTempPath = async (
 
   logToTerminal(terminalId, ':: Database cache not hit');
   const dir = tempfile();
-  ensureDir(dir);
+  await ensureDir(dir);
 
   const buildPath = await getBuildPath();
 

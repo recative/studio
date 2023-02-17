@@ -50,7 +50,7 @@ export const TokenList: React.FC<IPermissionListProps> = ({ Actions }) => {
   });
 
   React.useEffect(() => {
-    tokensActions.execute();
+    void tokensActions.execute();
   }, [tokensActions]);
 
   const data = React.useMemo(

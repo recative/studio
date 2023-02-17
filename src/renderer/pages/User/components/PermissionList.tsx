@@ -38,7 +38,7 @@ export const PermissionList: React.FC<IPermissionListProps> = ({ Actions }) => {
   });
 
   React.useEffect(() => {
-    permissionsActions.execute();
+    void permissionsActions.execute();
   }, [permissionsActions]);
 
   const data = React.useMemo(

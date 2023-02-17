@@ -40,7 +40,7 @@ interface ICert {
 
 export const startResourceServer = async () => {
   if (fastifyServer) {
-    fastifyServer.close();
+    await fastifyServer.close();
   }
 
   const cert = certValid
@@ -69,7 +69,7 @@ export const startResourceServer = async () => {
     },
   });
 
-  fastify.register(cors, {
+  await fastify.register(cors, {
     origin: true,
   });
 
@@ -83,7 +83,7 @@ export const startResourceServer = async () => {
   fastify.get('/preview/:id(.+?).:serializer', getAssetListForSdk);
   fastify.get('*', getResourceFile);
 
-  fastify.listen({
+  await fastify.listen({
     port: 9999,
     host: '0.0.0.0',
   });

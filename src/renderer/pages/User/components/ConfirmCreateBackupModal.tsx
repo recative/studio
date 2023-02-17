@@ -42,8 +42,8 @@ export const ConfirmCreateBackupModal: React.FC = () => {
 
   const handleSubmit = useEvent(() => {
     onClose();
-    openTerminal('createDatabaseBackup');
-    server.uploadDatabaseBackup(clonedConfig.doPublish);
+    void openTerminal('createDatabaseBackup');
+    void server.uploadDatabaseBackup(clonedConfig.doPublish);
   });
 
   return (

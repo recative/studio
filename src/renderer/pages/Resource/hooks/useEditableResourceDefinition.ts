@@ -38,7 +38,7 @@ export const useEditableResourceDefinition = (
 
   React.useEffect(() => {
     if (isOpen && selectedFileId) {
-      selectedFileActions.execute();
+      void selectedFileActions.execute();
     } else {
       selectedFileActions.reset();
     }

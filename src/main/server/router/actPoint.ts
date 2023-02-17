@@ -26,16 +26,16 @@ export const getResourceFile = async (
 
     if (request.url === '/' && entries['index.html']) {
       const file = await previewBundle.entryData('index.html');
-      reply.type('text/html');
-      reply.send(file);
+      await reply.type('text/html');
+      await reply.send(file);
       return;
     }
 
     const entryKey = request.url.substring(1);
     if (entries[entryKey]) {
       const file = await previewBundle.entryData(entryKey);
-      reply.type(mime.lookup(entryKey) || 'application/octet-stream');
-      reply.send(file);
+      await reply.type(mime.lookup(entryKey) || 'application/octet-stream');
+      await reply.send(file);
       return;
     }
   }
@@ -47,7 +47,7 @@ export const getResourceFile = async (
   const { pathname } = parse(request.url);
 
   if (!pathname) {
-    reply.code(404).send({
+    await reply.code(404).send({
       message: 'File not found',
     });
     return;
@@ -56,7 +56,7 @@ export const getResourceFile = async (
   const filePath = join(codeRepositoryPath, 'dist', pathname);
 
   if (!pathExists(pathname)) {
-    reply.code(404).send({
+    await reply.code(404).send({
       message: 'File not found',
     });
     return;
@@ -65,7 +65,7 @@ export const getResourceFile = async (
   const isDir = lstatSync(filePath).isDirectory();
 
   if (isDir) {
-    reply.code(404).send({
+    await reply.code(404).send({
       message: 'File not found',
     });
     return;
@@ -74,16 +74,16 @@ export const getResourceFile = async (
   const file = await readFile(filePath);
 
   if (!file) {
-    reply.code(404).send({
+    await reply.code(404).send({
       message: 'File not found',
     });
     return;
   }
 
-  reply.type(mime.lookup(filePath) || 'application/octet-stream');
+  await reply.type(mime.lookup(filePath) || 'application/octet-stream');
   if (request.method === 'HEAD') {
-    reply.code(204).send('');
+    await reply.code(204).send('');
   } else {
-    reply.code(200).send(file);
+    await reply.code(200).send(file);
   }
 };

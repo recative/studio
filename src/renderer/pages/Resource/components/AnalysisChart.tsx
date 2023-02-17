@@ -76,7 +76,7 @@ const InternalAnalysisChart: React.FC<IAnalysisChartProps> = ({
 
   React.useEffect(() => {
     if (isOpen) {
-      analysisActions.execute();
+      void analysisActions.execute();
     }
   }, [isOpen, episodeId, analysisActions]);
 

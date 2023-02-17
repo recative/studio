@@ -61,7 +61,7 @@ export const getResourceMetadata = async (
     return ErrorResourceNotFound;
   }
 
-  reply.header('Metadata', JSON.stringify(cleanupLoki(resource)));
+  await reply.header('Metadata', JSON.stringify(cleanupLoki(resource)));
 
   return cleanUpResourceListForClient([resource], false)[0];
 };
@@ -98,7 +98,7 @@ export const getResourceBinary = async (
     return resource;
   }
 
-  reply.header(
+  await reply.header(
     'Metadata',
     Buffer.from(JSON.stringify(resource)).toString('base64')
   );

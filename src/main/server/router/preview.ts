@@ -8,5 +8,5 @@ export const getEnvVariableHandler = async (
 ) => {
   const query = request.query as { apHost?: string; episodeId?: string };
 
-  reply.status(200).send(await getEnvVariable(query.episodeId));
+  return reply.status(200).send(await getEnvVariable(query.episodeId));
 };

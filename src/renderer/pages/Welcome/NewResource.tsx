@@ -11,8 +11,12 @@ import { CardHeader } from 'components/Layout/CardHeader';
 import { RequiredMark } from 'components/Input/RequiredMark';
 import { GuideFormLayout } from 'components/Layout/GuideFormLayout';
 
+import { useEvent } from 'utils/hooks/useEvent';
+
 export const NewResource: React.FC = () => {
   const navigate = useNavigate();
+
+  const voidFn = useEvent(() => {});
 
   return (
     <GuideFormLayout
@@ -37,14 +41,14 @@ export const NewResource: React.FC = () => {
         }
         caption="All binaries and configuration files will be stored in this directory."
       >
-        <FileInput directory onChange={console.log} />
+        <FileInput directory onChange={voidFn} />
       </FormControl>
 
       <FormControl
         label="Code Repository Path"
         caption="The source code of the interaction program will be stored in this directory."
       >
-        <FileInput directory onChange={console.log} />
+        <FileInput directory onChange={voidFn} />
       </FormControl>
     </GuideFormLayout>
   );

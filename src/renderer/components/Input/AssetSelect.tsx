@@ -114,7 +114,7 @@ export const AssetSelect: React.FC<IAssetSelectProps> = ({
   }, [trueValue.result]);
 
   React.useEffect(() => {
-    trueValueActions.execute(value);
+    void trueValueActions.execute(value);
   }, [value, trueValueActions]);
 
   return (

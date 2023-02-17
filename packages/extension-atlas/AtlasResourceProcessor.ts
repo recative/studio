@@ -267,15 +267,19 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     resources: IPostProcessedResourceFileForUpload[]
   ) => {
     // Cleanup all redirect URLs, since we will generate new ones for each of them
-    resources.forEach((x) => {
-      if (
-        x.url[REDIRECT_URL_EXTENSION_ID] &&
-        x.url[REDIRECT_URL_EXTENSION_ID].endsWith(ATLAS_REDIRECT_REASON)
-      ) {
-        delete x.url[REDIRECT_URL_EXTENSION_ID];
-        this.dependency.updateResourceDefinition(x);
-      }
-    });
+    return Promise.allSettled(
+      resources.map((x) => {
+        if (
+          x.url[REDIRECT_URL_EXTENSION_ID] &&
+          x.url[REDIRECT_URL_EXTENSION_ID].endsWith(ATLAS_REDIRECT_REASON)
+        ) {
+          delete x.url[REDIRECT_URL_EXTENSION_ID];
+          return this.dependency.updateResourceDefinition(x);
+        }
+
+        return null;
+      })
+    );
   };
 
   /**
@@ -635,7 +639,7 @@ export class AtlasResourceProcessor extends ResourceProcessor<
     let totalOutputCount = 0;
     let totalSkippedCount = 0;
 
-    this.cleanupResourceUrl(resources);
+    await this.cleanupResourceUrl(resources);
     const bundleGroupToFileSetMap = this.buildBundleGroupToFileSetMap(
       resources,
       bundleGroups
@@ -1070,17 +1074,19 @@ export class AtlasResourceProcessor extends ResourceProcessor<
               {}
             );
 
-            currentTask.forEach((taskRect) => {
-              const resource = resourceToTaskMap.get(taskRect);
+            await Promise.allSettled(
+              currentTask.map((taskRect) => {
+                const resource = resourceToTaskMap.get(taskRect);
 
-              if (!resource) {
-                throw new TypeError(
-                  `ResourceToTaskMap don't have the task, it is a bug!`
-                );
-              }
+                if (!resource) {
+                  throw new TypeError(
+                    `ResourceToTaskMap don't have the task, it is a bug!`
+                  );
+                }
 
-              this.dependency.updateResourceDefinition(resource);
-            });
+                return this.dependency.updateResourceDefinition(resource);
+              })
+            );
 
             this.reportAtlasImageResult(
               resourceDescription,
@@ -1106,17 +1112,19 @@ export class AtlasResourceProcessor extends ResourceProcessor<
             ];
           }
 
-          currentTask.forEach((taskRect) => {
-            const resource = resourceToTaskMap.get(taskRect);
+          await Promise.allSettled(
+            currentTask.map((taskRect) => {
+              const resource = resourceToTaskMap.get(taskRect);
 
-            if (!resource) {
-              throw new TypeError(
-                `ResourceToTaskMap don't have the task, it is a bug!`
-              );
-            }
+              if (!resource) {
+                throw new TypeError(
+                  `ResourceToTaskMap don't have the task, it is a bug!`
+                );
+              }
 
-            this.dependency.updateResourceDefinition(resource);
-          });
+              return this.dependency.updateResourceDefinition(resource);
+            })
+          );
 
           if (nextTask.length > 0) {
             return nextTaskIteration('HasUnpackedTasks');
@@ -1268,15 +1276,17 @@ export class AtlasResourceProcessor extends ResourceProcessor<
       ? files.sort((x, y) => x.label.localeCompare(y.label))
       : parseResult.sort((x, y) => x.id - y.id).map((x) => x.file);
 
-    sortedFiles.forEach((x, id) => {
-      x.extensionConfigurations[`${AtlasResourceProcessor.id}~~frame`] =
-        id.toString();
-      x.extensionConfigurations[`${AtlasResourceProcessor.id}~~enabled`] =
-        'yes';
-      x.managedBy = pointerFileId;
-      x.tags = [...new Set([...x.tags, imageCategoryTag.id])];
-      this.dependency.updateResourceDefinition(x);
-    });
+    await Promise.allSettled(
+      sortedFiles.map((x, id) => {
+        x.extensionConfigurations[`${AtlasResourceProcessor.id}~~frame`] =
+          id.toString();
+        x.extensionConfigurations[`${AtlasResourceProcessor.id}~~enabled`] =
+          'yes';
+        x.managedBy = pointerFileId;
+        x.tags = [...new Set([...x.tags, imageCategoryTag.id])];
+        return this.dependency.updateResourceDefinition(x);
+      })
+    );
 
     const emptyFile = createCanvas(1, 1);
     const context = emptyFile.getContext('2d');

@@ -37,11 +37,11 @@ export const useMergeResourcesCallback = () => {
         setItemsInGroup([]);
         if (promptIfFailed) {
           closeGroupTypeModal();
-          openErrorMergeModal(groupTypeParsingResult.error);
+          void openErrorMergeModal(groupTypeParsingResult.error);
         }
       } else {
         setItemsInGroup(itemIds);
-        openGroupTypeModal(
+        void openGroupTypeModal(
           groupTypeParsingResult.types as IGroupTypeResourceTag[]
         );
         closeErrorMergeModal();
@@ -62,7 +62,7 @@ export const useMergeResourcesCallback = () => {
 
       if (files.every((x) => x.type === 'group' || x.resourceGroupId)) return;
 
-      promptGroupType(
+      void promptGroupType(
         files.map((x) => x.id),
         false
       );
@@ -72,7 +72,7 @@ export const useMergeResourcesCallback = () => {
 
   const groupFiles = async (x: IGroupTypeResourceTag) => {
     if (x) {
-      server.mergeResources(itemsInGroup, x);
+      void server.mergeResources(itemsInGroup, x);
       closeGroupTypeModal();
     }
   };

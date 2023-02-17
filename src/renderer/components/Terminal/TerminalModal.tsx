@@ -206,7 +206,7 @@ const InternalTerminalModal: React.FC = () => {
     handleReset();
     onClose();
     if (id !== null) {
-      server.destroyTerminalSession(id);
+      void server.destroyTerminalSession(id);
     }
   });
 

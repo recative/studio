@@ -31,7 +31,7 @@ const useBrokenFileList = (isOpen: boolean) => {
 
   React.useEffect(() => {
     if (isOpen) {
-      brokenFileListAction.execute();
+      void brokenFileListAction.execute();
     } else {
       brokenFileListAction.reset();
     }
@@ -74,7 +74,7 @@ export const FixResourceLinkModal: React.FC = () => {
                 kind={BUTTON_KIND.tertiary}
                 onChange={(x) => {
                   if (brokenFile.type === 'group') return;
-                  handleFix(x[0], brokenFile);
+                  void handleFix(x[0], brokenFile);
                 }}
               >
                 Fix

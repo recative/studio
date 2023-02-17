@@ -16,7 +16,7 @@ export const useLoginCredential = () => {
   });
 
   React.useEffect(() => {
-    getLoginCredential();
+    void getLoginCredential();
   }, [getLoginCredential]);
 
   return [loginCredential, getLoginCredential] as const;

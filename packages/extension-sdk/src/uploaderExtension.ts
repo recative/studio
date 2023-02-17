@@ -1,3 +1,5 @@
+import console from 'electron-log';
+
 import type { IResourceFile, Category } from '@recative/definitions';
 
 import type { IConfigUiField } from './settings';

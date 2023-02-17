@@ -28,7 +28,7 @@ export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
+    void autoUpdater.checkForUpdatesAndNotify();
   }
 }
 
@@ -78,7 +78,7 @@ const createWindow = async () => {
 
   mainWindow.setMenuBarVisibility(false);
 
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
+  void mainWindow.loadURL(`file://${__dirname}/index.html`);
 
   mainWindow.webContents.on('did-finish-load', () => {
     if (!mainWindow) {
@@ -110,7 +110,7 @@ const createWindow = async () => {
   // Open urls in the user's browser
   mainWindow.webContents.on('new-window', (event, url) => {
     event.preventDefault();
-    shell.openExternal(url);
+    return shell.openExternal(url);
   });
 
   // Remove this if your app does not use auto updates
@@ -148,7 +148,7 @@ app
     await installDevTools();
     registerProtocols();
     initializeServer();
-    createWindow();
+    void createWindow();
 
     return true;
   })
@@ -157,5 +157,5 @@ app
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) createWindow();
+  if (mainWindow === null) void createWindow();
 });

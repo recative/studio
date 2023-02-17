@@ -66,7 +66,7 @@ export const ReleaseList: React.FC<IReleaseList> = ({
   );
 
   React.useEffect(() => {
-    fetchReleaseData();
+    void fetchReleaseData();
   }, [fetchReleaseData, type]);
 
   const gridHeaderStyle = React.useMemo(

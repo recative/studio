@@ -10,7 +10,7 @@ export const useLocalSettings = () => {
   );
 
   React.useEffect(() => {
-    localSettingsActions.execute();
+    void localSettingsActions.execute();
   }, [localSettingsActions, localSettingsActions.execute]);
 
   return localSettings.result;

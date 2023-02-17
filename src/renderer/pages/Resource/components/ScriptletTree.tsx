@@ -49,7 +49,7 @@ export const InternalScriptletTree: React.FC<IScriptletTreeProps> = ({
   );
 
   React.useEffect(() => {
-    extensionActions.execute();
+    void extensionActions.execute();
   }, [extensionActions]);
 
   const handleButtonClick = useEvent(async (x: IScriptletDescription) => {

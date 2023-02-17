@@ -168,7 +168,7 @@ export const bundleBuild = async (
   await zip.done();
   logToTerminal(terminalId, `:: Done!`, Level.Info);
 
-  updateOrInsertCodeRelease([
+  await updateOrInsertCodeRelease([
     {
       id: buildId,
       committer: 'Default User',
@@ -360,7 +360,7 @@ export const createMediaRelease = async (
     'Writing Release Record',
     async () => {
       logToTerminal(terminalId, `Writing release record`);
-      updateOrInsertMediaRelease([
+      await updateOrInsertMediaRelease([
         {
           id: mediaReleaseId,
           committer: 'Default User',

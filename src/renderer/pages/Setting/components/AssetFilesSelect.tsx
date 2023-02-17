@@ -66,7 +66,7 @@ export const AssetFileSelect: React.FC<IDetailedSelectProps> = ({
   const [fileList, fileListActions] = useAsync(fetchFileList);
 
   React.useEffect(() => {
-    fileListActions.execute();
+    void fileListActions.execute();
   }, [fileListActions]);
 
   const descriptionContainerStyle = React.useMemo(

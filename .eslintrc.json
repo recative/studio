@@ -35,6 +35,7 @@
             "props": false
           }
         ],
+        "no-void": "off",
         "no-bitwise": "off",
         "no-continue": "off",
         "no-labels": "off",
@@ -60,6 +61,7 @@
         ],
         "@typescript-eslint/no-unused-vars": "warn",
         "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-floating-promises": "error",
         "@typescript-eslint/indent": "off",
         "@typescript-eslint/naming-convention": "off",
         "@typescript-eslint/no-empty-interface": "off",

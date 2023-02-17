@@ -25,7 +25,7 @@ const Actions: React.FC<IActionsProps> = ({ id }) => {
   const [, , open] = useConfirmPublishModal();
 
   const handleOpen = useEvent(() => {
-    open(id);
+    return open(id);
   });
 
   return (

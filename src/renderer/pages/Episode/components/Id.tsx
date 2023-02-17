@@ -22,7 +22,7 @@ export const Id: React.FC<IIdProps> = ({ id, shrink }) => {
   const [, theme] = useStyletron();
 
   const handleButtonClick = useEvent(() => {
-    globalThis.navigator.clipboard.writeText(id);
+    return globalThis.navigator.clipboard.writeText(id);
   });
 
   return (

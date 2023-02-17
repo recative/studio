@@ -230,7 +230,7 @@ export const uploadMediaBundle = async (
             Level.Error
           );
 
-          taskQueue.stop();
+          await taskQueue.stop();
 
           throw error;
         }

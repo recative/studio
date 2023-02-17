@@ -187,10 +187,10 @@ export class LayoutBooster {
     const { width, height, left, top } =
       this.getFastBoundingClientRect($element);
 
-    $element.dataset.boosterWidth = width.toString();
-    $element.dataset.boosterHeight = height.toString();
-    $element.dataset.boosterLeft = left.toString();
-    $element.dataset.boosterTop = top.toString();
+    $element.dataset.boosterWidth = width?.toString();
+    $element.dataset.boosterHeight = height?.toString();
+    $element.dataset.boosterLeft = left?.toString();
+    $element.dataset.boosterTop = top?.toString();
 
     return {
       pos1: [left, top],

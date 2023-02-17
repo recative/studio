@@ -1,3 +1,5 @@
+import console from 'electron-log';
+
 import {
   VIDEO_CONTENT_EXTENSION_ID,
   ACT_POINT_CONTENT_EXTENSION_ID,

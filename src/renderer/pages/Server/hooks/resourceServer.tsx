@@ -52,12 +52,12 @@ export const useResourceServer = () => {
     }
 
     if (resourceServerStatus === ResourceServerStatus.Running) {
-      stopResourceServer();
+      void stopResourceServer();
       return false;
     }
 
     if (resourceServerStatus === ResourceServerStatus.Idle) {
-      startResourceServer();
+      void startResourceServer();
       return false;
     }
 

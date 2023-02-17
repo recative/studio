@@ -205,7 +205,7 @@ const useEpisodes = () => {
   });
 
   React.useEffect(() => {
-    episodesForSelectAction.execute();
+    void episodesForSelectAction.execute();
   }, [episodesForSelectAction]);
 
   return (

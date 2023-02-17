@@ -30,7 +30,7 @@ const InternalSetting: React.FC = () => {
 
   const handleSubmitConfigToServer = React.useCallback(
     (key: string, value: string) => {
-      server.setSettings({ [key]: value });
+      return server.setSettings({ [key]: value });
     },
     []
   );
@@ -41,7 +41,7 @@ const InternalSetting: React.FC = () => {
         return;
       }
 
-      handleSubmitConfigToServer(field, draft[field] ?? '');
+      return handleSubmitConfigToServer(field, draft[field] ?? '');
     },
     [handleSubmitConfigToServer]
   );
@@ -84,7 +84,7 @@ const InternalSetting: React.FC = () => {
 
   const onSettingsSetValue = React.useCallback(
     (extensionId: string, key: string, value: string) => {
-      server.setSettings({ [`${extensionId}~~${key}`]: value });
+      return server.setSettings({ [`${extensionId}~~${key}`]: value });
     },
     []
   );

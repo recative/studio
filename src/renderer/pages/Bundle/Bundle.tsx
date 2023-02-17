@@ -26,11 +26,11 @@ const Actions: React.FC<IActionsProps> = ({ id }) => {
   const [, , openAnalysisModal] = useAnalysisModal();
 
   const handleOpenCreateBundleModal = useEvent(() => {
-    openCreateBundleModal(id);
+    return openCreateBundleModal(id);
   });
 
   const handleOpenAnalysisModal = useEvent(() => {
-    openAnalysisModal(id);
+    return openAnalysisModal(id);
   });
 
   return (

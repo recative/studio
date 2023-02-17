@@ -21,7 +21,7 @@ export const useEnvVariable = (episodeId: string | null) => {
     useAsync(fetchEnvVariable);
 
   React.useEffect(() => {
-    envVariableController.execute();
+    void envVariableController.execute();
   }, [envVariableController, episodeId]);
 
   const handleEnvVariableModalOpen = React.useCallback(() => {

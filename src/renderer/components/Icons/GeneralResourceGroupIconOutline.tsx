@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { SVGProps } from 'react';
 
-export const GeneralResourceGroupIconOutline = (
-  props: SVGProps<SVGSVGElement>
-) => (
+export const GeneralResourceGroupIconOutline: React.FC<
+  React.SVGProps<SVGSVGElement>
+> = React.memo((props) => (
   <svg viewBox="0 0 24 24" {...props}>
     <path
       fill="currentColor"
@@ -14,4 +13,4 @@ export const GeneralResourceGroupIconOutline = (
       d="M18.111 17.361h-4.889a.75.75 0 0 0 0 1.5h4.889a.75.75 0 0 0 0-1.5z"
     />
   </svg>
-);
+));

@@ -293,7 +293,7 @@ export const recoverBackup = async (storageId: string, joinMode: JoinMode) => {
   const totalTasks = postProcessedFile.length + resourceFiles.length;
 
   const directory = dirSync().name;
-  ensureDir(directory);
+  await ensureDir(directory);
 
   const resourceProcessorInstances = Object.entries(
     await getResourceProcessorInstances('')
@@ -304,7 +304,7 @@ export const recoverBackup = async (storageId: string, joinMode: JoinMode) => {
   // Initialize the task queue
   const taskQueue = new PromiseQueue(3);
 
-  ensureDir(join(mediaPath, 'post-processed'));
+  await ensureDir(join(mediaPath, 'post-processed'));
 
   [...postProcessedFile, ...resourceFiles].forEach((x) => {
     taskQueue.enqueue(async () => {

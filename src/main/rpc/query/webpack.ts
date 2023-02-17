@@ -1,4 +1,5 @@
 import spawn from 'cross-spawn';
+import console from 'electron-log';
 
 import { CodeRepositoryPathNotSetError } from '@recative/definitions';
 

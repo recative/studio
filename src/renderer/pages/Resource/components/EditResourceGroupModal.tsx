@@ -400,7 +400,7 @@ const useListItemContextMenu = (
       switch (event.item.label.props.id) {
         case 'delete':
           if (selectedValue && !selectedValue.managedBy) {
-            onRemoveResourceFile(selectedValue);
+            void onRemoveResourceFile(selectedValue);
           }
           break;
         case 'replace':
@@ -470,7 +470,7 @@ const useModalEditMenu = (
   const handleSearchModalSubmit = React.useCallback(
     (x: IResourceItem | IActPoint) => {
       if ('type' in x && x.type === 'file') {
-        onAddResourceFile(x);
+        void onAddResourceFile(x);
       }
     },
     [onAddResourceFile]
@@ -701,7 +701,7 @@ const useExtensionMetadata = () => {
   const [extensionMetadata, actions] = useAsync(asyncFn);
 
   React.useEffect(() => {
-    actions.execute();
+    void actions.execute();
   }, [actions]);
 
   return extensionMetadata.result;
@@ -751,7 +751,7 @@ const InternalEditResourceGroupModal: React.FC<
   }, [onClose, resetSelectedFile]);
 
   const handleSubmitClick = React.useCallback(() => {
-    handleGroupModalSubmit();
+    void handleGroupModalSubmit();
     handleModalClose();
   }, [handleGroupModalSubmit, handleModalClose]);
 
@@ -766,12 +766,12 @@ const InternalEditResourceGroupModal: React.FC<
       }
 
       if (resourceFile.id === group.id) {
-        openAlreadyInGroupAlertModal(null);
+        void openAlreadyInGroupAlertModal(null);
         return;
       }
 
       const resourceIds = await server.addFileToGroup(resourceFile, group.id);
-      handleAddFile([...resourceIds]);
+      return handleAddFile([...resourceIds]);
     }
   );
 

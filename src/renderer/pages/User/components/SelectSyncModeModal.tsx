@@ -75,7 +75,7 @@ export const SelectSyncModeModal: React.FC = () => {
   const handleSubmit = useEvent(() => {
     if (!storageId) return;
 
-    server.recoverBackup(storageId, JOIN_MODES[selected]);
+    void server.recoverBackup(storageId, JOIN_MODES[selected]);
     navigate('/downloading-backup');
     onClose();
   });

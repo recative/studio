@@ -72,7 +72,7 @@ export const AnalysisModal: React.FC = () => {
   const [selectedProfiles, handleSelectProfile] = useSelectedProfile();
 
   React.useEffect(() => {
-    profilesActions.execute();
+    void profilesActions.execute();
   }, [profilesActions, profilesActions.execute]);
 
   const getBundleAnalysis = useEvent(async () => {
@@ -164,7 +164,7 @@ export const AnalysisModal: React.FC = () => {
   }, [analysisReport.result, dataType, pivotBy]);
 
   const handleAnalysis = useEvent(() => {
-    analysisReportActions.execute();
+    return analysisReportActions.execute();
   });
 
   const handleClose = useEvent(() => {

@@ -136,7 +136,7 @@ const usePublishBundleCallback = (tasks: IPublishTasks) => {
   const handlePublishBundle = useEvent(async () => {
     if (selectedBundle === null) return;
 
-    openTerminal('uploadBundle');
+    void openTerminal('uploadBundle');
     onClose();
     await server.uploadBundle(selectedBundle, tasks);
   });
@@ -151,7 +151,7 @@ export const ConfirmPublishModal: React.FC = () => {
   const [selectedMediaType, toggleMediaType] = useToggle(false);
   const [selectedCodeType, toggleCodeType] = useToggle(false);
   const [selectedDatabaseType, toggleDatabaseType] = useToggle(false);
-  const [selectedPostProcessType, togglePostProcessType] = useToggle(false);
+  const [selectedPostProcessType] = useToggle(false);
 
   const publishRequest = React.useMemo<IPublishTasks>(
     () => ({

@@ -48,11 +48,11 @@ const Actions: React.FC<IStorageListActionProps> = ({ id }) => {
     useConfirmSyncInterfaceComponentModal();
 
   const handleRecoverBackupClick = useEvent(() => {
-    openSelectSyncModeModal(id);
+    return openSelectSyncModeModal(id);
   });
 
   const handleSyncInterfaceComponentClick = useEvent(() => {
-    openConfirmSyncInterfaceComponentModal(id);
+    return openConfirmSyncInterfaceComponentModal(id);
   });
 
   return (
@@ -93,7 +93,7 @@ const InternalStorage: React.FC = () => {
     async (key: string | null) => {
       if (key) {
         await server.syncInterfaceComponent(key);
-        handleOpenConfirmSyncInterfaceComponentSuccessModal(null);
+        return handleOpenConfirmSyncInterfaceComponentSuccessModal(null);
       }
     }
   );

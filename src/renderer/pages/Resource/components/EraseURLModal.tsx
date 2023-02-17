@@ -34,7 +34,7 @@ const useExtensionList = (isOpen: boolean) => {
 
   React.useEffect(() => {
     if (isOpen) {
-      extensionListAction.execute();
+      void extensionListAction.execute();
     } else {
       extensionListAction.reset();
     }

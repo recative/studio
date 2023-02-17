@@ -45,7 +45,7 @@ export const ConfirmRemoveModal: React.FC<IConfirmRemoveModalProps> = ({
 
   const handleRemoveResourceModalOpen = useEvent(() => {
     setIsHardRemove(shiftPressed);
-    onOpen(0);
+    return onOpen(0);
   });
 
   const handleRemoveResourceConfirmed = useEvent(async () => {

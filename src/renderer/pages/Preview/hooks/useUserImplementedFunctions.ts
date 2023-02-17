@@ -30,7 +30,7 @@ export const useUserImplementedFunctions = (
   }, [episodesRequest.result]);
 
   React.useEffect(() => {
-    episodesAction.execute();
+    void episodesAction.execute();
   }, [episodesAction]);
   const [, setInitialAssetStatus] = useAtom(initialAssetStatusAtom);
   const gotoEpisode: UserImplementedFunctions['gotoEpisode'] =

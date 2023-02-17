@@ -56,7 +56,7 @@ describe('data io', () => {
       await environment;
 
     for (let i = 0; i < 3; i += 1) {
-      save();
+      await save();
       fillData();
     }
 

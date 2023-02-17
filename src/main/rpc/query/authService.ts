@@ -26,14 +26,14 @@ export const userLogout = async () => {
   localStorage.removeItem(PERMISSIONS_KEY);
 };
 
-export const getUserData = () => {
+export const getUserData = async () => {
   const expires = Number.parseInt(
     localStorage.getItem(EXPIRES_KEY) || '-1',
     10
   );
 
   if (Date.now() > expires) {
-    userLogout();
+    await userLogout();
     return null;
   }
 

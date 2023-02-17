@@ -34,23 +34,18 @@ export const getGroupType = (
   for (let i = 0; i < files.length; i += 1) {
     const file = files[i];
 
-    let valid = false;
     const tags = file.tags.filter(Boolean);
     for (let j = 0; j < tags.length; j += 1) {
       const tag = tags[j].endsWith('!') ? tags[j].slice(0, -1) : tags[j];
 
       if (tag === videoCategoryTag.id) {
         videoCount += 1;
-        valid = true;
       } else if (tag === audioCategoryTag.id) {
         audioCount += 1;
-        valid = true;
       } else if (tag === subtitleCategoryTag.id) {
         subtitleCount += 1;
-        valid = true;
       } else if (tag === imageCategoryTag.id) {
         imageCount += 1;
-        valid = true;
       }
     }
   }

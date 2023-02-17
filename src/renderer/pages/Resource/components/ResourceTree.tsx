@@ -37,7 +37,7 @@ export const InternalResourceTree: React.FC = () => {
   const [episodes, episodesActions] = useAsync(server.getEpisodeList, null);
 
   React.useEffect(() => {
-    episodesActions.execute();
+    void episodesActions.execute();
   }, [episodesActions]);
 
   const internalGetLabelButton = React.useCallback(

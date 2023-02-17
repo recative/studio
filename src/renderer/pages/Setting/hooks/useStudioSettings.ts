@@ -11,7 +11,7 @@ export const useStudioSettings = () => {
   });
 
   React.useEffect(() => {
-    extensionMetadataActions.execute();
+    void extensionMetadataActions.execute();
   }, [extensionMetadataActions, extensionMetadataActions.execute]);
 
   return extensionMetadata.result;

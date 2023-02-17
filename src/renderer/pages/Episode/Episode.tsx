@@ -32,7 +32,7 @@ const useEpisodesData = () => {
   }, []);
 
   React.useEffect(() => {
-    fetchData();
+    void fetchData();
   }, [fetchData]);
 
   return { episodes, fetchData };
@@ -44,7 +44,7 @@ export const InternalEpisode: React.FC = () => {
   const [, , openEditEpisodeModal] = useEditEpisodeModal();
 
   const handleAddEpisodeClick = React.useCallback(() => {
-    openEditEpisodeModal({
+    return openEditEpisodeModal({
       id: nanoid(),
       label: {},
       order: -1,

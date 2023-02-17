@@ -118,7 +118,7 @@ export const uploadBundle = async (
   })();
 
   logToTerminal(terminalId, 'Syncing the database');
-  saveAllDatabase(await getDb());
+  await saveAllDatabase(await getDb());
 
   setUploadLock(false);
 };

@@ -38,7 +38,7 @@ const Actions: React.FC<IPermissionListActionsProps> = ({ id }) => {
     useConfirmRemovePermissionModal();
 
   const handleTrashIconClick = useEvent(() => {
-    openConfirmRemovePermissionModal(id);
+    return openConfirmRemovePermissionModal(id);
   });
 
   return (

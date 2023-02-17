@@ -33,7 +33,7 @@ export const EpisodeListActions: React.FC<IEpisodeListActionsProps> = ({
   });
 
   const handleEditEpisodeClick = useEvent(() => {
-    if (episode) openEditEpisodeModal(episode);
+    if (episode) void openEditEpisodeModal(episode);
   });
 
   return (

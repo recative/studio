@@ -109,7 +109,7 @@ export const EditAssetModal: React.FC<IEditAssetModalProps> = ({
   const [valid, setValid] = React.useState(true);
   const handleSubmit = React.useCallback(() => {
     if ('id' in assetData) {
-      handleEditAssetModalSubmit(assetData);
+      void handleEditAssetModalSubmit(assetData);
     }
   }, [assetData, handleEditAssetModalSubmit]);
 

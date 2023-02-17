@@ -23,7 +23,7 @@ export const AssetTableActions: React.FC<IAssetTableActionsProps> = ({
   const [, , openEditAssetModal] = useEditAssetModal();
 
   const handleOpenEditEpisodeModal = useEvent(() => {
-    openEditAssetModal(asset);
+    return openEditAssetModal(asset);
   });
 
   return (

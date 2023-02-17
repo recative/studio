@@ -137,7 +137,7 @@ export const Recover: React.FC = () => {
 
   React.useEffect(() => {
     if (lastCredential?.tokenHash) {
-      storageListActions.execute();
+      void storageListActions.execute();
     }
   }, [lastCredential?.tokenHash, storageListActions]);
 
@@ -156,7 +156,7 @@ export const Recover: React.FC = () => {
     }
 
     await server.setupWorkspace(mediaWorkspacePath[0], codeRepositoryPath[0]);
-    server.recoverBackup(recoverValue.backupKey, JoinMode.replaceOld);
+    void server.recoverBackup(recoverValue.backupKey, JoinMode.replaceOld);
     navigate('/downloading-backup');
   });
 

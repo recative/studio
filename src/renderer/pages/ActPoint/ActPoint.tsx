@@ -146,7 +146,7 @@ export const useActPoints = () => {
   });
 
   React.useEffect(() => {
-    actPointsActions.execute();
+    void actPointsActions.execute();
   }, [actPointsActions]);
 
   const refreshActPointList = actPointsActions.execute;
@@ -163,7 +163,7 @@ export const ActPoint: React.FC = () => {
     if (!workspaceConfiguration) return;
 
     await server.syncActPoints(workspaceConfiguration);
-    refreshActPointList();
+    return refreshActPointList();
   }, [workspaceConfiguration, refreshActPointList]);
 
   const {

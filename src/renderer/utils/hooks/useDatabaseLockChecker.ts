@@ -22,7 +22,7 @@ export const useDatabaseLockChecker = () => {
 
   useInterval(
     () => {
-      databaseLockedFromMainActions.execute();
+      void databaseLockedFromMainActions.execute();
     },
     workspaceConfiguration ? 2000 : null
   );

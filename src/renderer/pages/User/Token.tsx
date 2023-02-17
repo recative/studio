@@ -24,7 +24,7 @@ import {
 const Actions: React.FC<ITokenListActionProps> = ({ id }) => {
   const [, , openConfirmRemoveTokenModal] = useConfirmRemoveTokenModal();
   const handleTrashIconClick = useEvent(() => {
-    openConfirmRemoveTokenModal(id);
+    return openConfirmRemoveTokenModal(id);
   });
 
   return (

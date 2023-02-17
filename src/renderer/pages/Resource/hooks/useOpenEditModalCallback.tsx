@@ -16,8 +16,7 @@ export const useOpenEditModalCallback = () => {
     const selectedResourceIds = getSelectedId();
 
     if (selectedResourceIds.length !== 1) {
-      openBatchEditModal(getSelectedId());
-      return;
+      return openBatchEditModal(getSelectedId());
     }
 
     const selectedResourceId = selectedResourceIds[0];
@@ -29,10 +28,14 @@ export const useOpenEditModalCallback = () => {
     if (!queryResult) return;
 
     if (queryResult.type === 'group') {
-      openEditResourceGroupModal(selectedResourceId);
-    } else if (queryResult.type === 'file') {
-      openEditResourceFileModal(selectedResourceId);
+      return openEditResourceGroupModal(selectedResourceId);
     }
+
+    if (queryResult.type === 'file') {
+      return openEditResourceFileModal(selectedResourceId);
+    }
+
+    return null;
   });
 
   return handleOpenEditModal;

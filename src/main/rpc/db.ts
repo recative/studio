@@ -32,7 +32,7 @@ export const getDb = async (
     return currentDb;
   }
 
-  ensureDir(trueRootPath);
+  await ensureDir(trueRootPath);
 
   const newDb = await initializeDb(trueRootPath, additionalData);
 
@@ -124,7 +124,7 @@ const initializeCleanupListener = () => {
 
 export const setupDb = async (yamlPath: string) => {
   initializeCleanupListener();
-  cleanupDb();
+  await cleanupDb();
   log.info(`:: Setting up db: ${yamlPath}`);
   await getDb(yamlPath);
 };

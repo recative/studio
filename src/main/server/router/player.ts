@@ -13,12 +13,12 @@ export const GetComponentFile =
       : join(workspace.assetsPath, 'components', `${fileName}`);
 
     if (!(await pathExists(componentFilePath))) {
-      reply.status(404).send({ code: 'NOT_FOUND' });
+      await reply.status(404).send({ code: 'NOT_FOUND' });
       return;
     }
     const file = await readFile(componentFilePath);
 
-    reply.status(200).send(file);
+    return reply.status(200).send(file);
   };
 
 export const GetAssetFile =
@@ -28,12 +28,12 @@ export const GetAssetFile =
     const componentFilePath = join(workspace.assetsPath, ...fileName);
 
     if (!(await pathExists(componentFilePath))) {
-      reply.status(404).send({ code: 'NOT_FOUND' });
+      await reply.status(404).send({ code: 'NOT_FOUND' });
       return;
     }
     const file = await readFile(componentFilePath);
 
-    reply.status(200).send(file);
+    return reply.status(200).send(file);
   };
 
 export const getContainerComponents = GetComponentFile(

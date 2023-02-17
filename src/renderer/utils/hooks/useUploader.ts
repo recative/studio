@@ -72,7 +72,7 @@ export const useUploader = (
           taskFinished += 1;
           setCurrentFileIndex(taskFinished);
           onProgressChange?.();
-          server.removeImportProgress(file.path);
+          void server.removeImportProgress(file.path);
 
           files.push(...result);
         } catch (e) {

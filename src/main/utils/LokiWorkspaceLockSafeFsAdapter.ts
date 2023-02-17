@@ -19,6 +19,6 @@ export class LokiWorkspaceLockSafeFsAdapter {
       throw new WorkspaceLockedError();
     }
 
-    this.streamedAdapter.exportDatabase(databaseName, dbref, callback);
+    return this.streamedAdapter.exportDatabase(databaseName, dbref, callback);
   };
 }

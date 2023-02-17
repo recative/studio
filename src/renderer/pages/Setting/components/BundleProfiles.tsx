@@ -30,11 +30,11 @@ export const BundleProfiles = () => {
   const [, , openEditBundleProfileItemModal] = useEditBundleProfileItemModal();
 
   React.useEffect(() => {
-    profilesActions.execute();
+    void profilesActions.execute();
   }, [profilesActions, profilesActions.execute]);
 
   const handleAddProfile = React.useCallback(() => {
-    openEditBundleProfileItemModal(nanoid());
+    void openEditBundleProfileItemModal(nanoid());
   }, [openEditBundleProfileItemModal]);
 
   const handleRemoveProfile = React.useCallback(

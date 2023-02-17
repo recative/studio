@@ -36,11 +36,11 @@ export const ProfileListItem: React.FC<IProfileListItemProps> = ({
     useConfirmRemoveBundleProfileModal();
 
   const handleOpenModal = React.useCallback(() => {
-    openEditBundleProfileItemModal(id);
+    return openEditBundleProfileItemModal(id);
   }, [id, openEditBundleProfileItemModal]);
 
   const handleRemove = React.useCallback(() => {
-    openConfirmRemoveBundleProfileItemModal(id);
+    return openConfirmRemoveBundleProfileItemModal(id);
   }, [id, openConfirmRemoveBundleProfileItemModal]);
 
   const listItemEnhancer = React.useCallback(

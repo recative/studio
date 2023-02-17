@@ -25,7 +25,7 @@ export const useConfirmExecuteScriptModal = ModalManager<
   null
 >(null);
 
-export const ConfirmExecuteScriptModal = () => {
+export const ConfirmExecuteScriptModal: React.FC = () => {
   const [isOpen, script, , onClose] = useConfirmExecuteScriptModal();
 
   const handleSubmitClick = useEvent(async () => {

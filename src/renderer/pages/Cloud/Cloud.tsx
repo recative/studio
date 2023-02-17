@@ -126,7 +126,7 @@ export const Cloud: React.FC = () => {
   }, [clonedDataSlot]);
 
   React.useEffect(() => {
-    fetchDataSlots();
+    void fetchDataSlots();
   }, [fetchDataSlots]);
 
   return (
@@ -267,8 +267,8 @@ export const Cloud: React.FC = () => {
                     size={BUTTON_SIZE.compact}
                     kind={BUTTON_KIND.tertiary}
                     startEnhancer={<SaveIconOutline width={16} />}
-                    onClick={() => {
-                      if (clonedDataSlot) handleSubmit(clonedDataSlot);
+                    onClick={async () => {
+                      if (clonedDataSlot) await handleSubmit(clonedDataSlot);
                       handleEditClick(null);
                     }}
                   />

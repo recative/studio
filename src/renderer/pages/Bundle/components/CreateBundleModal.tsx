@@ -76,7 +76,7 @@ export const CreateBundleModal: React.FC = () => {
   const [showBundleOption, data, , onClose] = useCreateBundleModal();
 
   React.useEffect(() => {
-    profilesActions.execute();
+    void profilesActions.execute();
   }, [profilesActions, profilesActions.execute]);
 
   const [selectedProfiles, handleSelectProfile] = useSelectedProfile();
@@ -85,11 +85,11 @@ export const CreateBundleModal: React.FC = () => {
     if (data === null) {
       return;
     }
-    server.createBundles(
+    void server.createBundles(
       Array.from(selectedProfiles).filter((x) => profileIds.includes(x)),
       data
     );
-    openTerminal('createBundles');
+    void openTerminal('createBundles');
     onClose();
   });
 

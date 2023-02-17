@@ -436,24 +436,26 @@ const updateManagedResources = async (item: IResourceItem) => {
 export const updateOrInsertResources = async (items: IResourceItem[]) => {
   const db = await getDb();
 
-  items.forEach((item) => {
-    // Here're two extra cleanup to prevent some extension blow up the database.
-    const { postProcessedThumbnail, postProcessedFile, ...clonedResource } =
-      item as unknown as IPostProcessedResourceFileForImport;
+  await Promise.allSettled(
+    items.map(async (item) => {
+      // Here're two extra cleanup to prevent some extension blow up the database.
+      const { postProcessedThumbnail, postProcessedFile, ...clonedResource } =
+        item as unknown as IPostProcessedResourceFileForImport;
 
-    const itemInDb = db.resource.resources.findOne({ id: item.id });
-    const targetResource = clonedResource as IResourceItem;
+      const itemInDb = db.resource.resources.findOne({ id: item.id });
+      const targetResource = clonedResource as IResourceItem;
 
-    if (itemInDb) {
-      // Update
-      Object.assign(itemInDb, targetResource);
-      db.resource.resources.update(itemInDb);
-      updateManagedResources(targetResource);
-    } else {
-      // Insert
-      db.resource.resources.insert(targetResource);
-    }
-  });
+      if (itemInDb) {
+        // Update
+        Object.assign(itemInDb, targetResource);
+        db.resource.resources.update(itemInDb);
+        await updateManagedResources(targetResource);
+      } else {
+        // Insert
+        db.resource.resources.insert(targetResource);
+      }
+    })
+  );
 };
 
 export const listAllResources = async (
@@ -786,7 +788,7 @@ export const mergeResources = async (itemIds: string[], tag: GroupTag) => {
     removedTime: -1,
   };
 
-  updateOrInsertResources([newGroup]);
+  await updateOrInsertResources([newGroup]);
 
   groups.forEach((group) => {
     db.resource.resources.remove(group);
@@ -945,7 +947,7 @@ export const importFile = async (
 
   importedFile.definition.label = parsePath(filePath).name;
   if (replacedFile) {
-    importedFile.cloneFrom(cleanupLoki(replacedFile));
+    await importedFile.cloneFrom(cleanupLoki(replacedFile));
   }
   await importedFile.addFile(filePath);
 

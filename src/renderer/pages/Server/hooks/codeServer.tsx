@@ -44,18 +44,18 @@ export const useCodeServer = () => {
     }
   }, [openErrorModal]);
 
-  const toggleCodeServerStatus = React.useCallback(() => {
+  const toggleCodeServerStatus = React.useCallback(async () => {
     if (codeServerStatus === CodeServerStatus.Pending) {
       return false;
     }
 
     if (codeServerStatus === CodeServerStatus.Running) {
-      stopCodeServer();
+      await stopCodeServer();
       return false;
     }
 
     if (codeServerStatus === CodeServerStatus.Idle) {
-      startCodeServer();
+      await startCodeServer();
       return false;
     }
 

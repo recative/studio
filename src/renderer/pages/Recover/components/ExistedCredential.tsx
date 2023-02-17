@@ -15,13 +15,13 @@ import { useLoginCredential } from 'utils/hooks/loginCredential';
 
 export interface IExistedCredentialProps {}
 
-export const ExistedCredential = () => {
+export const ExistedCredential: React.FC = () => {
   const [, theme] = useStyletron();
   const [lastCredential, getLoginCredential] = useLoginCredential();
 
   const logoutButtonClick = useEvent(async () => {
     await server.userLogout();
-    getLoginCredential();
+    return getLoginCredential();
   });
 
   return (

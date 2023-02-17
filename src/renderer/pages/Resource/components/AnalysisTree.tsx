@@ -23,7 +23,7 @@ export const InternalAnalysisTree: React.FC = () => {
   const [episodes, episodesActions] = useAsync(server.getEpisodeList, null);
 
   React.useEffect(() => {
-    episodesActions.execute();
+    void episodesActions.execute();
   }, [episodesActions]);
 
   const handleToggle = useEvent((node: TreeNodeData) => {

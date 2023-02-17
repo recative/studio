@@ -82,7 +82,7 @@ const useExtensionMetadata = (
   });
 
   React.useEffect(() => {
-    extensionMetadataActions.execute();
+    void extensionMetadataActions.execute();
   }, [
     type,
     domain,
@@ -117,7 +117,7 @@ export const ExtensionConfiguration: React.FC<IExtensionConfigurationProps> = ({
     const syncValue = (extensionId: string, fieldId: string, value: string) => {
       const fieldQueryKey = `${extensionId}~~${fieldId}`;
 
-      setValue(extensionId, fieldId, value);
+      void setValue(extensionId, fieldId, value);
       setOverwrittenValue((oldValue) => {
         const newValue = { ...oldValue };
         newValue[fieldQueryKey] = value;

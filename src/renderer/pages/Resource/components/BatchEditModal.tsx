@@ -105,7 +105,7 @@ export const BatchEditModal: React.FC<IBatchEditModalProps> = ({
   );
 
   const handleSubmit = useEvent(() => {
-    handleBatchEditModalSubmit(operations);
+    return handleBatchEditModalSubmit(operations);
   });
 
   return (

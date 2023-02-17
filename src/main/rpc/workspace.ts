@@ -32,9 +32,9 @@ export const setupWorkspace = async (
   console.log(`:: Setting up workspace, ${mediaWorkspacePath}`);
 
   // Check if paths exists, if not, create them.
-  ensureDir(mediaWorkspacePath);
+  await ensureDir(mediaWorkspacePath);
   if (codeRepositoryPath) {
-    ensureDir(codeRepositoryPath);
+    await ensureDir(codeRepositoryPath);
   }
 
   // Media binary file and db file path.
@@ -44,10 +44,10 @@ export const setupWorkspace = async (
   const assetsPath = normalizePath(joinPath(mediaWorkspacePath, 'assets'));
 
   // Ensure the code structure of media workspace is correct.
-  ensureDir(mediaPath);
-  ensureDir(dbPath);
-  ensureDir(buildPath);
-  ensureDir(assetsPath);
+  await ensureDir(mediaPath);
+  await ensureDir(dbPath);
+  await ensureDir(buildPath);
+  await ensureDir(assetsPath);
 
   const result = {
     mediaWorkspacePath: normalizePath(mediaWorkspacePath),

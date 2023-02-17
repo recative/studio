@@ -31,6 +31,7 @@ const getEmptySeriesMetadata = (): ISeriesMetadata => {
     id: nanoid(),
     title: {},
     description: {},
+    deprecated: false,
     loadingCoverForCatalogPageResourceId: '',
     loadingCoverForMainContentsResourceId: '',
   };
@@ -101,7 +102,7 @@ export const Series: React.FC = () => {
   const databaseLocked = useDatabaseLocked();
 
   React.useEffect(() => {
-    fetchMetadata();
+    void fetchMetadata();
   }, [fetchMetadata]);
 
   return (

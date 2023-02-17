@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { SVGProps } from 'react';
 
-export const ScriptletIconOutline = (props: SVGProps<SVGSVGElement>) => (
+export const ScriptletIconOutline: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props
+) => (
   <svg viewBox="0 0 24 24" {...props}>
     <path
       fill="currentColor"

@@ -162,7 +162,7 @@ export class AndroidTools {
     const shellTemplate = await this.dependency.readBundleTemplate(profile);
 
     let rawManifest = await shellTemplate.entryData(templateManifestPath);
-    shellTemplate.close();
+    await shellTemplate.close();
 
     let originalAar: string | undefined;
     let modifiedAar: string;
@@ -190,7 +190,7 @@ export class AndroidTools {
       const aarBundle = this.dependency.readZipFile(originalAar);
 
       rawManifest = await aarBundle.entryData(templateManifestPath);
-      aarBundle.close();
+      await aarBundle.close();
     }
 
     this.dependency.logToTerminal('Updating AndroidManifest.xml');
@@ -251,10 +251,10 @@ export class AndroidTools {
       this.dependency.logToTerminal(
         `:: Modified Manifest Size: ${modifiedManifest.byteLength} bytes`
       );
-      optimizedBundle.close();
+      await optimizedBundle.close();
     }
 
     this.dependency.logToTerminal('Appending AndroidManifest.xml');
-    zip.appendFile(modifiedManifest, outputManifestPath);
+    await zip.appendFile(modifiedManifest, outputManifestPath);
   };
 }

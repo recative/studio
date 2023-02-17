@@ -33,7 +33,7 @@ const useEpisodesData = () => {
   const [episodes, episodesActions] = useAsync(server.listEpisodes);
 
   React.useEffect(() => {
-    episodesActions.execute();
+    void episodesActions.execute();
   }, [episodesActions]);
 
   return episodes.result;

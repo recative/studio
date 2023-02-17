@@ -122,7 +122,7 @@ const useExtensionList = () => {
   );
 
   React.useEffect(() => {
-    extensionListActions.execute();
+    void extensionListActions.execute();
   }, [extensionListActions]);
 
   const availableProfileExtensions = React.useMemo(() => {
@@ -162,7 +162,7 @@ const useProfileDetail = (profileId: string | null) => {
   );
 
   React.useEffect(() => {
-    profileDetailActions.execute();
+    void profileDetailActions.execute();
   }, [profileId, profileDetailActions]);
 
   return profileDetail.result;

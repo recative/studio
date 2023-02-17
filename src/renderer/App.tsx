@@ -32,7 +32,6 @@ import { NewResource } from './pages/Welcome/NewResource';
 import { PreviewPlayer } from './pages/Preview/PreviewPlayer';
 import { ImportResource } from './pages/Welcome/ImportResource';
 import { InitializeErrorModal } from './pages/Server/components/InitializeErrorModal';
-import { MergeResourceDatabase } from './pages/Utils/MergeResourceDatabase';
 
 import { TerminalModal } from './components/Terminal/TerminalModal';
 import { ResourceSearchModal } from './components/ResourceSearchModal/ResourceSearchModal';
@@ -88,13 +87,13 @@ export const InternalStudioTitleBar = () => {
   const [css] = useStyletron();
   const [windowIsMaximized, setWindowIsMaximized] = React.useState(false);
 
-  const handleMaximizeClick = React.useCallback(() => {
-    server.maximizeMainWindow();
+  const handleMaximizeClick = React.useCallback(async () => {
+    await server.maximizeMainWindow();
     setWindowIsMaximized(true);
   }, []);
 
-  const handleUnMaximizeClick = React.useCallback(() => {
-    server.unmaximizeMainWindow();
+  const handleUnMaximizeClick = React.useCallback(async () => {
+    await server.unmaximizeMainWindow();
     setWindowIsMaximized(false);
   }, []);
 
@@ -154,7 +153,6 @@ export const App = () => {
         <Route path="recover" element={<Recover />} />
         <Route path="downloading-backup" element={<Recovering />} />
         <Route path="preview-player" element={<PreviewPlayer />} />
-        <Route path="merge-resource-db" element={<MergeResourceDatabase />} />
         <Route path="/" element={<Welcome />} />
       </Routes>
       <ScrollbarStyles />
