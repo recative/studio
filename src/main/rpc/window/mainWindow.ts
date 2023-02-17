@@ -34,12 +34,12 @@ export const closeMainWindow = () => {
 export const splashScreenMode = () => {
   if (!mainWindow) return;
 
-  // mainWindow.resizable = false;
+  mainWindow.resizable = false;
   mainWindow.setMinimumSize(500, 340);
   mainWindow.setSize(500, 340, false);
-  mainWindow.setSkipTaskbar(true);
-  mainWindow.unmaximize();
   mainWindow.center();
+  mainWindow.unmaximize();
+  mainWindow.setSkipTaskbar(true);
 };
 
 export const studioMode = () => {

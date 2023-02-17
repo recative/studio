@@ -159,6 +159,9 @@ export const InternalPivot: React.FC<IPivotProps> = ({
 
   const [loginCredential] = useLoginCredential();
   const handleClose = useEvent(async () => {
+    void server.splashScreenMode();
+    navigate(`/splash-screen`, { replace: true });
+
     await server.closeDb();
     void server.welcomeMode();
     navigate('/', { replace: true });
