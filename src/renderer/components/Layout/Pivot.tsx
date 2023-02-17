@@ -21,12 +21,14 @@ import { HelpIconOutline } from 'components/Icons/HelpIconOutline';
 import { CloseIconOutline } from 'components/Icons/CloseIconOutline';
 import { AboutIconOutline } from 'components/Icons/AboutIconOutline';
 import { CloudIconOutline } from 'components/Icons/CloudIconOutline';
+import { TokenIconOutline } from 'components/Icons/TokenIconOutline';
 import { SeriesIconOutline } from 'components/Icons/SeriesIconOutline';
 import { BundleIconOutline } from 'components/Icons/BundleIconOutline';
 // import { CommitIconOutline } from 'components/Icons/CommitIconOutline';
 import { GitHubIconOutline } from 'components/Icons/GitHubIconOutline';
 import { PublishIconOutline } from 'components/Icons/PublishIconOutline';
 import { EpisodeIconOutline } from 'components/Icons/EpisodeIconOutline';
+import { StorageIconOutline } from 'components/Icons/StorageIconOutline';
 import { ActPointIconOutline } from 'components/Icons/ActPointIconOutline';
 import { SettingsIconOutline } from 'components/Icons/SettingsIconOutline';
 import { PermissionIconOutline } from 'components/Icons/PermissionIconOutline';
@@ -38,12 +40,12 @@ import { ResourceServerStartOutline } from 'components/Icons/ResourceServerStart
 import { ResourceManagerIconOutline } from 'components/Icons/ResourceManagerIconOutline';
 import { ResourceServerPendingOutline } from 'components/Icons/ResourceServerPendingOutline';
 
+import { useAboutModal } from 'pages/About/AboutModal';
+
 import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
 import { useLoginCredential } from 'utils/hooks/loginCredential';
 import { PIVOT_TAB_OVERRIDES } from 'utils/style/tab';
-import { TokenIconOutline } from 'components/Icons/TokenIconOutline';
-import { StorageIconOutline } from 'components/Icons/StorageIconOutline';
 
 export const TabTitle = styled('div', {
   marginTop: '-8px',
@@ -143,6 +145,7 @@ export const InternalPivot: React.FC<IPivotProps> = ({
   const [activeKey, setActiveKey] = useAtom(ACTIVE_KEY);
   const activeKeyIndex =
     tabColors?.findIndex((item) => item.key === activeKey) ?? -1;
+  const [, , openAboutModal] = useAboutModal();
   const tabsOverrides = useTabsOverrides(
     activeKeyIndex > -1 && tabColors
       ? tabColors[activeKeyIndex].color
@@ -157,6 +160,7 @@ export const InternalPivot: React.FC<IPivotProps> = ({
   const [loginCredential] = useLoginCredential();
   const handleClose = useEvent(async () => {
     await server.closeDb();
+    void server.welcomeMode();
     navigate('/', { replace: true });
   });
 
@@ -367,7 +371,7 @@ export const InternalPivot: React.FC<IPivotProps> = ({
         <Button
           kind={BUTTON_KIND.tertiary}
           startEnhancer={<AboutIconOutline width={20} />}
-          disabled={disabled}
+          onClick={openAboutModal}
         >
           About
         </Button>

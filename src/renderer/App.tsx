@@ -5,7 +5,7 @@ import { useStyletron } from 'baseui';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 // @ts-ignore: We just don't have a type definition for this yet
 import { TitleBar } from 'react-desktop/windows';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 
 import { server } from 'utils/rpc';
 import { useDatabaseLockChecker } from 'utils/hooks/useDatabaseLockChecker';
@@ -28,7 +28,9 @@ import { Resource } from './pages/Resource/Resource';
 import { ActPoint } from './pages/ActPoint/ActPoint';
 import { Recovering } from './pages/User/Recovering';
 import { Permission } from './pages/User/Permission';
+import { AboutModal } from './pages/About/AboutModal';
 import { NewResource } from './pages/Welcome/NewResource';
+import { SplashScreen } from './pages/SplashScreen/SplashScreen';
 import { PreviewPlayer } from './pages/Preview/PreviewPlayer';
 import { ImportResource } from './pages/Welcome/ImportResource';
 import { InitializeErrorModal } from './pages/Server/components/InitializeErrorModal';
@@ -123,14 +125,17 @@ export const InternalStudioTitleBar = () => {
 export const StudioTitleBar = React.memo(InternalStudioTitleBar);
 
 export const App = () => {
+  const location = useLocation();
   const [css] = useStyletron();
   useDatabaseLockChecker();
 
   return (
     <RecativeBlock>
-      <RecativeBlock width="100vw" height="30px" />
-      {window.location.hash !== '#/preview-player' && <StudioTitleBar />}
-      <div className={css(dragAreaStyles)} />
+      <RecativeBlock id="titleBar">
+        <RecativeBlock width="100vw" height="30px" />
+        {location.hash !== '#/preview-player' && <StudioTitleBar />}
+        <div className={css(dragAreaStyles)} />
+      </RecativeBlock>
       <Routes>
         <Route path="import" element={<ImportResource />} />
         <Route path="new" element={<NewResource />} />
@@ -153,12 +158,14 @@ export const App = () => {
         <Route path="recover" element={<Recover />} />
         <Route path="downloading-backup" element={<Recovering />} />
         <Route path="preview-player" element={<PreviewPlayer />} />
+        <Route path="splash-screen" element={<SplashScreen />} />
         <Route path="/" element={<Welcome />} />
       </Routes>
       <ScrollbarStyles />
       <InitializeErrorModal />
       <ResourceSearchModal />
       <TerminalModal />
+      <AboutModal />
     </RecativeBlock>
   );
 };
