@@ -30,3 +30,35 @@ export const closeMainWindow = () => {
   if (!mainWindow) return;
   mainWindow.close();
 };
+
+export const splashScreenMode = () => {
+  if (!mainWindow) return;
+
+  // mainWindow.resizable = false;
+  mainWindow.setMinimumSize(500, 340);
+  mainWindow.setSize(500, 340, false);
+  mainWindow.setSkipTaskbar(true);
+  mainWindow.unmaximize();
+  mainWindow.center();
+};
+
+export const studioMode = () => {
+  if (!mainWindow) return;
+
+  mainWindow.resizable = true;
+  mainWindow.setMinimumSize(800, 600);
+  mainWindow.setSize(1024, 728, false);
+  mainWindow.maximize();
+  mainWindow.setSkipTaskbar(false);
+};
+
+export const welcomeMode = () => {
+  if (!mainWindow) return;
+
+  mainWindow.resizable = true;
+  mainWindow.setMinimumSize(800, 600);
+  mainWindow.setSize(1024, 728, false);
+  mainWindow.center();
+  mainWindow.unmaximize();
+  mainWindow.setSkipTaskbar(false);
+};

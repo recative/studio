@@ -234,6 +234,9 @@ const useRecentProjectClickCallback = (
   const handleSubmitProject = useEvent(async (project: IRecentProject) => {
     recentProjectsClicked(project.workspacePath, project.repositoryPath);
 
+    void server.splashScreenMode();
+    navigate(`/splash-screen`, { replace: true });
+
     const result = await server.setupStudio(
       project.workspacePath,
       project.repositoryPath,
@@ -246,6 +249,7 @@ const useRecentProjectClickCallback = (
     }
 
     setWorkspaceConfiguration(result);
+    void server.studioMode();
     navigate(`/resource`, { replace: true });
   });
 
