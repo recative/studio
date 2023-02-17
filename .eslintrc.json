@@ -8,6 +8,11 @@
     "sourceType": "module",
     "ecmaVersion": 12
   },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "overrides": [
     {
       "files": ["*.ts", "*.tsx"],
