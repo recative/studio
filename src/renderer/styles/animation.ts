@@ -14,3 +14,22 @@ export const floatDownAnimationStyle: StyleObject = {
     },
   } as unknown as string,
 };
+
+export const blinkAnimationStyle: StyleObject = {
+  animationDuration: '2000ms',
+  animationIterationCount: 'infinite',
+  animationName: {
+    '0%': {
+      opacity: 0,
+    },
+    '20%': {
+      opacity: 0,
+    },
+    '80%': {
+      opacity: 1,
+    },
+    '100%': {
+      opacity: 1,
+    },
+  } as unknown as string,
+};

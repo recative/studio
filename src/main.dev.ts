@@ -124,14 +124,7 @@ const createWindow = async () => {
 
 app.on('before-quit', (event) => {
   event.preventDefault();
-  cleanupDb()
-    .then(() => {
-      process.exit(0);
-      return false;
-    })
-    .catch((error: unknown) => {
-      throw error;
-    });
+  process.exit(0);
 });
 
 app.on('window-all-closed', () => {

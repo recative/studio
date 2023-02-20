@@ -1,11 +1,12 @@
-import console from 'electron-log';
-import { join } from 'path';
-
 import Loki from 'lokijs';
+import console from 'electron-log';
+
+import { join } from 'path';
 
 import { IDbInstance, DB_CONFIG } from '@recative/studio-definitions';
 
 import { LokiWorkspaceLockSafeFsAdapter } from '../../utils/LokiWorkspaceLockSafeFsAdapter';
+import { setProgress } from '../db';
 
 let dbLoadingProgress = 0;
 let dbLoadingStatus = 'Not initialized';
@@ -56,6 +57,7 @@ export const initializeDb = async <T>(dbPath: string, additionalData: T) => {
     for (const [collectionId, collectionDefinition] of Object.entries(
       dbDefinition.config
     )) {
+      setProgress(`Initializing ${collectionId}`);
       console.log(`:: :: Initializing ${collectionId}`);
       if (collectionDefinition.type === 'collection') {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

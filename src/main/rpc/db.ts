@@ -9,6 +9,16 @@ import { install, uninstall } from '../utils/cleanup';
 
 import { initializeDb } from './db/initializer';
 
+let currentProgress = 'Starting';
+
+export const setProgress = (x: string) => {
+  currentProgress = x;
+
+  return x;
+};
+
+export const getProgress = () => currentProgress;
+
 let currentDb: IDbInstance<Record<string, unknown>> | null = null;
 
 Reflect.set(globalThis, '__getDatabase__', () => currentDb);
@@ -69,6 +79,7 @@ export const saveAllDatabase = async <T>(db: IDbInstance<T>) => {
     .filter(([, value]) => Object.hasOwn(value, '$db'))
     .map(([key]) => key) as Array<keyof IDbInstance<T>>;
 
+  setProgress(`Saving database`);
   log.info('::', waitFor.length, 'database will be saved');
 
   for (let i = 0; i < waitFor.length; i += 1) {
@@ -76,6 +87,7 @@ export const saveAllDatabase = async <T>(db: IDbInstance<T>) => {
     const collection = db[key] as { $db: Loki };
 
     await new Promise<void>((resolve, reject) => {
+      setProgress(`Saving ${key}`);
       collection.$db.saveDatabase((err) => {
         if (err) {
           reject(err);
@@ -91,7 +103,8 @@ export const saveAllDatabase = async <T>(db: IDbInstance<T>) => {
 export const cleanupDb = async () => {
   if (!currentDb) return null;
 
-  log.info(`:: Cleanup database at ${currentDb.path}`);
+  setProgress(`Cleanup database`);
+  log.log(`:: Cleanup database at ${currentDb.path}`);
   await saveAllDatabase(currentDb);
   return null;
 };
@@ -100,10 +113,12 @@ let cleanupListenerInitialized = false;
 
 const initializeCleanupListener = () => {
   if (cleanupListenerInitialized) return;
+  setProgress(`Setting up cleanup listener`);
   log.info(`:: Setting up cleanup listener`);
   cleanupListenerInitialized = true;
   install((_, signal) => {
     if (signal) {
+      setProgress(`Saving data`);
       log.info(':: Trying to save your data');
       cleanupDb()
         .then(() => {
@@ -125,6 +140,8 @@ const initializeCleanupListener = () => {
 export const setupDb = async (yamlPath: string) => {
   initializeCleanupListener();
   await cleanupDb();
+
+  setProgress(`Setting up database`);
   log.info(`:: Setting up db: ${yamlPath}`);
   await getDb(yamlPath);
 };

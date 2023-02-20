@@ -39,7 +39,7 @@ export const splashScreenMode = () => {
   mainWindow.setSize(500, 340, false);
   mainWindow.center();
   mainWindow.unmaximize();
-  mainWindow.setSkipTaskbar(true);
+  mainWindow.setSkipTaskbar(false);
 };
 
 export const studioMode = () => {

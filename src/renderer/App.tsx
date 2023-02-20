@@ -5,7 +5,7 @@ import { useStyletron } from 'baseui';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 // @ts-ignore: We just don't have a type definition for this yet
 import { TitleBar } from 'react-desktop/windows';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
 import { server } from 'utils/rpc';
 import { useDatabaseLockChecker } from 'utils/hooks/useDatabaseLockChecker';
@@ -37,6 +37,8 @@ import { InitializeErrorModal } from './pages/Server/components/InitializeErrorM
 
 import { TerminalModal } from './components/Terminal/TerminalModal';
 import { ResourceSearchModal } from './components/ResourceSearchModal/ResourceSearchModal';
+
+import { useEvent } from './utils/hooks/useEvent';
 
 import './App.global.css';
 import './resources/fonts/raleway/raleway.css';
@@ -85,19 +87,31 @@ const ScrollbarStyles: React.FC = () => {
   );
 };
 
-export const InternalStudioTitleBar = () => {
+export const InternalStudioTitleBar = React.memo(() => {
+  const navigate = useNavigate();
   const [css] = useStyletron();
   const [windowIsMaximized, setWindowIsMaximized] = React.useState(false);
 
-  const handleMaximizeClick = React.useCallback(async () => {
+  const handleMaximizeClick = useEvent(async () => {
     await server.maximizeMainWindow();
     setWindowIsMaximized(true);
-  }, []);
+  });
 
-  const handleUnMaximizeClick = React.useCallback(async () => {
+  const handleUnMaximizeClick = useEvent(async () => {
     await server.unmaximizeMainWindow();
     setWindowIsMaximized(false);
-  }, []);
+  });
+
+  const handleCloseWindow = useEvent(async () => {
+    void server.splashScreenMode();
+    navigate(`/splash-screen`, { replace: true });
+    await server.cleanupDb();
+    await server.closeMainWindow();
+  });
+
+  const handleMinimize = useEvent(() => {
+    return server.minimizeMainWindow();
+  });
 
   return (
     <RecativeBlock
@@ -113,14 +127,14 @@ export const InternalStudioTitleBar = () => {
         controls
         title="Recative Studio"
         isMaximized={windowIsMaximized}
-        onCloseClick={() => server.closeMainWindow()}
+        onCloseClick={handleCloseWindow}
         onMaximizeClick={handleMaximizeClick}
-        onMinimizeClick={() => server.minimizeMainWindow()}
+        onMinimizeClick={handleMinimize}
         onRestoreDownClick={handleUnMaximizeClick}
       />
     </RecativeBlock>
   );
-};
+});
 
 export const StudioTitleBar = React.memo(InternalStudioTitleBar);
 

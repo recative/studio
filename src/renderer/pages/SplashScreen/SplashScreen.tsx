@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'baseui';
 
 import {
@@ -15,6 +16,10 @@ import { StarTrail } from 'components/StarTrail/StarTrail';
 import { RecativeLogo } from 'components/RecativeLogo/RecativeLogo';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 
+import { server } from 'utils/rpc';
+import { useInterval } from 'react-use';
+import { blinkAnimationStyle } from 'styles/animation';
+
 const footerStyles: StyleObject = {
   paddingBottom: '12px',
   fontSize: '0.7em',
@@ -29,16 +34,29 @@ const progressStyles: StyleObject = {
 export const SplashScreen: React.FC = () => {
   const [css] = useStyletron();
 
+  const [progress, progressActions] = useAsync(() => server.getProgress());
+
+  const dragAreaStyles = React.useMemo(
+    () => ({ '-webkit-app-region': 'drag' }),
+    []
+  );
+
+  useInterval(progressActions.execute, 500);
+
   return (
     <RecativeBlock
+      id="drag"
       width="100vw"
       height="100vh"
       display="flex"
       justifyContent="center"
       alignItems="center"
       userSelect="none"
+      style={dragAreaStyles as any}
     >
-      <style>{`#titleBar { display: none }`}</style>
+      <style>{`
+        #titleBar { display: none };
+      `}</style>
       <RecativeBlock
         width="500px"
         height="340px"
@@ -70,8 +88,30 @@ export const SplashScreen: React.FC = () => {
         >
           <LabelMedium>Recative</LabelMedium>
           <DisplayMedium>Studio</DisplayMedium>
-          <LabelXSmall className={css(progressStyles)} marginTop="12px">
-            Starting
+          <LabelXSmall
+            className={css(progressStyles)}
+            marginTop="12px"
+            display="flex"
+          >
+            {progress.result ?? 'Loading'}
+            <RecativeBlock
+              className={css(blinkAnimationStyle)}
+              animationDelay="100ms"
+            >
+              .
+            </RecativeBlock>
+            <RecativeBlock
+              className={css(blinkAnimationStyle)}
+              animationDelay="200ms"
+            >
+              .
+            </RecativeBlock>
+            <RecativeBlock
+              className={css(blinkAnimationStyle)}
+              animationDelay="300ms"
+            >
+              .
+            </RecativeBlock>
           </LabelXSmall>
         </RecativeBlock>
         <RecativeBlock paddingLeft="64px" position="relative" zIndex={1}>
