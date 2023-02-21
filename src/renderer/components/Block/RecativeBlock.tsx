@@ -67,7 +67,7 @@ const HTML_KEYS = [
 const InternalBlock: React.ForwardRefRenderFunction<
   HTMLDivElement,
   React.PropsWithChildren<IBlockProps>
-> = (props) => {
+> = (props, ref) => {
   const [css] = useStyletron();
 
   const [{ className, ...divProps }, styleProps] = React.useMemo(() => {
@@ -87,7 +87,7 @@ const InternalBlock: React.ForwardRefRenderFunction<
 
   const style = React.useMemo(() => css(styleProps), [css, styleProps]);
 
-  return <div {...divProps} className={cn(style, className)} />;
+  return <div {...divProps} className={cn(style, className)} ref={ref} />;
 };
 
 export const RecativeBlock = React.memo(
