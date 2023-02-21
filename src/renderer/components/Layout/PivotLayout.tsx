@@ -1,4 +1,6 @@
 import * as React from 'react';
+import cn from 'classnames';
+
 import { ErrorBoundary } from 'react-error-boundary';
 import type { FallbackProps } from 'react-error-boundary';
 
@@ -48,6 +50,10 @@ const contentContainerStyles: StyleObject = {
   overflowY: 'auto',
   position: 'relative',
   marginTop: '85px',
+};
+
+const contentContainerWithoutFooter: StyleObject = {
+  height: 'calc(100vh - 115px) !important',
 };
 
 const footerStyles: StyleObject = {
@@ -122,7 +128,11 @@ export const PivotLayout: React.FC<IPivotLayoutProps> = ({
 
   return (
     <RecativeBlock className={css(mainContainerStyles)}>
-      <RecativeBlock className={css(contentContainerStyles)}>
+      <RecativeBlock
+        className={cn(css(contentContainerStyles), {
+          [css(contentContainerWithoutFooter)]: !footer,
+        })}
+      >
         <ErrorBoundary FallbackComponent={FallbackComponent}>
           {children}
         </ErrorBoundary>

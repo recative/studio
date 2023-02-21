@@ -36,10 +36,7 @@ export const SplashScreen: React.FC = () => {
 
   const [progress, progressActions] = useAsync(() => server.getProgress());
 
-  const dragAreaStyles = React.useMemo(
-    () => ({ '-webkit-app-region': 'drag' }),
-    []
-  );
+  const dragAreaStyles = React.useMemo(() => ({ WebkitAppRegion: 'drag' }), []);
 
   useInterval(progressActions.execute, 500);
 

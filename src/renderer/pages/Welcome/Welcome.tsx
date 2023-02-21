@@ -91,7 +91,7 @@ const contentContainerStyle: StyleObject = {
 
 const mainContainerStyle: StyleObject = {
   '@media (max-width: 800px)': {
-    height: 'initial',
+    height: 'initial !important',
     paddingTop: '120px',
     alignItems: 'flex-start',
   },
