@@ -34,6 +34,7 @@ import {
 
 import { getDb } from '../db';
 import { getWorkspace } from '../workspace';
+import { getVersionName } from './utils/getVersionName';
 
 export const listBundleProfile = async () => {
   const db = await getDb();
@@ -169,6 +170,18 @@ export const createBundles = async <Dry extends boolean>(
       Level.Info
     );
 
+    let version = 'UNKNOWN';
+
+    try {
+      version = await getVersionName(
+        bundleReleaseId,
+        profile.webRootTemplateFileName,
+        profile.shellTemplateFileName
+      );
+    } catch (e) {
+      logToTerminal(terminalId, `Failed to get the version name`, Level.Error);
+    }
+
     const instances = await getBundlerInstances(terminalId);
     const bundler = instances[profile.bundleExtensionId];
 
@@ -244,6 +257,11 @@ export const createBundles = async <Dry extends boolean>(
           join(workspace.assetsPath, profile.constantFileName),
           `${appTemplatePublicPath}/constants.json`
         );
+        await zip.appendText(
+          version,
+          `${appTemplatePublicPath}/bundle/ap/dist/version.txt`
+        );
+        await zip.appendText(version, `${appTemplatePublicPath}/version.txt`);
         await bundleAdditionalModules(zip, appTemplatePublicPath, terminalId);
 
         await bundleMediaResources(

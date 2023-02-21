@@ -5,6 +5,7 @@ import { xxHash } from '@recative/extension-sdk';
 
 import { getDb } from '../../db';
 import { getWorkspace } from '../../workspace';
+import { isFile } from './isFile';
 
 export const getVersionName = async (
   bundleReleaseId: number,
@@ -30,21 +31,27 @@ export const getVersionName = async (
     'containerComponents.js'
   );
 
-  const containerComponentVersion = (await pathExists(containerComponentPath))
-    ? `s=${await xxHash(containerComponentPath)}`
-    : '';
+  const containerComponentVersion =
+    (await pathExists(containerComponentPath)) &&
+    (await isFile(containerComponentPath))
+      ? `s=${await xxHash(containerComponentPath)}`
+      : '';
 
   const webRootTemplateFilePath = join(assetsPath, webRootTemplateFileName);
 
-  const webRootTemplateVersion = (await pathExists(containerComponentPath))
-    ? `w=${await xxHash(webRootTemplateFilePath)}`
-    : '';
+  const webRootTemplateVersion =
+    (await pathExists(webRootTemplateFilePath)) &&
+    (await isFile(webRootTemplateFilePath))
+      ? `w=${await xxHash(webRootTemplateFilePath)}`
+      : '';
 
   const appTemplateFilePath = join(assetsPath, appTemplateFileName);
 
-  const appTemplateVersion = (await pathExists(appTemplateFilePath))
-    ? `a=${await xxHash(appTemplateFilePath)}`
-    : '';
+  const appTemplateVersion =
+    (await pathExists(appTemplateFilePath)) &&
+    (await isFile(appTemplateFilePath))
+      ? `a=${await xxHash(appTemplateFilePath)}`
+      : '';
 
   const trueVersion = [
     `b${r.id}=c${r.codeBuildId}+r${r.mediaBuildId}`,
