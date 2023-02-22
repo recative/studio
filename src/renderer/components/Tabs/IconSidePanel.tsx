@@ -16,7 +16,9 @@ import {
 const ICON_SIZE = 20;
 
 const BUTTON_GROUP_OVERRIDES = {
-  Root: { style: { flexDirection: 'column', width: 'fit-content' } },
+  Root: {
+    style: { flexDirection: 'column', width: 'fit-content', position: 'fixed' },
+  },
 };
 
 export enum IconSidePanelPosition {
@@ -24,7 +26,7 @@ export enum IconSidePanelPosition {
   Right = 'right',
 }
 
-interface ITabConfig {
+export interface ITabConfig {
   id: string;
   title: string;
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
@@ -60,7 +62,7 @@ export const IconSidePanel: React.FC<IconSidePanelProps> = React.memo(
         }
         overflowX="hidden"
       >
-        <RecativeBlock flexShrink={0}>
+        <RecativeBlock width="52px" position="relative" flexShrink={0}>
           <ButtonGroup
             mode={MODE.radio}
             kind={BUTTON_KIND.tertiary}
