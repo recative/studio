@@ -1,13 +1,15 @@
 import * as React from 'react';
 
+import { useStyletron } from 'baseui';
+
 import { Tab, Tabs } from 'baseui/tabs-motion';
 import type { onChange as OnTabChange } from 'baseui/tabs-motion';
 
-import { TABS_OVERRIDES, ICON_TAB_OVERRIDES } from 'utils/style/tab';
-import { useEvent } from 'utils/hooks/useEvent';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
+
+import { useEvent } from 'utils/hooks/useEvent';
 import { floatUpAnimationStyle } from 'styles/animation';
-import { useStyletron } from 'baseui';
+import { TABS_OVERRIDES, ICON_TAB_OVERRIDES } from 'utils/style/tab';
 
 interface ITabConfig {
   id: string;
