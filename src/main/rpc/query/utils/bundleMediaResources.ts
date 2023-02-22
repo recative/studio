@@ -54,16 +54,29 @@ export const bundleMediaResources = async (
 
   logToTerminal(terminalId, `:: Total: ${resourceList.length}`);
 
+  logToTerminal(
+    terminalId,
+    `:: ${zip ? `Zip available` : `Zip not available`}`
+  );
+
   if (!zip) {
     return resourceList;
   }
 
+  logToTerminal(terminalId, `:: Parsing resources`);
+
   // Get file path of all resource files.
   const resourceFilePathList = await Promise.all(
-    resourceList.map(async (resource) => ({
-      from: await getResourceFilePath(resource),
-      to: `${resourcePath}/${resource.id}.resource`,
-    }))
+    resourceList.map(async (resource) => {
+      const result = {
+        from: await getResourceFilePath(resource),
+        to: `${resourcePath}/${resource.id}.resource`,
+      };
+
+      logToTerminal(terminalId, `:: :: Parsed ${resource.label}`);
+
+      return result;
+    })
   );
 
   await zip?.appendFileList(resourceFilePathList, true);

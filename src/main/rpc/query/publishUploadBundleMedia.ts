@@ -1,3 +1,4 @@
+/* eslint-disable no-extra-label */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-console */
 import { join } from 'path';
@@ -126,7 +127,12 @@ export const uploadMediaBundle = async (
     // Upload resource file
     const l0 = allResources.length;
 
-    for (let j = 0; j < l0; j += 1) {
+    logToTerminal(
+      terminalId,
+      `:: :: Preparing resources: ${allResources.length}`
+    );
+
+    resourceLoop: for (let j = 0; j < l0; j += 1) {
       const { resourceType, resourceRecord } = allResources[j];
 
       const tags = resourceRecord.tags.filter(Boolean).map((x) => {
@@ -134,10 +140,10 @@ export const uploadMediaBundle = async (
         return x;
       });
 
-      // If the file is already available on the CDN, skip uploading.
       if (resourceRecord.url[serviceProviderLabel]) {
+        // If the file is already available on the CDN, skip uploading.
         skippedFiles += 1;
-        continue;
+        continue resourceLoop;
       }
 
       // We're checking if the file should be uploaded to the CDN based on the
@@ -145,12 +151,15 @@ export const uploadMediaBundle = async (
       let needUpload = false;
 
       const l1 = fileCategory.length;
-      for (let k = 0; k < l1; k += 1) {
+      needUploadLoop: for (let k = 0; k < l1; k += 1) {
         const category = fileCategory[k];
 
-        if (tags.indexOf(category) !== -1) {
+        if (
+          tags.indexOf(category) !== -1 ||
+          tags.indexOf(`${category}!`) !== -1
+        ) {
           needUpload = true;
-          break;
+          break needUploadLoop;
         }
       }
 
@@ -160,7 +169,7 @@ export const uploadMediaBundle = async (
         // console.log(
         //   'Do not need to upload this file, since it is not in the list of acceptable file category'
         // );
-        continue;
+        continue resourceLoop;
       }
 
       // This is intended
@@ -236,13 +245,28 @@ export const uploadMediaBundle = async (
         }
       });
     }
+
+    logToTerminal(terminalId, `:: :: Finished`);
   }
+
+  logToTerminal(terminalId, `:: Will run the task queue`, Level.Info);
+  logToTerminal(terminalId, `:: :: Tasks: ${taskQueue.length}`, Level.Info);
 
   await taskQueue.run();
 
-  logToTerminal(`:: Upload Task Summary`, Level.Info);
-  logToTerminal(`:: :: Finished: ${finishedFiles}`, Level.Info);
-  logToTerminal(`:: :: Skipped: ${skippedFiles}`, Level.Warning);
+  logToTerminal(terminalId, `:: Upload Task Summary`, Level.Info);
+  logToTerminal(
+    terminalId,
+    `:: :: Q - Resolved: ${taskQueue.resolved}`,
+    Level.Info
+  );
+  logToTerminal(
+    terminalId,
+    `:: :: Q - Rejected: ${taskQueue.rejected}`,
+    Level.Error
+  );
+  logToTerminal(terminalId, `:: :: Finished: ${finishedFiles}`, Level.Info);
+  logToTerminal(terminalId, `:: :: Skipped: ${skippedFiles}`, Level.Warning);
 
   return finishedFiles;
 };

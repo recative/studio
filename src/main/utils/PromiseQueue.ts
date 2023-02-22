@@ -1,4 +1,3 @@
-import console from 'electron-log';
 import { OpenPromise } from '@recative/open-promise';
 
 export class PromiseQueue {
@@ -30,6 +29,8 @@ export class PromiseQueue {
 
   finished = 0;
 
+  totalTasksBeforeLocked = 0;
+
   rejected = 0;
 
   resolved = 0;
@@ -39,7 +40,6 @@ export class PromiseQueue {
   promisePointer = -1;
 
   handlePromise = (p: Promise<unknown>) => {
-    console.log(':: Promise triggered');
     if (this.stopped) return;
 
     this.promisePointer += 1;
@@ -52,13 +52,11 @@ export class PromiseQueue {
         this.rejected += 1;
       })
       .finally(() => {
+        this.finished += 1;
         this.working -= 1;
 
-        if (this.resolved >= this.queue.length) {
+        if (this.finished >= this.totalTasksBeforeLocked) {
           this.finalPromise.resolve();
-        }
-
-        if (this.promisePointer >= this.queue.length - 1) {
           return;
         }
 
@@ -69,13 +67,21 @@ export class PromiseQueue {
   };
 
   run = () => {
-    console.log(':: Queue running triggered running');
+    if (this.running) {
+      throw new Error(`The task is already running`);
+    }
+    if (this.stopped) {
+      throw new Error(`The task was stopped`);
+    }
+
     this.running = true;
+    this.totalTasksBeforeLocked = this.queue.length;
 
-    if (this.running) return;
-    if (this.stopped) return;
-
-    for (let i = 0; i < Math.min(this.length, this.concurrent); i += 1) {
+    for (
+      let i = 0;
+      i < Math.min(this.totalTasksBeforeLocked, this.concurrent);
+      i += 1
+    ) {
       this.handlePromise(this.queue[i]());
     }
 
