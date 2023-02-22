@@ -166,7 +166,7 @@ const useResourceTagChangeCallback = (
 
       const nextTags = new Set<string>();
       Object.values(tagTypeToReferenceMap).forEach((x) =>
-        x.forEach((a) => nextTags.add(a.id))
+        x.filter(Boolean).forEach((a) => nextTags.add(a.id))
       );
 
       setFile?.((draft) => {
