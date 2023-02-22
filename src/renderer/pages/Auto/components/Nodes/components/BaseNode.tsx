@@ -45,45 +45,52 @@ export const BaseNode = React.memo(
     const [css] = useStyletron();
 
     return (
-      <Card overrides={CARD_OVERRIDES}>
-        <RecativeBlock marginBottom={titleOnly ? '-16px' : '0'}>
-          <NodeHeader Icon={Icon} colorId={colorId} title={title} />
-        </RecativeBlock>
-        {!titleOnly && (
-          <RecativeBlock
-            className={css(floatDownAnimationStyle)}
-            position="relative"
-            minHeight="24px"
-            minWidth="100%"
-            marginLeft="-16px"
-            marginRight="-16px"
-            marginBottom="-10px"
-            paddingTop="4px"
-            paddingBottom="4px"
-            overflow="visible"
-          >
-            {inputs.map((x) => (
-              <CustomHandler
-                key={x.id}
-                position={Position.Left}
-                {...x}
-                colorId={colorId}
-                isConnectable={isConnectable ?? x.isConnectable}
-              />
-            ))}
-
-            {outputs.map((x) => (
-              <CustomHandler
-                key={x.id}
-                position={Position.Right}
-                colorId={colorId}
-                {...x}
-                isConnectable={isConnectable ?? x.isConnectable}
-              />
-            ))}
+      <RecativeBlock
+        marginTop="4px"
+        marginLeft="4px"
+        marginBottom="4px"
+        marginRight="4px"
+      >
+        <Card overrides={CARD_OVERRIDES}>
+          <RecativeBlock marginBottom={titleOnly ? '-16px' : '0'}>
+            <NodeHeader Icon={Icon} colorId={colorId} title={title} />
           </RecativeBlock>
-        )}
-      </Card>
+          {!titleOnly && (
+            <RecativeBlock
+              className={css(floatDownAnimationStyle)}
+              position="relative"
+              minHeight="24px"
+              minWidth="100%"
+              marginLeft="-16px"
+              marginRight="-16px"
+              marginBottom="-10px"
+              paddingTop="4px"
+              paddingBottom="4px"
+              overflow="visible"
+            >
+              {inputs.map((x) => (
+                <CustomHandler
+                  key={x.id}
+                  position={Position.Left}
+                  {...x}
+                  colorId={colorId}
+                  isConnectable={isConnectable ?? x.isConnectable}
+                />
+              ))}
+
+              {outputs.map((x) => (
+                <CustomHandler
+                  key={x.id}
+                  position={Position.Right}
+                  colorId={colorId}
+                  {...x}
+                  isConnectable={isConnectable ?? x.isConnectable}
+                />
+              ))}
+            </RecativeBlock>
+          )}
+        </Card>
+      </RecativeBlock>
     );
   }
 );

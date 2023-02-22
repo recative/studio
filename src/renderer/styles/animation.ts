@@ -30,6 +30,36 @@ export const floatUpAnimationStyle: StyleObject = {
   } as unknown as string,
 };
 
+export const floatLeftAnimationStyle: StyleObject = {
+  animationDuration: '300ms',
+  animationFillMode: 'forwards',
+  animationName: {
+    from: {
+      opacity: 0,
+      transform: 'translateX(-5%)',
+    },
+    to: {
+      opacity: 1,
+      transform: 'translateY(0)',
+    },
+  } as unknown as string,
+};
+
+export const floatRightAnimationStyle: StyleObject = {
+  animationDuration: '300ms',
+  animationFillMode: 'forwards',
+  animationName: {
+    from: {
+      opacity: 0,
+      transform: 'translateX(5%)',
+    },
+    to: {
+      opacity: 1,
+      transform: 'translateY(0)',
+    },
+  } as unknown as string,
+};
+
 export const blinkAnimationStyle: StyleObject = {
   animationDuration: '2000ms',
   animationIterationCount: 'infinite',

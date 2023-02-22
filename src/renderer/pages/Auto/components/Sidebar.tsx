@@ -1,6 +1,15 @@
 import * as React from 'react';
 
+import { IconTabs } from 'components/Tabs/IconTabs';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { NodeInputFilled } from 'components/Icons/NodeInputFilled';
+import { NodeOutputIconFilled } from 'components/Icons/NodeOutputIconFilled';
+import { NodeCategoryDebugIconOutline } from 'components/Icons/NodeCategoryDebugIconOutline';
+import { NodeCategoryRoutineIconOutline } from 'components/Icons/NodeCategoryRoutineIconOutline';
+import {
+  IconSidePanel,
+  IconSidePanelPosition,
+} from 'components/Tabs/IconSidePanel';
 
 import { useEvent } from 'utils/hooks/useEvent';
 
@@ -34,12 +43,77 @@ export const SideBarItem: React.FC<ISidebarItem> = React.memo(
   }
 );
 
+const FlowSegment = () => {
+  return (
+    <RecativeBlock>
+      <SideBarItem id="i" Icon={NodeInputFilled} title="Input" colorId={2} />
+      <SideBarItem
+        id="o"
+        Icon={NodeOutputIconFilled}
+        title="Output"
+        colorId={3}
+      />
+    </RecativeBlock>
+  );
+};
+
+const DevelopmentSegment = () => {
+  return (
+    <RecativeBlock>
+      <SideBarItem id="demo" Icon={NodeInputFilled} title="Demo" colorId={1} />
+    </RecativeBlock>
+  );
+};
+
+const ICON_TABS_CONFIG = [
+  {
+    id: 'flow',
+    title: 'Flow',
+    Icon: NodeCategoryRoutineIconOutline,
+    Content: FlowSegment,
+  },
+  {
+    id: 'development',
+    title: 'Development',
+    Icon: NodeCategoryDebugIconOutline,
+    Content: DevelopmentSegment,
+  },
+];
+
+const ToolboxSection = React.memo(() => (
+  <IconTabs config={ICON_TABS_CONFIG} initialActiveKey="flow" />
+));
+const DemoSection = React.memo(() => <div>TEST</div>);
+
+const SIDE_PANEL_CONFIG = [
+  {
+    id: 'flow',
+    title: 'Flow',
+    Icon: NodeCategoryRoutineIconOutline,
+    Content: ToolboxSection,
+  },
+  {
+    id: 'demo',
+    title: 'Demo',
+    Icon: NodeCategoryRoutineIconOutline,
+    Content: DemoSection,
+  },
+];
+
 export const Sidebar = React.memo(() => {
   return (
-    <aside>
-      <SideBarItem id="i" Icon={NodeInputFilled} title="Input" colorId={2} />
-      <SideBarItem id="demo" Icon={NodeInputFilled} title="Demo" colorId={1} />
-      <SideBarItem id="o" Icon={NodeInputFilled} title="Output" colorId={3} />
-    </aside>
+    <RecativeBlock
+      width="25%"
+      maxWidth="400px"
+      minWidth="250px"
+      paddingLeft="8px"
+      paddingTop="4px"
+      overflow="auto"
+    >
+      <IconSidePanel
+        config={SIDE_PANEL_CONFIG}
+        position={IconSidePanelPosition.Right}
+      />
+    </RecativeBlock>
   );
 });
