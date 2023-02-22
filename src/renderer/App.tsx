@@ -26,6 +26,7 @@ import { Preview } from './pages/Preview/Preview';
 import { Recover } from './pages/Recover/Recover';
 import { Resource } from './pages/Resource/Resource';
 import { ActPoint } from './pages/ActPoint/ActPoint';
+import { AutoEditor } from './pages/Auto/AutoEditor';
 import { Recovering } from './pages/User/Recovering';
 import { Permission } from './pages/User/Permission';
 import { AboutModal } from './pages/About/AboutModal';
@@ -151,35 +152,36 @@ export const App = () => {
         <div className={css(dragAreaStyles)} />
       </RecativeBlock>
       <Routes>
-        <Route path="import" element={<ImportResource />} />
+        <Route path="/" element={<Welcome />} />
+        <Route path="user" element={<User />} />
+        <Route path="cloud" element={<Cloud />} />
+        <Route path="login" element={<Login />} />
+        <Route path="token" element={<Token />} />
+        <Route path="bundle" element={<Bundle />} />
+        <Route path="series" element={<Series />} />
         <Route path="new" element={<NewResource />} />
         <Route path="welcome" element={<Welcome />} />
         <Route path="publish" element={<Publish />} />
         <Route path="setting" element={<Setting />} />
-        <Route path="resource" element={<Resource />} />
         <Route path="episode" element={<Episode />} />
-        <Route path="cloud" element={<Cloud />} />
-        <Route path="series" element={<Series />} />
-        <Route path="act-point" element={<ActPoint />} />
         <Route path="release" element={<Release />} />
-        <Route path="bundle" element={<Bundle />} />
         <Route path="preview" element={<Preview />} />
-        <Route path="login" element={<Login />} />
-        <Route path="user" element={<User />} />
-        <Route path="permission" element={<Permission />} />
-        <Route path="token" element={<Token />} />
         <Route path="storage" element={<Storage />} />
         <Route path="recover" element={<Recover />} />
-        <Route path="downloading-backup" element={<Recovering />} />
-        <Route path="preview-player" element={<PreviewPlayer />} />
+        <Route path="resource" element={<Resource />} />
+        <Route path="act-point" element={<ActPoint />} />
+        <Route path="import" element={<ImportResource />} />
+        <Route path="permission" element={<Permission />} />
+        <Route path="auto-editor" element={<AutoEditor />} />
         <Route path="splash-screen" element={<SplashScreen />} />
-        <Route path="/" element={<Welcome />} />
+        <Route path="preview-player" element={<PreviewPlayer />} />
+        <Route path="downloading-backup" element={<Recovering />} />
       </Routes>
-      <ScrollbarStyles />
-      <InitializeErrorModal />
-      <ResourceSearchModal />
-      <TerminalModal />
       <AboutModal />
+      <TerminalModal />
+      <ScrollbarStyles />
+      <ResourceSearchModal />
+      <InitializeErrorModal />
     </RecativeBlock>
   );
 };

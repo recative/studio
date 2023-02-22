@@ -238,6 +238,7 @@
   "dependencies": {
     "@codemirror/highlight": "0.19.8",
     "@codemirror/lang-json": "0.20.0",
+    "@dnd-kit/core": "^6.0.8",
     "@faker-js/faker": "^7.6.0",
     "@fastify/cors": "8.1.0",
     "@fastify/static": "6.5.0",
@@ -323,6 +324,7 @@
     "react-table": "^7.7.0",
     "react-use": "^17.2.4",
     "react-vis-timeline": "^2.0.3",
+    "reactflow": "^11.5.6",
     "regenerator-runtime": "^0.13.5",
     "runtypes": "^6.5.0",
     "selfsigned": "^1.10.11",
@@ -405,6 +407,7 @@
   ],
   "resolutions": {
     "@codemirror/state": "0.20.0",
+    "d3-zoom": "3.0.0",
     "lottie-web": "patch:lottie-web@npm:5.7.3#.yarn/patches/lottie-web-npm-5.7.3-6621bfff6b.patch",
     "lokijs@^1.5.12": "patch:lokijs@npm%3A1.5.12#./.yarn/patches/lokijs-npm-1.5.12-739e26e476.patch"
   }

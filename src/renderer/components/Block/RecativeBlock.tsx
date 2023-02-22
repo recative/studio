@@ -62,6 +62,8 @@ const HTML_KEYS = [
   'disabled',
   'onClick',
   'onDoubleClick',
+  'onMouseEnter',
+  'onMouseLeave',
 ] as const;
 
 const InternalBlock: React.ForwardRefRenderFunction<

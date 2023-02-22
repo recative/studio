@@ -46,6 +46,7 @@ import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
 import { useLoginCredential } from 'utils/hooks/loginCredential';
 import { PIVOT_TAB_OVERRIDES } from 'utils/style/tab';
+import { AutoIconOutline } from 'components/Icons/AutoIconOutline';
 
 export const TabTitle = styled('div', {
   marginTop: '-8px',
@@ -199,6 +200,13 @@ export const InternalPivot: React.FC<IPivotProps> = ({
           Bundle
         </PivotButton>
         <Separator />
+        <PivotButton
+          startEnhancer={<AutoIconOutline width={20} />}
+          to="/auto-editor"
+          disabled={disabled}
+        >
+          Automation
+        </PivotButton>
         <PivotButton
           startEnhancer={<SettingsIconOutline width={20} />}
           to="/setting"
