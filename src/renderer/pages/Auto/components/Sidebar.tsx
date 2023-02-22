@@ -45,7 +45,7 @@ export const SideBarItem: React.FC<ISidebarItem> = React.memo(
 
 const FlowSegment = () => {
   return (
-    <RecativeBlock>
+    <RecativeBlock marginLeft="-12px" marginRight="-12px" marginTop="-8px">
       <SideBarItem id="i" Icon={NodeInputFilled} title="Input" colorId={2} />
       <SideBarItem
         id="o"
@@ -59,7 +59,7 @@ const FlowSegment = () => {
 
 const DevelopmentSegment = () => {
   return (
-    <RecativeBlock>
+    <RecativeBlock marginLeft="-12px" marginRight="-12px" marginTop="-8px">
       <SideBarItem id="demo" Icon={NodeInputFilled} title="Demo" colorId={1} />
     </RecativeBlock>
   );
