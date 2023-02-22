@@ -25,7 +25,7 @@ export interface ICustomHandlerProps {
 }
 
 const LABEL_EFFECT = {
-  lineHeight: '1em',
+  lineHeight: '12px',
   fontSize: '10px',
   fontWeight: 500,
   transform: 'translateY(3px)',
