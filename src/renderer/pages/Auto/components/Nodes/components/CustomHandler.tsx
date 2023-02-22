@@ -28,7 +28,7 @@ const LABEL_EFFECT = {
   lineHeight: '1em',
   fontSize: '10px',
   fontWeight: 500,
-  paddingTop: '6px',
+  transform: 'translateY(3px)',
 };
 
 export const CustomHandler: React.FC<ICustomHandlerProps> = React.memo(
@@ -61,6 +61,8 @@ export const CustomHandler: React.FC<ICustomHandlerProps> = React.memo(
         flexDirection={position === Position.Right ? 'row-reverse' : 'row'}
         left={position === Position.Left ? '0px' : 'initial'}
         right={position === Position.Right ? '0px' : 'initial'}
+        marginTop="8px"
+        marginBottom="8px"
         marginRight={position === Position.Left ? '44px' : 'initial'}
         marginLeft={position === Position.Right ? '44px' : 'initial'}
         onMouseEnter={enter}
