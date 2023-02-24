@@ -1,6 +1,6 @@
 export const getSelectedId = () => {
   const selectedResources = document.querySelectorAll(
-    '.explorer-item.selected'
+    '.explorer-item.resource-selected'
   );
 
   return Array.from(selectedResources)
