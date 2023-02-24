@@ -403,7 +403,8 @@
     "packages/extension-db-fixer",
     "packages/extension-resource-exporter",
     "packages/studio-definitions",
-    "packages/loki-fs-structured-adapter"
+    "packages/loki-fs-structured-adapter",
+    "packages/node-system"
   ],
   "resolutions": {
     "@codemirror/state": "0.20.0",

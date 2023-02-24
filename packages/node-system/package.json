@@ -1,0 +1,4 @@
+{
+  "name": "@recative/node-system",
+  "main": "./index.ts"
+}
