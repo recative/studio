@@ -21,6 +21,8 @@ import { InputNode } from './components/Nodes/InputNode';
 import { OutputNode } from './components/Nodes/OutputNode';
 
 import './styles/ReactFlow.global.css';
+import { NodeContextMenu } from './components/NodeContextMenu';
+import { Edge } from './components/Edge';
 
 const INITIAL_NODES = [
   {
@@ -35,6 +37,10 @@ const NODE_TYPES = {
   demo: DemoNode,
   i: InputNode,
   o: OutputNode,
+};
+
+const EDGE_TYPES = {
+  custom: Edge,
 };
 
 let id = 0;
@@ -52,7 +58,7 @@ export const AutoEditor: React.FC = React.memo(() => {
     React.useState<ReactFlowInstance<any, any> | null>(null);
 
   const onConnect = useEvent((params) =>
-    setEdges((eds) => addEdge(params, eds))
+    setEdges((eds) => addEdge({ ...params, type: 'custom' }, eds))
   );
 
   const onDragOver = useEvent((event) => {
@@ -79,6 +85,7 @@ export const AutoEditor: React.FC = React.memo(() => {
       x: event.clientX - reactFlowBounds.left,
       y: event.clientY - reactFlowBounds.top,
     });
+
     const newNode = {
       id: getId(),
       type,
@@ -105,6 +112,7 @@ export const AutoEditor: React.FC = React.memo(() => {
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={NODE_TYPES}
+                edgeTypes={EDGE_TYPES}
                 onDrop={onDrop}
                 onConnect={onConnect}
                 onDragOver={onDragOver}
@@ -123,6 +131,7 @@ export const AutoEditor: React.FC = React.memo(() => {
           </RecativeBlock>
         </ReactFlowProvider>
       </RecativeBlock>
+      <NodeContextMenu nodes={nodes} />
     </PivotLayout>
   );
 });

@@ -32,6 +32,7 @@ export const SideBarItem: React.FC<ISidebarItem> = React.memo(
     return (
       <div className="dndnode" onDragStart={onDragStart} draggable>
         <BaseNode
+          id={id}
           Icon={Icon}
           title={title}
           colorId={colorId}

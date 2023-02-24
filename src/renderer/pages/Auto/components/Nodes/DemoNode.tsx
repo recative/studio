@@ -6,13 +6,15 @@ import { BaseNode } from './components/BaseNode';
 
 export interface IDemoNode<T = unknown> {
   data: T;
+  id: string;
   isConnectable: boolean;
 }
 
 export const DemoNode: React.FC<IDemoNode<unknown>> = React.memo(
-  ({ isConnectable }) => {
+  ({ id, isConnectable }) => {
     return (
       <BaseNode
+        id={id}
         Icon={NodeEditSettingsIconFilled}
         colorId={1}
         title="Demo"

@@ -62,6 +62,7 @@ const HTML_KEYS = [
   'disabled',
   'onClick',
   'onDoubleClick',
+  'onContextMenu',
   'onMouseEnter',
   'onMouseLeave',
 ] as const;
