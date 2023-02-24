@@ -3,6 +3,7 @@ import * as React from 'react';
 import { IconTabs } from 'components/Tabs/IconTabs';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { NodeInputFilled } from 'components/Icons/NodeInputFilled';
+import { EditIconOutline } from 'components/Icons/EditIconOutline';
 import { NodeOutputIconFilled } from 'components/Icons/NodeOutputIconFilled';
 import { NodeCategoryDebugIconOutline } from 'components/Icons/NodeCategoryDebugIconOutline';
 import { NodeCategoryRoutineIconOutline } from 'components/Icons/NodeCategoryRoutineIconOutline';
@@ -94,9 +95,9 @@ const SIDE_PANEL_CONFIG = [
     Content: ToolboxSection,
   },
   {
-    id: 'demo',
-    title: 'Demo',
-    Icon: NodeCategoryRoutineIconOutline,
+    id: 'edit',
+    title: 'Edit',
+    Icon: EditIconOutline,
     Content: DemoSection,
   },
 ];

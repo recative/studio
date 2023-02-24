@@ -22,7 +22,9 @@ import { OutputNode } from './components/Nodes/OutputNode';
 
 import './styles/ReactFlow.global.css';
 import { NodeContextMenu } from './components/NodeContextMenu';
-import { Edge } from './components/Edge';
+import { Edge, EDGE_EVENT_TARGET } from './components/Edge';
+import { NODE_EVENT_TARGET } from './components/Nodes/components/BaseNode';
+import { EdgeContextMenu } from './components/EdgeContextMenu';
 
 const INITIAL_NODES = [
   {
@@ -96,6 +98,39 @@ export const AutoEditor: React.FC = React.memo(() => {
     setNodes((nds) => nds.concat(newNode));
   });
 
+  const handleDeleteNode = useEvent((event: CustomEvent) => {
+    const nodeId = event.detail.id;
+    if (!nodeId) return;
+    if (typeof nodeId !== 'string') return;
+
+    setNodes((x) => x.filter((a) => a.id !== nodeId));
+    setEdges((x) =>
+      x.filter((a) => a.source !== nodeId && a.target !== nodeId)
+    );
+  }) as EventListener;
+
+  const handleDeleteEdge = useEvent((event: CustomEvent) => {
+    const edgeId = event.detail.id;
+    if (!edgeId) return;
+    if (typeof edgeId !== 'string') return;
+
+    setEdges((x) => x.filter((a) => a.id !== edgeId));
+  }) as EventListener;
+
+  React.useEffect(() => {
+    NODE_EVENT_TARGET.addEventListener('delete', handleDeleteNode);
+
+    return () =>
+      NODE_EVENT_TARGET.removeEventListener('delete', handleDeleteNode);
+  });
+
+  React.useEffect(() => {
+    EDGE_EVENT_TARGET.addEventListener('delete', handleDeleteEdge);
+
+    return () =>
+      EDGE_EVENT_TARGET.removeEventListener('delete', handleDeleteEdge);
+  });
+
   return (
     <PivotLayout>
       <RecativeBlock className="dndflow">
@@ -109,6 +144,7 @@ export const AutoEditor: React.FC = React.memo(() => {
             >
               <ReactFlow
                 fitView
+                connectionRadius={40}
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={NODE_TYPES}
@@ -132,6 +168,7 @@ export const AutoEditor: React.FC = React.memo(() => {
         </ReactFlowProvider>
       </RecativeBlock>
       <NodeContextMenu nodes={nodes} />
+      <EdgeContextMenu edges={edges} />
     </PivotLayout>
   );
 });

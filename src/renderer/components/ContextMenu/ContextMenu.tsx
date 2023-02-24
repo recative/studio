@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Portal } from '@reach/portal';
-import { atom, useAtom } from 'jotai';
+import { atom, useAtom, WritableAtom } from 'jotai';
 
 import ClickAwayListener from 'react-click-away-listener';
 
@@ -15,11 +15,15 @@ export interface IContextMenuProps {
   children: React.ReactNode;
 }
 
+const DEFAULT_DATA_ATOM = atom<any>(null);
+
 export const useContextMenu = <Key extends string, Val>(
   id: string,
-  items: Record<Key, Val>
+  items: Record<Key, Val>,
+  dataAtom?: WritableAtom<Val, Val>
 ) => {
   const [, setCurrentModal] = useAtom(CURRENT_MODAL_ATOM);
+  const [data, setData] = useAtom(dataAtom ?? DEFAULT_DATA_ATOM);
   const [, setX] = useAtom(CURRENT_MODAL_X);
   const [, setY] = useAtom(CURRENT_MODAL_Y);
   const [selectedValue, setSelectedValue] = React.useState<Val | null>(null);
@@ -38,12 +42,17 @@ export const useContextMenu = <Key extends string, Val>(
         setX(event.clientX);
         setY(event.clientY);
         setCurrentModal(id);
-        setSelectedValue(items[itemKey]);
+
+        if (dataAtom === DEFAULT_DATA_ATOM) {
+          setSelectedValue(items[itemKey]);
+        } else {
+          setData(items[itemKey]);
+        }
       };
     });
 
     return triggers;
-  }, [items, setX, setY, setCurrentModal, id]);
+  }, [items, setX, setY, setCurrentModal, id, dataAtom, setData]);
 
   const handleCloseContextMenu = React.useCallback(() => {
     setX(0);
@@ -51,7 +60,11 @@ export const useContextMenu = <Key extends string, Val>(
     setCurrentModal(null);
   }, [setCurrentModal, setX, setY]);
 
-  return [contextMenuTriggers, handleCloseContextMenu, selectedValue] as const;
+  return [
+    contextMenuTriggers,
+    handleCloseContextMenu,
+    data ?? selectedValue,
+  ] as const;
 };
 
 export const ContextMenu: React.FC<IContextMenuProps> = ({

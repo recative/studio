@@ -138,9 +138,9 @@ const useKeyboardShortcut = () => {
         // Mark all elements between minIndex and maxIndex as selected
         indexMap.allElements.forEach((x, index) => {
           if (index >= minIndex && index <= maxIndex) {
-            x.classList.add('selected');
+            x.classList.add('resource-selected');
           } else {
-            x.classList.remove('selected');
+            x.classList.remove('resource-selected');
           }
         });
 
@@ -152,11 +152,11 @@ const useKeyboardShortcut = () => {
       ] as HTMLDivElement;
 
       event.added.forEach((el) => {
-        el.classList.add('selected');
+        el.classList.add('resource-selected');
       });
 
       event.removed.forEach((el) => {
-        el.classList.remove('selected');
+        el.classList.remove('resource-selected');
       });
 
       lastSelectedRef.current = lastSelected;

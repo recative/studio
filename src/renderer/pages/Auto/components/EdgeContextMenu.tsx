@@ -4,7 +4,7 @@ import { useStyletron } from 'baseui';
 
 import { StatefulContainerProps, StatefulMenu } from 'baseui/menu';
 
-import type { Node } from 'reactflow';
+import type { Edge } from 'reactflow';
 
 import {
   ContextMenu,
@@ -14,10 +14,10 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { TrashIconOutline } from 'components/Icons/TrashIconOutline';
 
 import {
-  NODE_CONTEXT_MENU_ID,
-  NODE_EVENT_TARGET,
-  SELECTED_NODE_ATOM,
-} from './Nodes/components/BaseNode';
+  EDGE_EVENT_TARGET,
+  SELECTED_EDGE_ATOM,
+  EDGE_CONTEXT_MENU_ID,
+} from './Edge';
 
 const menuItemStyles = {
   display: 'flex',
@@ -25,7 +25,7 @@ const menuItemStyles = {
   gap: '10px',
 };
 
-const useNodeContextMenu = (nodes: Node[]) => {
+const useEdgeContextMenu = (nodes: Edge[]) => {
   const [css] = useStyletron();
 
   const formattedNodes = React.useMemo(
@@ -36,14 +36,14 @@ const useNodeContextMenu = (nodes: Node[]) => {
   const [triggers, hideContextMenu, selectedValue] = useContextMenu<
     string,
     { id: string } | null
-  >(NODE_CONTEXT_MENU_ID, formattedNodes, SELECTED_NODE_ATOM);
+  >(EDGE_CONTEXT_MENU_ID, formattedNodes, SELECTED_EDGE_ATOM);
 
   const handleItemClick = React.useCallback<
     StatefulContainerProps['onItemSelect']
   >(
     (event) => {
       hideContextMenu();
-      NODE_EVENT_TARGET.dispatchEvent(
+      EDGE_EVENT_TARGET.dispatchEvent(
         new CustomEvent(event.item.label.props.id, {
           detail: { id: selectedValue?.id },
         })
@@ -65,33 +65,22 @@ const useNodeContextMenu = (nodes: Node[]) => {
           </RecativeBlock>
         ),
       },
-      {
-        label: (
-          <RecativeBlock
-            id="clone"
-            className={css(menuItemStyles)}
-            fontWeight={500}
-          >
-            <TrashIconOutline width={18} /> <span>Clone</span>
-          </RecativeBlock>
-        ),
-      },
     ];
   }, [css]);
 
   return { triggers, contextMenuItem, handleItemClick };
 };
 
-interface INodeContextMenu {
-  nodes: Node[];
+interface IEdgeContextMenu {
+  edges: Edge[];
 }
 
-export const NodeContextMenu: React.FC<INodeContextMenu> = React.memo(
-  ({ nodes }) => {
-    const { contextMenuItem, handleItemClick } = useNodeContextMenu(nodes);
+export const EdgeContextMenu: React.FC<IEdgeContextMenu> = React.memo(
+  ({ edges: nodes }) => {
+    const { contextMenuItem, handleItemClick } = useEdgeContextMenu(nodes);
 
     return (
-      <ContextMenu id={NODE_CONTEXT_MENU_ID}>
+      <ContextMenu id={EDGE_CONTEXT_MENU_ID}>
         <StatefulMenu items={contextMenuItem} onItemSelect={handleItemClick} />
       </ContextMenu>
     );

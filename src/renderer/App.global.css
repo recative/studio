@@ -30,7 +30,7 @@ body {
   touch-action: none !important;
 }
 
-.selected {
+.resource-selected {
   transform: scale(0.95);
 }
 
@@ -38,7 +38,7 @@ body {
   transition: outline-color 300ms;
 }
 
-.selected > .explorer-item-content {
+.resource-selected > .explorer-item-content {
   outline: 2px solid #01579b;
 }
 

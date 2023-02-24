@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { atom } from 'jotai';
 import { nanoid } from 'nanoid';
 
 import { useStyletron } from 'baseui';
@@ -36,7 +37,10 @@ const CARD_OVERRIDES = {
   },
 };
 
-export const CONTEXT_MENU_ID = nanoid();
+export const NODE_EVENT_TARGET = new EventTarget();
+export const NODE_CONTEXT_MENU_ID = nanoid();
+export const SELECTED_NODE_ATOM = atom<{ id: string } | null>(null);
+
 const EMPTY_CONFIG: Omit<ICustomHandlerProps, 'position'>[] = [];
 
 export const BaseNode = React.memo((props: IBaseNodeProps) => {
@@ -55,7 +59,11 @@ export const BaseNode = React.memo((props: IBaseNodeProps) => {
 
   const formattedNodes = React.useMemo(() => ({ [id]: props }), [id, props]);
 
-  const [triggers] = useContextMenu(CONTEXT_MENU_ID, formattedNodes);
+  const [triggers] = useContextMenu(
+    NODE_CONTEXT_MENU_ID,
+    formattedNodes,
+    SELECTED_NODE_ATOM
+  );
 
   const handleContextMenu = useEvent(
     (event: React.MouseEvent<any, MouseEvent>) => {

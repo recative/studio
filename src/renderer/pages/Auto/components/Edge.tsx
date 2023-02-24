@@ -1,5 +1,16 @@
 import * as React from 'react';
+
+import { atom } from 'jotai';
+import { nanoid } from 'nanoid';
+
 import { EdgeProps, getBezierPath } from 'reactflow';
+
+import { useContextMenu } from 'components/ContextMenu/ContextMenu';
+import { useEvent } from 'utils/hooks/useEvent';
+
+export const EDGE_EVENT_TARGET = new EventTarget();
+export const EDGE_CONTEXT_MENU_ID = nanoid();
+export const SELECTED_EDGE_ATOM = atom<{ id: string } | null>(null);
 
 export const Edge: React.FC<EdgeProps<{ text?: string }>> = (props) => {
   const {
@@ -24,6 +35,20 @@ export const Edge: React.FC<EdgeProps<{ text?: string }>> = (props) => {
     targetPosition,
   });
 
+  const formattedNodes = React.useMemo(() => ({ [id]: props }), [id, props]);
+
+  const [triggers] = useContextMenu(
+    EDGE_CONTEXT_MENU_ID,
+    formattedNodes,
+    SELECTED_EDGE_ATOM
+  );
+
+  const handleContextMenu = useEvent(
+    (event: React.MouseEvent<any, MouseEvent>) => {
+      triggers[id]?.(event);
+    }
+  );
+
   return (
     <>
       <path
@@ -32,6 +57,7 @@ export const Edge: React.FC<EdgeProps<{ text?: string }>> = (props) => {
         className="react-flow__edge-path"
         d={edgePath}
         markerEnd={markerEnd}
+        onContextMenu={handleContextMenu}
       />
       <text>
         <textPath
