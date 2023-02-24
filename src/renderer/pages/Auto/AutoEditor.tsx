@@ -2,12 +2,12 @@ import * as React from 'react';
 
 import ReactFlow, {
   addEdge,
+  MiniMap,
   Controls,
   useNodesState,
   useEdgesState,
   ReactFlowProvider,
   ReactFlowInstance,
-  MiniMap,
 } from 'reactflow';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
@@ -19,12 +19,13 @@ import { Sidebar } from './components/Sidebar';
 import { DemoNode } from './components/Nodes/DemoNode';
 import { InputNode } from './components/Nodes/InputNode';
 import { OutputNode } from './components/Nodes/OutputNode';
+import { NodeContextMenu } from './components/NodeContextMenu';
+import { NODE_EVENT_TARGET } from './components/Nodes/components/BaseNode';
+import { Edge, EDGE_EVENT_TARGET } from './components/Edge';
+
+import { EdgeContextMenu } from './components/EdgeContextMenu';
 
 import './styles/ReactFlow.global.css';
-import { NodeContextMenu } from './components/NodeContextMenu';
-import { Edge, EDGE_EVENT_TARGET } from './components/Edge';
-import { NODE_EVENT_TARGET } from './components/Nodes/components/BaseNode';
-import { EdgeContextMenu } from './components/EdgeContextMenu';
 
 const INITIAL_NODES = [
   {
