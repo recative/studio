@@ -11,6 +11,10 @@ import {
   IconSidePanel,
   IconSidePanelPosition,
 } from 'components/Tabs/IconSidePanel';
+import {
+  ComparisonEditor,
+  ICompareTypedData,
+} from 'components/ComparisonEditor/ComparisonEditor';
 
 import { useEvent } from 'utils/hooks/useEvent';
 
@@ -85,7 +89,19 @@ const ICON_TABS_CONFIG = [
 const ToolboxSection = React.memo(() => (
   <IconTabs config={ICON_TABS_CONFIG} initialActiveKey="flow" />
 ));
-const DemoSection = React.memo(() => <div>TEST</div>);
+const DemoSection = React.memo(() => {
+  const [value, setValue] = React.useState<ICompareTypedData>({
+    type: 'string',
+    value: '121',
+    operator: 'gt',
+  });
+
+  return (
+    <div>
+      <ComparisonEditor value={value} onChange={setValue} />
+    </div>
+  );
+});
 
 const SIDE_PANEL_CONFIG = [
   {
@@ -105,9 +121,7 @@ const SIDE_PANEL_CONFIG = [
 export const Sidebar = React.memo(() => {
   return (
     <RecativeBlock
-      width="25%"
-      maxWidth="400px"
-      minWidth="250px"
+      minWidth="25%"
       paddingLeft="8px"
       paddingTop="4px"
       overflow="auto"

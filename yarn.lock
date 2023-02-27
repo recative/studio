@@ -5559,6 +5559,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@recative/node-system@workspace:^, @recative/node-system@workspace:packages/node-system":
+  version: 0.0.0-use.local
+  resolution: "@recative/node-system@workspace:packages/node-system"
+  languageName: unknown
+  linkType: soft
+
 "@recative/open-promise@npm:^0.2.0, @recative/open-promise@npm:^0.2.3, @recative/open-promise@npm:^0.2.4":
   version: 0.2.4
   resolution: "@recative/open-promise@npm:0.2.4::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40recative%2Fopen-promise%2F0.2.4%2F787530cd2de01d0c2e189f0ccc432acf440b3ac0"
@@ -5686,6 +5692,7 @@ __metadata:
     "@recative/client-sdk": ^11.0.13
     "@recative/definitions": ^0.5.5
     "@recative/extension-sdk": "workspace:^"
+    "@recative/node-system": "workspace:^"
     "@recative/open-promise": ^0.2.4
     "@recative/smart-resource": ^0.2.2
     "@recative/studio-definitions": "workspace:^"

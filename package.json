@@ -255,6 +255,7 @@
     "@recative/client-sdk": "^11.0.13",
     "@recative/definitions": "^0.5.5",
     "@recative/extension-sdk": "workspace:^",
+    "@recative/node-system": "workspace:^",
     "@recative/open-promise": "^0.2.4",
     "@recative/smart-resource": "^0.2.2",
     "@recative/studio-definitions": "workspace:^",
