@@ -166,7 +166,7 @@ export const TypedDataEditor: React.FC<ITypedDataEditor> = ({
       value={value.value}
       onChange={handleValueChange}
       overrides={INPUT_OVERRIDE}
-      size={INPUT_SIZE.compact}
+      size={INPUT_SIZE.mini}
       startEnhancer={
         <Select
           onChange={handleTypeChange}

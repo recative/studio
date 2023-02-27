@@ -1,10 +1,15 @@
 import * as React from 'react';
 
+import { Card } from 'baseui/card';
+import { LabelXSmall } from 'baseui/typography';
+import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
+
 import { IconTabs } from 'components/Tabs/IconTabs';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { NodeInputFilled } from 'components/Icons/NodeInputFilled';
 import { EditIconOutline } from 'components/Icons/EditIconOutline';
 import { NodeOutputIconFilled } from 'components/Icons/NodeOutputIconFilled';
+import { NodeSwitchIconFilled } from 'components/Icons/NodeSwitchIconFilled';
 import { NodeCategoryDebugIconOutline } from 'components/Icons/NodeCategoryDebugIconOutline';
 import { NodeCategoryRoutineIconOutline } from 'components/Icons/NodeCategoryRoutineIconOutline';
 import {
@@ -59,6 +64,12 @@ const FlowSegment = () => {
         title="Output"
         colorId={3}
       />
+      <SideBarItem
+        id="switch"
+        Icon={NodeSwitchIconFilled}
+        title="Switch"
+        colorId={4}
+      />
     </RecativeBlock>
   );
 };
@@ -98,7 +109,32 @@ const DemoSection = React.memo(() => {
 
   return (
     <div>
-      <ComparisonEditor value={value} onChange={setValue} />
+      <RecativeBlock
+        marginTop="8px"
+        marginBottom="8px"
+        marginLeft="8px"
+        marginRight="8px"
+      >
+        <Card>
+          <RecativeBlock>
+            <LabelXSmall>
+              <RecativeBlock fontWeight="bold" marginBottom="4px">
+                Id
+              </RecativeBlock>
+            </LabelXSmall>
+            <Input size={INPUT_SIZE.mini} />
+          </RecativeBlock>
+
+          <RecativeBlock marginTop="12px">
+            <LabelXSmall>
+              <RecativeBlock fontWeight="bold" marginBottom="4px">
+                Value
+              </RecativeBlock>
+            </LabelXSmall>
+            <ComparisonEditor value={value} onChange={setValue} />
+          </RecativeBlock>
+        </Card>
+      </RecativeBlock>
     </div>
   );
 });
@@ -121,7 +157,7 @@ const SIDE_PANEL_CONFIG = [
 export const Sidebar = React.memo(() => {
   return (
     <RecativeBlock
-      minWidth="25%"
+      width="320px"
       paddingLeft="8px"
       paddingTop="4px"
       overflow="auto"

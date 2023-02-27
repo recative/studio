@@ -26,6 +26,7 @@ import { Edge, EDGE_EVENT_TARGET } from './components/Edge';
 import { EdgeContextMenu } from './components/EdgeContextMenu';
 
 import './styles/ReactFlow.global.css';
+import { SwitchNode } from './components/Nodes/SwitchNode';
 
 const INITIAL_NODES = [
   {
@@ -40,6 +41,7 @@ const NODE_TYPES = {
   demo: DemoNode,
   i: InputNode,
   o: OutputNode,
+  switch: SwitchNode,
 };
 
 const EDGE_TYPES = {
