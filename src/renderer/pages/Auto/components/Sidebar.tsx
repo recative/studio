@@ -24,6 +24,7 @@ import {
 import { useEvent } from 'utils/hooks/useEvent';
 
 import { BaseNode } from './Nodes/components/BaseNode';
+import { SwitchEditor } from './Editor/SwitchEditor';
 
 interface ISidebarItem {
   id: string;
@@ -101,42 +102,7 @@ const ToolboxSection = React.memo(() => (
   <IconTabs config={ICON_TABS_CONFIG} initialActiveKey="flow" />
 ));
 const DemoSection = React.memo(() => {
-  const [value, setValue] = React.useState<ICompareTypedData>({
-    type: 'string',
-    value: '121',
-    operator: 'gt',
-  });
-
-  return (
-    <div>
-      <RecativeBlock
-        marginTop="8px"
-        marginBottom="8px"
-        marginLeft="8px"
-        marginRight="8px"
-      >
-        <Card>
-          <RecativeBlock>
-            <LabelXSmall>
-              <RecativeBlock fontWeight="bold" marginBottom="4px">
-                Id
-              </RecativeBlock>
-            </LabelXSmall>
-            <Input size={INPUT_SIZE.mini} />
-          </RecativeBlock>
-
-          <RecativeBlock marginTop="12px">
-            <LabelXSmall>
-              <RecativeBlock fontWeight="bold" marginBottom="4px">
-                Value
-              </RecativeBlock>
-            </LabelXSmall>
-            <ComparisonEditor value={value} onChange={setValue} />
-          </RecativeBlock>
-        </Card>
-      </RecativeBlock>
-    </div>
-  );
+  return <SwitchEditor />;
 });
 
 const SIDE_PANEL_CONFIG = [
