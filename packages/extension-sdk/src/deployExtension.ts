@@ -19,7 +19,7 @@ export enum AcceptedBuildType {
   Unknown = 'unknown',
 }
 
-export interface IDeployProfile {
+export interface IDeployerProfile {
   id: string;
   label: string;
   sourceBuildProfileId: string;
@@ -37,7 +37,7 @@ export interface IBuiltFileDescription {
   getBinary(): Promise<Buffer>;
 }
 
-export abstract class Deploy<ConfigKey extends string> {
+export abstract class Deployer<ConfigKey extends string> {
   static id: string;
 
   static label: string;
@@ -72,7 +72,7 @@ export abstract class Deploy<ConfigKey extends string> {
 
   abstract analysisBundle: (
     x: IBuiltFileDescription[] | ZipReader | Buffer,
-    profile: IDeployProfile,
+    profile: IDeployerProfile,
     bundleReleaseId: number
   ) => Promise<IDeployAnalysisResultUnit[]>;
 }
