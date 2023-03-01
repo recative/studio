@@ -1,0 +1,12 @@
+{
+  "name": "@recative/extension-sftp",
+  "packageManager": "yarn@3.0.0-rc.9",
+  "main": "./manifest.ts",
+  "dependencies": {
+    "ssh2-sftp-client": "^9.0.4",
+    "ts-node": "^10.4.0"
+  },
+  "devDependencies": {
+    "@types/ssh2-sftp-client": "^9.0.0"
+  }
+}
