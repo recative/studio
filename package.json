@@ -403,6 +403,7 @@
     "packages/extension-audio-backends",
     "packages/extension-db-fixer",
     "packages/extension-resource-exporter",
+    "packages/extension-sftp",
     "packages/studio-definitions",
     "packages/loki-fs-structured-adapter",
     "packages/node-system"
