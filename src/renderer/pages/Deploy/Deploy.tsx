@@ -1,43 +1,32 @@
 import * as React from 'react';
 
 import { HeadingXXLarge } from 'baseui/typography';
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
 import { ContentContainer } from 'components/Layout/ContentContainer';
-import { PublishIconOutline } from 'components/Icons/PublishIconOutline';
+import { DeployIconOutline } from 'components/Icons/DeployIconOutline';
 
 import { useEvent } from 'utils/hooks/useEvent';
 
 import { ReleaseList } from 'pages/Bundle/components/ReleaseList';
-
-import {
-  useConfirmPublishModal,
-  ConfirmPublishModal,
-} from './components/ConfirmPublishModal';
 
 interface IActionsProps {
   id: number;
 }
 
 const Actions: React.FC<IActionsProps> = ({ id }) => {
-  const [, , openConfirmPublishModal] = useConfirmPublishModal();
-
-  const handleOpenPublishModal = useEvent(() => {
-    return openConfirmPublishModal(id);
-  });
-
   return (
     <RecativeBlock>
-      <SmallIconButton title="Create Bundle">
-        <PublishIconOutline width={16} onClick={handleOpenPublishModal} />
+      <SmallIconButton title="Deploy Bundle">
+        <DeployIconOutline width={16} />
       </SmallIconButton>
     </RecativeBlock>
   );
 };
 
-export const Publish: React.FC = () => {
+export const Deploy: React.FC = () => {
   return (
     <PivotLayout>
       <ContentContainer width={1000} limitedHeight>
@@ -54,7 +43,7 @@ export const Publish: React.FC = () => {
           paddingBottom="24px"
           overflow="clip"
         >
-          <HeadingXXLarge>Publish</HeadingXXLarge>
+          <HeadingXXLarge>Deploy</HeadingXXLarge>
           <RecativeBlock
             gridArea="content"
             height="-webkit-fill-available"
@@ -66,7 +55,6 @@ export const Publish: React.FC = () => {
           </RecativeBlock>
         </RecativeBlock>
       </ContentContainer>
-      <ConfirmPublishModal />
     </PivotLayout>
   );
 };

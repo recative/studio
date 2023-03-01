@@ -14,17 +14,16 @@ import {
   useResourceServer,
   ResourceServerStatus,
 } from 'pages/Server/hooks/resourceServer';
-// import { useCodeServer, CodeServerStatus } from 'pages/Server/hooks/codeServer';
 
+import { AutoIconOutline } from 'components/Icons/AutoIconOutline';
 import { HelpIconOutline } from 'components/Icons/HelpIconOutline';
-// import { SaveIconOutline } from 'components/Icons/SaveIconOutline';
 import { CloseIconOutline } from 'components/Icons/CloseIconOutline';
 import { AboutIconOutline } from 'components/Icons/AboutIconOutline';
 import { CloudIconOutline } from 'components/Icons/CloudIconOutline';
 import { TokenIconOutline } from 'components/Icons/TokenIconOutline';
 import { SeriesIconOutline } from 'components/Icons/SeriesIconOutline';
 import { BundleIconOutline } from 'components/Icons/BundleIconOutline';
-// import { CommitIconOutline } from 'components/Icons/CommitIconOutline';
+import { DeployIconOutline } from 'components/Icons/DeployIconOutline';
 import { GitHubIconOutline } from 'components/Icons/GitHubIconOutline';
 import { PublishIconOutline } from 'components/Icons/PublishIconOutline';
 import { EpisodeIconOutline } from 'components/Icons/EpisodeIconOutline';
@@ -46,7 +45,6 @@ import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
 import { useLoginCredential } from 'utils/hooks/loginCredential';
 import { PIVOT_TAB_OVERRIDES } from 'utils/style/tab';
-import { AutoIconOutline } from 'components/Icons/AutoIconOutline';
 
 export const TabTitle = styled('div', {
   marginTop: '-8px',
@@ -198,6 +196,13 @@ export const InternalPivot: React.FC<IPivotProps> = ({
           disabled={disabled}
         >
           Bundle
+        </PivotButton>
+        <PivotButton
+          startEnhancer={<DeployIconOutline width={20} />}
+          to="/deploy"
+          disabled={disabled}
+        >
+          Deploy
         </PivotButton>
         <Separator />
         <PivotButton

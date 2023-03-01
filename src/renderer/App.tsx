@@ -16,6 +16,7 @@ import { Login } from './pages/User/Login';
 import { Cloud } from './pages/Cloud/Cloud';
 import { Series } from './pages/Series/Series';
 import { Bundle } from './pages/Bundle/Bundle';
+import { Deploy } from './pages/Deploy/Deploy';
 import { Storage } from './pages/User/Storage';
 import { Welcome } from './pages/Welcome/Welcome';
 import { Publish } from './pages/Publish/Publish';
@@ -160,6 +161,7 @@ export const App = () => {
         <Route path="bundle" element={<Bundle />} />
         <Route path="series" element={<Series />} />
         <Route path="new" element={<NewResource />} />
+        <Route path="deploy" element={<Deploy />} />
         <Route path="welcome" element={<Welcome />} />
         <Route path="publish" element={<Publish />} />
         <Route path="setting" element={<Setting />} />
