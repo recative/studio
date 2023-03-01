@@ -26,16 +26,16 @@ export const getResourceFile = async (
 
     if (request.url === '/' && entries['index.html']) {
       const file = await previewBundle.entryData('index.html');
-      await reply.type('text/html');
-      await reply.send(file);
+      void reply.type('text/html');
+      void reply.send(file);
       return;
     }
 
     const entryKey = request.url.substring(1);
     if (entries[entryKey]) {
       const file = await previewBundle.entryData(entryKey);
-      await reply.type(mime.lookup(entryKey) || 'application/octet-stream');
-      await reply.send(file);
+      void reply.type(mime.lookup(entryKey) || 'application/octet-stream');
+      void reply.send(file);
       return;
     }
   }
@@ -47,7 +47,7 @@ export const getResourceFile = async (
   const { pathname } = parse(request.url);
 
   if (!pathname) {
-    await reply.code(404).send({
+    void reply.code(404).send({
       message: 'File not found',
     });
     return;
@@ -56,7 +56,7 @@ export const getResourceFile = async (
   const filePath = join(codeRepositoryPath, 'dist', pathname);
 
   if (!pathExists(pathname)) {
-    await reply.code(404).send({
+    void reply.code(404).send({
       message: 'File not found',
     });
     return;
@@ -65,7 +65,7 @@ export const getResourceFile = async (
   const isDir = lstatSync(filePath).isDirectory();
 
   if (isDir) {
-    await reply.code(404).send({
+    void reply.code(404).send({
       message: 'File not found',
     });
     return;
@@ -74,16 +74,16 @@ export const getResourceFile = async (
   const file = await readFile(filePath);
 
   if (!file) {
-    await reply.code(404).send({
+    void reply.code(404).send({
       message: 'File not found',
     });
     return;
   }
 
-  await reply.type(mime.lookup(filePath) || 'application/octet-stream');
+  void reply.type(mime.lookup(filePath) || 'application/octet-stream');
   if (request.method === 'HEAD') {
-    await reply.code(204).send('');
+    void reply.code(204).send('');
   } else {
-    await reply.code(200).send(file);
+    void reply.code(200).send(file);
   }
 };
