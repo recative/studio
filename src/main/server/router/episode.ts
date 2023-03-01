@@ -20,7 +20,7 @@ interface AssetListQuery {
   apHost?: string;
 }
 
-const getProfile = async (request: FastifyRequest) => {
+export const getProfile = async (request: FastifyRequest) => {
   const { profileId: profile, apHost } = request.query as AssetListQuery;
   const settings = await getSettings();
 
