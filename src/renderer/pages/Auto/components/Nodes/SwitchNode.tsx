@@ -16,8 +16,6 @@ const INPUT_CONFIG: Omit<ICustomHandlerProps, 'position'>[] = [
 
 export const SwitchNode: React.FC<INodeProps> = React.memo(
   ({ id, isConnectable, data }) => {
-    console.log('data: ', data);
-
     const outputs = React.useMemo<
       Omit<ICustomHandlerProps, 'position'>[]
     >(() => {
