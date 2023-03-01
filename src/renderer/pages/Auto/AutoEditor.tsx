@@ -9,6 +9,7 @@ import ReactFlow, {
   ReactFlowProvider,
   ReactFlowInstance,
 } from 'reactflow';
+import { useAtom } from 'jotai';
 
 import { PivotLayout } from 'components/Layout/PivotLayout';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
@@ -18,15 +19,15 @@ import { useEvent } from 'utils/hooks/useEvent';
 import { Sidebar } from './components/Sidebar';
 import { DemoNode } from './components/Nodes/DemoNode';
 import { InputNode } from './components/Nodes/InputNode';
+import { SwitchNode } from './components/Nodes/SwitchNode';
 import { OutputNode } from './components/Nodes/OutputNode';
 import { NodeContextMenu } from './components/NodeContextMenu';
+import { EdgeContextMenu } from './components/EdgeContextMenu';
 import { NODE_EVENT_TARGET } from './components/Nodes/components/BaseNode';
+import { editingSidebarAtom } from './components/Sidebar/store/EditingSidebarStore';
 import { Edge, EDGE_EVENT_TARGET } from './components/Edge';
 
-import { EdgeContextMenu } from './components/EdgeContextMenu';
-
 import './styles/ReactFlow.global.css';
-import { SwitchNode } from './components/Nodes/SwitchNode';
 
 const INITIAL_NODES = [
   {
@@ -95,11 +96,62 @@ export const AutoEditor: React.FC = React.memo(() => {
       id: getId(),
       type,
       position,
-      data: { label: `${type} node` },
+      data: { label: `${type} node`, detail: null },
     };
 
     setNodes((nds) => nds.concat(newNode));
   });
+
+  const [, setEditingSidebarAtom] = useAtom(editingSidebarAtom);
+
+  const handleNodeChange = useEvent((detail: unknown, nodeIndex: number) => {
+    setNodes((nds) => {
+      const node = nds[nodeIndex];
+      if (!node.type) return nds;
+
+      if (typeof detail !== 'object') return nds;
+      if (detail === null) return nds;
+
+      const nextNodes = [...nds];
+      nextNodes[nodeIndex] = {
+        ...node,
+        data: {
+          ...node.data,
+          // @ts-ignore
+          detail,
+        },
+      };
+
+      setEditingSidebarAtom((sidebarData) =>
+        sidebarData
+          ? {
+              ...sidebarData,
+              data: detail,
+            }
+          : sidebarData
+      );
+
+      return nextNodes;
+    });
+  });
+
+  const handleEditNode = useEvent((event: CustomEvent) => {
+    const nodeId = event.detail.id;
+    if (!nodeId) return;
+    if (typeof nodeId !== 'string') return;
+
+    const nodeIndex = nodes.findIndex((x) => x.id === nodeId);
+
+    if (nodeIndex < 0) return;
+
+    const nodeData = Reflect.get(nodes[nodeIndex], 'detail');
+
+    setEditingSidebarAtom({
+      type: nodes[nodeIndex].type ?? '',
+      data: nodeData,
+      onDataUpdate: (detail: unknown) => handleNodeChange(detail, nodeIndex),
+    });
+  }) as EventListener;
 
   const handleDeleteNode = useEvent((event: CustomEvent) => {
     const nodeId = event.detail.id;
@@ -125,6 +177,12 @@ export const AutoEditor: React.FC = React.memo(() => {
 
     return () =>
       NODE_EVENT_TARGET.removeEventListener('delete', handleDeleteNode);
+  });
+
+  React.useEffect(() => {
+    NODE_EVENT_TARGET.addEventListener('edit', handleEditNode);
+
+    return () => NODE_EVENT_TARGET.removeEventListener('edit', handleEditNode);
   });
 
   React.useEffect(() => {

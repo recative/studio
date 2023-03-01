@@ -1,16 +1,11 @@
 import React from 'react';
 
 import { NodeInputFilled } from 'components/Icons/NodeInputFilled';
+import type { INodeProps } from 'pages/Auto/types/Node';
 
 import { BaseNode } from './components/BaseNode';
 
-export interface IDemoNode<T = unknown> {
-  data: T;
-  id: string;
-  isConnectable: boolean;
-}
-
-export const InputNode: React.FC<IDemoNode<unknown>> = React.memo(
+export const InputNode: React.FC<INodeProps> = React.memo(
   ({ id, isConnectable }) => {
     return (
       <BaseNode

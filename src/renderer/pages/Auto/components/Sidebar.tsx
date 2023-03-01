@@ -1,10 +1,9 @@
 import * as React from 'react';
 
-import { Card } from 'baseui/card';
-import { LabelXSmall } from 'baseui/typography';
-import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
+import { useAtom } from 'jotai';
 
 import { IconTabs } from 'components/Tabs/IconTabs';
+import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { NodeInputFilled } from 'components/Icons/NodeInputFilled';
 import { EditIconOutline } from 'components/Icons/EditIconOutline';
@@ -16,15 +15,13 @@ import {
   IconSidePanel,
   IconSidePanelPosition,
 } from 'components/Tabs/IconSidePanel';
-import {
-  ComparisonEditor,
-  ICompareTypedData,
-} from 'components/ComparisonEditor/ComparisonEditor';
 
 import { useEvent } from 'utils/hooks/useEvent';
 
 import { BaseNode } from './Nodes/components/BaseNode';
-import { SwitchEditor } from './Editor/SwitchEditor';
+import { editingSidebarAtom } from './Sidebar/store/EditingSidebarStore';
+
+import { NODE_CONFIGURATIONS } from '../configurations/nodeConfig';
 
 interface ISidebarItem {
   id: string;
@@ -101,8 +98,54 @@ const ICON_TABS_CONFIG = [
 const ToolboxSection = React.memo(() => (
   <IconTabs config={ICON_TABS_CONFIG} initialActiveKey="flow" />
 ));
+
 const DemoSection = React.memo(() => {
-  return <SwitchEditor />;
+  const [sidebarConfig] = useAtom(editingSidebarAtom);
+
+  if (sidebarConfig === null) {
+    return (
+      <EmptySpace
+        title="Nothing to be configured"
+        content="The selected node do not have any configurations to be edited"
+      />
+    );
+  }
+
+  if (sidebarConfig === undefined) {
+    return (
+      <EmptySpace
+        title="No node selected"
+        content="Please select a node to continue editing the node"
+      />
+    );
+  }
+
+  const nodeConfig = NODE_CONFIGURATIONS[sidebarConfig.type];
+
+  if (!nodeConfig) {
+    return (
+      <EmptySpace
+        title="Invalid node"
+        content="The node type selected is not available in the configuration"
+      />
+    );
+  }
+
+  if (!nodeConfig.Editor) {
+    return (
+      <EmptySpace
+        title="Not editable"
+        content="The selected node is not editable"
+      />
+    );
+  }
+
+  return (
+    <nodeConfig.Editor
+      data={sidebarConfig.data}
+      onChange={sidebarConfig.onDataUpdate}
+    />
+  );
 });
 
 const SIDE_PANEL_CONFIG = [

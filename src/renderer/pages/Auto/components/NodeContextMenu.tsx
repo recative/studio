@@ -11,6 +11,8 @@ import {
   useContextMenu,
 } from 'components/ContextMenu/ContextMenu';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
+import { EditIconOutline } from 'components/Icons/EditIconOutline';
+import { CopyIconOutline } from 'components/Icons/CopyIconOutline';
 import { TrashIconOutline } from 'components/Icons/TrashIconOutline';
 
 import {
@@ -72,7 +74,18 @@ const useNodeContextMenu = (nodes: Node[]) => {
             className={css(menuItemStyles)}
             fontWeight={500}
           >
-            <TrashIconOutline width={18} /> <span>Clone</span>
+            <CopyIconOutline width={18} /> <span>Clone</span>
+          </RecativeBlock>
+        ),
+      },
+      {
+        label: (
+          <RecativeBlock
+            id="edit"
+            className={css(menuItemStyles)}
+            fontWeight={500}
+          >
+            <EditIconOutline width={18} /> <span>Edit</span>
           </RecativeBlock>
         ),
       },

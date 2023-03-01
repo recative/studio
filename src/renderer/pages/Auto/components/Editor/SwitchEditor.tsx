@@ -1,20 +1,23 @@
 import * as React from 'react';
+import { nanoid } from 'nanoid';
 
 import { Card } from 'baseui/card';
 import { LabelXSmall } from 'baseui/typography';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
+import { Button, KIND as BUTTON_KIND, KIND, SIZE } from 'baseui/button';
 
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import {
   ComparisonEditor,
   ICompareTypedData,
 } from 'components/ComparisonEditor/ComparisonEditor';
-import { useEvent } from 'utils/hooks/useEvent';
 import { IconButton } from 'components/Button/IconButton';
-import { Button, KIND as BUTTON_KIND, KIND, SIZE } from 'baseui/button';
-import { CloseIconOutline } from 'components/Icons/CloseIconOutline';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
-import { nanoid } from 'nanoid';
+import { CloseIconOutline } from 'components/Icons/CloseIconOutline';
+
+import type { IEditorProps } from 'pages/Auto/types/Editor';
+
+import { useEvent } from 'utils/hooks/useEvent';
 
 export interface ISwitchUnit {
   id: string;
@@ -97,27 +100,37 @@ const DEFAULT_ITEM = {
   value: '',
 };
 
-export const SwitchEditor: React.FC = () => {
-  const [value, setValue] = React.useState<ISwitchUnit[]>([]);
+export const SwitchEditor: React.FC<IEditorProps> = ({ data, onChange }) => {
+  const value = React.useMemo<ISwitchUnit[]>(
+    () => (Array.isArray(data) ? data : []),
+    [data]
+  );
+
+  const setValue = useEvent((x: ISwitchUnit[]) => {
+    if (!Array.isArray(x)) {
+      return onChange([]);
+    }
+
+    const formattedData = x.map((unit) => ({ ...DEFAULT_ITEM, ...unit }));
+    onChange(formattedData);
+  });
 
   const handleValueChange = React.useMemo(
     () =>
       value.map((_, index) => (v: ISwitchUnit) => {
-        setValue((o) => {
-          o[index] = { ...o[index], ...v };
-
-          return [...o];
-        });
+        const o = [...value];
+        o[index] = { ...o[index], ...v };
+        setValue(o);
       }),
-    [value]
+    [setValue, value]
   );
 
   const handleAdd = useEvent(() => {
-    setValue((x) => [...x, { id: nanoid(), ...DEFAULT_ITEM }]);
+    setValue([...value, { id: nanoid(6), ...DEFAULT_ITEM }]);
   });
 
   const handleRemove = useEvent((e) => {
-    setValue((x) => x.filter((a) => a !== e));
+    setValue(value.filter((a) => a !== e));
   });
 
   return (
