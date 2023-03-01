@@ -5,6 +5,7 @@ import s3BucketExtension from '@recative/extension-s3-bucket';
 import polyVVodExtension from '@recative/extension-polyv-vod';
 
 import avExtension from '@recative/extension-av';
+import sftpExtension from '@recative/extension-sftp';
 import atlasExtension from '@recative/extension-atlas';
 import textureExtension from '@recative/extension-texture';
 import audioBackendsExtension from '@recative/extension-audio-backends';
@@ -37,4 +38,5 @@ export const extensions = [
   crowdinExtension,
   resourceExporterExtension,
   textureExtension,
+  sftpExtension,
 ] as ExtensionManifest[];
