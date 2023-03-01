@@ -10,6 +10,7 @@ export * from './extension';
 export * from './getMimeType';
 export * from './getFilePath';
 export * from './getFileBuffer';
+export * from './deployExtension';
 export * from './bundlerExtension';
 export * from './uploaderExtension';
 export * from './resourceExtension';
