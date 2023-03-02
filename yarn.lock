@@ -5569,6 +5569,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@recative/extension-whole-bundle@workspace:packages/extension-whole-bundle":
+  version: 0.0.0-use.local
+  resolution: "@recative/extension-whole-bundle@workspace:packages/extension-whole-bundle"
+  languageName: unknown
+  linkType: soft
+
+"@recative/extension-zip-bundle@workspace:packages/extension-zip-bundle":
+  version: 0.0.0-use.local
+  resolution: "@recative/extension-zip-bundle@workspace:packages/extension-zip-bundle"
+  dependencies:
+    node-stream-zip: ^1.15.0
+  languageName: unknown
+  linkType: soft
+
 "@recative/node-system@workspace:^, @recative/node-system@workspace:packages/node-system":
   version: 0.0.0-use.local
   resolution: "@recative/node-system@workspace:packages/node-system"

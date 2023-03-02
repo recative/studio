@@ -1,0 +1,4 @@
+{
+  "name": "@recative/extension-whole-bundle",
+  "main": "./manifest.ts"
+}

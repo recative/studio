@@ -1,5 +1,3 @@
-import ZipReader from 'node-stream-zip';
-
 import type { IDbInstance } from '@recative/studio-definitions';
 
 import { TerminalMessageLevel } from './terminal';
@@ -8,6 +6,7 @@ import type { IConfigUiField } from './settings';
 
 export interface IDeployDependency {
   db: IDbInstance<unknown>;
+  GetFileBinary: (path: string) => () => Promise<Buffer>;
   getXxHashOfFile: (path: string) => Promise<string>;
   getXxHashOfBuffer: (buffer: Buffer) => Promise<string>;
   logToTerminal: (message: string, level?: TerminalMessageLevel) => void;
@@ -16,7 +15,7 @@ export interface IDeployDependency {
 export enum AcceptedBuildType {
   Directory = 'directory',
   Zip = 'zip',
-  Unknown = 'unknown',
+  File = 'file',
 }
 
 export interface IDeployerProfile {
@@ -44,7 +43,7 @@ export abstract class Deployer<ConfigKey extends string> {
 
   static description: string;
 
-  static acceptedBuildType: AcceptedBuildType[];
+  static acceptedBuildType: AcceptedBuildType;
 
   static extensionConfigUiFields:
     | IConfigUiField[]
@@ -71,7 +70,7 @@ export abstract class Deployer<ConfigKey extends string> {
   }
 
   abstract analysisBundle: (
-    x: IBuiltFileDescription[] | ZipReader | Buffer,
+    x: string,
     profile: IDeployerProfile,
     bundleReleaseId: number
   ) => Promise<IDeployAnalysisResultUnit[]>;

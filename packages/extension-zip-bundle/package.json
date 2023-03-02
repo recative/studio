@@ -1,0 +1,7 @@
+{
+  "name": "@recative/extension-zip-bundle",
+  "main": "./manifest.ts",
+  "dependencies": {
+    "node-stream-zip": "^1.15.0"
+  }
+}
