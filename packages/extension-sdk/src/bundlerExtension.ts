@@ -11,6 +11,7 @@ import type {
 } from '@recative/extension-sdk';
 import type { TerminalMessageLevel } from '@recative/studio-definitions';
 
+import { AcceptedBuildType, IDeployDependency } from './deployExtension';
 import type { IBundleProfile } from './bundler';
 import type { IConfigUiField } from './settings';
 
@@ -29,6 +30,11 @@ export interface IBundlerExtensionDependency {
     parameters: string[],
     executeInBuildPath: boolean
   ) => Promise<string>;
+  getOutputFileName: (
+    suffix: string | null,
+    bundleReleaseId: number,
+    profile: IBundleProfile
+  ) => string;
   getOutputFilePath: (
     suffix: string | null,
     bundleReleaseId: number,
@@ -60,6 +66,11 @@ export interface IBundlerExtensionDependency {
   waveform: typeof waveform;
   screenshot: typeof screenshot;
   imageThumbnail: typeof imageThumbnail;
+}
+
+export interface IBundleMetadata {
+  fileName: string;
+  type: AcceptedBuildType;
 }
 
 export abstract class Bundler<ConfigKey extends string> {
@@ -124,4 +135,9 @@ export abstract class Bundler<ConfigKey extends string> {
     profile: IBundleProfile,
     bundleReleaseId: number
   ) => void | Promise<void>;
+
+  abstract getBundleMetadata: (
+    profile: IBundleProfile,
+    bundleReleaseId: number
+  ) => IBundleMetadata;
 }

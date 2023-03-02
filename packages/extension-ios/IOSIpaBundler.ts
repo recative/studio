@@ -1,4 +1,8 @@
-import { Bundler } from '@recative/extension-sdk';
+import {
+  AcceptedBuildType,
+  Bundler,
+  IBundleProfile,
+} from '@recative/extension-sdk';
 
 export class IOSIpaBundler extends Bundler<''> {
   static id = '@recative/extension-ios/IOSIpaBundler';
@@ -24,4 +28,15 @@ export class IOSIpaBundler extends Bundler<''> {
   beforeBundleFinalized = () => {};
 
   afterBundleCreated = () => {};
+
+  getBundleMetadata = (profile: IBundleProfile, bundleReleaseId: number) => {
+    return {
+      fileName: this.dependency.getOutputFileName(
+        null,
+        bundleReleaseId,
+        profile
+      ),
+      type: AcceptedBuildType.File,
+    };
+  };
 }

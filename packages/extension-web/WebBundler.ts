@@ -1,4 +1,8 @@
-import { Bundler } from '@recative/extension-sdk';
+import {
+  AcceptedBuildType,
+  Bundler,
+  IBundleProfile,
+} from '@recative/extension-sdk';
 
 export class WebBundler extends Bundler<''> {
   static id = '@recative/extension-web/WebBundler';
@@ -28,4 +32,15 @@ export class WebBundler extends Bundler<''> {
   beforeBundleFinalized = () => {};
 
   afterBundleCreated = () => {};
+
+  getBundleMetadata = (profile: IBundleProfile, bundleReleaseId: number) => {
+    return {
+      fileName: this.dependency.getOutputFileName(
+        null,
+        bundleReleaseId,
+        profile
+      ),
+      type: AcceptedBuildType.Zip,
+    };
+  };
 }

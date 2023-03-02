@@ -1,4 +1,4 @@
-import { createBundles } from './bundleProfile';
+import { createBundles } from './bundle';
 import { uploadCodeBundle } from './publishUploadBundleCode';
 import { uploadMediaBundle } from './publishUploadBundleMedia';
 import { newTerminalSession, wrapTaskFunction } from './terminal';

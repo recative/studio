@@ -37,6 +37,8 @@ const bundlerDependencies: IBundlerExtensionDependency = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prepareOutputFile: null as any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getOutputFileName: null as any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getOutputFilePath: null as any,
   getBuildInProtoDefinition: (fileName: string) => {
     const protoPath = join(STUDIO_BINARY_PATH, fileName);
@@ -163,6 +165,20 @@ export const getBundlerInstances = async (terminalId: string) => {
         logToTerminal(terminalId, message, logLevel);
       };
 
+      bundler.dependency.getOutputFileName = (
+        suffix,
+        bundleReleaseId,
+        profile
+      ) => {
+        const outputFileName = `${Reflect.get(
+          bundler.constructor,
+          'outputPrefix'
+        )}-${profile.prefix}-${bundleReleaseId.toString().padStart(4, '0')}${
+          suffix ? `-${suffix}` : ''
+        }.${Reflect.get(bundler.constructor, 'outputExtensionName')}`;
+
+        return outputFileName;
+      };
       bundler.dependency.getOutputFilePath = async (
         suffix,
         bundleReleaseId,
@@ -170,12 +186,11 @@ export const getBundlerInstances = async (terminalId: string) => {
       ) => {
         const buildPath = await getBuildPath();
 
-        const outputFileName = `${Reflect.get(
-          bundler.constructor,
-          'outputPrefix'
-        )}-${profile.prefix}-${bundleReleaseId.toString().padStart(4, '0')}${
-          suffix ? `-${suffix}` : ''
-        }.${Reflect.get(bundler.constructor, 'outputExtensionName')}`;
+        const outputFileName = bundler.dependency.getOutputFileName(
+          suffix,
+          bundleReleaseId,
+          profile
+        );
 
         const outputPath = join(buildPath, outputFileName);
 

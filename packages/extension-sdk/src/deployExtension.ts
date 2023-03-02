@@ -1,3 +1,5 @@
+import StreamZip from 'node-stream-zip';
+
 import type { IDbInstance } from '@recative/studio-definitions';
 
 import { TerminalMessageLevel } from './terminal';
@@ -6,6 +8,7 @@ import type { IConfigUiField } from './settings';
 
 export interface IDeployDependency {
   db: IDbInstance<unknown>;
+  readZipFile: (path: string) => StreamZip.StreamZipAsync;
   GetFileBinary: (path: string) => () => Promise<Buffer>;
   getXxHashOfFile: (path: string) => Promise<string>;
   getXxHashOfBuffer: (buffer: Buffer) => Promise<string>;
@@ -18,7 +21,7 @@ export enum AcceptedBuildType {
   File = 'file',
 }
 
-export interface IDeployerProfile {
+export interface IDeployProfile {
   id: string;
   label: string;
   sourceBuildProfileId: string;
@@ -71,7 +74,7 @@ export abstract class Deployer<ConfigKey extends string> {
 
   abstract analysisBundle: (
     x: string,
-    profile: IDeployerProfile,
+    profile: IDeployProfile,
     bundleReleaseId: number
   ) => Promise<IDeployAnalysisResultUnit[]>;
 }

@@ -1,6 +1,6 @@
 import { basename } from 'path';
 
-import { Bundler } from '@recative/extension-sdk';
+import { AcceptedBuildType, Bundler } from '@recative/extension-sdk';
 import type {
   Zip,
   IBundleProfile,
@@ -142,5 +142,16 @@ export class AndroidAabBundler extends Bundler<''> {
     bundleReleaseId: number
   ) => {
     await this.signAab(profile, bundleReleaseId);
+  };
+
+  getBundleMetadata = (profile: IBundleProfile, bundleReleaseId: number) => {
+    return {
+      fileName: this.dependency.getOutputFileName(
+        'signed',
+        bundleReleaseId,
+        profile
+      ),
+      type: AcceptedBuildType.File,
+    };
   };
 }
