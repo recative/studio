@@ -406,6 +406,7 @@
     "packages/extension-sftp",
     "packages/extension-zip-bundle",
     "packages/extension-whole-bundle",
+    "packages/extension-git",
     "packages/studio-definitions",
     "packages/loki-fs-structured-adapter",
     "packages/node-system"

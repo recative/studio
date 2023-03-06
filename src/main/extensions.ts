@@ -5,6 +5,7 @@ import s3BucketExtension from '@recative/extension-s3-bucket';
 import polyVVodExtension from '@recative/extension-polyv-vod';
 
 import avExtension from '@recative/extension-av';
+import gitExtension from '@recative/extension-git';
 import sftpExtension from '@recative/extension-sftp';
 import atlasExtension from '@recative/extension-atlas';
 import textureExtension from '@recative/extension-texture';
@@ -39,4 +40,5 @@ export const extensions = [
   resourceExporterExtension,
   textureExtension,
   sftpExtension,
+  gitExtension,
 ] as ExtensionManifest[];
