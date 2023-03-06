@@ -88,7 +88,7 @@ export const DeployBundleModal: React.FC = () => {
       Array.from(selectedProfiles).filter((x) => profileIds.includes(x)),
       data
     );
-    void openTerminal('createBundles');
+    void openTerminal('deployBundles');
     onClose();
   });
 
@@ -106,7 +106,7 @@ export const DeployBundleModal: React.FC = () => {
       size={SIZE.default}
       role={ROLE.dialog}
     >
-      <ModalHeader>Create Bundle</ModalHeader>
+      <ModalHeader>Deploy Bundle</ModalHeader>
       <ModalBody>
         {profiles.result?.length ? (
           <ul className={css(ulStyles)}>

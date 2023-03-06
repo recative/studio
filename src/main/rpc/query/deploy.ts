@@ -63,7 +63,7 @@ export const removeDeployProfile = async (profile: IDeployProfile | string) => {
 export const deployBundles = async (
   profiles: string[],
   bundleReleaseId: number,
-  terminalId = 'createBundles'
+  terminalId = 'deployBundles'
 ) => {
   const db = await getDb();
 
