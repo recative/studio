@@ -98,7 +98,7 @@ const useProfileDetail = (profileId: string | null) => {
             label: '',
             sourceBuildProfileId: '',
             targetUploaderId: '',
-            ...(await server.getBundleProfile(profileId)),
+            ...(await server.getDeployProfile(profileId)),
           }
         : null
   );
