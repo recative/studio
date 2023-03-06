@@ -27,7 +27,7 @@ const listItemOverrides = {
   },
 } as const;
 
-export const ProfileListItem: React.FC<IProfileListItemProps> = ({
+export const BundleProfileListItem: React.FC<IProfileListItemProps> = ({
   id,
   label,
 }) => {

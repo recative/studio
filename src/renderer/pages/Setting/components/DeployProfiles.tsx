@@ -6,45 +6,43 @@ import { useStyletron } from 'styletron-react';
 
 import { ParagraphLarge } from 'baseui/typography';
 
-import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
+import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
 
 import { server } from 'utils/rpc';
+import { useEvent } from 'utils/hooks/useEvent';
 
 import { BundleProfileListItem } from './BundleProfileListItem';
 import {
-  EditBundleProfileItemModal,
-  useEditBundleProfileItemModal,
-} from './EditBundleProfileItemModal';
-import { ConfirmRemoveBundleProfileModal } from './ConfirmRemoveBundleProfileModal';
+  EditDeployProfileItemModal,
+  useEditDeployProfileItemModal,
+} from './EditDeployProfileItemModal';
+import { ConfirmRemoveDeployProfileModal } from './ConfirmRemoveDeployProfileModal';
 
 const profileListStyles = {
   paddingLeft: 0,
 } as const;
 
-export const BundleProfiles = () => {
+export const DeployProfiles = () => {
   const [css] = useStyletron();
-  const [profiles, profilesActions] = useAsync(server.listBundleProfile);
-  const [, , openEditBundleProfileItemModal] = useEditBundleProfileItemModal();
+  const [profiles, profilesActions] = useAsync(server.listDeployProfile);
+  const [, , openEditBundleProfileItemModal] = useEditDeployProfileItemModal();
 
   React.useEffect(() => {
     void profilesActions.execute();
   }, [profilesActions, profilesActions.execute]);
 
-  const handleAddProfile = React.useCallback(() => {
+  const handleAddProfile = useEvent(() => {
     void openEditBundleProfileItemModal(nanoid());
-  }, [openEditBundleProfileItemModal]);
+  });
 
-  const handleRemoveProfile = React.useCallback(
-    async (x: string | null) => {
-      if (!x) return;
-      await server.removeBundleProfile(x);
-      await profilesActions.execute();
-    },
-    [profilesActions]
-  );
+  const handleRemoveProfile = useEvent(async (x: string | null) => {
+    if (!x) return;
+    await server.removeDeployProfile(x);
+    await profilesActions.execute();
+  });
 
   if (profiles.status === 'not-executed') {
     return null;
@@ -57,7 +55,7 @@ export const BundleProfiles = () => {
         justifyContent="space-between"
         alignItems="center"
       >
-        <ParagraphLarge>Bundling Profiles</ParagraphLarge>
+        <ParagraphLarge>Deploy Profiles</ParagraphLarge>
         <RecativeBlock>
           <SmallIconButton title="Add Profile" onClick={handleAddProfile}>
             <AddIconOutline width={16} />
@@ -76,13 +74,13 @@ export const BundleProfiles = () => {
         ) : (
           <EmptySpace
             title="Empty"
-            content="Press the add button to create a new bundling profiles"
+            content="Press the add button to create a new deployment profiles"
           />
         )}
       </ul>
 
-      <EditBundleProfileItemModal onSubmit={profilesActions.execute} />
-      <ConfirmRemoveBundleProfileModal
+      <EditDeployProfileItemModal onSubmit={profilesActions.execute} />
+      <ConfirmRemoveDeployProfileModal
         onSubmit={handleRemoveProfile}
         onCancel={null}
       />

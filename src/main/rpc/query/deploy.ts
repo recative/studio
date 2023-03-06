@@ -27,19 +27,19 @@ export const listDeployProfile = async () => {
   return db.setting.deployProfiles.find();
 };
 
-export const getBundleProfile = async (id: string) => {
+export const getDeployProfile = async (id: string) => {
   const db = await getDb();
 
   return db.setting.deployProfiles.findOne({ id });
 };
 
-export const addBundleProfile = async (profile: IDeployProfile) => {
+export const addDeployProfile = async (profile: IDeployProfile) => {
   const db = await getDb();
 
   db.setting.deployProfiles.insert(profile);
 };
 
-export const updateOrInsertBundleProfile = async (profile: IDeployProfile) => {
+export const updateOrInsertDeployProfile = async (profile: IDeployProfile) => {
   const db = await getDb();
 
   const q = db.setting.deployProfiles.findOne({ id: profile.id });
@@ -50,7 +50,7 @@ export const updateOrInsertBundleProfile = async (profile: IDeployProfile) => {
   }
 };
 
-export const removeBundleProfile = async (profile: IDeployProfile | string) => {
+export const removeDeployProfile = async (profile: IDeployProfile | string) => {
   const db = await getDb();
 
   if (typeof profile === 'string') {

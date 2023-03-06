@@ -23,6 +23,7 @@ import { server } from 'utils/rpc';
 import { BundleProfiles } from './components/BundleProfiles';
 
 import { useStudioSettings } from './hooks/useStudioSettings';
+import { DeployProfiles } from './components/DeployProfiles';
 
 const InternalSetting: React.FC = () => {
   const settings = useStudioSettings();
@@ -153,6 +154,8 @@ const InternalSetting: React.FC = () => {
           </FormControl>
           <HeadingSmall>Bundling</HeadingSmall>
           <BundleProfiles />
+          <HeadingSmall>Deployment</HeadingSmall>
+          <DeployProfiles />
           <HeadingSmall>Uploader</HeadingSmall>
           <ExtensionConfiguration
             domain="uploader"

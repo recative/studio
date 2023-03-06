@@ -11,7 +11,7 @@ import type {
 } from '@recative/extension-sdk';
 import type { TerminalMessageLevel } from '@recative/studio-definitions';
 
-import { AcceptedBuildType, IDeployDependency } from './deployExtension';
+import { AcceptedBuildType } from './deployExtension';
 import type { IBundleProfile } from './bundler';
 import type { IConfigUiField } from './settings';
 

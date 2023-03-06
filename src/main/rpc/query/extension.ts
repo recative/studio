@@ -3,6 +3,7 @@ import { pick } from 'lodash';
 import { join } from 'path';
 import { emptyDir } from 'fs-extra';
 
+import { Category } from '@recative/definitions';
 import type { IConfigUiField, IScript } from '@recative/extension-sdk';
 
 import { cloneDeep } from '../../utils/cloneDeep';
@@ -19,6 +20,7 @@ interface IExtensionDescription {
   profileConfigUiFields?: IConfigUiField[];
   resourceConfigUiFields?: IConfigUiField[];
   nonMergeableResourceExtensionConfiguration?: string[];
+  acceptedFileCategory?: Category;
   scripts?: IScript[];
 }
 
@@ -39,6 +41,7 @@ extensions.forEach((extension) => {
       const result = {
         id: clonedConfig.id,
         label: clonedConfig.label,
+        acceptedFileCategory: item.acceptedFileCategory,
         extensionConfigUiFields: [
           {
             id: 'acceptedFileType',

@@ -26,7 +26,6 @@ export interface IDeployProfile {
   label: string;
   sourceBuildProfileId: string;
   targetUploaderId: string;
-  baseUrl: string;
 }
 
 export interface IDeployAnalysisResultUnit {
