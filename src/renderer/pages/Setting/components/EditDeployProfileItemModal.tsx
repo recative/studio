@@ -145,7 +145,7 @@ export const EditDeployProfileItemModal: React.FC<
     );
   const bundleProfileOptionValue = useValueOptionForBaseUiSelectWithSingleValue(
     clonedProfile?.sourceBuildProfileId,
-    extensionListOptions
+    bundleProfileList
   );
 
   const formValid = React.useMemo(() => {

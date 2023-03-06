@@ -60,6 +60,10 @@ export abstract class Uploader<ConfigKey extends string> {
     pathPrefix?: string
   ) => Promise<string>;
 
+  initializeUpload: (() => Promise<void>) | undefined = undefined;
+
+  finalizeUpload: (() => Promise<void>) | undefined = undefined;
+
   abstract remove: (config: IResourceFile | string) => void;
 
   abstract get: (config: IResourceFile | string) => string;

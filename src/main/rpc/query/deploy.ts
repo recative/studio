@@ -167,6 +167,8 @@ export const deployBundles = async (
       continue;
     }
 
+    await uploader.uploader.initializeUpload?.();
+
     const title = `== ${deployProfile.label} (${deployProfile.targetUploaderId}) ==`;
     logToTerminal(
       terminalId,
@@ -211,6 +213,7 @@ export const deployBundles = async (
       });
 
       await taskQueue.run();
+      await uploader.uploader.finalizeUpload?.();
     })();
   }
 };

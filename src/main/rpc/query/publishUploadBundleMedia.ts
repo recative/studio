@@ -116,6 +116,8 @@ export const uploadMediaBundle = async (
     const [serviceProviderLabel, { uploader, fileCategory }] =
       uploaderInstances[i];
 
+    await uploader.initializeUpload?.();
+
     logToTerminal(
       terminalId,
       `:: Initializing ${serviceProviderLabel}`,
@@ -253,6 +255,11 @@ export const uploadMediaBundle = async (
   logToTerminal(terminalId, `:: :: Tasks: ${taskQueue.length}`, Level.Info);
 
   await taskQueue.run();
+
+  for (let i = 0; i < l; i += 1) {
+    const [, { uploader }] = uploaderInstances[i];
+    await uploader.finalizeUpload?.();
+  }
 
   logToTerminal(terminalId, `:: Upload Task Summary`, Level.Info);
   logToTerminal(
