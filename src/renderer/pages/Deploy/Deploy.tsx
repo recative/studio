@@ -11,15 +11,25 @@ import { DeployIconOutline } from 'components/Icons/DeployIconOutline';
 import { useEvent } from 'utils/hooks/useEvent';
 
 import { ReleaseList } from 'pages/Bundle/components/ReleaseList';
+import {
+  DeployBundleModal,
+  useDeployBundleModal,
+} from './components/DeployBundleModal';
 
 interface IActionsProps {
   id: number;
 }
 
 const Actions: React.FC<IActionsProps> = ({ id }) => {
+  const [, , openDeployBundleModal] = useDeployBundleModal();
+
+  const handleDeployIconClick = useEvent(() => {
+    void openDeployBundleModal(id);
+  });
+
   return (
     <RecativeBlock>
-      <SmallIconButton title="Deploy Bundle">
+      <SmallIconButton title="Deploy Bundle" onClick={handleDeployIconClick}>
         <DeployIconOutline width={16} />
       </SmallIconButton>
     </RecativeBlock>
@@ -54,6 +64,7 @@ export const Deploy: React.FC = () => {
             </RecativeBlock>
           </RecativeBlock>
         </RecativeBlock>
+        <DeployBundleModal />
       </ContentContainer>
     </PivotLayout>
   );
