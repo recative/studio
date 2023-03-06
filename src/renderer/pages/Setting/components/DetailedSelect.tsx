@@ -65,10 +65,10 @@ const InternalDetailedSelect: React.FC<IDetailedSelectProps> = ({
         <RecativeBlock display="flex" alignItems="center">
           {option.Icon && (
             <RecativeBlock>
-              <option.Icon width={32} />
+              <option.Icon width={26} />
             </RecativeBlock>
           )}
-          <RecativeBlock marginLeft={theme.sizing.scale500}>
+          <RecativeBlock marginLeft={theme.sizing.scale600}>
             <LabelMedium>{option.label}</LabelMedium>
             <RecativeBlock className={descriptionContainerStyle}>
               <LabelXSmall overrides={labelOverrides}>
@@ -79,7 +79,7 @@ const InternalDetailedSelect: React.FC<IDetailedSelectProps> = ({
         </RecativeBlock>
       );
     },
-    [descriptionContainerStyle, labelOverrides, theme.sizing.scale500]
+    [descriptionContainerStyle, labelOverrides, theme.sizing.scale600]
   );
 
   return (

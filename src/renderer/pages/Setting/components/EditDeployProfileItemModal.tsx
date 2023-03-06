@@ -20,18 +20,18 @@ import { KIND as BUTTON_KIND } from 'baseui/button';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 
 import { InfoIconOutline } from 'components/Icons/InfoIconOutline';
+import { BundleIconOutline } from 'components/Icons/BundleIconOutline';
 import { ExtensionIconOutline } from 'components/Icons/ExtensionIconOutline';
 
-import { ModalManager } from 'utils/hooks/useModalManager';
-
 import { server } from 'utils/rpc';
-
+import { ModalManager } from 'utils/hooks/useModalManager';
 import {
   useFormChangeCallbacks,
   useOnChangeEventWrapperForStringType,
   useValueOptionForBaseUiSelectWithSingleValue,
   useOnChangeEventWrapperForBaseUiSelectWithSingleValue,
 } from 'utils/hooks/useFormChangeCallbacks';
+
 import { DetailedSelect } from './DetailedSelect';
 import { Hint, HintParagraph } from './Hint';
 
@@ -40,6 +40,29 @@ export const useEditDeployProfileItemModal = ModalManager<string, null>(null);
 export interface IEditDeployProfileItemModalProps {
   onSubmit: () => void;
 }
+
+const useBundleProfileList = () => {
+  const [bundleProfiles, listBundleProfileActions] = useAsync(() =>
+    server.listBundleProfile()
+  );
+
+  React.useEffect(() => {
+    void listBundleProfileActions.execute();
+  }, [listBundleProfileActions]);
+
+  const availableBundleProfiles = React.useMemo(() => {
+    return (
+      bundleProfiles.result?.map((extension) => ({
+        id: extension.id,
+        label: extension.label,
+        description: extension.bundleExtensionId,
+        Icon: BundleIconOutline,
+      })) ?? []
+    );
+  }, [bundleProfiles.result]);
+
+  return availableBundleProfiles;
+};
 
 const useUploaderList = () => {
   const [uploaderList, uploaderListActions] = useAsync(() =>
@@ -93,6 +116,7 @@ export const EditDeployProfileItemModal: React.FC<
   const [loading, setLoading] = React.useState(false);
   const [isOpen, profileId, , onClose] = useEditDeployProfileItemModal();
   const extensionListOptions = useUploaderList();
+  const bundleProfileList = useBundleProfileList();
 
   const profileDetail = useProfileDetail(profileId);
 
@@ -115,6 +139,14 @@ export const EditDeployProfileItemModal: React.FC<
       clonedProfile?.targetUploaderId,
       extensionListOptions
     );
+  const handleBundleProfileIdChange =
+    useOnChangeEventWrapperForBaseUiSelectWithSingleValue(
+      valueChangeCallbacks.sourceBuildProfileId
+    );
+  const bundleProfileOptionValue = useValueOptionForBaseUiSelectWithSingleValue(
+    clonedProfile?.sourceBuildProfileId,
+    extensionListOptions
+  );
 
   const formValid = React.useMemo(() => {
     return Object.entries(clonedProfile || {}).every(([, value]) => {
@@ -162,7 +194,18 @@ export const EditDeployProfileItemModal: React.FC<
             />
           </FormControl>
           <FormControl
-            label="Deploy Profile Extension"
+            label="Bundling Profile"
+            caption="The extension that will be used to deploy the bundle."
+          >
+            <DetailedSelect
+              value={bundleProfileOptionValue}
+              onChange={handleBundleProfileIdChange}
+              options={bundleProfileList}
+              size={SELECT_SIZE.mini}
+            />
+          </FormControl>
+          <FormControl
+            label="Uploader Extension"
             caption="The extension that will be used to deploy the bundle."
           >
             <DetailedSelect
