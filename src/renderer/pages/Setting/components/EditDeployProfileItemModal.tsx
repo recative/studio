@@ -251,7 +251,7 @@ export const EditDeployProfileItemModal: React.FC<
           </FormControl>
           <FormControl
             label="Uploader Extension"
-            caption="The extension that will be used to deploy the bundle."
+            caption="The extension that will be used to upload the building artifacts."
           >
             <DetailedSelect
               value={bundleExtensionOptionValue}
