@@ -27,6 +27,7 @@ export interface IDeployProfile {
   sourceBuildProfileId: string;
   deployerId: string;
   targetUploaderId: string;
+  pathOverride: string;
 }
 
 export interface IDeployAnalysisResultUnit {

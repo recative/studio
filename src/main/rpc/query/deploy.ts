@@ -206,11 +206,13 @@ export const deployBundles = async (
 
       const taskQueue = new PromiseQueue(5);
 
-      const path = join(
-        seriesId,
-        'bundle',
-        bundleReleaseId.toString().padStart(4, '0')
-      ).replaceAll('\\', '/');
+      const bundleReleaseIdStr = bundleReleaseId.toString().padStart(4, '0');
+
+      const path = deployProfile.pathOverride
+        ? deployProfile.pathOverride
+            .replace(':seriesId', seriesId)
+            .replace(':bundleReleaseId', bundleReleaseIdStr)
+        : join(seriesId, 'bundle', bundleReleaseIdStr).replaceAll('\\', '/');
 
       analysisResult.forEach((file) => {
         taskQueue.enqueue(async () =>

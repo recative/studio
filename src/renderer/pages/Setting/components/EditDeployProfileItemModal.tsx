@@ -33,6 +33,8 @@ import {
   useOnChangeEventWrapperForBaseUiSelectWithSingleValue,
 } from 'utils/hooks/useFormChangeCallbacks';
 
+import { useStyletron } from 'baseui';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { DetailedSelect } from './DetailedSelect';
 import { Hint, HintParagraph } from './Hint';
 
@@ -123,6 +125,7 @@ const useProfileDetail = (profileId: string | null) => {
             sourceBuildProfileId: '',
             targetUploaderId: '',
             deployerId: '',
+            pathOverride: '',
             ...(await server.getDeployProfile(profileId)),
           }
         : null
@@ -133,6 +136,28 @@ const useProfileDetail = (profileId: string | null) => {
   }, [profileId, profileDetailActions]);
 
   return profileDetail.result;
+};
+
+const Code: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
+  const [, theme] = useStyletron();
+
+  return (
+    <RecativeBlock
+      display="inline"
+      color={theme.colors.accent}
+      outlineColor={theme.colors.borderAccentLight}
+      backgroundColor={theme.colors.accent50}
+      fontSize="0.9em"
+      paddingTop="0.05em"
+      paddingBottom="0.05em"
+      paddingLeft="2px"
+      paddingRight="2px"
+      outlineStyle="solid"
+      outlineWidth="1px"
+    >
+      {children}
+    </RecativeBlock>
+  );
 };
 
 export const EditDeployProfileItemModal: React.FC<
@@ -182,8 +207,14 @@ export const EditDeployProfileItemModal: React.FC<
     deployerList
   );
 
+  const handlePathOverrideChange = useOnChangeEventWrapperForStringType(
+    valueChangeCallbacks.pathOverride
+  );
+
   const formValid = React.useMemo(() => {
-    return Object.entries(clonedProfile || {}).every(([, value]) => {
+    return Object.entries(clonedProfile || {}).every(([key, value]) => {
+      if (key === 'pathOverride') return true;
+
       return !!value;
     });
   }, [clonedProfile]);
@@ -258,6 +289,22 @@ export const EditDeployProfileItemModal: React.FC<
               onChange={handleUploaderExtensionIdChange}
               options={extensionListOptions}
               size={SELECT_SIZE.mini}
+            />
+          </FormControl>
+          <FormControl
+            label="Deploy Path Override"
+            caption={
+              <>
+                Override the default path of the deployed resource,{' '}
+                <Code>:seriesId</Code> and <Code>:bundleReleaseId</Code> will be
+                replaced accordingly.
+              </>
+            }
+          >
+            <Input
+              value={clonedProfile?.pathOverride || ''}
+              onChange={handlePathOverrideChange}
+              size={INPUT_SIZE.mini}
             />
           </FormControl>
         </ModalBody>
