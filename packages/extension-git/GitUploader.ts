@@ -1,14 +1,14 @@
 import { dirSync } from 'tmp';
 import { SimpleGit, simpleGit } from 'simple-git';
 
-import { join } from 'path';
+import { join, dirname } from 'path';
 
 import { Category } from '@recative/definitions';
 import { Uploader } from '@recative/extension-sdk';
 
 import type { IRemoteFile } from '@recative/extension-sdk';
 import type { IResourceFile } from '@recative/definitions';
-import { writeFile } from 'fs/promises';
+import { ensureDir, writeFile } from 'fs-extra';
 
 export interface GitUploaderPluginConfig {
   repo: string;
@@ -63,9 +63,9 @@ export class GitUploader extends Uploader<keyof GitUploaderPluginConfig> {
       throw new TypeError(`Client not initialized`);
     }
 
-    await this.client.add('*');
+    await this.client.raw(['add', '*']);
     await this.client.commit(`deploy: ${new Date().toLocaleString()}`);
-    await this.client.push(['--set-upstream origin', 'master', '-f']);
+    await this.client.raw(['push', '--set-upstream', 'origin', 'master', '-f']);
   };
 
   upload = async (
@@ -85,6 +85,7 @@ export class GitUploader extends Uploader<keyof GitUploaderPluginConfig> {
       ].filter((x) => !!x) as string[])
     ).replaceAll('\\', '/');
 
+    await ensureDir(dirname(filePath));
     await writeFile(filePath, buffer);
 
     return this.config.urlSchema.replace(':key', filePath);

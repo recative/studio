@@ -3,6 +3,7 @@
   "packageManager": "yarn@3.0.0-rc.9",
   "main": "./manifest.ts",
   "dependencies": {
+    "fs-extra": "^11.1.0",
     "simple-git": "^3.17.0",
     "tmp": "^0.2.1"
   }

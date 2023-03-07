@@ -1,4 +1,4 @@
-import { OpenPromise } from '@recative/open-promise';
+import { OpenPromise, OpenPromiseState } from '@recative/open-promise';
 
 export class PromiseQueue {
   private finalPromise = new OpenPromise<void>();
@@ -39,15 +39,16 @@ export class PromiseQueue {
 
   promisePointer = -1;
 
-  handlePromise = (p: Promise<unknown>) => {
-    if (this.stopped) return;
+  handlePromise = (p: Promise<unknown>): Promise<void> => {
+    if (this.stopped) return Promise.resolve();
 
     this.promisePointer += 1;
     this.working += 1;
 
-    p.then(() => {
-      this.resolved += 1;
-    })
+    return p
+      .then(() => {
+        this.resolved += 1;
+      })
       .catch(() => {
         this.rejected += 1;
       })
@@ -56,13 +57,30 @@ export class PromiseQueue {
         this.working -= 1;
 
         if (this.finished >= this.totalTasksBeforeLocked) {
-          this.finalPromise.resolve();
+          if (
+            this.finalPromise.state !== OpenPromiseState.Idle &&
+            this.finalPromise.state !== OpenPromiseState.Pending
+          ) {
+            return;
+          }
+
+          if (this.rejected > 0) {
+            this.finalPromise.reject(
+              new Error(`Not all task finished successfully`)
+            );
+          } else {
+            this.finalPromise.resolve();
+          }
+          return;
+        }
+
+        if (this.promisePointer >= this.queue.length) {
           return;
         }
 
         const promise = this.queue[this.promisePointer]();
 
-        this.handlePromise(promise);
+        return this.handlePromise(promise);
       });
   };
 
@@ -87,7 +105,7 @@ export class PromiseQueue {
       i < Math.min(this.totalTasksBeforeLocked, this.concurrent);
       i += 1
     ) {
-      this.handlePromise(this.queue[i]());
+      void this.handlePromise(this.queue[i]());
     }
 
     return this.finalPromise;

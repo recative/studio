@@ -25,6 +25,7 @@ export interface IDeployProfile {
   id: string;
   label: string;
   sourceBuildProfileId: string;
+  deployerId: string;
   targetUploaderId: string;
 }
 

@@ -182,7 +182,7 @@ export const deployBundles = async (
       Level.Info
     );
 
-    const deployer = deployerInstances[deployProfile.targetUploaderId];
+    const deployer = deployerInstances[deployProfile.deployerId];
 
     const outputMetadata = bundler.getBundleMetadata(
       bundleProfile,
@@ -192,11 +192,17 @@ export const deployBundles = async (
     const outputPath = join(buildPath, outputMetadata.fileName);
 
     await wrapTaskFunction(terminalId, taskName, async () => {
+      logToTerminal(
+        terminalId,
+        `:: Analysing bundle: ${deployProfile.deployerId}`
+      );
       const analysisResult = await deployer.analysisBundle(
         outputPath,
         deployProfile,
         bundleReleaseId
       );
+
+      logToTerminal(terminalId, `:: File acquired: ${analysisResult.length}`);
 
       const taskQueue = new PromiseQueue(5);
 
@@ -213,7 +219,12 @@ export const deployBundles = async (
       });
 
       await taskQueue.run();
+
+      logToTerminal(terminalId, `:: All file processed`);
+
       await uploader.uploader.finalizeUpload?.();
+
+      logToTerminal(terminalId, `:: Finalized`);
     })();
   }
 };

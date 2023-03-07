@@ -29,6 +29,7 @@ const extensionMetadata = {
   resourceProcessor: [] as IExtensionDescription[],
   bundler: [] as IExtensionDescription[],
   scriptlet: [] as IExtensionDescription[],
+  deployer: [] as IExtensionDescription[],
 } as const;
 
 extensions.forEach((extension) => {
@@ -94,6 +95,17 @@ extensions.forEach((extension) => {
       return description;
     });
     extensionMetadata.bundler.push(
+      ...(extensionList as IExtensionDescription[])
+    );
+  }
+
+  if ('deployer' in extension && extension.deployer) {
+    const extensionList = extension.deployer.map((item) => {
+      const description = cloneDeep(pick(item, ['id', 'label']));
+
+      return description;
+    });
+    extensionMetadata.deployer.push(
       ...(extensionList as IExtensionDescription[])
     );
   }

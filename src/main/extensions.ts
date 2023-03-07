@@ -22,6 +22,9 @@ import dbFixerExtension from '@recative/extension-db-fixer';
 import i18nUtilsExtension from '@recative/extension-i18n-utils';
 import resourceExporterExtension from '@recative/extension-resource-exporter';
 
+import zipBundleExtension from '@recative/extension-zip-bundle';
+import wholeBundleExtension from '@recative/extension-whole-bundle';
+
 export const extensions = [
   aliOssExtension,
   s3BucketExtension,
@@ -41,4 +44,6 @@ export const extensions = [
   textureExtension,
   sftpExtension,
   gitExtension,
+  zipBundleExtension,
+  wholeBundleExtension,
 ] as ExtensionManifest[];

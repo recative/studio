@@ -21,6 +21,7 @@ import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 
 import { InfoIconOutline } from 'components/Icons/InfoIconOutline';
 import { BundleIconOutline } from 'components/Icons/BundleIconOutline';
+import { DeployIconOutline } from 'components/Icons/DeployIconOutline';
 import { ExtensionIconOutline } from 'components/Icons/ExtensionIconOutline';
 
 import { server } from 'utils/rpc';
@@ -89,6 +90,29 @@ const useUploaderList = () => {
   return availableProfileExtensions;
 };
 
+const useDeployerList = () => {
+  const [deployerList, deployerListActions] = useAsync(
+    server.getExtensionMetadata
+  );
+
+  React.useEffect(() => {
+    void deployerListActions.execute();
+  }, [deployerListActions]);
+
+  const availableProfileExtensions = React.useMemo(() => {
+    return (
+      deployerList.result?.deployer.map((extension) => ({
+        id: extension.id,
+        label: extension.label,
+        description: extension.id,
+        Icon: DeployIconOutline,
+      })) ?? []
+    );
+  }, [deployerList.result?.deployer]);
+
+  return availableProfileExtensions;
+};
+
 const useProfileDetail = (profileId: string | null) => {
   const [profileDetail, profileDetailActions] = useAsync<IDeployProfile | null>(
     async () =>
@@ -98,6 +122,7 @@ const useProfileDetail = (profileId: string | null) => {
             label: '',
             sourceBuildProfileId: '',
             targetUploaderId: '',
+            deployerId: '',
             ...(await server.getDeployProfile(profileId)),
           }
         : null
@@ -117,6 +142,7 @@ export const EditDeployProfileItemModal: React.FC<
   const [isOpen, profileId, , onClose] = useEditDeployProfileItemModal();
   const extensionListOptions = useUploaderList();
   const bundleProfileList = useBundleProfileList();
+  const deployerList = useDeployerList();
 
   const profileDetail = useProfileDetail(profileId);
 
@@ -146,6 +172,14 @@ export const EditDeployProfileItemModal: React.FC<
   const bundleProfileOptionValue = useValueOptionForBaseUiSelectWithSingleValue(
     clonedProfile?.sourceBuildProfileId,
     bundleProfileList
+  );
+  const handleDeployerIdChange =
+    useOnChangeEventWrapperForBaseUiSelectWithSingleValue(
+      valueChangeCallbacks.deployerId
+    );
+  const deployerOptionValue = useValueOptionForBaseUiSelectWithSingleValue(
+    clonedProfile?.deployerId,
+    deployerList
   );
 
   const formValid = React.useMemo(() => {
@@ -201,6 +235,17 @@ export const EditDeployProfileItemModal: React.FC<
               value={bundleProfileOptionValue}
               onChange={handleBundleProfileIdChange}
               options={bundleProfileList}
+              size={SELECT_SIZE.mini}
+            />
+          </FormControl>
+          <FormControl
+            label="Deployer"
+            caption="The deployer which will analysis the program bundle."
+          >
+            <DetailedSelect
+              value={deployerOptionValue}
+              onChange={handleDeployerIdChange}
+              options={deployerList}
               size={SELECT_SIZE.mini}
             />
           </FormControl>
