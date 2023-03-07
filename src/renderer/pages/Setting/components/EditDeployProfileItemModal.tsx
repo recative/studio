@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { useAsync } from '@react-hookz/web';
+import { useStyletron } from 'baseui';
 
 import { Category } from '@recative/definitions';
 import type { IDeployProfile } from '@recative/extension-sdk';
@@ -19,9 +20,11 @@ import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { KIND as BUTTON_KIND } from 'baseui/button';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { InfoIconOutline } from 'components/Icons/InfoIconOutline';
 import { BundleIconOutline } from 'components/Icons/BundleIconOutline';
 import { DeployIconOutline } from 'components/Icons/DeployIconOutline';
+import { ActPointIconOutline } from 'components/Icons/ActPointIconOutline';
 import { ExtensionIconOutline } from 'components/Icons/ExtensionIconOutline';
 
 import { server } from 'utils/rpc';
@@ -33,8 +36,6 @@ import {
   useOnChangeEventWrapperForBaseUiSelectWithSingleValue,
 } from 'utils/hooks/useFormChangeCallbacks';
 
-import { useStyletron } from 'baseui';
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { DetailedSelect } from './DetailedSelect';
 import { Hint, HintParagraph } from './Hint';
 
@@ -54,14 +55,20 @@ const useBundleProfileList = () => {
   }, [listBundleProfileActions]);
 
   const availableBundleProfiles = React.useMemo(() => {
-    return (
-      bundleProfiles.result?.map((extension) => ({
+    return [
+      {
+        id: '@recative/build-in-profile/code-bundle',
+        label: 'Code Bundles',
+        description: `Raw built code bundles`,
+        Icon: ActPointIconOutline,
+      },
+      ...(bundleProfiles.result?.map((extension) => ({
         id: extension.id,
         label: extension.label,
         description: extension.bundleExtensionId,
         Icon: BundleIconOutline,
-      })) ?? []
-    );
+      })) ?? []),
+    ];
   }, [bundleProfiles.result]);
 
   return availableBundleProfiles;

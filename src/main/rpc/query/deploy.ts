@@ -3,7 +3,11 @@
 import { join } from 'path';
 
 import { Category } from '@recative/definitions';
-import { IDeployProfile } from '@recative/extension-sdk';
+import {
+  AcceptedBuildType,
+  IBundleMetadata,
+  IDeployProfile,
+} from '@recative/extension-sdk';
 import { TerminalMessageLevel as Level } from '@recative/studio-definitions';
 
 import {
@@ -146,16 +150,42 @@ export const deployBundles = async (
       continue;
     }
 
-    const bundler = bundlerInstances[bundleProfile.bundleExtensionId];
-    if (!bundler) {
-      logToTerminal(
-        terminalId,
-        `Bundler profile ${profileId} not found`,
-        Level.Warning
-      );
+    const outputMetadata =
+      deployProfile.sourceBuildProfileId ===
+      '@recative/build-in-profile/code-bundle'
+        ? ((): IBundleMetadata => {
+            const bundleRelease = db.release.bundleReleases.findOne({
+              id: bundleReleaseId,
+            });
 
+            if (!bundleRelease) throw new TypeError(`Bundle release not found`);
+
+            return {
+              fileName: `code-${bundleRelease.codeBuildId
+                .toString()
+                .padStart(4, '0')}.zip`,
+              type: AcceptedBuildType.Zip,
+            };
+          })()
+        : (() => {
+            const bundler = bundlerInstances[bundleProfile.bundleExtensionId];
+            if (!bundler) {
+              logToTerminal(
+                terminalId,
+                `Bundler profile ${profileId} not found`,
+                Level.Warning
+              );
+
+              return null;
+            }
+
+            return bundler.getBundleMetadata(bundleProfile, bundleReleaseId);
+          })();
+
+    if (!outputMetadata) {
       continue;
     }
+
     const uploader = uploaderInstances[deployProfile.targetUploaderId];
     if (!uploader) {
       logToTerminal(
@@ -183,11 +213,6 @@ export const deployBundles = async (
     );
 
     const deployer = deployerInstances[deployProfile.deployerId];
-
-    const outputMetadata = bundler.getBundleMetadata(
-      bundleProfile,
-      bundleReleaseId
-    );
 
     const outputPath = join(buildPath, outputMetadata.fileName);
 
