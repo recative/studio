@@ -8,12 +8,13 @@ import { SmallIconButton } from 'components/Button/SmallIconButton';
 import { EditIconOutline } from 'components/Icons/EditIconOutline';
 import { TrashIconOutline } from 'components/Icons/TrashIconOutline';
 
-import { useEditBundleProfileItemModal } from './EditBundleProfileItemModal';
-import { useConfirmRemoveBundleProfileModal } from './ConfirmRemoveBundleProfileModal';
+import { useEvent } from 'utils/hooks/useEvent';
 
 export interface IProfileListItemProps {
   id: string;
   label: string;
+  onRemoveButtonClick: (id: string) => void;
+  onEditButtonClick: (id: string) => void;
 }
 
 const listItemOverrides = {
@@ -30,31 +31,29 @@ const listItemOverrides = {
 export const BundleProfileListItem: React.FC<IProfileListItemProps> = ({
   id,
   label,
+  onRemoveButtonClick,
+  onEditButtonClick,
 }) => {
-  const [, , openEditBundleProfileItemModal] = useEditBundleProfileItemModal();
-  const [, , openConfirmRemoveBundleProfileItemModal] =
-    useConfirmRemoveBundleProfileModal();
+  const handleRemoveButtonClick = useEvent(() => {
+    onRemoveButtonClick(id);
+  });
 
-  const handleOpenModal = React.useCallback(() => {
-    return openEditBundleProfileItemModal(id);
-  }, [id, openEditBundleProfileItemModal]);
-
-  const handleRemove = React.useCallback(() => {
-    return openConfirmRemoveBundleProfileItemModal(id);
-  }, [id, openConfirmRemoveBundleProfileItemModal]);
+  const handleEditButtonClick = useEvent(() => {
+    onEditButtonClick(id);
+  });
 
   const listItemEnhancer = React.useCallback(
     () => (
       <RecativeBlock>
         <SmallIconButton title="Remove">
-          <TrashIconOutline width={14} onClick={handleRemove} />
+          <TrashIconOutline width={14} onClick={handleRemoveButtonClick} />
         </SmallIconButton>
         <SmallIconButton title="Edit">
-          <EditIconOutline width={14} onClick={handleOpenModal} />
+          <EditIconOutline width={14} onClick={handleEditButtonClick} />
         </SmallIconButton>
       </RecativeBlock>
     ),
-    [handleOpenModal, handleRemove]
+    [onEditButtonClick, onRemoveButtonClick]
   );
 
   return (

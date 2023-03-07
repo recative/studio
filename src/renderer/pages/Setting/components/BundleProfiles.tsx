@@ -12,13 +12,17 @@ import { AddIconOutline } from 'components/Icons/AddIconOutline';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
 
 import { server } from 'utils/rpc';
+import { useEvent } from 'utils/hooks/useEvent';
 
 import { BundleProfileListItem } from './BundleProfileListItem';
 import {
   EditBundleProfileItemModal,
   useEditBundleProfileItemModal,
 } from './EditBundleProfileItemModal';
-import { ConfirmRemoveBundleProfileModal } from './ConfirmRemoveBundleProfileModal';
+import {
+  ConfirmRemoveBundleProfileModal,
+  useConfirmRemoveBundleProfileModal,
+} from './ConfirmRemoveBundleProfileModal';
 
 const profileListStyles = {
   paddingLeft: 0,
@@ -33,17 +37,27 @@ export const BundleProfiles = () => {
     void profilesActions.execute();
   }, [profilesActions, profilesActions.execute]);
 
-  const handleAddProfile = React.useCallback(() => {
+  const handleAddProfile = useEvent(() => {
     void openEditBundleProfileItemModal(nanoid());
-  }, [openEditBundleProfileItemModal]);
+  });
 
-  const handleRemoveProfile = React.useCallback(
-    async (x: string | null) => {
-      if (!x) return;
-      await server.removeBundleProfile(x);
-      await profilesActions.execute();
-    },
-    [profilesActions]
+  const handleRemoveProfile = useEvent(async (x: string | null) => {
+    if (!x) return;
+    await server.removeBundleProfile(x);
+    await profilesActions.execute();
+  });
+
+  const [, , openConfirmRemoveBundleProfileItemModal] =
+    useConfirmRemoveBundleProfileModal();
+
+  const handleOpenEditBundleProfileItemModal = useEvent((id: string) => {
+    return openEditBundleProfileItemModal(id);
+  });
+
+  const handleOpenConfirmRemoveBundleProfileItemModal = useEvent(
+    (id: string) => {
+      return openConfirmRemoveBundleProfileItemModal(id);
+    }
   );
 
   if (profiles.status === 'not-executed') {
@@ -71,6 +85,10 @@ export const BundleProfiles = () => {
               key={profile.id}
               id={profile.id}
               label={profile.label}
+              onEditButtonClick={handleOpenEditBundleProfileItemModal}
+              onRemoveButtonClick={
+                handleOpenConfirmRemoveBundleProfileItemModal
+              }
             />
           ))
         ) : (

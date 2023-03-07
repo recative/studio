@@ -19,7 +19,10 @@ import {
   EditDeployProfileItemModal,
   useEditDeployProfileItemModal,
 } from './EditDeployProfileItemModal';
-import { ConfirmRemoveDeployProfileModal } from './ConfirmRemoveDeployProfileModal';
+import {
+  ConfirmRemoveDeployProfileModal,
+  useConfirmRemoveDeployProfileModal,
+} from './ConfirmRemoveDeployProfileModal';
 
 const profileListStyles = {
   paddingLeft: 0,
@@ -28,14 +31,14 @@ const profileListStyles = {
 export const DeployProfiles = () => {
   const [css] = useStyletron();
   const [profiles, profilesActions] = useAsync(server.listDeployProfile);
-  const [, , openEditBundleProfileItemModal] = useEditDeployProfileItemModal();
+  const [, , openEditDeployProfileItemModal] = useEditDeployProfileItemModal();
 
   React.useEffect(() => {
     void profilesActions.execute();
   }, [profilesActions, profilesActions.execute]);
 
   const handleAddProfile = useEvent(() => {
-    void openEditBundleProfileItemModal(nanoid());
+    void openEditDeployProfileItemModal(nanoid());
   });
 
   const handleRemoveProfile = useEvent(async (x: string | null) => {
@@ -43,6 +46,19 @@ export const DeployProfiles = () => {
     await server.removeDeployProfile(x);
     await profilesActions.execute();
   });
+
+  const [, , openConfirmDeployBundleProfileItemModal] =
+    useConfirmRemoveDeployProfileModal();
+
+  const handleOpenEditBundleProfileItemModal = useEvent((id: string) => {
+    return openEditDeployProfileItemModal(id);
+  });
+
+  const handleOpenConfirmRemoveBundleProfileItemModal = useEvent(
+    (id: string) => {
+      return openConfirmDeployBundleProfileItemModal(id);
+    }
+  );
 
   if (profiles.status === 'not-executed') {
     return null;
@@ -69,6 +85,10 @@ export const DeployProfiles = () => {
               key={profile.id}
               id={profile.id}
               label={profile.label}
+              onEditButtonClick={handleOpenEditBundleProfileItemModal}
+              onRemoveButtonClick={
+                handleOpenConfirmRemoveBundleProfileItemModal
+              }
             />
           ))
         ) : (
