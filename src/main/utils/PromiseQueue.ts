@@ -77,6 +77,11 @@ export class PromiseQueue {
     this.running = true;
     this.totalTasksBeforeLocked = this.queue.length;
 
+    if (this.queue.length <= 0) {
+      this.finalPromise.resolve();
+      return;
+    }
+
     for (
       let i = 0;
       i < Math.min(this.totalTasksBeforeLocked, this.concurrent);
