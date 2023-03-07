@@ -7,7 +7,6 @@ import {
   logToTerminal,
 } from './terminal';
 import { uploadDatabase } from './publishActServer';
-import { uploadCodeBundle } from './publishUploadBundleCode';
 import { uploadMediaBundle } from './publishUploadBundleMedia';
 
 import { getDb, saveAllDatabase } from '../db';
@@ -24,7 +23,6 @@ import { IPublishTasks } from '../../../utils/IPublishTask';
  *  Available steps are:
  *  - `Environment Checkup`
  *  - `Uploading Media Files`
- *  - `Uploading Code Files`
  *  - `Uploading Database Files`
  *  - `Creating Player Data Bundle`
  *  - `Creating Android APK`
@@ -35,7 +33,7 @@ import { IPublishTasks } from '../../../utils/IPublishTask';
  */
 export const uploadBundle = async (
   id: number | null,
-  { mediaBundle, codeBundle, databaseBundle, postProcessTest }: IPublishTasks,
+  { mediaBundle, databaseBundle, postProcessTest }: IPublishTasks,
   terminalId = 'uploadBundle'
 ) => {
   if (terminalId === 'uploadBundle') {
@@ -43,7 +41,6 @@ export const uploadBundle = async (
       'uploadBundle',
       [
         mediaBundle && 'Uploading Media Files',
-        codeBundle && 'Uploading Code Files',
         databaseBundle && 'Uploading Database Files',
         postProcessTest && 'Post Processing Test',
       ].filter(Boolean) as string[]
@@ -101,13 +98,6 @@ export const uploadBundle = async (
       );
 
       logToTerminal(terminalId, `Media task queue length ${mediaTaskQueue}`);
-    }
-  })();
-
-  await wrapTaskFunction(terminalId, 'Uploading Code Files', async () => {
-    if (codeBundle) {
-      const codeReleaseId = targetRelease.codeBuildId;
-      await uploadCodeBundle(codeReleaseId, terminalId);
     }
   })();
 

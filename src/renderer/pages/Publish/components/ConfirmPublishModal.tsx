@@ -20,7 +20,6 @@ import type { ModalOverrides } from 'baseui/modal';
 import type { ButtonOverrides } from 'baseui/button';
 
 import { useTerminalModal } from 'components/Terminal/TerminalModal';
-import { ActPointIconOutline } from 'components/Icons/ActPointIconOutline';
 import { DatabaseIconOutline } from 'components/Icons/DatabaseIconOutline';
 import { ResourceManagerIconOutline } from 'components/Icons/ResourceManagerIconOutline';
 
@@ -44,7 +43,6 @@ const PUBLISH_TYPE_LIST_STYLE = {
 
 enum PublishTargetType {
   Media = 'media',
-  Code = 'code',
   Database = 'database',
 }
 
@@ -89,11 +87,6 @@ const PUBLISH_TARGET_TYPE_DESCRIPTION: Record<
     icon: <ResourceManagerIconOutline width={40} style={iconStyle} />,
     title: 'Media Bundle',
     subtitle: 'All resource files available for this release.',
-  },
-  [PublishTargetType.Code]: {
-    icon: <ActPointIconOutline width={40} style={iconStyle} />,
-    title: 'Code Bundle',
-    subtitle: 'All build artifacts of the act point program.',
   },
   [PublishTargetType.Database]: {
     icon: <DatabaseIconOutline width={40} style={iconStyle} />,
@@ -149,23 +142,16 @@ export const ConfirmPublishModal: React.FC = () => {
 
   const [css] = useStyletron();
   const [selectedMediaType, toggleMediaType] = useToggle(false);
-  const [selectedCodeType, toggleCodeType] = useToggle(false);
   const [selectedDatabaseType, toggleDatabaseType] = useToggle(false);
   const [selectedPostProcessType] = useToggle(false);
 
   const publishRequest = React.useMemo<IPublishTasks>(
     () => ({
       mediaBundle: selectedMediaType,
-      codeBundle: selectedCodeType,
       databaseBundle: selectedDatabaseType,
       postProcessTest: selectedPostProcessType,
     }),
-    [
-      selectedCodeType,
-      selectedDatabaseType,
-      selectedMediaType,
-      selectedPostProcessType,
-    ]
+    [selectedDatabaseType, selectedMediaType, selectedPostProcessType]
   );
 
   const handleSubmit = usePublishBundleCallback(publishRequest);
@@ -202,11 +188,6 @@ export const ConfirmPublishModal: React.FC = () => {
             onClick={toggleMediaType}
           />
           <PublishTarget
-            publishTargetType={PublishTargetType.Code}
-            selected={selectedCodeType}
-            onClick={toggleCodeType}
-          />
-          <PublishTarget
             publishTargetType={PublishTargetType.Database}
             selected={selectedDatabaseType}
             onClick={toggleDatabaseType}
@@ -221,7 +202,6 @@ export const ConfirmPublishModal: React.FC = () => {
           disabled={
             !(
               selectedMediaType ||
-              selectedCodeType ||
               selectedDatabaseType ||
               selectedPostProcessType
             )

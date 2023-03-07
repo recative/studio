@@ -24,7 +24,6 @@ export * from './publishActServer';
 export * from './resourceBatchEdit';
 export * from './publishPlayerBundle';
 export * from './publishUploadBundle';
-export * from './publishUploadBundleCode';
 export * from './publishUploadBundleMedia';
 export * from '../../utils/getEntryPoints';
 export * from '../../utils/injectResourceUrl';
