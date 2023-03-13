@@ -186,6 +186,7 @@ export const ReleaseWizardModal = () => {
     () =>
       css({
         height: 'min-content !important',
+        maxHeight: '270px',
       }),
     [css]
   );
@@ -393,12 +394,12 @@ export const ReleaseWizardModal = () => {
                     >
                       <StyledHeadCell
                         className={unitStyle}
-                        $sticky={true}
+                        $sticky
                       ></StyledHeadCell>
-                      <StyledHeadCell className={unitStyle} $sticky={false}>
+                      <StyledHeadCell className={unitStyle} $sticky>
                         <LabelSmall>Profile</LabelSmall>
                       </StyledHeadCell>
-                      <StyledHeadCell className={unitStyle} $sticky={false}>
+                      <StyledHeadCell className={unitStyle} $sticky>
                         <LabelSmall>Extension #</LabelSmall>
                       </StyledHeadCell>
                     </RecativeBlock>

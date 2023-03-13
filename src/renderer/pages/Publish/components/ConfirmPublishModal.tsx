@@ -14,7 +14,7 @@ import {
   SIZE,
 } from 'baseui/modal';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { LabelMedium, ParagraphSmall } from 'baseui/typography';
+import { LabelSmall, LabelXSmall } from 'baseui/typography';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import type { ModalOverrides } from 'baseui/modal';
 import type { ButtonOverrides } from 'baseui/button';
@@ -27,6 +27,8 @@ import { server } from 'utils/rpc';
 import { ModalManager } from 'utils/hooks/useModalManager';
 
 import type { IPublishTasks } from 'utils/IPublishTask';
+import { useAsync } from '@react-hookz/web';
+import { ProfileTable } from 'components/ProfileTable/ProfileTable';
 
 const PUBLISH_TYPE_LIST_STYLE = {
   gap: '6px',
@@ -107,12 +109,12 @@ export const PublishTarget: React.FC<IPublishTargetProps> = ({
       onClick={onClick}
     >
       <RecativeBlock paddingTop="4px">
-        <LabelMedium>
+        <LabelSmall>
           {PUBLISH_TARGET_TYPE_DESCRIPTION[publishTargetType].title}
-        </LabelMedium>
-        <ParagraphSmall marginTop="4px" marginBottom="0">
+        </LabelSmall>
+        <LabelXSmall marginTop="4px" marginBottom="0">
           {PUBLISH_TARGET_TYPE_DESCRIPTION[publishTargetType].subtitle}
-        </ParagraphSmall>
+        </LabelXSmall>
       </RecativeBlock>
     </Button>
   );
@@ -142,6 +144,20 @@ export const ConfirmPublishModal: React.FC = () => {
   const [selectedDatabaseType, toggleDatabaseType] = useToggle(false);
   const [selectedPostProcessType] = useToggle(false);
 
+  const [uploadProfiles, uploadProfilesActions] = useAsync(async () => {
+    return (await server.listUploadProfile()).map(
+      ({ id, label, uploaderExtensionId }) => ({
+        id,
+        label,
+        extensionId: uploaderExtensionId,
+      })
+    );
+  });
+
+  React.useEffect(() => {
+    void uploadProfilesActions.execute();
+  }, [uploadProfilesActions]);
+
   const publishRequest = React.useMemo<IPublishTasks>(
     () => ({
       mediaBundle: selectedMediaType,
@@ -152,6 +168,7 @@ export const ConfirmPublishModal: React.FC = () => {
   );
 
   const handleSubmit = usePublishBundleCallback(publishRequest);
+  const [uploaderProfiles, setUploaderProfiles] = React.useState<string[]>([]);
 
   return (
     <Modal
@@ -175,7 +192,6 @@ export const ConfirmPublishModal: React.FC = () => {
         </RecativeBlock>
         <RecativeBlock
           className={css(PUBLISH_TYPE_LIST_STYLE)}
-          height="calc(80vh - 268px)"
           display="grid"
           overflow="auto"
         >
@@ -190,6 +206,11 @@ export const ConfirmPublishModal: React.FC = () => {
             onClick={toggleDatabaseType}
           />
         </RecativeBlock>
+        <ProfileTable
+          profiles={uploadProfiles.result}
+          value={uploaderProfiles}
+          onChange={setUploaderProfiles}
+        />
       </ModalBody>
       <ModalFooter>
         <ModalButton onClick={onClose} kind={BUTTON_KIND.tertiary}>
