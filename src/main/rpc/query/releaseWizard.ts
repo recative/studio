@@ -1,5 +1,4 @@
 import { createBundles } from './bundle';
-import { uploadCodeBundle } from './publishUploadBundleCode';
 import { uploadMediaBundle } from './publishUploadBundleMedia';
 import { newTerminalSession, wrapTaskFunction } from './terminal';
 import {
@@ -14,7 +13,6 @@ export interface IReleaseWizardConfig {
   mediaReleaseId?: number;
   profileIds: string[];
   publishMediaRelease: boolean;
-  publishCodeRelease: boolean;
 }
 
 export const releaseWizard = async (
@@ -24,7 +22,6 @@ export const releaseWizard = async (
     mediaReleaseId,
     profileIds,
     publishMediaRelease,
-    publishCodeRelease,
   }: IReleaseWizardConfig,
   terminalId = 'releaseWizard'
 ) => {
@@ -75,10 +72,6 @@ export const releaseWizard = async (
         releaseDetail.bundleReleaseId,
         terminalId
       );
-    }
-
-    if (publishCodeRelease) {
-      await uploadCodeBundle(releaseDetail.codeReleaseId, terminalId);
     }
   })();
 

@@ -81,9 +81,6 @@ export const ReleaseWizardModal = () => {
       publishMediaRelease:
         localStorage.getItem('@recative/release-wizard/publishMediaRelease') ===
         'yes',
-      publishCodeRelease:
-        localStorage.getItem('@recative/release-wizard/publishCodeRelease') ===
-        'yes',
     }),
     []
   );
@@ -96,10 +93,6 @@ export const ReleaseWizardModal = () => {
     localStorage.setItem(
       '@recative/release-wizard/publishMediaRelease',
       clonedConfig.publishMediaRelease ? 'yes' : 'no'
-    );
-    localStorage.setItem(
-      '@recative/release-wizard/publishCodeRelease',
-      clonedConfig.publishCodeRelease ? 'yes' : 'no'
     );
   }, [clonedConfig]);
 
@@ -114,9 +107,6 @@ export const ReleaseWizardModal = () => {
   );
   const handlePublishMediaChange = useOnChangeEventWrapperForCheckboxType(
     valueChangeCallbacks.publishMediaRelease
-  );
-  const handlePublishCodeChange = useOnChangeEventWrapperForCheckboxType(
-    valueChangeCallbacks.publishCodeRelease
   );
 
   const nextStepAvailable = React.useMemo(() => {
@@ -180,7 +170,6 @@ export const ReleaseWizardModal = () => {
           ? undefined
           : clonedConfig.codeRelease?.id ?? undefined,
       profileIds: [...selectedProfiles],
-      publishCodeRelease: clonedConfig.publishCodeRelease,
       publishMediaRelease: clonedConfig.publishMediaRelease,
     });
   });
@@ -378,14 +367,6 @@ export const ReleaseWizardModal = () => {
                     labelPlacement={LABEL_PLACEMENT.right}
                   >
                     <LabelSmall>Publish generated media bundle</LabelSmall>
-                  </Toggle>
-                  <RecativeBlock padding="8px"></RecativeBlock>
-                  <Toggle
-                    checked={clonedConfig.publishCodeRelease}
-                    onChange={handlePublishCodeChange}
-                    labelPlacement={LABEL_PLACEMENT.right}
-                  >
-                    <LabelSmall>Publish generated code bundle</LabelSmall>
                   </Toggle>
                 </RecativeBlock>
               </ModalBody>
