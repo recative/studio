@@ -143,44 +143,76 @@ export const getResourceProcessorInstances = async (terminalId: string) => {
  * @param categories Categories of resources.
  * @returns A map of uploader instances.
  */
-export const getUploaderInstances = async (categories: Category[]) => {
+export const getUploaderInstances = async (
+  categories: Category[],
+  uploadProfileIds: string[]
+) => {
   const db = await getDb();
 
-  const extensionConfig = await getExtensionConfig();
-  const projectUploader: Record<
-    string,
-    { uploader: Uploader<string>; fileCategory: string[] }
-  > = {};
+  const uploadProfiles = db.setting.uploadProfile.find({
+    id: { $in: uploadProfileIds },
+  });
 
-  const settings = db.setting.setting.find();
+  const extensionIds = new Set(
+    uploadProfiles.map((x) => x.uploaderExtensionId)
+  );
+
+  const ProjectUploader: Record<string, typeof Uploader<string>> = {};
 
   extensions.forEach((extension) => {
     const extensionUploader = extension.uploader;
 
-    extensionUploader?.forEach((UploaderClass) => {
-      if (!(UploaderClass.id in extensionConfig)) return;
+    extensionUploader
+      ?.filter((x) => extensionIds?.has(x.id) ?? true)
+      .forEach((UploaderClass) => {
+        for (let i = 0; i < UploaderClass.acceptedFileCategory.length; i += 1) {
+          const category = UploaderClass.acceptedFileCategory[i];
 
-      for (let i = 0; i < UploaderClass.acceptedFileCategory.length; i += 1) {
-        const category = UploaderClass.acceptedFileCategory[i];
+          if (!categories.includes(category)) continue;
 
-        if (!categories.includes(category)) continue;
+          ProjectUploader[UploaderClass.id] = UploaderClass;
 
-        const categoryValue = settings.find(
-          (setting) => setting.key === `${UploaderClass.id}~~##${category}`
-        )?.value;
-
-        if (categoryValue !== 'yes') continue;
-
-        projectUploader[UploaderClass.id] = {
-          // @ts-ignore
-          uploader: new UploaderClass(extensionConfig[UploaderClass.id]),
-          fileCategory: UploaderClass.acceptedFileCategory,
-        };
-
-        break;
-      }
-    });
+          break;
+        }
+      });
   });
 
-  return projectUploader;
+  const result: Record<
+    string,
+    { uploader: Uploader<string>; fileCategory: string[] }
+  > = {};
+
+  uploadProfiles.map(async (profile) => {
+    const UploaderClass = ProjectUploader[profile.uploaderExtensionId];
+
+    if (!UploaderClass) return;
+
+    let matchedCategories = 0;
+
+    const extensionConfig = await getExtensionConfig(
+      profile.extensionConfigurations
+    );
+
+    for (let i = 0; i < UploaderClass.acceptedFileCategory.length; i += 1) {
+      const category = UploaderClass.acceptedFileCategory[i];
+
+      const categoryValue = Object.entries(
+        profile.extensionConfigurations
+      ).find(([key]) => key === `${UploaderClass.id}~~##${category}`)?.[1];
+
+      if (categoryValue !== 'yes') continue;
+
+      matchedCategories += 1;
+    }
+
+    if (matchedCategories > 0) {
+      result[profile.id] = {
+        // @ts-ignore
+        uploader: new UploaderClass(extensionConfig[UploaderClass.id]),
+        fileCategory: UploaderClass.acceptedFileCategory,
+      };
+    }
+  });
+
+  return result;
 };

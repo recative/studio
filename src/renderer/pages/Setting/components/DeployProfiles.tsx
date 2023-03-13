@@ -4,10 +4,10 @@ import { nanoid } from 'nanoid';
 import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
-import { ParagraphLarge } from 'baseui/typography';
+import { HeadingSmall } from 'baseui/typography';
 
-import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { EmptySpace } from 'components/EmptyState/EmptyState';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
 
@@ -70,8 +70,9 @@ export const DeployProfiles = () => {
         display="flex"
         justifyContent="space-between"
         alignItems="center"
+        marginBottom="-32px"
       >
-        <ParagraphLarge>Deploy Profiles</ParagraphLarge>
+        <HeadingSmall>Deploy Profiles</HeadingSmall>
         <RecativeBlock>
           <SmallIconButton title="Add Profile" onClick={handleAddProfile}>
             <AddIconOutline width={16} />

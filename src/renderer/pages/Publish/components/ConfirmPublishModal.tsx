@@ -31,10 +31,7 @@ import type { IPublishTasks } from 'utils/IPublishTask';
 const PUBLISH_TYPE_LIST_STYLE = {
   gap: '6px',
   gridAutoRows: 'min-content',
-  gridTemplateColumns: '1fr 1fr 1fr',
-  '@media (max-width: 1200px)': {
-    gridTemplateColumns: '1fr 1fr',
-  },
+  gridTemplateColumns: '1fr 1fr',
   '@media (max-width: 800px)': {
     gap: '2px',
     gridTemplateColumns: '1fr',
@@ -61,7 +58,7 @@ interface IPublishTargetDescription {
 const modalOverrides: ModalOverrides = {
   Dialog: {
     style: {
-      width: '80vw',
+      width: '640px',
       height: '80vh',
     },
   },

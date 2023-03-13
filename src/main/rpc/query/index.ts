@@ -4,6 +4,7 @@ export * from './cloud';
 export * from './series';
 export * from './bundle';
 export * from './deploy';
+export * from './upload';
 export * from './project';
 export * from './episode';
 export * from './publish';

@@ -10,7 +10,11 @@ import {
   IBundleRelease,
   ISeriesMetadata,
 } from '@recative/definitions';
-import { IBundleProfile, IDeployProfile } from '@recative/extension-sdk';
+import {
+  IBundleProfile,
+  IDeployProfile,
+  IUploadProfile,
+} from '@recative/extension-sdk';
 
 import type {
   ISetting,
@@ -202,7 +206,13 @@ export const DB_CONFIG = {
         indices: ['id', 'label', 'packageId'],
         key: 'id',
       }),
-      deployProfiles: asCollection<IDeployProfile>({
+      uploadProfile: asCollection<IUploadProfile>({
+        type: 'collection',
+        autoupdate: true,
+        indices: ['id', 'label'],
+        key: 'id',
+      }),
+      uploadProfiles: asCollection<IDeployProfile>({
         type: 'collection',
         autoupdate: true,
         indices: ['id', 'label'],

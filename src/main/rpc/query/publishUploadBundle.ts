@@ -94,6 +94,7 @@ export const uploadBundle = async (
       const mediaTaskQueue = await uploadMediaBundle(
         mediaReleaseId,
         targetRelease.id,
+        [],
         terminalId
       );
 

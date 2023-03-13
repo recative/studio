@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import type { Updater } from 'use-immer';
-
 import { useAsync } from '@react-hookz/web';
 
 import type { IBundleProfile } from '@recative/extension-sdk';
@@ -38,19 +36,20 @@ import {
   useEventWrappersForResourceTagSelector,
 } from 'components/ResourceTagSelector/ResourceTagSelector';
 
-import { ModalManager } from 'utils/hooks/useModalManager';
-
 import { server } from 'utils/rpc';
-
+import { ModalManager } from 'utils/hooks/useModalManager';
 import {
   useFormChangeCallbacks,
   useOnChangeEventWrapperForStringType,
   useValueOptionForBaseUiSelectWithSingleValue,
   useOnChangeEventWrapperForBaseUiSelectWithSingleValue,
 } from 'utils/hooks/useFormChangeCallbacks';
+
 import { DetailedSelect } from './DetailedSelect';
 import { AssetFileSelect } from './AssetFilesSelect';
 import { Hint, HintParagraph } from './Hint';
+
+import { useExtensionSettings } from '../hooks/useExtensionSettings';
 
 export const useEditBundleProfileItemModal = ModalManager<string, null>(null);
 
@@ -168,34 +167,6 @@ const useProfileDetail = (profileId: string | null) => {
   return profileDetail.result;
 };
 
-const useExtensionSettings = (
-  profile: IBundleProfile | null,
-  setProfile?: Updater<IBundleProfile | null>
-) => {
-  const getValue = React.useCallback(
-    (extensionId: string, fieldId: string) => {
-      const fieldQueryKey = `${extensionId}~~${fieldId}`;
-      return profile?.extensionConfigurations[fieldQueryKey] || '';
-    },
-    [profile]
-  );
-
-  const setValue = React.useCallback(
-    (extensionId: string, key: string, value: string) => {
-      const fieldQueryKey = `${extensionId}~~${key}`;
-      setProfile?.((draft) => {
-        if (draft) {
-          draft.extensionConfigurations[fieldQueryKey] = value;
-        }
-        return draft;
-      });
-    },
-    [setProfile]
-  );
-
-  return [getValue, setValue] as const;
-};
-
 export const EditBundleProfileItemModal: React.FC<
   IEditBundleProfileItemModalProps
 > = ({ onSubmit }) => {
@@ -274,10 +245,8 @@ export const EditBundleProfileItemModal: React.FC<
     onClose();
   }, [clonedProfile, onClose, onSubmit]);
 
-  const [getExtensionSettings, setExtensionSettings] = useExtensionSettings(
-    clonedProfile,
-    setClonedProfile
-  );
+  const [getExtensionSettings, setExtensionSettings] =
+    useExtensionSettings<IBundleProfile>(clonedProfile, setClonedProfile);
 
   const resourceTagSelectorCallbacks = useEventWrappersForResourceTagSelector(
     clonedProfile?.excludedResourceTags,

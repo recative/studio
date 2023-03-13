@@ -4,6 +4,7 @@ export * from './ffmpeg';
 export * from './xxHash';
 export * from './canvas';
 export * from './bundler';
+export * from './uploader';
 export * from './terminal';
 export * from './settings';
 export * from './extension';

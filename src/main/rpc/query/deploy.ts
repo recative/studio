@@ -28,29 +28,29 @@ import { getDb } from '../db';
 export const listDeployProfile = async () => {
   const db = await getDb();
 
-  return db.setting.deployProfiles.find();
+  return db.setting.uploadProfiles.find();
 };
 
 export const getDeployProfile = async (id: string) => {
   const db = await getDb();
 
-  return db.setting.deployProfiles.findOne({ id });
+  return db.setting.uploadProfiles.findOne({ id });
 };
 
 export const addDeployProfile = async (profile: IDeployProfile) => {
   const db = await getDb();
 
-  db.setting.deployProfiles.insert(profile);
+  db.setting.uploadProfiles.insert(profile);
 };
 
 export const updateOrInsertDeployProfile = async (profile: IDeployProfile) => {
   const db = await getDb();
 
-  const q = db.setting.deployProfiles.findOne({ id: profile.id });
+  const q = db.setting.uploadProfiles.findOne({ id: profile.id });
   if (q) {
-    db.setting.deployProfiles.update({ ...q, ...profile });
+    db.setting.uploadProfiles.update({ ...q, ...profile });
   } else {
-    db.setting.deployProfiles.insert(profile);
+    db.setting.uploadProfiles.insert(profile);
   }
 };
 
@@ -58,9 +58,9 @@ export const removeDeployProfile = async (profile: IDeployProfile | string) => {
   const db = await getDb();
 
   if (typeof profile === 'string') {
-    db.setting.deployProfiles.removeWhere({ id: profile });
+    db.setting.uploadProfiles.removeWhere({ id: profile });
   } else {
-    db.setting.deployProfiles.removeWhere({ id: profile.id });
+    db.setting.uploadProfiles.removeWhere({ id: profile.id });
   }
 };
 
@@ -74,7 +74,7 @@ export const deployBundles = async (
   const seriesId = db.series.metadata.findOne({})?.id;
   if (!seriesId) throw new Error('Series id not found!');
 
-  const deployProfiles = db.setting.deployProfiles.find({
+  const deployProfiles = db.setting.uploadProfiles.find({
     id: { $in: profiles },
   });
 
@@ -108,7 +108,7 @@ export const deployBundles = async (
   }
 
   const buildPath = await getBuildPath();
-  const uploaderInstances = await getUploaderInstances([Category.ApBundle]);
+  const uploaderInstances = await getUploaderInstances([Category.ApBundle], []);
   const bundlerInstances = await getBundlerInstances(terminalId);
   const deployerInstances = await getDeployerInstances(terminalId);
 

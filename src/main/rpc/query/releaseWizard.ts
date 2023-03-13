@@ -70,6 +70,7 @@ export const releaseWizard = async (
       await uploadMediaBundle(
         releaseDetail.mediaReleaseId,
         releaseDetail.bundleReleaseId,
+        [],
         terminalId
       );
     }

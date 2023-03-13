@@ -27,6 +27,7 @@ import { getUploaderInstances } from '../../utils/getResourceProcessorInstances'
 export const uploadMediaBundle = async (
   mediaReleaseId: number | null,
   bundleReleaseId: number | undefined,
+  uploadProfileIds: string[],
   terminalId: string
 ): Promise<number> => {
   const db0 = await getDb();
@@ -99,9 +100,10 @@ export const uploadMediaBundle = async (
   });
 
   const uploaderInstances = Object.entries(
-    await getUploaderInstances([
-      ...Object.keys(taskCountByCategory),
-    ] as Category[])
+    await getUploaderInstances(
+      [...Object.keys(taskCountByCategory)] as Category[],
+      uploadProfileIds
+    )
   );
 
   // Initialize the task queue

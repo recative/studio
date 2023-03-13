@@ -24,6 +24,7 @@ import { BundleProfiles } from './components/BundleProfiles';
 
 import { useStudioSettings } from './hooks/useStudioSettings';
 import { DeployProfiles } from './components/DeployProfiles';
+import { UploadProfiles } from './components/UploadProfiles';
 
 const InternalSetting: React.FC = () => {
   const settings = useStudioSettings();
@@ -152,18 +153,9 @@ const InternalSetting: React.FC = () => {
               onChange={onServiceProtocolChange}
             />
           </FormControl>
-          <HeadingSmall>Bundling</HeadingSmall>
+          <UploadProfiles />
           <BundleProfiles />
-          <HeadingSmall>Deployment</HeadingSmall>
           <DeployProfiles />
-          <HeadingSmall>Uploader</HeadingSmall>
-          <ExtensionConfiguration
-            domain="uploader"
-            type="extension"
-            disabled={databaseLocked}
-            getValue={onSettingsGetValue}
-            setValue={onSettingsSetValue}
-          />
           <HeadingSmall>Scriptlet</HeadingSmall>
           <ExtensionConfiguration
             domain="scriptlet"

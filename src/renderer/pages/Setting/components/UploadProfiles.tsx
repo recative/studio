@@ -6,8 +6,8 @@ import { useStyletron } from 'styletron-react';
 
 import { HeadingSmall } from 'baseui/typography';
 
-import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
+import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { AddIconOutline } from 'components/Icons/AddIconOutline';
 import { SmallIconButton } from 'components/Button/SmallIconButton';
 
@@ -16,47 +16,47 @@ import { useEvent } from 'utils/hooks/useEvent';
 
 import { BundleProfileListItem } from './BundleProfileListItem';
 import {
-  EditBundleProfileItemModal,
-  useEditBundleProfileItemModal,
-} from './EditBundleProfileItemModal';
+  ConfirmRemoveUploadProfileModal,
+  useConfirmRemoveUploadProfileModal,
+} from './ConfirmRemoveUploadProfileModal';
 import {
-  ConfirmRemoveBundleProfileModal,
-  useConfirmRemoveBundleProfileModal,
-} from './ConfirmRemoveBundleProfileModal';
+  EditUploadProfileItemModal,
+  useEditUploadProfileItemModal,
+} from './EditUploadProfileItemModal';
 
 const profileListStyles = {
   paddingLeft: 0,
 } as const;
 
-export const BundleProfiles = () => {
+export const UploadProfiles = () => {
   const [css] = useStyletron();
-  const [profiles, profilesActions] = useAsync(server.listBundleProfile);
-  const [, , openEditBundleProfileItemModal] = useEditBundleProfileItemModal();
+  const [profiles, profilesActions] = useAsync(server.listUploadProfile);
+  const [, , openEditDeployProfileItemModal] = useEditUploadProfileItemModal();
 
   React.useEffect(() => {
     void profilesActions.execute();
   }, [profilesActions, profilesActions.execute]);
 
   const handleAddProfile = useEvent(() => {
-    void openEditBundleProfileItemModal(nanoid());
+    void openEditDeployProfileItemModal(nanoid());
   });
 
   const handleRemoveProfile = useEvent(async (x: string | null) => {
     if (!x) return;
-    await server.removeBundleProfile(x);
+    await server.removeDeployProfile(x);
     await profilesActions.execute();
   });
 
-  const [, , openConfirmRemoveBundleProfileItemModal] =
-    useConfirmRemoveBundleProfileModal();
+  const [, , openConfirmDeployBundleProfileItemModal] =
+    useConfirmRemoveUploadProfileModal();
 
   const handleOpenEditBundleProfileItemModal = useEvent((id: string) => {
-    return openEditBundleProfileItemModal(id);
+    return openEditDeployProfileItemModal(id);
   });
 
   const handleOpenConfirmRemoveBundleProfileItemModal = useEvent(
     (id: string) => {
-      return openConfirmRemoveBundleProfileItemModal(id);
+      return openConfirmDeployBundleProfileItemModal(id);
     }
   );
 
@@ -72,7 +72,7 @@ export const BundleProfiles = () => {
         alignItems="center"
         marginBottom="-32px"
       >
-        <HeadingSmall>Bundling</HeadingSmall>
+        <HeadingSmall>Uploading</HeadingSmall>
         <RecativeBlock>
           <SmallIconButton title="Add Profile" onClick={handleAddProfile}>
             <AddIconOutline width={16} />
@@ -95,13 +95,13 @@ export const BundleProfiles = () => {
         ) : (
           <EmptySpace
             title="Empty"
-            content="Press the add button to create a new bundling profiles"
+            content="Press the add button to create a new upload profiles"
           />
         )}
       </ul>
 
-      <EditBundleProfileItemModal onSubmit={profilesActions.execute} />
-      <ConfirmRemoveBundleProfileModal
+      <EditUploadProfileItemModal onSubmit={profilesActions.execute} />
+      <ConfirmRemoveUploadProfileModal
         onSubmit={handleRemoveProfile}
         onCancel={null}
       />

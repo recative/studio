@@ -396,7 +396,7 @@ export const uploadDatabaseBackup = async (
   terminalId = 'createDatabaseBackup'
 ) => {
   if (publishMedia) {
-    await uploadMediaBundle(null, undefined, terminalId);
+    await uploadMediaBundle(null, undefined, [], terminalId);
   }
 
   await uploadDatabaseBackupBundle(null);
