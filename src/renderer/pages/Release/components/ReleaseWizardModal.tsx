@@ -1,5 +1,4 @@
 import * as React from 'react';
-import cn from 'classnames';
 
 import { useEvent } from 'utils/hooks/useEvent';
 import { useAsync } from '@react-hookz/web';
@@ -19,7 +18,6 @@ import { Radio, RadioGroup } from 'baseui/radio';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
 import { LabelSmall, ParagraphSmall } from 'baseui/typography';
-import { StyledTable, StyledHeadCell } from 'baseui/table-grid';
 import { KIND as BUTTON_KIND, SIZE as BUTTON_SIZE } from 'baseui/button';
 
 import { Toggle } from 'components/Toggle/Toggle';
@@ -44,7 +42,7 @@ import { useUploadProfiles } from 'utils/hooks/useUploadProfiles';
 export const useReleaseWizardModal = ModalManager<void, null>(null);
 
 export const ReleaseWizardModal = () => {
-  const [css, theme] = useStyletron();
+  const [, theme] = useStyletron();
   const [isOpen, , , onClose] = useReleaseWizardModal();
   const [, , openTerminal] = useTerminalModal();
 
@@ -176,48 +174,6 @@ export const ReleaseWizardModal = () => {
       publishMediaRelease: clonedConfig.publishMediaRelease,
     });
   });
-
-  const additionalTableStyle = React.useMemo(
-    () =>
-      css({
-        height: 'min-content !important',
-        maxHeight: '270px',
-      }),
-    [css]
-  );
-
-  const headerStyle = React.useMemo(
-    () =>
-      css({
-        top: '300px',
-        display: 'contents',
-        position: 'sticky',
-      }),
-    [css]
-  );
-
-  const unitStyle = React.useMemo(
-    () =>
-      css({
-        paddingTop: '8px !important',
-        paddingBottom: '8px !important',
-        paddingLeft: '12px !important',
-        paddingRight: '12px !important',
-        display: 'flex',
-        alignItems: 'center',
-      }),
-    [css]
-  );
-
-  const gridTemplateRowStyles = React.useMemo(
-    () =>
-      css({
-        gridTemplateRows: `repeat(${
-          bundleProfiles.result?.length ?? 0 + 1
-        }, min-content)`,
-      }),
-    [css, bundleProfiles.result?.length]
-  );
 
   return (
     <Modal
@@ -372,35 +328,12 @@ export const ReleaseWizardModal = () => {
                   platforms, such as Web, Windows, macOS, Android, and iOS.
                 </ParagraphSmall>
                 <RecativeBlock paddingTop="4px">
-                  <StyledTable
-                    role="grid"
-                    className={cn(additionalTableStyle, gridTemplateRowStyles)}
-                    $gridTemplateColumns="min-content min-content auto"
-                  >
-                    <RecativeBlock
-                      id="checker"
-                      className={headerStyle}
-                      role="row"
-                    >
-                      <StyledHeadCell
-                        className={unitStyle}
-                        $sticky
-                      ></StyledHeadCell>
-                      <StyledHeadCell className={unitStyle} $sticky>
-                        <LabelSmall>Profile</LabelSmall>
-                      </StyledHeadCell>
-                      <StyledHeadCell className={unitStyle} $sticky>
-                        <LabelSmall>Extension #</LabelSmall>
-                      </StyledHeadCell>
-                    </RecativeBlock>
-
-                    <ProfileTable
-                      profiles={formattedBundleProfiles}
-                      height="270px"
-                      value={selectedBundleProfile}
-                      onChange={setSelectedBundleProfile}
-                    />
-                  </StyledTable>
+                  <ProfileTable
+                    profiles={formattedBundleProfiles}
+                    height="270px"
+                    value={selectedBundleProfile}
+                    onChange={setSelectedBundleProfile}
+                  />
                 </RecativeBlock>
               </ModalBody>
             </>
