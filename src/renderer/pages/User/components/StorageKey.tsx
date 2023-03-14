@@ -8,7 +8,7 @@ import { StorageIconMetadataOutline } from 'components/Icons/StorageIconMetadata
 import { parseStorageKey, StorageType } from '../utils/parseStorageKey';
 
 export interface IStorageKeyProps {
-  key?: string;
+  storageKey?: string;
   id?: string;
   comment?: string;
 }
@@ -34,7 +34,7 @@ const ComplexRow: React.FC<IComplexRowProps> = ({ title, value, Icon }) => {
 };
 
 const InternalStorageKey: React.FC<IStorageKeyProps> = (props) => {
-  const { key, id, comment } = props;
+  const { storageKey: key, id, comment } = props;
 
   const parsedKey = React.useMemo(
     () => parseStorageKey(key ?? id, comment),

@@ -18,10 +18,12 @@ import { useEvent } from 'utils/hooks/useEvent';
 import { ModalManager } from 'utils/hooks/useModalManager';
 import {
   useFormChangeCallbacks,
-  useOnChangeEventWrapperForBooleanType,
+  useOnChangeEventWrapperForCheckboxType,
 } from 'utils/hooks/useFormChangeCallbacks';
 import { Checkbox } from 'baseui/checkbox';
+import { ProfileTable } from 'components/ProfileTable/ProfileTable';
 import { useTerminalModal } from 'components/Terminal/TerminalModal';
+import { useUploadProfiles } from 'utils/hooks/useUploadProfiles';
 
 export const useConfirmCreateBackupModal = ModalManager<unknown, null>(null);
 
@@ -36,14 +38,20 @@ export const ConfirmCreateBackupModal: React.FC = () => {
   const [clonedConfig, valueChangeCallbacks, ,] =
     useFormChangeCallbacks(INITIAL_FORM_VALUE);
 
-  const handlePublishChange = useOnChangeEventWrapperForBooleanType(
+  const handlePublishChange = useOnChangeEventWrapperForCheckboxType(
     valueChangeCallbacks.doPublish
   );
+
+  const [uploadProfiles, selectedUploadProfile, setSelectedUploadProfile] =
+    useUploadProfiles();
 
   const handleSubmit = useEvent(() => {
     onClose();
     void openTerminal('createDatabaseBackup');
-    void server.uploadDatabaseBackup(clonedConfig.doPublish);
+    void server.uploadDatabaseBackup(
+      clonedConfig.doPublish,
+      selectedUploadProfile
+    );
   });
 
   return (
@@ -70,6 +78,18 @@ export const ConfirmCreateBackupModal: React.FC = () => {
                 Publish all media resource before backing up
               </RecativeBlock>
             </Checkbox>
+          </RecativeBlock>
+          <RecativeBlock marginTop="16px">
+            {clonedConfig.doPublish && (
+              <RecativeBlock paddingTop="4px">
+                <ProfileTable
+                  profiles={uploadProfiles.result}
+                  height="260px"
+                  value={selectedUploadProfile}
+                  onChange={setSelectedUploadProfile}
+                />
+              </RecativeBlock>
+            )}
           </RecativeBlock>
         </RecativeBlock>
       </ModalBody>

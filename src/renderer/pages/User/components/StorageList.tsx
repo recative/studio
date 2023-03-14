@@ -84,8 +84,9 @@ export const StorageList: React.FC<IPermissionListProps> = ({
         key: storage.key,
         formattedKey: (
           <StorageKey
-            id={storage.key}
             key={storage.key}
+            id={storage.key}
+            storageKey={storage.key}
             comment={storage.comment}
           />
         ),
