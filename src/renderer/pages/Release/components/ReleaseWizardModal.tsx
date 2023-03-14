@@ -14,20 +14,18 @@ import {
   SIZE as MODAL_SIZE,
 } from 'baseui/modal';
 import { FormControl } from 'baseui/form-control';
+import { LABEL_PLACEMENT } from 'baseui/checkbox';
 import { Radio, RadioGroup } from 'baseui/radio';
 import { SIZE as SELECT_SIZE } from 'baseui/select';
-import { Checkbox, LABEL_PLACEMENT } from 'baseui/checkbox';
 import { Input, SIZE as INPUT_SIZE } from 'baseui/input';
-import { LabelSmall, LabelXSmall, ParagraphSmall } from 'baseui/typography';
+import { LabelSmall, ParagraphSmall } from 'baseui/typography';
+import { StyledTable, StyledHeadCell } from 'baseui/table-grid';
 import { KIND as BUTTON_KIND, SIZE as BUTTON_SIZE } from 'baseui/button';
-import { StyledTable, StyledHeadCell, StyledBodyCell } from 'baseui/table-grid';
 
 import { Toggle } from 'components/Toggle/Toggle';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { ReleaseWizard } from 'components/Illustrations/ReleaseWizard';
 import { ArrowDownIconOutline } from 'components/Icons/ArrowDownIconOutline';
-
-import { useSelectedProfile } from 'pages/Bundle/components/CreateBundleModal';
 
 import { ModalManager } from 'utils/hooks/useModalManager';
 
@@ -40,29 +38,10 @@ import {
 } from 'utils/hooks/useFormChangeCallbacks';
 import { ISimpleRelease } from '@recative/definitions';
 import { useTerminalModal } from 'components/Terminal/TerminalModal';
+import { ProfileTable } from 'components/ProfileTable/ProfileTable';
+import { useUploadProfiles } from 'utils/hooks/useUploadProfiles';
 
 export const useReleaseWizardModal = ModalManager<void, null>(null);
-
-interface IWrappedCheckbox {
-  checked: boolean;
-  title: string;
-  id: string;
-  onChange: (checked: boolean, id: string) => void;
-}
-
-const WrappedCheckbox: React.FC<IWrappedCheckbox> = ({
-  checked,
-  title,
-  id,
-  onChange,
-}) => {
-  const handleChange = useEvent(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(event.currentTarget.checked, id);
-    }
-  );
-  return <Checkbox title={title} checked={checked} onChange={handleChange} />;
-};
 
 export const ReleaseWizardModal = () => {
   const [css, theme] = useStyletron();
@@ -155,6 +134,29 @@ export const ReleaseWizardModal = () => {
     setStep((x) => x - 1);
   });
 
+  const [bundleProfiles, profilesActions] = useAsync(server.listBundleProfile);
+
+  const formattedBundleProfiles = React.useMemo(() => {
+    if (!bundleProfiles.result) return bundleProfiles.result;
+
+    return bundleProfiles.result.map(({ id, label, bundleExtensionId }) => ({
+      id,
+      label,
+      extensionId: bundleExtensionId,
+    }));
+  }, [bundleProfiles.result]);
+
+  React.useEffect(() => {
+    profilesActions.execute();
+  }, [profilesActions, profilesActions.execute]);
+
+  const [selectedBundleProfile, setSelectedBundleProfile] = React.useState<
+    string[]
+  >([]);
+
+  const [uploadProfiles, selectedUploadProfile, setSelectedUploadProfile] =
+    useUploadProfiles();
+
   const handleStart = useEvent(() => {
     onClose();
     setStep(0);
@@ -169,18 +171,11 @@ export const ReleaseWizardModal = () => {
         clonedConfig.codeReleaseOption === 'new'
           ? undefined
           : clonedConfig.codeRelease?.id ?? undefined,
-      profileIds: [...selectedProfiles],
+      uploadProfileIds: selectedUploadProfile,
+      bundleProfileIds: selectedBundleProfile,
       publishMediaRelease: clonedConfig.publishMediaRelease,
     });
   });
-
-  const [profiles, profilesActions] = useAsync(server.listBundleProfile);
-
-  React.useEffect(() => {
-    profilesActions.execute();
-  }, [profilesActions, profilesActions.execute]);
-
-  const [selectedProfiles, handleSelectProfile] = useSelectedProfile();
 
   const additionalTableStyle = React.useMemo(
     () =>
@@ -214,30 +209,14 @@ export const ReleaseWizardModal = () => {
     [css]
   );
 
-  const contentUnitStyle = React.useMemo(
-    () =>
-      css({
-        paddingTop: '6px !important',
-        paddingBottom: '6px !important',
-        paddingLeft: '12px !important',
-        paddingRight: '12px !important',
-        lineHeight: '1em',
-        whiteSpace: 'nowrap',
-        display: 'flex',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-      }),
-    [css]
-  );
-
   const gridTemplateRowStyles = React.useMemo(
     () =>
       css({
         gridTemplateRows: `repeat(${
-          profiles.result?.length ?? 0 + 1
+          bundleProfiles.result?.length ?? 0 + 1
         }, min-content)`,
       }),
-    [css, profiles.result?.length]
+    [css, bundleProfiles.result?.length]
   );
 
   return (
@@ -370,6 +349,17 @@ export const ReleaseWizardModal = () => {
                     <LabelSmall>Publish generated media bundle</LabelSmall>
                   </Toggle>
                 </RecativeBlock>
+
+                {clonedConfig.publishMediaRelease && (
+                  <RecativeBlock paddingTop="4px">
+                    <ProfileTable
+                      profiles={uploadProfiles.result}
+                      height="260px"
+                      value={selectedUploadProfile}
+                      onChange={setSelectedUploadProfile}
+                    />
+                  </RecativeBlock>
+                )}
               </ModalBody>
             </>
           )}
@@ -404,33 +394,12 @@ export const ReleaseWizardModal = () => {
                       </StyledHeadCell>
                     </RecativeBlock>
 
-                    {profiles.result?.filter(Boolean).map((profile) => (
-                      <RecativeBlock
-                        key={profile.id}
-                        display="contents"
-                        role="row"
-                      >
-                        <StyledBodyCell className={contentUnitStyle}>
-                          <RecativeBlock
-                            transform="scale(0.75)"
-                            data-profile-id={profile.id}
-                          >
-                            <WrappedCheckbox
-                              id={profile.id}
-                              title={profile.label}
-                              checked={selectedProfiles.has(profile.id)}
-                              onChange={handleSelectProfile}
-                            />
-                          </RecativeBlock>
-                        </StyledBodyCell>
-                        <StyledBodyCell className={contentUnitStyle}>
-                          <LabelXSmall>{profile.label}</LabelXSmall>
-                        </StyledBodyCell>
-                        <StyledBodyCell className={contentUnitStyle}>
-                          <LabelXSmall>{profile.bundleExtensionId}</LabelXSmall>
-                        </StyledBodyCell>
-                      </RecativeBlock>
-                    ))}
+                    <ProfileTable
+                      profiles={formattedBundleProfiles}
+                      height="270px"
+                      value={selectedBundleProfile}
+                      onChange={setSelectedBundleProfile}
+                    />
                   </StyledTable>
                 </RecativeBlock>
               </ModalBody>

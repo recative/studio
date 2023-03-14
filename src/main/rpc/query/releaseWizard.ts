@@ -11,7 +11,8 @@ export interface IReleaseWizardConfig {
   notes: string;
   codeReleaseId?: number;
   mediaReleaseId?: number;
-  profileIds: string[];
+  bundleProfileIds: string[];
+  uploadProfileIds: string[];
   publishMediaRelease: boolean;
 }
 
@@ -20,7 +21,8 @@ export const releaseWizard = async (
     notes,
     codeReleaseId,
     mediaReleaseId,
-    profileIds,
+    uploadProfileIds,
+    bundleProfileIds,
     publishMediaRelease,
   }: IReleaseWizardConfig,
   terminalId = 'releaseWizard'
@@ -70,7 +72,7 @@ export const releaseWizard = async (
       await uploadMediaBundle(
         releaseDetail.mediaReleaseId,
         releaseDetail.bundleReleaseId,
-        [],
+        uploadProfileIds,
         terminalId
       );
     }
@@ -82,7 +84,7 @@ export const releaseWizard = async (
     }
 
     return createBundles(
-      profileIds,
+      bundleProfileIds,
       releaseDetail.bundleReleaseId,
       false,
       terminalId

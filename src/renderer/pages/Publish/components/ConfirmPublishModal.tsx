@@ -19,18 +19,18 @@ import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import type { ModalOverrides } from 'baseui/modal';
 import type { ButtonOverrides } from 'baseui/button';
 
+import { ProfileTable } from 'components/ProfileTable/ProfileTable';
+import { InfoIconOutline } from 'components/Icons/InfoIconOutline';
 import { useTerminalModal } from 'components/Terminal/TerminalModal';
+import { Hint, HintParagraph } from 'pages/Setting/components/Hint';
 import { DatabaseIconOutline } from 'components/Icons/DatabaseIconOutline';
 import { ResourceManagerIconOutline } from 'components/Icons/ResourceManagerIconOutline';
 
 import { server } from 'utils/rpc';
 import { ModalManager } from 'utils/hooks/useModalManager';
+import { useUploadProfiles } from 'utils/hooks/useUploadProfiles';
 
 import type { IPublishTasks } from 'utils/IPublishTask';
-import { useAsync } from '@react-hookz/web';
-import { ProfileTable } from 'components/ProfileTable/ProfileTable';
-import { InfoIconOutline } from 'components/Icons/InfoIconOutline';
-import { Hint, HintParagraph } from 'pages/Setting/components/Hint';
 
 const PUBLISH_TYPE_LIST_STYLE = {
   gap: '6px',
@@ -146,31 +146,25 @@ export const ConfirmPublishModal: React.FC = () => {
   const [selectedDatabaseType, toggleDatabaseType] = useToggle(false);
   const [selectedPostProcessType] = useToggle(false);
 
-  const [uploadProfiles, uploadProfilesActions] = useAsync(async () => {
-    return (await server.listUploadProfile()).map(
-      ({ id, label, uploaderExtensionId }) => ({
-        id,
-        label,
-        extensionId: uploaderExtensionId,
-      })
-    );
-  });
-
-  React.useEffect(() => {
-    void uploadProfilesActions.execute();
-  }, [uploadProfilesActions]);
+  const [uploadProfiles, selectedUploadProfile, setSelectedUploadProfile] =
+    useUploadProfiles();
 
   const publishRequest = React.useMemo<IPublishTasks>(
     () => ({
       mediaBundle: selectedMediaType,
       databaseBundle: selectedDatabaseType,
       postProcessTest: selectedPostProcessType,
+      uploadProfileIds: selectedUploadProfile,
     }),
-    [selectedDatabaseType, selectedMediaType, selectedPostProcessType]
+    [
+      selectedDatabaseType,
+      selectedMediaType,
+      selectedPostProcessType,
+      selectedUploadProfile,
+    ]
   );
 
   const handleSubmit = usePublishBundleCallback(publishRequest);
-  const [uploaderProfiles, setUploaderProfiles] = React.useState<string[]>([]);
 
   return (
     <Modal
@@ -215,8 +209,8 @@ export const ConfirmPublishModal: React.FC = () => {
         <ProfileTable
           profiles={uploadProfiles.result}
           height="210px"
-          value={uploaderProfiles}
-          onChange={setUploaderProfiles}
+          value={selectedUploadProfile}
+          onChange={setSelectedUploadProfile}
         />
       </ModalBody>
       <ModalFooter>

@@ -1,7 +1,5 @@
 import * as React from 'react';
-import { useEvent } from 'utils/hooks/useEvent';
 
-import { useAsync } from '@react-hookz/web';
 import { useStyletron } from 'styletron-react';
 
 import {
@@ -18,9 +16,12 @@ import { KIND as BUTTON_KIND } from 'baseui/button';
 import { EmptySpace } from 'components/EmptyState/EmptyState';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
 import { useTerminalModal } from 'components/Terminal/TerminalModal';
+import { useProfileChangeCallback } from 'components/ProfileTable/ProfileTable';
 
-import { ModalManager } from 'utils/hooks/useModalManager';
 import { server } from 'utils/rpc';
+import { useEvent } from 'utils/hooks/useEvent';
+import { ModalManager } from 'utils/hooks/useModalManager';
+import { useUploadProfiles } from 'utils/hooks/useUploadProfiles';
 
 import { BundleOptionItem } from './BundleOptionItem';
 
@@ -32,68 +33,39 @@ const ulStyles = {
 
 export const useCreateBundleModal = ModalManager<number, null>(null);
 
-export const useSelectedProfile = () => {
-  const [selectedProfiles, setSelectedProfiles] = React.useState(
-    () =>
-      new Set(
-        (localStorage.getItem('@recative/studio/selectedProfile') ?? '')
-          .split(',,,')
-          .filter(Boolean)
-      )
-  );
-
-  const handleSelectProfile = React.useCallback(
-    (checked: boolean, id: string) => {
-      if (checked) {
-        selectedProfiles.add(id);
-      } else {
-        selectedProfiles.delete(id);
-      }
-
-      setSelectedProfiles(new Set(selectedProfiles));
-
-      localStorage.setItem(
-        '@recative/studio/selectedProfile',
-        Array.from(selectedProfiles).join(',,,')
-      );
-    },
-    [selectedProfiles]
-  );
-
-  return [selectedProfiles, handleSelectProfile] as const;
-};
-
 export const CreateBundleModal: React.FC = () => {
   const [, , openTerminal] = useTerminalModal();
 
-  const [profiles, profilesActions] = useAsync(server.listBundleProfile);
-
-  const profileIds = React.useMemo(() => {
-    return profiles.result?.map((profile) => profile.id) ?? [];
-  }, [profiles.result]);
+  const [uploadProfiles, selectedUploadProfile, setSelectedUploadProfile] =
+    useUploadProfiles();
 
   const [css] = useStyletron();
   const [showBundleOption, data, , onClose] = useCreateBundleModal();
 
-  React.useEffect(() => {
-    void profilesActions.execute();
-  }, [profilesActions, profilesActions.execute]);
+  const candidates = React.useMemo(
+    () => uploadProfiles.result?.map((x) => x.id) ?? [],
+    [uploadProfiles.result]
+  );
 
-  const [selectedProfiles, handleSelectProfile] = useSelectedProfile();
+  const handleChange = useProfileChangeCallback(
+    candidates,
+    selectedUploadProfile,
+    setSelectedUploadProfile
+  );
 
   const handleSubmit = useEvent(() => {
     if (data === null) {
       return;
     }
-    void server.createBundles(
-      Array.from(selectedProfiles).filter((x) => profileIds.includes(x)),
-      data
-    );
+    void server.createBundles(selectedUploadProfile, data);
     void openTerminal('createBundles');
     onClose();
   });
 
-  if (profiles.status === 'not-executed' || profiles.status === 'loading') {
+  if (
+    uploadProfiles.status === 'not-executed' ||
+    uploadProfiles.status === 'loading'
+  ) {
     return null;
   }
 
@@ -109,17 +81,17 @@ export const CreateBundleModal: React.FC = () => {
     >
       <ModalHeader>Create Bundle</ModalHeader>
       <ModalBody>
-        {profiles.result?.length ? (
+        {uploadProfiles.result?.length ? (
           <ul className={css(ulStyles)}>
-            {profiles.result?.map((x) => {
+            {uploadProfiles.result?.map((x) => {
               return (
                 <BundleOptionItem
                   key={x.id}
                   title={x.label}
-                  description={x.bundleExtensionId}
+                  description={x.extensionId}
                   id={x.id}
-                  value={selectedProfiles.has(x.id)}
-                  onChange={handleSelectProfile}
+                  value={selectedUploadProfile.includes(x.id)}
+                  onChange={handleChange}
                 />
               );
             })}

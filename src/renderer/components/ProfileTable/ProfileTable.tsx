@@ -11,11 +11,24 @@ import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { useEvent } from 'utils/hooks/useEvent';
 
+export type OnChange = (checked: boolean, id: string) => void;
+
+export const useOnChangeCallback = (
+  id: string,
+  checked: boolean,
+  onChange: OnChange
+) => {
+  const handleChange = useEvent(() => {
+    onChange(!checked, id);
+  });
+
+  return handleChange;
+};
 interface IWrappedCheckbox {
   checked: boolean;
   title: string;
   id: string;
-  onChange: (checked: boolean, id: string) => void;
+  onChange: OnChange;
 }
 
 const WrappedCheckbox: React.FC<IWrappedCheckbox> = ({
@@ -24,12 +37,31 @@ const WrappedCheckbox: React.FC<IWrappedCheckbox> = ({
   id,
   onChange,
 }) => {
-  const handleChange = useEvent(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(event.currentTarget.checked, id);
-    }
-  );
+  const handleChange = useOnChangeCallback(id, checked, onChange);
   return <Checkbox title={title} checked={checked} onChange={handleChange} />;
+};
+
+export interface ITableCell {
+  checked: boolean;
+  id: string;
+  onChange: (checked: boolean, id: string) => void;
+}
+
+const TableCell: React.FC<React.PropsWithChildren<ITableCell>> = ({
+  checked,
+  id,
+  onChange,
+  children,
+}) => {
+  const handleChange = useOnChangeCallback(id, checked, onChange);
+
+  return (
+    <RecativeBlock onClick={handleChange} cursor="pointer">
+      <LabelXSmall whiteSpace="nowrap" paddingTop="4px" paddingBottom="4px">
+        {children}
+      </LabelXSmall>
+    </RecativeBlock>
+  );
 };
 
 const tableStyle = {
@@ -71,6 +103,26 @@ export interface IProfileTable {
   onChange: (x: string[]) => void;
 }
 
+export const useProfileChangeCallback = (
+  candidates: string[],
+  value: string[],
+  onChange: (x: string[]) => void
+) => {
+  const candidateSet = React.useMemo(() => new Set(candidates), [candidates]);
+
+  const handleSelectProfile = useEvent((checked: boolean, id: string) => {
+    const result = value.filter((x) => candidateSet.has(x));
+
+    if (checked) {
+      return onChange([...result, id]);
+    }
+
+    return onChange(result.filter((x) => x !== id));
+  });
+
+  return handleSelectProfile;
+};
+
 export const ProfileTable: React.FC<IProfileTable> = React.memo(
   ({ profiles, height = '-webkit-fill-available', value, onChange }) => {
     const [css] = useStyletron();
@@ -82,13 +134,10 @@ export const ProfileTable: React.FC<IProfileTable> = React.memo(
       [height]
     );
 
-    const profileIds = React.useMemo(() => {
-      const result = new Set<string>();
-
-      profiles?.forEach(({ id }) => result.add(id));
-
-      return result;
-    }, [profiles]);
+    const profileIds = React.useMemo(
+      () => profiles?.map((x) => x.id) ?? [],
+      [profiles]
+    );
 
     const gridTemplateRowStyles = React.useMemo(
       () =>
@@ -98,15 +147,11 @@ export const ProfileTable: React.FC<IProfileTable> = React.memo(
       [css, profiles?.length]
     );
 
-    const handleSelectProfile = useEvent((checked: boolean, id: string) => {
-      const result = value.filter((x) => profileIds.has(x));
-
-      if (checked) {
-        return onChange([...result, id]);
-      }
-
-      return onChange(result.filter((x) => x !== id));
-    });
+    const handleSelectProfile = useProfileChangeCallback(
+      profileIds,
+      value,
+      onChange
+    );
 
     return (
       <RecativeBlock>
@@ -146,14 +191,22 @@ export const ProfileTable: React.FC<IProfileTable> = React.memo(
                 </RecativeBlock>
               </StyledBodyCell>
               <StyledBodyCell className={css(contentUnitStyle)}>
-                <LabelXSmall whiteSpace="nowrap" paddingTop="4px">
+                <TableCell
+                  id={profile.id}
+                  checked={value.includes(profile.id)}
+                  onChange={handleSelectProfile}
+                >
                   {profile.label}
-                </LabelXSmall>
+                </TableCell>
               </StyledBodyCell>
               <StyledBodyCell className={css(contentUnitStyle)}>
-                <LabelXSmall whiteSpace="nowrap" paddingTop="4px">
+                <TableCell
+                  id={profile.id}
+                  checked={value.includes(profile.id)}
+                  onChange={handleSelectProfile}
+                >
                   {profile.extensionId}
-                </LabelXSmall>
+                </TableCell>
               </StyledBodyCell>
             </RecativeBlock>
           ))}

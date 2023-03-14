@@ -393,10 +393,11 @@ export const recoverBackup = async (storageId: string, joinMode: JoinMode) => {
 
 export const uploadDatabaseBackup = async (
   publishMedia: boolean,
+  uploadProfileIds: string[],
   terminalId = 'createDatabaseBackup'
 ) => {
   if (publishMedia) {
-    await uploadMediaBundle(null, undefined, [], terminalId);
+    await uploadMediaBundle(null, undefined, uploadProfileIds, terminalId);
   }
 
   await uploadDatabaseBackupBundle(null);

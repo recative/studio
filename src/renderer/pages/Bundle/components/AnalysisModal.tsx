@@ -1,9 +1,12 @@
 import * as React from 'react';
 
 import { useAsync } from '@react-hookz/web';
+import { useStyletron } from 'styletron-react';
 
 import { Chart, ChartOptions } from 'react-charts';
 
+import { Spinner } from 'baseui/spinner';
+import { ButtonGroup, MODE as BUTTON_GROUP_MODE } from 'baseui/button-group';
 import {
   Modal,
   ModalBody,
@@ -14,22 +17,21 @@ import {
   ROLE,
   SIZE,
 } from 'baseui/modal';
-import { Spinner } from 'baseui/spinner';
-import { ButtonGroup, MODE as BUTTON_GROUP_MODE } from 'baseui/button-group';
 import {
   Button,
   KIND as BUTTON_KIND,
   SIZE as BUTTON_SIZE,
 } from 'baseui/button';
 
-import { ModalManager } from 'utils/hooks/useModalManager';
+import { RecativeBlock } from 'components/Block/RecativeBlock';
 
 import { server } from 'utils/rpc';
 import { useEvent } from 'utils/hooks/useEvent';
-import { useStyletron } from 'styletron-react';
-import { RecativeBlock } from 'components/Block/RecativeBlock';
+import { ModalManager } from 'utils/hooks/useModalManager';
+import { useBundleProfiles } from 'utils/hooks/useBundleProfiles';
+import { useProfileChangeCallback } from 'components/ProfileTable/ProfileTable';
+
 import { BundleOptionItem } from './BundleOptionItem';
-import { useSelectedProfile } from './CreateBundleModal';
 
 const modalOverrides: ModalOverrides = {
   Dialog: {
@@ -61,25 +63,27 @@ const DATA_TYPE = ['count', 'size'] as const;
 export const AnalysisModal: React.FC = () => {
   const [css] = useStyletron();
 
-  const [profiles, profilesActions] = useAsync(server.listBundleProfile);
+  const [bundleProfiles, selectedBundleProfile, setSelectedBundleProfile] =
+    useBundleProfiles();
 
-  const profileIds = React.useMemo(() => {
-    return profiles.result?.map((profile) => profile.id) ?? [];
-  }, [profiles.result]);
+  const candidates = React.useMemo(
+    () => bundleProfiles.result?.map((x) => x.id) ?? [],
+    [bundleProfiles.result]
+  );
+
+  const handleSelectedBundleProfileChange = useProfileChangeCallback(
+    candidates,
+    selectedBundleProfile,
+    setSelectedBundleProfile
+  );
 
   const [showAnalysisModal, data, , onClose] = useAnalysisModal();
-
-  const [selectedProfiles, handleSelectProfile] = useSelectedProfile();
-
-  React.useEffect(() => {
-    void profilesActions.execute();
-  }, [profilesActions, profilesActions.execute]);
 
   const getBundleAnalysis = useEvent(async () => {
     if (!data) return null;
 
     const report = await server.createBundles(
-      Array.from(selectedProfiles).filter((x) => profileIds.includes(x)),
+      selectedBundleProfile,
       data,
       true as const
     );
@@ -207,15 +211,15 @@ export const AnalysisModal: React.FC = () => {
         <>
           <ModalBody>
             <ul className={css(ulStyles)}>
-              {profiles.result?.map((x) => {
+              {bundleProfiles.result?.map((x) => {
                 return (
                   <BundleOptionItem
                     key={x.id}
                     title={x.label}
-                    description={x.bundleExtensionId}
+                    description={x.extensionId}
                     id={x.id}
-                    value={selectedProfiles.has(x.id)}
-                    onChange={handleSelectProfile}
+                    value={selectedBundleProfile.includes(x.id)}
+                    onChange={handleSelectedBundleProfileChange}
                   />
                 );
               })}

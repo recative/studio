@@ -7,7 +7,6 @@ export * from './deploy';
 export * from './upload';
 export * from './project';
 export * from './episode';
-export * from './publish';
 export * from './release';
 export * from './setting';
 export * from './preview';

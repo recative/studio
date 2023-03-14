@@ -33,7 +33,12 @@ import { IPublishTasks } from '../../../utils/IPublishTask';
  */
 export const uploadBundle = async (
   id: number | null,
-  { mediaBundle, databaseBundle, postProcessTest }: IPublishTasks,
+  {
+    mediaBundle,
+    databaseBundle,
+    postProcessTest,
+    uploadProfileIds,
+  }: IPublishTasks,
   terminalId = 'uploadBundle'
 ) => {
   if (terminalId === 'uploadBundle') {
@@ -94,7 +99,7 @@ export const uploadBundle = async (
       const mediaTaskQueue = await uploadMediaBundle(
         mediaReleaseId,
         targetRelease.id,
-        [],
+        uploadProfileIds,
         terminalId
       );
 
