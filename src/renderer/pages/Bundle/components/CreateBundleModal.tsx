@@ -23,6 +23,7 @@ import { useEvent } from 'utils/hooks/useEvent';
 import { ModalManager } from 'utils/hooks/useModalManager';
 import { useUploadProfiles } from 'utils/hooks/useUploadProfiles';
 
+import { useBundleProfiles } from 'utils/hooks/useBundleProfiles';
 import { BundleOptionItem } from './BundleOptionItem';
 
 const ulStyles = {
@@ -36,35 +37,35 @@ export const useCreateBundleModal = ModalManager<number, null>(null);
 export const CreateBundleModal: React.FC = () => {
   const [, , openTerminal] = useTerminalModal();
 
-  const [uploadProfiles, selectedUploadProfile, setSelectedUploadProfile] =
-    useUploadProfiles();
+  const [bundleProfiles, selectedBundleProfile, setSelectedBundleProfile] =
+    useBundleProfiles();
 
   const [css] = useStyletron();
   const [showBundleOption, data, , onClose] = useCreateBundleModal();
 
   const candidates = React.useMemo(
-    () => uploadProfiles.result?.map((x) => x.id) ?? [],
-    [uploadProfiles.result]
+    () => bundleProfiles.result?.map((x) => x.id) ?? [],
+    [bundleProfiles.result]
   );
 
   const handleChange = useProfileChangeCallback(
     candidates,
-    selectedUploadProfile,
-    setSelectedUploadProfile
+    selectedBundleProfile,
+    setSelectedBundleProfile
   );
 
   const handleSubmit = useEvent(() => {
     if (data === null) {
       return;
     }
-    void server.createBundles(selectedUploadProfile, data);
+    void server.createBundles(selectedBundleProfile, data);
     void openTerminal('createBundles');
     onClose();
   });
 
   if (
-    uploadProfiles.status === 'not-executed' ||
-    uploadProfiles.status === 'loading'
+    bundleProfiles.status === 'not-executed' ||
+    bundleProfiles.status === 'loading'
   ) {
     return null;
   }
@@ -81,16 +82,16 @@ export const CreateBundleModal: React.FC = () => {
     >
       <ModalHeader>Create Bundle</ModalHeader>
       <ModalBody>
-        {uploadProfiles.result?.length ? (
+        {bundleProfiles.result?.length ? (
           <ul className={css(ulStyles)}>
-            {uploadProfiles.result?.map((x) => {
+            {bundleProfiles.result?.map((x) => {
               return (
                 <BundleOptionItem
                   key={x.id}
                   title={x.label}
                   description={x.extensionId}
                   id={x.id}
-                  value={selectedUploadProfile.includes(x.id)}
+                  value={selectedBundleProfile.includes(x.id)}
                   onChange={handleChange}
                 />
               );
