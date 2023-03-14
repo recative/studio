@@ -14,7 +14,7 @@ import {
   SIZE,
 } from 'baseui/modal';
 import { RecativeBlock } from 'components/Block/RecativeBlock';
-import { LabelSmall, LabelXSmall } from 'baseui/typography';
+import { LabelMedium, LabelSmall, LabelXSmall } from 'baseui/typography';
 import { Button, KIND as BUTTON_KIND } from 'baseui/button';
 import type { ModalOverrides } from 'baseui/modal';
 import type { ButtonOverrides } from 'baseui/button';
@@ -29,6 +29,8 @@ import { ModalManager } from 'utils/hooks/useModalManager';
 import type { IPublishTasks } from 'utils/IPublishTask';
 import { useAsync } from '@react-hookz/web';
 import { ProfileTable } from 'components/ProfileTable/ProfileTable';
+import { InfoIconOutline } from 'components/Icons/InfoIconOutline';
+import { Hint, HintParagraph } from 'pages/Setting/components/Hint';
 
 const PUBLISH_TYPE_LIST_STYLE = {
   gap: '6px',
@@ -61,7 +63,7 @@ const modalOverrides: ModalOverrides = {
   Dialog: {
     style: {
       width: '640px',
-      height: '80vh',
+      height: '620px',
     },
   },
 };
@@ -183,13 +185,13 @@ export const ConfirmPublishModal: React.FC = () => {
     >
       <ModalHeader>Publish Bundle</ModalHeader>
       <ModalBody>
-        <RecativeBlock>
-          <p>
+        <Hint Artwork={InfoIconOutline}>
+          <HintParagraph>
             We will publish your bundle to the cloud service providers, please
             do not close this window while the publish action is in progress.
-          </p>
-          <p>Please select bundles you want to publish:</p>
-        </RecativeBlock>
+          </HintParagraph>
+        </Hint>
+        <LabelMedium>Bundle Type</LabelMedium>
         <RecativeBlock
           className={css(PUBLISH_TYPE_LIST_STYLE)}
           display="grid"
@@ -206,8 +208,13 @@ export const ConfirmPublishModal: React.FC = () => {
             onClick={toggleDatabaseType}
           />
         </RecativeBlock>
+
+        <LabelMedium paddingTop="12px" paddingBottom="8px">
+          Upload Profiles
+        </LabelMedium>
         <ProfileTable
           profiles={uploadProfiles.result}
+          height="210px"
           value={uploaderProfiles}
           onChange={setUploaderProfiles}
         />

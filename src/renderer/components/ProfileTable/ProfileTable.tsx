@@ -1,4 +1,5 @@
 import * as React from 'react';
+import cn from 'classnames';
 
 import { useStyletron } from 'styletron-react';
 
@@ -33,8 +34,6 @@ const WrappedCheckbox: React.FC<IWrappedCheckbox> = ({
 
 const tableStyle = {
   top: '300px',
-  height: 'min-content !important',
-  maxHeight: '270px',
 } as const;
 
 const headerStyle = {
@@ -53,6 +52,7 @@ const unitStyle = {
 } as const;
 
 const contentUnitStyle = {
+  height: 'min-content',
   paddingTop: '6px !important',
   paddingBottom: '6px !important',
   paddingLeft: '12px !important',
@@ -66,13 +66,21 @@ const contentUnitStyle = {
 
 export interface IProfileTable {
   profiles?: { id: string; label: string; extensionId: string }[];
+  height?: string;
   value: string[];
   onChange: (x: string[]) => void;
 }
 
 export const ProfileTable: React.FC<IProfileTable> = React.memo(
-  ({ profiles, value, onChange }) => {
+  ({ profiles, height = '-webkit-fill-available', value, onChange }) => {
     const [css] = useStyletron();
+
+    const heightStyle = React.useMemo(
+      () => ({
+        height,
+      }),
+      [height]
+    );
 
     const profileIds = React.useMemo(() => {
       const result = new Set<string>();
@@ -81,6 +89,14 @@ export const ProfileTable: React.FC<IProfileTable> = React.memo(
 
       return result;
     }, [profiles]);
+
+    const gridTemplateRowStyles = React.useMemo(
+      () =>
+        css({
+          gridTemplateRows: `repeat(${profiles?.length ?? 0 + 1}, min-content)`,
+        }),
+      [css, profiles?.length]
+    );
 
     const handleSelectProfile = useEvent((checked: boolean, id: string) => {
       const result = value.filter((x) => profileIds.has(x));
@@ -96,8 +112,13 @@ export const ProfileTable: React.FC<IProfileTable> = React.memo(
       <RecativeBlock>
         <StyledTable
           role="grid"
-          className={css(tableStyle)}
+          className={cn(
+            css(tableStyle),
+            css(heightStyle),
+            gridTemplateRowStyles
+          )}
           $gridTemplateColumns="max-content min-content auto"
+          $gridTemplateRows="min-content"
         >
           <RecativeBlock id="checker" className={css(headerStyle)} role="row">
             <StyledHeadCell className={css(unitStyle)} $sticky></StyledHeadCell>
@@ -111,7 +132,7 @@ export const ProfileTable: React.FC<IProfileTable> = React.memo(
 
           {profiles?.filter(Boolean).map((profile) => (
             <RecativeBlock key={profile.id} display="contents" role="row">
-              <StyledBodyCell className={contentUnitStyle}>
+              <StyledBodyCell className={css(contentUnitStyle)}>
                 <RecativeBlock
                   transform="scale(0.75)"
                   data-profile-id={profile.id}
@@ -124,12 +145,12 @@ export const ProfileTable: React.FC<IProfileTable> = React.memo(
                   />
                 </RecativeBlock>
               </StyledBodyCell>
-              <StyledBodyCell className={contentUnitStyle}>
+              <StyledBodyCell className={css(contentUnitStyle)}>
                 <LabelXSmall whiteSpace="nowrap" paddingTop="4px">
                   {profile.label}
                 </LabelXSmall>
               </StyledBodyCell>
-              <StyledBodyCell className={contentUnitStyle}>
+              <StyledBodyCell className={css(contentUnitStyle)}>
                 <LabelXSmall whiteSpace="nowrap" paddingTop="4px">
                   {profile.extensionId}
                 </LabelXSmall>
