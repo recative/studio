@@ -107,7 +107,7 @@ export const Series: React.FC = () => {
 
   return (
     <PivotLayout>
-      <ContentContainer width={1000}>
+      <ContentContainer width={800}>
         <ToasterContainer
           autoHideDuration={3000}
           placement={PLACEMENT.bottomRight}
@@ -180,7 +180,11 @@ export const Series: React.FC = () => {
             />
           </FormControl>
         </RecativeBlock>
-        <RecativeBlock display="flex" justifyContent="flex-end">
+        <RecativeBlock
+          display="flex"
+          justifyContent="flex-end"
+          marginBottom="24px"
+        >
           <Button
             disabled={databaseLocked}
             onClick={async () => {

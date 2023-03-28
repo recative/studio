@@ -52,7 +52,7 @@ export const getResourceListOfEpisode = async (
 
   const logPerformance = PerformanceLog(episodeId);
 
-  const mediaBundleId =
+  const mediaBundleId: number | undefined =
     typeof db.additionalData.mediaBundleId === 'number'
       ? db.additionalData.mediaBundleId
       : db0.release.mediaReleases
@@ -60,7 +60,7 @@ export const getResourceListOfEpisode = async (
           .simplesort('id', { desc: true })
           .limit(1)
           .find({})
-          .data()[0].id;
+          .data()[0]?.id;
 
   logPerformance('init');
 
