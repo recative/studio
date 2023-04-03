@@ -34,7 +34,7 @@ export const ifResourceIncludedInBundle = (
 
   const l = resource.tags.length;
   for (let i = 0; i < l; i += 1) {
-    if (profile.excludedResourceTags.indexOf(resource.tags[i]) > -1) {
+    if (profile.excludedResourceTags?.indexOf(resource.tags[i]) > -1) {
       return false;
     }
   }
